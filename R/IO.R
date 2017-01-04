@@ -85,6 +85,45 @@ setMethod(f="readMetaInfo",signature=signature(x= "FreesurferAsciiSurfaceFileDes
           })
 
 
+.readMetaInfo <- function(desc, fileName, readFunc, constructor) {
+
+  hfile <- headerFile(desc, fileName)
+  header <- readFunc(hfile)
+  header$fileName <- hfile
+  constructor(desc, header)
+}
+
+#' @rdname dataReader-methods
+setMethod(f="dataReader", signature=signature("SurfaceGeometryMetaInfo"),
+          def=function(x) {
+            reader <- function(i) {
+              if (length(i) == 1 && i == 0) {
+                x@nodeIndices
+              } else {
+                x@data[,i,drop=FALSE]
+              }
+            }
+
+            new("ColumnReader", nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
+          })
+
+#' @rdname dataReader-methods
+setMethod(f="dataReader", signature=signature("NIMLSurfaceDataMetaInfo"),
+          def=function(x) {
+            reader <- function(i) {
+              if (length(i) == 1 && i == 0) {
+                x@nodeIndices
+              } else {
+                x@data[,i,drop=FALSE]
+              }
+            }
+
+            new("ColumnReader", nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
+          })
+
+
+
+
 findDescriptor <- function(fileName) {
   if (fileMatches(NIML_SURFACE_DSET, fileName)) NIML_SURFACE_DSET
   else if (fileMatches(FREESURFER_ASCII_SURFACE_DSET, fileName)) FREESURFER_ASCII_SURFACE_DSET
@@ -113,4 +152,100 @@ FREESURFER_ASCII_SURFACE_DSET <- new("FreesurferAsciiSurfaceFileDescriptor",
                                      dataEncoding="raw",
                                      dataExtension="asc")
 
+
+
+#' Constructor for \code{\linkS4class{SurfaceGeometryMetaInfo}} class
+#' @param descriptor the file descriptor
+#' @param header a \code{list} containing header information
+FreesurferSurfaceGeometryMetaInfo <- function(descriptor, header) {
+  stopifnot(is.numeric(header$vertices))
+  stopifnot(is.numeric(header$faces))
+
+
+  new("FreesurferSurfaceGeometryMetaInfo",
+      headerFile=header$headerFile,
+      dataFile=header$dataFile,
+      fileDescriptor=descriptor,
+      vertices=as.integer(header$vertices),
+      faces=as.integer(header$faces),
+      label=as.character(header$label),
+      embedDimension=as.integer(header$embedDimension))
+}
+
+
+
+#' Constructor for \code{\linkS4class{SurfaceDataMetaInfo}} class
+#' @param descriptor the file descriptor
+#' @param header a \code{list} containing header information
+SurfaceDataMetaInfo <- function(descriptor, header) {
+  stopifnot(is.numeric(header$nodes))
+
+  new("SurfaceDataMetaInfo",
+      headerFile=header$headerFile,
+      dataFile=header$dataFile,
+      fileDescriptor=descriptor,
+      nodeCount=as.integer(header$nodes),
+      nels=as.integer(header$nels),
+      label=as.character(header$label))
+}
+
+#' Constructor for \code{\linkS4class{NIMLSurfaceDataMetaInfo}} class
+#' @param descriptor the file descriptor
+#' @param header a \code{list} containing header information
+#'
+NIMLSurfaceDataMetaInfo <- function(descriptor, header) {
+  stopifnot(is.numeric(header$nodes))
+
+  new("NIMLSurfaceDataMetaInfo",
+      headerFile=header$headerFile,
+      dataFile=header$dataFile,
+      fileDescriptor=descriptor,
+      nodeCount=as.integer(header$nodeCount),
+      nels=as.integer(header$nels),
+      label=as.character(header$label),
+      data=header$data,
+      nodeIndices=header$nodes)
+}
+
+#' Constructor for \code{\linkS4class{AFNISurfaceDataMetaInfo}} class
+#' @param descriptor the file descriptor
+#' @param header a \code{list} containing header information
+#'
+AFNISurfaceDataMetaInfo <- function(descriptor, header) {
+  stopifnot(is.numeric(header$nodes))
+
+  new("NIMLSurfaceDataMetaInfo",
+      headerFile=header$headerFile,
+      dataFile=header$dataFile,
+      fileDescriptor=descriptor,
+      nodeCount=as.integer(header$nodeCount),
+      nels=as.integer(header$nels),
+      label=as.character(header$label),
+      data=header$data,
+      nodeIndices=header$nodes)
+}
+
+
+#' show an \code{SurfaceGeometryMetaInfo}
+#' @param object the object
+#' @export
+setMethod(f="show", signature=signature("SurfaceGeometryMetaInfo"),
+          def=function(object) {
+            cat("an instance of class",  class(object), "\n\n")
+            cat("number of vertices:", "\t", object@vertices, "\n")
+            cat("number of faces:", "\t", object@faces, "\n")
+            cat("label:", "\t", object@label, "\n")
+            cat("embed dimension:", "\t", object@embedDimension, "\n")
+          })
+
+#' show an \code{SurfaceDataMetaInfo}
+#' @param object the object
+#' @export
+setMethod(f="show", signature=signature("SurfaceDataMetaInfo"),
+          def=function(object) {
+            cat("an instance of class",  class(object), "\n\n")
+            cat("nodeCount:", "\t", object@nodeCount, "\n")
+            cat("nels:", "\t", object@nels, "\n")
+            cat("label:", "\t", object@label, "\n")
+          })
 
