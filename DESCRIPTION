@@ -1,9 +1,15 @@
 Package: neurosurf
+Imports:
+  neuroim,
+  Matrix,
+  igraph,
+  rgl
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Data structures and IO for surface-based neuroimaging data
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Author: Bradley R. Buchsbaum
+Maintainer: Bradley Buchsbaum <brad.buchsbaum@gmail.com>
+Description: Basic utilties for reading, writing and manipulating neuroimaging
+    organized as a trinagle mesh.
+License: GPL (>= 2)
 LazyData: TRUE
