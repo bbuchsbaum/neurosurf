@@ -13,7 +13,7 @@ setGeneric(name="neighborGraph", def=function(x, radius, edgeWeights, nodes) sta
 #' @rdname vertices-methods
 setGeneric(name="vertices", def=function(x,...) standardGeneric("vertices"))
 
-#' extract surface node indices
+#' extract surface node numbers
 #' @param x the surface object
 #' @rdname nodes-methods
 setGeneric(name="nodes", def=function(x) standardGeneric("nodes"))
