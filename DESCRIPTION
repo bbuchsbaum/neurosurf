@@ -1,9 +1,11 @@
 Package: neurosurf
-Imports:
+Depends:
   neuroim,
+Imports:
   Matrix,
   igraph,
-  rgl
+  rgl,
+  assertthat
 Type: Package
 Title: Data structures and IO for surface-based neuroimaging data
 Version: 0.1.0

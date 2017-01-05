@@ -57,8 +57,9 @@ SurfaceGeometrySource <- function(surfaceName) {
 setMethod(f="show", signature=signature("SurfaceGeometry"),
           def=function(object) {
             cat("SurfaceGeometry \n")
+            cat("  file: ", object@source@metaInfo@headerFile, "\n")
+            cat("  num vertices:", length(nodes(object)), "\n")
           })
-
 
 
 #' Constructor for BrainSurfaceSource
@@ -242,6 +243,9 @@ BrainSurface <- function(geometry, indices, data) {
 setMethod(f="show", signature=signature("BrainSurfaceVector"),
           def=function(object) {
             cat("BrainSurfaceVector \n")
+            cat("  num vertices: ", length(nodes(object@geometry)), "\n")
+            cat("  num samples:", ncol(x@data), "\n")
+
           })
 
 

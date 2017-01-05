@@ -44,7 +44,7 @@ readAFNISurfaceHeader <- function(fileName) {
 #' @param fileName the name of the NIML file
 #' @export
 readNIMLSurfaceHeader <- function(fileName) {
-  p <- parse_niml_file(fileName)
+  p <- neuroim:::parse_niml_file(fileName)
   whdat <- which(unlist(lapply(p, "[[", "label")) == "SPARSE_DATA")
   dmat <- if (length(whdat) > 1) {
     t(do.call(rbind, lapply(p[[whdat]], "[[", "data")))
