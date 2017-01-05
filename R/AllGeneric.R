@@ -38,3 +38,6 @@ setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
 #' @rdname graph-methods
 setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardGeneric("laplacian"))
 
+
+
+

@@ -1,15 +1,14 @@
-#' load an surface from a surface geometry with optional mapped surface data
+#' load a surface from a surface geometry file with optional mapped surface data
 #'
 #' @param surfaceName the name of the file containing the surface geometry.
 #' @param surfaceDataName the name of the file containing the values to be mapped to the surface (optional).
-#' @param indices indices to be used (optional), only if \code{surfaceDataName = NULL}
-#' @param keepZero NOT USED!!
+#' @param indices indices to be used (optional), only if \code{surfaceDataName} is not \code{NULL}
 #' @return an instance of the class:
 #'  \code{\linkS4class{SurfaceGeometry}}
 #'  or \code{\linkS4class{BrainSurface}}
 #'  or \code{\linkS4class{BrainSurfaceVector}}
 #' @export
-loadSurface  <- function(surfaceName, surfaceDataName=NULL, indices=NULL, keepZero=FALSE) {
+loadSurface  <- function(surfaceName, surfaceDataName=NULL, indices=NULL) {
   if (is.null(surfaceDataName)) {
     surfSource <- SurfaceGeometrySource(surfaceName)
     loadData(surfSource)
@@ -20,17 +19,51 @@ loadSurface  <- function(surfaceName, surfaceDataName=NULL, indices=NULL, keepZe
 }
 
 #' load surface data and attach to \code{\linkS4class{SurfaceGeometry}}
+#'
 #' @param geometry a \code{\linkS4class{SurfaceGeometry}} instance
 #' @param surfaceDataName the name of the file containing the values to be mapped to the surface.
-#' @param indices indices to load (optional)
+#' @param indices the subset column indices of surface dataset to load (optional)
 #' @return an instance of the class \code{\linkS4class{BrainSurface}} or \code{\linkS4class{BrainSurfaceVector}}
 #' @export
 loadSurfaceData  <- function(geometry, surfaceDataName, indices=NULL) {
-  src <- BrainSurfaceSource(geometry, surfaceDataName, NULL)
+  src <- BrainSurfaceSource(geometry, surfaceDataName, indices)
   loadData(src)
 }
 
-#' load surface geometry
+#' load one or more surface datasets for both left and right hemispheres
+#' @param leftGeometry a \code{\linkS4class{SurfaceGeometry}} instance for the left hemisphere
+#' @param rightGeometry a \code{\linkS4class{SurfaceGeometry}} instance for the right hemisphere
+#' @param leftDataNames a \code{character} vector indicating names of left-hemisphere surface data files to be mapped to geometry.
+#' @param rightDataNames a \code{character} vector indicating names of right-hemisphere surface data files to be mapped to geometry.
+loadSurfaceDataset <- function(leftGeometry, rightGeometry, leftDataNames, rightDataNames) {
+  assert_that(length(leftDataNames) == length(rightDataNames))
+  assert_that(is(leftGeometry, "SurfaceGeometry"))
+  assert_that(is(rightGeometry, "SurfaceGeometry"))
+
+  ret <- lapply(1:length(leftDataNames), function(i) {
+    src1 <- BrainSurfaceSource(leftGeometry, leftDataNames[i], NULL)
+    src2 <- BrainSurfaceSource(rightGeometry, rightDataNames[i], NULL)
+    list(left=loadData(src1), right=loadData(src2))
+  })
+
+  lind <- ret[[1]]$left@indices
+  rind <- ret[[1]]$right@indices
+
+  ldat <- do.call(cbind, lapply(ret, function(x) x$left@data))
+  rdat <- do.call(cbind, lapply(ret, function(x) x$right@data))
+
+  left <- new("BrainSurfaceVector", source=neuroim:::NullSource(), geometry=leftGeometry, indices=lind,data=ldat)
+  right <- new("BrainSurfaceVector", source=neuroim:::NullSource(), geometry=rightGeometry, indices=rind,data=rdat)
+
+  new("BilatBrainSurfaceVector", left=left, right=right)
+
+
+}
+
+
+
+#' load surface geometry from file
+#'
 #' @param surfaceName the name of the file containing the surface geometry.
 #' @export
 loadSurfaceGeometry <- function(surfaceName) {
@@ -66,7 +99,7 @@ setMethod(f="show", signature=signature("SurfaceGeometry"),
 #'
 #' @param surfaceGeom the name of the file containing the surface geometry or a \code{SurfaceGeometry} instance
 #' @param surfaceDataName the name of the file containing the data values to be mapped to the surface.
-#' @param indices the indices to load from surface data matrix (if provided)
+#' @param indices the subset of column indices to load from surface data matrix (if provided)
 #' @export
 #' @rdname BrainSurfaceSource-class
 BrainSurfaceSource <- function(surfaceGeom, surfaceDataName, indices=NULL) {

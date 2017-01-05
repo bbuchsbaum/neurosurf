@@ -73,17 +73,6 @@ setClass("SurfaceGeometryMetaInfo",
 
 
 
-#' SurfaceGeometry
-#'
-#' a three-dimensional surface consisting of a set of triangle vertices
-#' @rdname SurfaceGeometry-class
-#' @slot source the data source for the surface geometry
-#' @slot mesh the underlying \code{mesh3d} object
-#' @slot graph underlying graph structure
-#' @export
-setClass("SurfaceGeometry",
-         representation=representation(source="BaseSource", mesh="mesh3d", graph="igraph"))
-
 
 
 #' FreeSurferSurfaceGeometryMetaInfo
@@ -161,6 +150,17 @@ setClass("AFNISurfaceFileDescriptor", contains=c("BrainFileDescriptor"))
 #' @export
 setClass("FreesurferAsciiSurfaceFileDescriptor", contains=c("BrainFileDescriptor"))
 
+#' SurfaceGeometry
+#'
+#' a three-dimensional surface consisting of a set of triangle vertices
+#' @rdname SurfaceGeometry-class
+#' @slot source the data source for the surface geometry
+#' @slot mesh the underlying \code{mesh3d} object
+#' @slot graph underlying graph structure
+#' @export
+setClass("SurfaceGeometry",
+         representation=representation(source="BaseSource", mesh="mesh3d", graph="igraph"))
+
 
 #' ROISurface
 #'
@@ -234,7 +234,7 @@ setClass("BrainSurface",
 #' @rdname BrainSurfaceVector-class
 #' @slot source the data source for the surface
 #' @slot geometry the surface geometry, an instance of \code{SurfaceGeometry}
-#' @slot indices a vector of indices specifying the valid surface nodes.
+#' @slot indices an \code{integer} vector specifying the subset valid surface nodes encoded in the \code{geometry} object.
 #' @slot data a \code{Matrix} of values where each column contains a vector of values
 #' over all the surface nodes.
 #' @export
@@ -242,6 +242,19 @@ setClass("BrainSurfaceVector",
          representation=representation(source="BaseSource",
                                        geometry="SurfaceGeometry",
                                        indices="integer", data="Matrix"))
+
+
+#' BilatBrainSurfaceVector
+#'
+#' @slot left the surface data for left hemisphere, an instance of \code{BrainSurfaceVector}
+#' @slot right the surface data for right hemisphere, an instance of \code{BrainSurfaceVector}
+#' @export
+setClass("BilatBrainSurfaceVector",
+  representation=representation(
+                              left="BrainSurfaceVector",
+                              right="BrainSurfaceVector"))
+
+
 
 
 
