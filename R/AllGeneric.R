@@ -18,9 +18,23 @@ setGeneric(name="vertices", def=function(x,...) standardGeneric("vertices"))
 #' @rdname nodes-methods
 setGeneric(name="nodes", def=function(x) standardGeneric("nodes"))
 
+#' extract geometry object
+#' @param x the surface object
+#' @rdname geometry-methods
+setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
 
 #' extract \code{igraph} object
 #' @param x the object to extract the graph from
 #' @param ... extra args
 #' @rdname graph-methods
 setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
+
+
+#' get compute graph laplacian
+#' @param x the object to get Laplacian from
+#' @param normalized logical indicating whether laplcian is normalized
+#' @param weights edge weights for weighted Laplacian matrix
+#' @param ... extra args
+#' @rdname graph-methods
+setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardGeneric("laplacian"))
+

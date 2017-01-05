@@ -94,6 +94,21 @@ BrainSurfaceSource <- function(surfaceGeom, surfaceDataName, indices=NULL) {
 
 }
 
+#' @rdname vertices-methods
+#' @export
+setMethod(f="geometry", signature=c("BrainSurface"),
+          def=function(x) {
+            x@geometry
+          })
+
+#' @rdname vertices-methods
+#' @export
+setMethod(f="geometry", signature=c("BrainSurfaceVector"),
+          def=function(x) {
+            x@geometry
+          })
+
+
 
 #' @rdname vertices-methods
 #' @export
@@ -476,6 +491,14 @@ setMethod(f="neighborGraph", signature=c(x="igraph", radius="numeric", edgeWeigh
           def=function(x,radius, nodes) {
             findAllNeighbors(x, radius, igraph::E(x)$dist, nodes)
           })
+
+#' @rdname laplacian-methods
+#' @export
+setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", weights="missing"),
+          def=function(x) {
+            igraph::laplacian_matrix(graph(x))
+          })
+
 
 # knn_graph <- function(surf, knn=10, edge_weights=E(surf@graph)$dist) {
 #   nabeinfo <- lapply(V(graph), function(v) {
