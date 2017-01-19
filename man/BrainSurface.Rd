@@ -9,7 +9,7 @@ BrainSurface(geometry, indices, data)
 \arguments{
 \item{geometry}{a \code{SurfaceGeometry} instance}
 
-\item{indices}{a vector of indices specifying the valid surface nodes.}
+\item{indices}{an integer vector specifying the valid surface nodes.}
 
 \item{data}{a \code{vector} of data values.}
 }

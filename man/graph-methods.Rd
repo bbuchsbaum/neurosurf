@@ -2,13 +2,19 @@
 % Please edit documentation in R/AllGeneric.R, R/BrainSurface.R
 \docType{methods}
 \name{graph}
+\alias{adjacency}
 \alias{graph}
 \alias{graph,BrainSurface-method}
 \alias{graph,BrainSurfaceVector-method}
 \alias{graph,SurfaceGeometry-method}
+\alias{laplacian}
 \title{extract \code{igraph} object}
 \usage{
 graph(x, ...)
+
+laplacian(x, normalized, weights, ...)
+
+adjacency(x, attr, ...)
 
 \S4method{graph}{BrainSurface}(x, ...)
 
@@ -20,8 +26,26 @@ graph(x, ...)
 \item{x}{the object to extract the graph from}
 
 \item{...}{extra args}
+
+\item{normalized}{logical indicating whether laplcian is normalized}
+
+\item{weights}{edge weights for weighted Laplacian matrix}
+
+\item{x}{the object to get Laplacian from}
+
+\item{...}{extra args}
+
+\item{x}{graph structure}
+
+\item{weights}{a \code{character} string indicating the edge attribute in the \code{igraph} object for the weights. If absent, weights are 0, 1.}
+
+\item{...}{extra args}
 }
 \description{
 extract \code{igraph} object
+
+get compute graph laplacian
+
+get adjacency graph
 }
 

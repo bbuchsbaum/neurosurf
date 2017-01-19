@@ -6,14 +6,14 @@
 \alias{BrainSurfaceSource-class}
 \title{BrainSurfaceSource}
 \usage{
-BrainSurfaceSource(surfaceGeom, surfaceDataName, indices = NULL)
+BrainSurfaceSource(surfaceGeom, surfaceDataName, colind = NULL)
 }
 \arguments{
 \item{surfaceGeom}{the name of the file containing the surface geometry or a \code{SurfaceGeometry} instance}
 
 \item{surfaceDataName}{the name of the file containing the data values to be mapped to the surface.}
 
-\item{indices}{the indices to load from surface data matrix (if provided)}
+\item{colind}{the subset of column indices to load from surface data matrix (if provided)}
 }
 \description{
 A class that is used to produce a \code{\linkS4class{BrainSurface}} instance
@@ -27,6 +27,6 @@ Constructor for BrainSurfaceSource
 
 \item{\code{dataMetaInfo}}{a \code{\linkS4class{SurfaceDataMetaInfo}} instance}
 
-\item{\code{index}}{the column index of the surface map to be loaded.}
+\item{\code{colind}}{the column index of the surface map to be loaded.}
 }}
 

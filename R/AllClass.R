@@ -22,12 +22,12 @@ setClass("SurfaceGeometrySource",
 #' @rdname BrainSurfaceSource-class
 #' @slot geometry a \code{\linkS4class{SurfaceGeometry}} instance
 #' @slot dataMetaInfo a \code{\linkS4class{SurfaceDataMetaInfo}} instance
-#' @slot index the column index of the surface map to be loaded.
+#' @slot colind the column index of the surface map to be loaded.
 #' @export
 setClass("BrainSurfaceSource", representation=
            representation(geometry="SurfaceGeometry",
                           dataMetaInfo="SurfaceDataMetaInfo",
-                          index="integer"),
+                          colind="integer"),
          contains=c("BaseSource"))
 
 #' BrainSurfaceVectorSource
@@ -37,12 +37,12 @@ setClass("BrainSurfaceSource", representation=
 #' @rdname BrainSurfaceVectorSource-class
 #' @slot geometry a \code{\linkS4class{SurfaceGeometry}} instance
 #' @slot dataMetaInfo a \code{\linkS4class{SurfaceDataMetaInfo}} instance
-#' @slot indices the column indices vector of the surface maps to be loaded
+#' @slot colind the column indices vector of the surface maps to be loaded
 #' @export
 setClass("BrainSurfaceVectorSource", representation=
            representation(geometry="SurfaceGeometry",
                           dataMetaInfo="SurfaceDataMetaInfo",
-                          indices="integer"),
+                          colind="integer"),
          contains=c("BrainSurfaceSource"))
 
 
@@ -191,7 +191,7 @@ setClass("ROISurface",
 #' @slot geometry the geometry of the parent surface: a \code{SurfaceGeometry} instance
 #' @slot data \code{matrix} data stored in ROI with number of columns equal to number of coordinates in ROI.
 #' @slot coords the surface-based coordinates of the data
-#' @slot indices the node indices of the parent surface stored in the \code{geometry} field.
+#' @slot indices the nodes of the parent surface stored in the \code{geometry} field.
 #' @exportClass ROISurfaceVector
 #' @rdname ROISurfaceVector-class
 setClass("ROISurfaceVector",
@@ -219,12 +219,14 @@ setClass("ROISurfaceVector",
 #' @rdname BrainSurface-class
 #' @slot source the data source for the surface
 #' @slot geometry the surface geometry, an instance of \code{SurfaceGeometry}
+#' @slot indices an \code{integer} vector specifying the subset valid surface nodes encoded in the \code{geometry} object.
 #' @slot data the 1-D vector of data value at each vertex of the mesh
 #' @importClassesFrom neuroim BaseSource
 #' @export
 setClass("BrainSurface",
          representation=representation(source="BaseSource",
                                        geometry="SurfaceGeometry",
+                                       indices="integer",
                                        data="numeric"))
 
 #' BrainSurfaceVector

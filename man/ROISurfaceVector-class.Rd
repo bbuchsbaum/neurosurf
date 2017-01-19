@@ -16,6 +16,6 @@ A class that respresents a surface-based region of interest
 
 \item{\code{coords}}{the surface-based coordinates of the data}
 
-\item{\code{indices}}{the node indices of the parent surface stored in the \code{geometry} field.}
+\item{\code{indices}}{the nodes of the parent surface stored in the \code{geometry} field.}
 }}
 

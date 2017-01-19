@@ -77,8 +77,9 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL) {
 #' @param nodeset the subset of surface nodes to use
 #' @importFrom igraph neighborhood induced_subgraph
 #' @export
-SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL) {
+SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type="geodesic") {
   assertthat::assert_that(length(radius) == 1)
+
   g <- if (is.null(nodeset)) {
     ## use all surface nodes
     nodeset <- nodes(surfgeom)
@@ -90,11 +91,11 @@ SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL) {
     g <- igraph::induced_subgraph(neuroim::graph(surfgeom), nodeset)
   }
 
-  bg <- neighborGraph(g, radius=radius)
+  bg <- neighborGraph(g, radius=radius, distance_type=distance_type)
 
   index <- 0
 
-  nds <- V(bg)
+  nds <- igraph::V(bg)
 
   prog <- function() { index/length(nds) }
 

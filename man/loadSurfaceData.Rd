@@ -4,14 +4,14 @@
 \alias{loadSurfaceData}
 \title{load surface data and attach to \code{\linkS4class{SurfaceGeometry}}}
 \usage{
-loadSurfaceData(geometry, surfaceDataName, indices = NULL)
+loadSurfaceData(geometry, surfaceDataName, colind = NULL)
 }
 \arguments{
 \item{geometry}{a \code{\linkS4class{SurfaceGeometry}} instance}
 
 \item{surfaceDataName}{the name of the file containing the values to be mapped to the surface.}
 
-\item{indices}{indices to load (optional)}
+\item{colind}{the subset column indices of surface dataset to load (optional)}
 }
 \value{
 an instance of the class \code{\linkS4class{BrainSurface}} or \code{\linkS4class{BrainSurfaceVector}}

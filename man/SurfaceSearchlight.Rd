@@ -4,7 +4,8 @@
 \alias{SurfaceSearchlight}
 \title{Create a Searchlight iterator for surface mesh using geodesic distance to define regions.}
 \usage{
-SurfaceSearchlight(surfgeom, radius = 8, nodeset = NULL)
+SurfaceSearchlight(surfgeom, radius = 8, nodeset = NULL,
+  distance_type = "geodesic")
 }
 \arguments{
 \item{surfgeom}{a surface mesh: instance of class \code{SurfaceGeometry}}

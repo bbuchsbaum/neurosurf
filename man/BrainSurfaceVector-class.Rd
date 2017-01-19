@@ -14,7 +14,7 @@ a three-dimensional surface consisting of a set of triangle vertices with multip
 
 \item{\code{geometry}}{the surface geometry, an instance of \code{SurfaceGeometry}}
 
-\item{\code{indices}}{a vector of indices specifying the valid surface nodes.}
+\item{\code{indices}}{an \code{integer} vector specifying the subset valid surface nodes encoded in the \code{geometry} object.}
 
 \item{\code{data}}{a \code{Matrix} of values where each column contains a vector of values
 over all the surface nodes.}

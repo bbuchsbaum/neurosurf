@@ -13,16 +13,19 @@
 \alias{neighborGraph,igraph,numeric,numeric,missing-method}
 \title{Generic function to construct neighborhood graph from surface mesh using edge weights.}
 \usage{
-neighborGraph(x, radius, edgeWeights, nodes)
+neighborGraph(x, radius, edgeWeights, nodes, ...)
 
-\S4method{neighborGraph}{igraph,numeric,missing,missing}(x, radius)
+\S4method{neighborGraph}{igraph,numeric,missing,missing}(x, radius,
+  distance_type = c("geodesic", "euclidean"))
 
-\S4method{neighborGraph}{igraph,numeric,numeric,missing}(x, radius, edgeWeights)
+\S4method{neighborGraph}{igraph,numeric,numeric,missing}(x, radius, edgeWeights,
+  distance_type = c("geodesic", "euclidean"))
 
 \S4method{neighborGraph}{igraph,numeric,numeric,integer}(x, radius, edgeWeights,
-  nodes)
+  nodes, distance_type = c("geodesic", "euclidean"))
 
-\S4method{neighborGraph}{igraph,numeric,missing,integer}(x, radius, nodes)
+\S4method{neighborGraph}{igraph,numeric,missing,integer}(x, radius, nodes,
+  distance_type = c("geodesic", "euclidean"))
 }
 \arguments{
 \item{x}{surface mesh}
@@ -32,6 +35,8 @@ neighborGraph(x, radius, edgeWeights, nodes)
 \item{edgeWeights}{vector of edgeWeights used to define edge distance.}
 
 \item{nodes}{the subset of nodes to use}
+
+\item{...}{extra arguments}
 }
 \description{
 Generic function to construct neighborhood graph from surface mesh using edge weights.

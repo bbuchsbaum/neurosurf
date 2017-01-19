@@ -2,19 +2,16 @@
 % Please edit documentation in R/BrainSurface.R
 \name{loadSurface}
 \alias{loadSurface}
-\title{load an surface from a surface geometry with optional mapped surface data}
+\title{load a surface from a surface geometry file with optional mapped surface data}
 \usage{
-loadSurface(surfaceName, surfaceDataName = NULL, indices = NULL,
-  keepZero = FALSE)
+loadSurface(surfaceName, surfaceDataName = NULL, colind = NULL)
 }
 \arguments{
 \item{surfaceName}{the name of the file containing the surface geometry.}
 
 \item{surfaceDataName}{the name of the file containing the values to be mapped to the surface (optional).}
 
-\item{indices}{indices to be used (optional), only if \code{surfaceDataName = NULL}}
-
-\item{keepZero}{NOT USED!!}
+\item{colind}{the columns/samples to load (optional), only if \code{surfaceDataName} is not \code{NULL}}
 }
 \value{
 an instance of the class:
@@ -23,6 +20,6 @@ an instance of the class:
  or \code{\linkS4class{BrainSurfaceVector}}
 }
 \description{
-load an surface from a surface geometry with optional mapped surface data
+load a surface from a surface geometry file with optional mapped surface data
 }
 

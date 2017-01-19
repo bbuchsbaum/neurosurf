@@ -1,11 +1,11 @@
 Package: neurosurf
 Depends:
-  neuroim,
+    neuroim,
 Imports:
-  Matrix,
-  igraph,
-  rgl,
-  assertthat
+    Matrix,
+    igraph,
+    rgl,
+    assertthat
 Type: Package
 Title: Data structures and IO for surface-based neuroimaging data
 Version: 0.1.0
@@ -15,3 +15,4 @@ Description: Basic utilties for reading, writing and manipulating neuroimaging
     organized as a trinagle mesh.
 License: GPL (>= 2)
 LazyData: TRUE
+RoxygenNote: 5.0.1

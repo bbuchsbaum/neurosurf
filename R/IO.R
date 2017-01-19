@@ -9,6 +9,7 @@ readFreesurferAsciiHeader <- function(fileName) {
 
 #' readFreesurferAsciiGeometry
 #' @param fileName the file
+#' @importFrom reader read_table
 #' @export
 readFreesurferAsciiGeometry <- function(fileName) {
   if (!requireNamespace("rgl", quietly = TRUE)) {
@@ -16,8 +17,8 @@ readFreesurferAsciiGeometry <- function(fileName) {
          call. = FALSE)
   }
   ninfo <- as.integer(strsplit(readLines(fileName, n=2)[2], " ")[[1]])
-  #asctab <- read_table(fileName, skip=2)
-  asctab <- read.table(fileName, skip=2)
+  asctab <- read_table(fileName, skip=2)
+  #asctab <- readr::read_table(fileName, skip=2, col_names=FALSE)
   vertices <- as.matrix(asctab[1:ninfo[1],1:3])
   nodes <- as.matrix(asctab[(ninfo[1]+1):nrow(asctab),1:3])
 
@@ -28,9 +29,10 @@ readFreesurferAsciiGeometry <- function(fileName) {
 
 #' readAFNISurfaceHeader
 #' @param fileName the name of the AFNI 1D file
+#' @importFrom reader read_table
 #' @export
 readAFNISurfaceHeader <- function(fileName) {
-  dmat <- read.table(fileName)
+  dmat <- reader::read_table(fileName, col_names=FALSE)
   list(headerFile=fileName, dataFile=fileName,
        nodeCount=nrow(dmat), nels=ncol(dmat)-1,
        label=stripExtension(AFNI_SURFACE_DSET, basename(fileName)),

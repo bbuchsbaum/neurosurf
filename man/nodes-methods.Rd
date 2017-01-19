@@ -2,17 +2,14 @@
 % Please edit documentation in R/AllGeneric.R, R/BrainSurface.R
 \docType{methods}
 \name{nodes}
-\alias{indices,BrainSurfaceVector-method}
 \alias{nodes}
 \alias{nodes,BrainSurface-method}
 \alias{nodes,SurfaceGeometry-method}
-\title{extract surface node indices}
+\title{extract surface node numbers}
 \usage{
 nodes(x)
 
 \S4method{nodes}{SurfaceGeometry}(x)
-
-\S4method{indices}{BrainSurfaceVector}(x)
 
 \S4method{nodes}{BrainSurface}(x)
 }
@@ -20,6 +17,6 @@ nodes(x)
 \item{x}{the surface object}
 }
 \description{
-extract surface node indices
+extract surface node numbers
 }
 

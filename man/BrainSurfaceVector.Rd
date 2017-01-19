@@ -9,7 +9,7 @@ BrainSurfaceVector(geometry, indices, mat)
 \arguments{
 \item{geometry}{a \code{SurfaceGeometry} instance}
 
-\item{indices}{a vector of indices specifying the valid surface nodes.}
+\item{indices}{an integer vector specifying the valid surface nodes.}
 
 \item{mat}{a \code{matrix} of data values (rows=nodes, columns=variables)}
 }

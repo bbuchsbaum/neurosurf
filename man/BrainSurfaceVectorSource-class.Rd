@@ -14,6 +14,6 @@ A class that is used to produce a \code{\linkS4class{BrainSurfaceVector}} instan
 
 \item{\code{dataMetaInfo}}{a \code{\linkS4class{SurfaceDataMetaInfo}} instance}
 
-\item{\code{indices}}{the column indices vector of the surface maps to be loaded}
+\item{\code{colind}}{the column indices vector of the surface maps to be loaded}
 }}
 
