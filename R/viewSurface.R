@@ -1,10 +1,8 @@
 
 
-
-
-
-
-viewSurface <- function(surfgeom, vals, col=heat.colors(128, alpha = 1),
+#' @importFrom gplots col2hex
+#' @export
+viewSurface <- function(surfgeom, vals, col=rainbow(256, alpha = 1),
                         bg_col = "lightgray",
                         alpha=1,
                         add_normals=FALSE,
@@ -17,10 +15,8 @@ viewSurface <- function(surfgeom, vals, col=heat.colors(128, alpha = 1),
   }
 
   if (is.character(bg_col)) {
-    bgcol <- col2hex(bg_col)
+    bgcol <- gplots::col2hex(bg_col)
   }
-
-
 
   fg_clrs <- if (length(col) == length(nodes(surfgeom))) {
     col

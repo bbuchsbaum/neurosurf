@@ -9,7 +9,7 @@ readFreesurferAsciiHeader <- function(fileName) {
 
 #' readFreesurferAsciiGeometry
 #' @param fileName the file
-#' @importFrom reader read_table
+#' @importFrom readr read_table
 #' @export
 readFreesurferAsciiGeometry <- function(fileName) {
   if (!requireNamespace("rgl", quietly = TRUE)) {
@@ -29,10 +29,10 @@ readFreesurferAsciiGeometry <- function(fileName) {
 
 #' readAFNISurfaceHeader
 #' @param fileName the name of the AFNI 1D file
-#' @importFrom reader read_table
+#' @importFrom readr read_table
 #' @export
 readAFNISurfaceHeader <- function(fileName) {
-  dmat <- reader::read_table(fileName, col_names=FALSE)
+  dmat <- readr::read_table(fileName, col_names=FALSE)
   list(headerFile=fileName, dataFile=fileName,
        nodeCount=nrow(dmat), nels=ncol(dmat)-1,
        label=stripExtension(AFNI_SURFACE_DSET, basename(fileName)),
@@ -127,6 +127,7 @@ setMethod(f="dataReader", signature=signature("NIMLSurfaceDataMetaInfo"),
 
 
 findDescriptor <- function(fileName) {
+
   if (fileMatches(NIML_SURFACE_DSET, fileName)) NIML_SURFACE_DSET
   else if (fileMatches(FREESURFER_ASCII_SURFACE_DSET, fileName)) FREESURFER_ASCII_SURFACE_DSET
   else if (fileMatches(AFNI_SURFACE_DSET, fileName)) AFNI_SURFACE_DSET

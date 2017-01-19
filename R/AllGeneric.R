@@ -49,4 +49,15 @@ setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardG
 #' @rdname graph-methods
 setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacency"))
 
+#' get left hemisphere
+#' @param x the surface
+setGeneric(name="left", def=function(x) standardGeneric("left"))
+
+#' get right hemisphere
+#' @param x the surface
+setGeneric(name="right", def=function(x) standardGeneric("right"))
+
+
+
+
 

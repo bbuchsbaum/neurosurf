@@ -14,6 +14,8 @@ a three-dimensional surface consisting of a set of triangle vertices with one va
 
 \item{\code{geometry}}{the surface geometry, an instance of \code{SurfaceGeometry}}
 
+\item{\code{indices}}{an \code{integer} vector specifying the subset valid surface nodes encoded in the \code{geometry} object.}
+
 \item{\code{data}}{the 1-D vector of data value at each vertex of the mesh}
 }}
 

@@ -1,11 +1,10 @@
 
 
-#' @imortFrom Rspectra eigs
+#' @importFrom RSpectra eigs
 commute_time <- function(A, ncomp=nrow(A)) {
   D <- Matrix::rowSums(A)
-  Dtilde <- 1/(sqrt(D))
 
-  #P <- diag(1/D) %*% A
+  Dtilde <- 1/(sqrt(D))
 
   M <- Matrix::Diagonal(x=Dtilde) %*% A %*% Matrix::Diagonal(x=Dtilde)
 

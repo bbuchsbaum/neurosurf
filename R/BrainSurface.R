@@ -109,12 +109,26 @@ loadSurfaceData  <- function(geometry, surfaceDataName, colind=NULL) {
 }
 
 #' load one or more surface datasets for both left and right hemispheres
+#'
 #' @param leftGeometry a \code{\linkS4class{SurfaceGeometry}} instance for the left hemisphere
 #' @param rightGeometry a \code{\linkS4class{SurfaceGeometry}} instance for the right hemisphere
 #' @param leftDataNames a \code{character} vector indicating names of left-hemisphere surface data files to be mapped to geometry.
 #' @param rightDataNames a \code{character} vector indicating names of right-hemisphere surface data files to be mapped to geometry.
+#' @importFrom assertthat assert_that
+#' @export
 loadSurfaceDataset <- function(leftGeometry, rightGeometry, leftDataNames, rightDataNames) {
   assert_that(length(leftDataNames) == length(rightDataNames))
+
+  if (is.character(leftGeometry)) {
+    leftGeometry <- loadSurfaceGeometry(leftGeometry)
+  }
+
+  if (is.character(rightGeometry)) {
+    rightGeometry <- loadSurfaceGeometry(rightGeometry)
+  }
+
+
+
   assert_that(is(leftGeometry, "SurfaceGeometry"))
   assert_that(is(rightGeometry, "SurfaceGeometry"))
 
@@ -134,7 +148,6 @@ loadSurfaceDataset <- function(leftGeometry, rightGeometry, leftDataNames, right
   right <- new("BrainSurfaceVector", source=neuroim:::NullSource(), geometry=rightGeometry, indices=rind,data=rdat)
 
   ret <- new("BilatBrainSurfaceVector", left=left, right=right)
-
 
 }
 
@@ -211,6 +224,21 @@ setMethod(f="coords", signature=c("SurfaceGeometry"),
           def=function(x) {
             t(x@mesh$vb[1:3,])
           })
+
+#' @rdname vertices-methods
+#' @export
+setMethod(f="coords", signature=c("BrainSurfaceVector"),
+          def=function(x) {
+            coords(geometry(x))
+          })
+
+#' @rdname vertices-methods
+#' @export
+setMethod(f="coords", signature=c("BrainSurface"),
+          def=function(x) {
+            coords(geometry(x))
+          })
+
 
 
 #' @rdname vertices-methods
@@ -525,7 +553,7 @@ setMethod(f="loadData", signature=c("FreesurferSurfaceGeometryMetaInfo"),
 #' @details requires rgl library
 #' @return a class of type \code{BrainSurface}
 #' @importFrom plyr rbind.fill.matrix
-#' @importFrom reader read_table
+#' @importFrom readr read_table
 #' @export
 loadFSSurface <- function(metaInfo) {
   if (!requireNamespace("rgl", quietly = TRUE)) {
@@ -562,7 +590,7 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 }
 
 #' @export
-#' @importFrom FMM get.knn
+#' @importFrom FNN get.knn
 findAllNeighbors <- function(g, radius, edgeWeights, nodes=NULL, distance_type=c("geodesic", "euclidean")) {
   distance_type <- match.arg(distance_type)
 
@@ -692,29 +720,90 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
             igraph::as_adjacency_matrix(graph(x))
           })
 
-
-
-#' @param surfgeom
-#' @param vals
-#' @param col
-#' @param alpha
-#' @param add_normals
-#'
+#' @rdname left-methods
 #' @export
-viewSurface <- function(surfgeom, vals, col=heat.colors(128, alpha = 1),
-                        zero_col = "#00000000",
-                        alpha=1,
-                        add_normals=FALSE,
-                        geom_col="lightgray") {
+setMethod(f="left", signature=c(x="BilatBrainSurfaceVector"),
+          def=function(x) {
+            x@left
+          })
 
-  v2 <- vals[as.vector(surfgeom@mesh$it)]
-  clrs <- neuroim::mapToColors(v2, col=col, alpha=1)
+#' @rdname left-methods
+#' @export
+setMethod(f="right", signature=c(x="BilatBrainSurfaceVector"),
+          def=function(x) {
+            x@right
+          })
 
-  if (add_normals) {
-    surfgeom@mesh <- addNormals(surfgeom@mesh)
-  }
-  rgl::shade3d(surfgeom@mesh, col=clrs, alpha=alpha, specular="black")
-}
+
+
+#' extractor
+#' @export
+#' @param x the object
+#' @param i first index
+#' @param j second index
+#' @param ... additional args
+#' @param drop dimension
+setMethod(f="[", signature=signature(x = "BrainSurfaceVector", i = "numeric", j = "numeric", drop="ANY"),
+          def=function (x, i, j, ..., drop=TRUE) {
+
+            x@data[i,j]
+
+          })
+
+#' extractor
+#' @export
+#' @param x the object
+#' @param i first index
+#' @param j second index
+#' @param ... additional args
+#' @param drop dimension
+setMethod(f="[", signature=signature(x = "BrainSurfaceVector", i = "missing", j = "numeric", drop="ANY"),
+          def=function (x, i, j, ..., drop=TRUE) {
+            x@data[,j]
+          })
+
+
+
+#' extractor
+#' @export
+#' @param x the object
+#' @param i first index
+#' @param j second index
+#' @param ... additional args
+#' @param drop dimension
+setMethod(f="[", signature=signature(x = "BrainSurfaceVector", i = "numeric", j = "missing", drop="ANY"),
+          def=function (x, i, j, ..., drop=TRUE) {
+            x@data[i,]
+          })
+
+#' extractor
+#' @export
+#' @param x the object
+#' @param i first index
+#' @param j second index
+#' @param ... additional args
+#' @param drop dimension
+setMethod(f="[", signature=signature(x = "BrainSurfaceVector", i = "missing", j = "missing", drop="ANY"),
+          def=function (x, i, j, ..., drop=TRUE) {
+            x@data[,]
+          })
+
+
+setAs(from="BilatBrainSurfaceVector", to="matrix",
+      def=function(from) {
+        mat1 <- left(from)[]
+        mat2 <- right(from)[]
+        out <- rbind(mat1,mat2)
+        attr(out, "coords") <- rbind(coords(left(from)), coords(right(from)))
+        attr(out, "indices") <- c(indices(left(from)), indices(right(from)))
+        attr(out, "hemi") <- c(rep(1, nrow(mat1)), rep(2, nrow(mat2)))
+        out
+
+      })
+
+setMethod("as.matrix", signature(x = "BilatBrainSurfaceVector"), function(x) as(x, "matrix"))
+
+
 
 
 
