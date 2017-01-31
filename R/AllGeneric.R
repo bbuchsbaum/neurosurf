@@ -25,7 +25,6 @@ setGeneric(name="nodes", def=function(x) standardGeneric("nodes"))
 setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
 
 
-
 #' extract \code{igraph} object
 #' @param x the object to extract the graph from
 #' @param ... extra args
@@ -48,5 +47,34 @@ setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardG
 #' @param ... extra args
 #' @rdname graph-methods
 setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacency"))
+
+#' blend two color planes
+#' @param bottom
+#' @param top
+#' @param alpha
+setGeneric(name="blend_colors", def=function(bottom, top, alpha) standardGeneric("blend_colors"))
+
+#' map_colors
+#' @param x
+setGeneric(name="map_colors", def=function(x, ...) standardGeneric("map_colors"))
+
+#' as_rgb
+#' @param x
+setGeneric(name="as_rgb", def=function(x, ...) standardGeneric("as_rgb"))
+
+#' as_hexcol
+#' @param x
+setGeneric(name="as_hexcol", def=function(x, ...) standardGeneric("as_hexcol"))
+
+#' alpha_channel
+#' @param x
+setGeneric(name="alpha_channel", def=function(x, ...) standardGeneric("alpha_channel"))
+
+
+#' curvature
+#' @param x
+#'@export
+setGeneric(name="curvature", def=function(x, ...) standardGeneric("curvature"))
+
 
 

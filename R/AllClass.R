@@ -258,6 +258,19 @@ setClass("BilatBrainSurfaceVector",
 
 
 
+setClass("BaseColorPlane")
+
+setClass("IntensityColorPlane",
+         representation(intensity="numeric", alpha="numeric", colmap="character"), contains="BaseColorPlane")
+
+setClass("ColorPlane", representation(clrs="ANY"), contains="BaseColorPlane")
+
+setClass("HexColorPlane", representation(clrs="character"), contains="ColorPlane")
+
+setClass("RGBColorPlane", representation(clrs="matrix"), contains="ColorPlane")
+
+setClass("ConstantColorPlane", representation(clrs="character"), contains="ColorPlane")
+
 
 
 

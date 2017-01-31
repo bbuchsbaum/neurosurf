@@ -694,27 +694,18 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
 
 
 
-#' @param surfgeom
-#' @param vals
-#' @param col
-#' @param alpha
-#' @param add_normals
-#'
+normalize <- function(vals) (vals - min(vals))/(max(vals)-min(vals))
+
+#' @rdname curvature-methods
 #' @export
-viewSurface <- function(surfgeom, vals, col=heat.colors(128, alpha = 1),
-                        zero_col = "#00000000",
-                        alpha=1,
-                        add_normals=FALSE,
-                        geom_col="lightgray") {
+setMethod(f="curvature", signature=c(x="SurfaceGeometry"),
+          def=function(x) {
+            curv <- Rvcg::vcgCurve(x@mesh)
+            vbmean <- normalize(curv$meanvb)
+            vbmean
+          })
 
-  v2 <- vals[as.vector(surfgeom@mesh$it)]
-  clrs <- neuroim::mapToColors(v2, col=col, alpha=1)
 
-  if (add_normals) {
-    surfgeom@mesh <- addNormals(surfgeom@mesh)
-  }
-  rgl::shade3d(surfgeom@mesh, col=clrs, alpha=alpha, specular="black")
-}
 
 
 
