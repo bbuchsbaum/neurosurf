@@ -736,7 +736,7 @@ setMethod(f="right", signature=c(x="BilatBrainSurfaceVector"),
 
 
 
-<<<<<<< HEAD
+
 normalize <- function(vals) (vals - min(vals))/(max(vals)-min(vals))
 
 #' @rdname curvature-methods
@@ -747,7 +747,7 @@ setMethod(f="curvature", signature=c(x="SurfaceGeometry"),
             vbmean <- normalize(curv$meanvb)
             vbmean
           })
-=======
+
 #' extractor
 #' @export
 #' @param x the object
@@ -814,7 +814,7 @@ setAs(from="BilatBrainSurfaceVector", to="matrix",
       })
 
 setMethod("as.matrix", signature(x = "BilatBrainSurfaceVector"), function(x) as(x, "matrix"))
->>>>>>> f73a5f047302389e0eb411fd14564e201bfeb724
+
 
 
 

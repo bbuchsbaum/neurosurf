@@ -48,7 +48,7 @@ setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardG
 #' @rdname graph-methods
 setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacency"))
 
-<<<<<<< HEAD
+
 #' blend two color planes
 #' @param bottom
 #' @param top
@@ -76,7 +76,7 @@ setGeneric(name="alpha_channel", def=function(x, ...) standardGeneric("alpha_cha
 #' @param x
 #'@export
 setGeneric(name="curvature", def=function(x, ...) standardGeneric("curvature"))
-=======
+
 #' get left hemisphere
 #' @param x the surface
 setGeneric(name="left", def=function(x) standardGeneric("left"))
@@ -86,7 +86,6 @@ setGeneric(name="left", def=function(x) standardGeneric("left"))
 setGeneric(name="right", def=function(x) standardGeneric("right"))
 
 
->>>>>>> f73a5f047302389e0eb411fd14564e201bfeb724
 
 
 

@@ -32,12 +32,10 @@ readFreesurferAsciiGeometry <- function(fileName) {
 #' @importFrom readr read_table
 #' @export
 readAFNISurfaceHeader <- function(fileName) {
-<<<<<<< HEAD
+
   #dmat <- readr::read_table(fileName, col_names=FALSE)
   dmat <- read.table(fileName, header=FALSE)
-=======
-  dmat <- readr::read_table(fileName, col_names=FALSE)
->>>>>>> f73a5f047302389e0eb411fd14564e201bfeb724
+
   list(headerFile=fileName, dataFile=fileName,
        nodeCount=nrow(dmat), nels=ncol(dmat)-1,
        label=stripExtension(AFNI_SURFACE_DSET, basename(fileName)),
