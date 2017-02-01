@@ -3,47 +3,16 @@ setOldClass("mesh3d")
 setOldClass("igraph")
 
 
-#' SurfaceGeometrySource
+#' SurfaceGeometry
 #'
-#' A class that is used to produce a \code{\linkS4class{SurfaceGeometry}} instance
-#' @rdname SurfaceGeometrySource-class
-#' @slot metaInfo a \code{\linkS4class{SurfaceGeometryMetaInfo}} instance
-#' @importClassesFrom neuroim BaseSource
+#' a three-dimensional surface consisting of a set of triangle vertices
+#' @rdname SurfaceGeometry-class
+#' @slot source the data source for the surface geometry
+#' @slot mesh the underlying \code{mesh3d} object
+#' @slot graph underlying graph structure
 #' @export
-setClass("SurfaceGeometrySource",
-         representation=representation(metaInfo="SurfaceGeometryMetaInfo"),
-         contains=c("BaseSource"))
-
-
-#' BrainSurfaceSource
-#'
-#' A class that is used to produce a \code{\linkS4class{BrainSurface}} instance
-#'
-#' @rdname BrainSurfaceSource-class
-#' @slot geometry a \code{\linkS4class{SurfaceGeometry}} instance
-#' @slot dataMetaInfo a \code{\linkS4class{SurfaceDataMetaInfo}} instance
-#' @slot colind the column index of the surface map to be loaded.
-#' @export
-setClass("BrainSurfaceSource", representation=
-           representation(geometry="SurfaceGeometry",
-                          dataMetaInfo="SurfaceDataMetaInfo",
-                          colind="integer"),
-         contains=c("BaseSource"))
-
-#' BrainSurfaceVectorSource
-#'
-#' A class that is used to produce a \code{\linkS4class{BrainSurfaceVector}} instance
-#'
-#' @rdname BrainSurfaceVectorSource-class
-#' @slot geometry a \code{\linkS4class{SurfaceGeometry}} instance
-#' @slot dataMetaInfo a \code{\linkS4class{SurfaceDataMetaInfo}} instance
-#' @slot colind the column indices vector of the surface maps to be loaded
-#' @export
-setClass("BrainSurfaceVectorSource", representation=
-           representation(geometry="SurfaceGeometry",
-                          dataMetaInfo="SurfaceDataMetaInfo",
-                          colind="integer"),
-         contains=c("BrainSurfaceSource"))
+setClass("SurfaceGeometry",
+         representation=representation(source="BaseSource", mesh="mesh3d", graph="igraph"))
 
 
 #' SurfaceGeometryMetaInfo
@@ -70,9 +39,6 @@ setClass("SurfaceGeometryMetaInfo",
              label="character",
              embedDimension="integer"),
          contains=c("BaseMetaInfo"))
-
-
-
 
 
 #' FreeSurferSurfaceGeometryMetaInfo
@@ -125,6 +91,53 @@ setClass("NIMLSurfaceDataMetaInfo",
 
 
 
+#' SurfaceGeometrySource
+#'
+#' A class that is used to produce a \code{\linkS4class{SurfaceGeometry}} instance
+#' @rdname SurfaceGeometrySource-class
+#' @slot metaInfo a \code{\linkS4class{SurfaceGeometryMetaInfo}} instance
+#' @importClassesFrom neuroim BaseSource
+#' @export
+setClass("SurfaceGeometrySource",
+         representation=representation(metaInfo="SurfaceGeometryMetaInfo"), contains="BaseSource")
+
+
+#' BrainSurfaceSource
+#'
+#' A class that is used to produce a \code{\linkS4class{BrainSurface}} instance
+#'
+#' @rdname BrainSurfaceSource-class
+#' @slot geometry a \code{\linkS4class{SurfaceGeometry}} instance
+#' @slot dataMetaInfo a \code{\linkS4class{SurfaceDataMetaInfo}} instance
+#' @slot colind the column index of the surface map to be loaded.
+#' @export
+setClass("BrainSurfaceSource", representation=
+           representation(geometry="SurfaceGeometry",
+                          dataMetaInfo="SurfaceDataMetaInfo",
+                          colind="integer"),
+         contains=c("BaseSource"))
+
+#' BrainSurfaceVectorSource
+#'
+#' A class that is used to produce a \code{\linkS4class{BrainSurfaceVector}} instance
+#'
+#' @rdname BrainSurfaceVectorSource-class
+#' @slot geometry a \code{\linkS4class{SurfaceGeometry}} instance
+#' @slot dataMetaInfo a \code{\linkS4class{SurfaceDataMetaInfo}} instance
+#' @slot colind the column indices vector of the surface maps to be loaded
+#' @export
+setClass("BrainSurfaceVectorSource", representation=
+           representation(geometry="SurfaceGeometry",
+                          dataMetaInfo="SurfaceDataMetaInfo",
+                          colind="integer"),
+         contains=c("BrainSurfaceSource"))
+
+
+
+
+
+
+
 #' NIMLSurfaceFileDescriptor
 #'
 #' This class supports the NIML file format for surface-based data
@@ -150,16 +163,6 @@ setClass("AFNISurfaceFileDescriptor", contains=c("BrainFileDescriptor"))
 #' @export
 setClass("FreesurferAsciiSurfaceFileDescriptor", contains=c("BrainFileDescriptor"))
 
-#' SurfaceGeometry
-#'
-#' a three-dimensional surface consisting of a set of triangle vertices
-#' @rdname SurfaceGeometry-class
-#' @slot source the data source for the surface geometry
-#' @slot mesh the underlying \code{mesh3d} object
-#' @slot graph underlying graph structure
-#' @export
-setClass("SurfaceGeometry",
-         representation=representation(source="BaseSource", mesh="mesh3d", graph="igraph"))
 
 
 #' ROISurface
@@ -170,6 +173,7 @@ setClass("SurfaceGeometry",
 #' @slot data the vector-valued \code{numeric} data stored in ROI
 #' @slot coords the surface-based coordinates of the data
 #' @slot indices the node indices of the parent surface stored in the \code{geometry} field.
+#' @importClassesFrom neuroim ROI
 #' @exportClass ROISurface
 #' @rdname ROISurface-class
 setClass("ROISurface",
