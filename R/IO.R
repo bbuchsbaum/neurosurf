@@ -1,3 +1,17 @@
+
+
+
+.readHeader <- function(fileName) {
+  desc <- findDescriptor(fileName)
+  if (is.null(desc)) {
+    stop(paste("could not find reader for file: ", fileName))
+  }
+
+  readMetaInfo(desc, fileName)
+}
+
+
+
 #' readFreesurferAsciiHeader
 #' @param fileName the file
 #' @export

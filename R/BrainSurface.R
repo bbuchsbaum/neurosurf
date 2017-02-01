@@ -171,7 +171,7 @@ loadSurfaceGeometry <- function(surfaceName) {
 SurfaceGeometrySource <- function(surfaceName) {
   stopifnot(is.character(surfaceName))
   stopifnot(file.exists(surfaceName))
-  metaInfo <- readHeader(surfaceName)
+  metaInfo <- .readHeader(surfaceName)
   new("SurfaceGeometrySource", metaInfo=metaInfo)
 }
 
@@ -200,7 +200,7 @@ BrainSurfaceSource <- function(surfaceGeom, surfaceDataName, colind=NULL) {
     surfaceGeom <- loadData(src)
   }
 
-  dataMetaInfo <- readHeader(surfaceDataName)
+  dataMetaInfo <- .readHeader(surfaceDataName)
 
   if (is.null(colind)) {
     colind <- 1:dataMetaInfo@nels
@@ -591,11 +591,11 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 
 #' @export
 #' @importFrom FNN get.knn
-findAllNeighbors <- function(g, radius, edgeWeights, nodes=NULL, distance_type=c("geodesic", "euclidean")) {
+findAllNeighbors <- function(surf, radius, edgeWeights, nodes=NULL, distance_type=c("euclidean", "geodesic", "spherical")) {
   distance_type <- match.arg(distance_type)
+  g <- graph(surf)
 
   avg_weight <- quantile(edgeWeights, .5)
-  #est_order <- ceiling(radius/avg_weight) + 1
 
   if (is.null(nodes)) {
     nodes <- igraph::V(g)
@@ -603,15 +603,21 @@ findAllNeighbors <- function(g, radius, edgeWeights, nodes=NULL, distance_type=c
 
   all_can <- FNN::get.knn(coords(surf), k=round((radius+1)/avg_weight)^3)
 
+  if (distance_type == "spherical") {
+    R <- diff(range(coords(surf)[,1]))/2
+    ## TODO
+  }
+
   nabeinfo <- lapply(nodes, function(v) {
-    #print(v)
-    #cand <- igraph::ego(g, order= est_order, nodes=v)[[1]]
     cand <- c(v, all_can$nn.index[v,])
     if (distance_type == "geodesic") {
       D <- igraph::distances(g, v, cand, weights=edgeWeights, algorithm="dijkstra")
-    } else {
+    } else if (distance_type == "euclidean") {
       D <- all_can$nn.dist[v,]
+    } else if (distance_type == "spherical") {
+
     }
+
     keep <- which(D < radius)
     if (length(keep) > 0) {
       knabes <- cand[keep]
