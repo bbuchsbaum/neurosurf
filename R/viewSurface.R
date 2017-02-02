@@ -1,7 +1,7 @@
 
 
 
-plotlySurface <- function(surfgeom, vals, col=rainbow(255, alpha = 1),
+plotlySurface <- function(surfgeom, vals, col=brewer_pal(palette="RdBu")(9),
                           alpha=1,
                           add_normals=FALSE,
                           threshold=NULL,
@@ -18,14 +18,15 @@ plotlySurface <- function(surfgeom, vals, col=rainbow(255, alpha = 1),
   fg_layer <- IntensityColorPlane(fvals, col,alpha=1)
   fg_clrs <- map_colors(fg_layer, alpha=alpha, threshold=threshold, irange=irange)
 
-  bg_layer <- IntensityColorPlane(curv, c("#D3D3D3FF", "#A9A9A9FF", "#A9A9A9FF"),alpha=1)
-  bg_clrs <- map_colors(bg_layer, alpha=1)
+  #bg_layer <- IntensityColorPlane(curv, c("#D3D3D3FF", "#A9A9A9FF", "#A9A9A9FF"),alpha=1)
+  #bg_clrs <- map_colors(bg_layer, alpha=1)
+
+  #browser()
 
 
-
-  combined <- blend_colors(bg_clrs, fg_clrs, alpha=alpha)
-  face_cols <- as_hexcol(combined)
-
+  #combined <- blend_colors(bg_clrs, fg_clrs, alpha=alpha)
+  #face_cols <- as_hexcol(combined)
+  face_cols <- as_hexcol(fg_clrs)
 
   cds <- coords(surfgeom)
   p <- plot_ly(
@@ -33,8 +34,9 @@ plotlySurface <- function(surfgeom, vals, col=rainbow(255, alpha = 1),
     i = surfgeom@mesh$it[1,]-1, j =surfgeom@mesh$it[2,]-1, k = surfgeom@mesh$it[3,]-1,
     facecolor=face_cols,
     #vertexcolor=face_cols,
+    #intensity=vals,
     type = "mesh3d",
-    flatshading=FALSE
+    flatshading=TRUE
   )
   p
 
