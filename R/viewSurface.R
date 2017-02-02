@@ -47,7 +47,6 @@ plotlySurface <- function(surfgeom, vals, col=rainbow(255, alpha = 1),
 #' @export
 viewSurface <- function(surfgeom, vals, col=rainbow(256, alpha = 1),
                         bg_col = "lightgray",
-
                         alpha=1,
                         add_normals=FALSE,
                         threshold=NULL,
@@ -56,12 +55,13 @@ viewSurface <- function(surfgeom, vals, col=rainbow(256, alpha = 1),
 
 
   if (add_normals) {
-    surfgeom@mesh <- rgl:: addNormals(surfgeom@mesh)
+    surfgeom@mesh <- rgl::addNormals(surfgeom@mesh)
   }
 
 
   face_vals <- rowMeans(cbind(vals[surfgeom@mesh$it[1,]],vals[surfgeom@mesh$it[2,]],vals[surfgeom@mesh$it[3,]]))
-  fg_layer <- IntensityColorPlane(face_vals, colmap,alpha=1)
+  fg_layer <- IntensityColorPlane(face_vals, col,alpha=1)
+
   #fg_layer <- IntensityColorPlane(vals, colmap,alpha=1)
   fg_clrs <- map_colors(fg_layer, alpha=alpha, threshold=threshold, irange=irange)
 
@@ -71,13 +71,6 @@ viewSurface <- function(surfgeom, vals, col=rainbow(256, alpha = 1),
 
   if (length(bgcol) == 1) {
     bg_layer <- HexColorPlane(rep(bgcol, length(face_vals)))
-    #bg_layer <- HexColorPlane(rep(bgcol, length(vals)))
-  }
-
-
-
-  fg_clrs <- if (length(col) == length(nodes(surfgeom))) {
-    col
   } else {
     bg_layer <- HexColorPlane(bgcol)
   }
@@ -85,7 +78,7 @@ viewSurface <- function(surfgeom, vals, col=rainbow(256, alpha = 1),
   combined <- blend_colors(bg_layer, fg_clrs, alpha)
   vertex_cols <- as_hexcol(combined)
   #shade3d(surfgeom@mesh, col=rep(vertex_cols,3))
-  shade3d(surfgeom@mesh, col=rep(vertex_cols,each=3))
+  rgl::shade3d(surfgeom@mesh, col=rep(vertex_cols,each=3))
   #shade3d(surfgeom@mesh, col=vertex_cols)
 
 }
