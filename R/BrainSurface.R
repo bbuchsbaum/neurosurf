@@ -226,21 +226,30 @@ BrainSurfaceSource <- function(surfaceGeom, surfaceDataName, colind=NULL) {
 
 }
 
-#' @rdname vertices-methods
+
+#' coords
+#'
+#' @rdname coords-methods
 #' @export
 setMethod(f="coords", signature=c("SurfaceGeometry"),
           def=function(x) {
             t(x@mesh$vb[1:3,])
           })
 
-#' @rdname vertices-methods
+
+#' coords
+#'
+#' @rdname coords-methods
 #' @export
 setMethod(f="coords", signature=c("BrainSurfaceVector"),
           def=function(x) {
             coords(geometry(x))
           })
 
-#' @rdname vertices-methods
+
+#' coords
+#'
+#' @rdname coords-methods
 #' @export
 setMethod(f="coords", signature=c("BrainSurface"),
           def=function(x) {
@@ -249,21 +258,21 @@ setMethod(f="coords", signature=c("BrainSurface"),
 
 
 
-#' @rdname vertices-methods
+#' @rdname geometry-methods
 #' @export
 setMethod(f="geometry", signature=c("BrainSurface"),
           def=function(x) {
             x@geometry
           })
 
-#' @rdname vertices-methods
+#' @rdname geometry-methods
 #' @export
 setMethod(f="geometry", signature=c("BrainSurfaceVector"),
           def=function(x) {
             x@geometry
           })
 
-#' @rdname vertices-methods
+#' @rdname as.matrix-methods
 #' @export
 setMethod(f="as.matrix", signature=c("BrainSurfaceVector"),
           def=function(x) {
@@ -315,6 +324,9 @@ setMethod(f="nodes", signature=c("BrainSurface"),
             callGeneric(x@geometry)
           })
 
+
+#' series
+#'
 #' @rdname series-methods
 #' @importFrom Matrix Matrix
 #' @importFrom Matrix t
@@ -326,7 +338,8 @@ setMethod("series", signature(x="BrainSurfaceVector", i="numeric"),
             Matrix::t(x@data[i,])
           })
 
-
+#' series_roi
+#'
 #' @rdname series-methods
 #' @return a class of type \code{ROISurfaceVector}
 #' @importMethodsFrom neuroim series_roi
@@ -337,6 +350,8 @@ setMethod("series_roi", signature(x="BrainSurfaceVector", i="numeric"),
             ROISurfaceVector(geometry=x@geometry, indices=i, data=m)
           })
 
+#' series
+#'
 #' @rdname series-methods
 #' @importFrom Matrix Matrix
 #' @export
@@ -345,6 +360,8 @@ setMethod("series", signature(x="BrainSurfaceVector", i="integer"),
             Matrix::t(x@data[i,])
           })
 
+#' series
+#'
 #' @rdname series-methods
 #' @export
 setMethod("series", signature(x="BrainSurfaceVector", i="ROISurface"),
@@ -352,6 +369,9 @@ setMethod("series", signature(x="BrainSurfaceVector", i="ROISurface"),
             callGeneric(x, indices(i))
           })
 
+
+#' series_roi
+#'
 #' @rdname series-methods
 #' @importMethodsFrom neuroim series_roi
 #' @export
@@ -361,6 +381,8 @@ setMethod("series_roi", signature(x="BrainSurfaceVector", i="ROISurface"),
             ROISurfaceVector(x@geometry, indices(i), as.matrix(mat))
           })
 
+#' series
+#'
 #' @rdname series-methods
 #' @export
 setMethod("series", signature(x="BrainSurface", i="numeric"),
@@ -368,6 +390,9 @@ setMethod("series", signature(x="BrainSurface", i="numeric"),
             stop("not implemented")
           })
 
+
+#' graph
+#'
 #' @rdname graph-methods
 #' @export
 setMethod("graph", signature(x="BrainSurface"),
@@ -375,6 +400,9 @@ setMethod("graph", signature(x="BrainSurface"),
             callGeneric(x@geometry)
           })
 
+
+#' graph
+#'
 #' @rdname graph-methods
 #' @export
 setMethod("graph", signature(x="BrainSurfaceVector"),
@@ -382,6 +410,9 @@ setMethod("graph", signature(x="BrainSurfaceVector"),
             callGeneric(x@geometry)
           })
 
+
+#' graph
+#'
 #' @rdname graph-methods
 #' @export
 setMethod("graph", signature(x="SurfaceGeometry"),
@@ -390,6 +421,9 @@ setMethod("graph", signature(x="SurfaceGeometry"),
           })
 
 
+
+#' BrainSurfaceVector
+#'
 #' construct a new BrainSurfaceVector
 #' @param geometry a \code{SurfaceGeometry} instance
 #' @param indices an integer vector specifying the valid surface nodes.
@@ -401,6 +435,9 @@ BrainSurfaceVector <- function(geometry, indices, mat) {
 
 }
 
+
+#' BrainSurface
+#'
 #' construct a new BrainSurface object
 #' @param geometry a \code{SurfaceGeometry} instance
 #' @param indices an integer vector specifying the valid surface nodes.
@@ -471,6 +508,7 @@ setMethod(f="loadData", signature=c("BrainSurfaceVectorSource"),
           })
 
 #' load a \code{SurfaceGeometry} instance
+#'
 #' @export
 #' @rdname loadData-methods
 setMethod(f="loadData", signature=c("SurfaceGeometrySource"),
@@ -480,6 +518,7 @@ setMethod(f="loadData", signature=c("SurfaceGeometrySource"),
 
 
 #' load a BrainSurface
+#'
 #' @export
 #' @rdname loadData-methods
 setMethod(f="loadData", signature=c("BrainSurfaceSource"),
@@ -703,6 +742,9 @@ setMethod(f="neighborGraph", signature=c(x="SurfaceGeometry", radius="numeric", 
             .neighbors_to_graph(nabeinfo)
           })
 
+
+#' laplacian
+#'
 #' @rdname laplacian-methods
 #' @export
 setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", weights="missing"),
@@ -710,6 +752,8 @@ setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", 
             igraph::laplacian_matrix(graph(x))
           })
 
+#' laplacian
+#'
 #' @rdname laplacian-methods
 #' @export
 setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", weights="numeric"),
@@ -717,7 +761,8 @@ setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", 
             igraph::laplacian_matrix(neurosurf::graph(x), weights=weights)
           })
 
-
+#' adjacency
+#'
 #' @rdname adjacency-methods
 #' @export
 setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="numeric"),
@@ -727,7 +772,8 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="numeric"),
             igraph::as_adjacency_matrix(g, attr="awt")
           })
 
-
+#' adjacency
+#'
 #' @rdname adjacency-methods
 #' @export
 setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="character"),
@@ -735,6 +781,8 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="character"),
             igraph::as_adjacency_matrix(graph(x), attr=attr)
           })
 
+#' adjacency
+#'
 #' @rdname adjacency-methods
 #' @export
 setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
@@ -742,6 +790,9 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
             igraph::as_adjacency_matrix(graph(x))
           })
 
+
+#' left
+#'
 #' @rdname left-methods
 #' @export
 setMethod(f="left", signature=c(x="BilatBrainSurfaceVector"),
@@ -749,6 +800,9 @@ setMethod(f="left", signature=c(x="BilatBrainSurfaceVector"),
             x@left
           })
 
+
+#' right
+#'
 #' @rdname left-methods
 #' @export
 setMethod(f="right", signature=c(x="BilatBrainSurfaceVector"),
@@ -761,6 +815,9 @@ setMethod(f="right", signature=c(x="BilatBrainSurfaceVector"),
 
 normalize <- function(vals) (vals - min(vals))/(max(vals)-min(vals))
 
+
+#' curvature
+#'
 #' @rdname curvature-methods
 #' @export
 setMethod(f="curvature", signature=c(x="SurfaceGeometry"),

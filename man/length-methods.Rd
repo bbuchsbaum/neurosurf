@@ -3,10 +3,14 @@
 \docType{methods}
 \name{length,ROISurface-method}
 \alias{length,ROISurface-method}
+\title{indices}
 \usage{
 \S4method{length}{ROISurface}(x)
 }
 \arguments{
 \item{x}{the object to get \code{length}}
+}
+\description{
+indices
 }
 

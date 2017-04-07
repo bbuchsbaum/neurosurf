@@ -2,7 +2,7 @@
 % Please edit documentation in R/AllGeneric.R
 \name{blend_colors}
 \alias{blend_colors}
-\title{blend two color planes}
+\title{blend_colors}
 \usage{
 blend_colors(bottom, top, alpha)
 }

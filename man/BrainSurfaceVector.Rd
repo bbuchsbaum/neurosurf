@@ -2,7 +2,7 @@
 % Please edit documentation in R/BrainSurface.R
 \name{BrainSurfaceVector}
 \alias{BrainSurfaceVector}
-\title{construct a new BrainSurfaceVector}
+\title{BrainSurfaceVector}
 \usage{
 BrainSurfaceVector(geometry, indices, mat)
 }

@@ -3,7 +3,11 @@
 \docType{methods}
 \name{curvature,SurfaceGeometry-method}
 \alias{curvature,SurfaceGeometry-method}
+\title{curvature}
 \usage{
 \S4method{curvature}{SurfaceGeometry}(x)
+}
+\description{
+curvature
 }
 

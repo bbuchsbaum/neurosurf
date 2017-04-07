@@ -2,7 +2,7 @@
 % Please edit documentation in R/AllGeneric.R
 \name{right}
 \alias{right}
-\title{get right hemisphere}
+\title{right}
 \usage{
 right(x)
 }

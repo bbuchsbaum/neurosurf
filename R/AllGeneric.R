@@ -32,6 +32,8 @@ setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
 setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
 
 
+#' laplacian
+#'
 #' get compute graph laplacian
 #' @param x the object to get Laplacian from
 #' @param normalized logical indicating whether laplcian is normalized
@@ -40,15 +42,18 @@ setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
 #' @rdname graph-methods
 setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardGeneric("laplacian"))
 
-
+#' adjacency
+#'
 #' get adjacency graph
 #' @param x graph structure
 #' @param weights a \code{character} string indicating the edge attribute in the \code{igraph} object for the weights. If absent, weights are 0, 1.
 #' @param ... extra args
 #' @rdname graph-methods
+#' @rdname adjacency-methods
 setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacency"))
 
-
+#' blend_colors
+#'
 #' blend two color planes
 #' @param bottom
 #' @param top
@@ -56,6 +61,7 @@ setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacen
 setGeneric(name="blend_colors", def=function(bottom, top, alpha) standardGeneric("blend_colors"))
 
 #' map_colors
+#'
 #' @param x
 setGeneric(name="map_colors", def=function(x, ...) standardGeneric("map_colors"))
 
@@ -73,14 +79,20 @@ setGeneric(name="alpha_channel", def=function(x, ...) standardGeneric("alpha_cha
 
 
 #' curvature
+#'
 #' @param x
 #'@export
 setGeneric(name="curvature", def=function(x, ...) standardGeneric("curvature"))
 
+#' left
+#'
 #' get left hemisphere
 #' @param x the surface
 setGeneric(name="left", def=function(x) standardGeneric("left"))
 
+
+#' right
+#'
 #' get right hemisphere
 #' @param x the surface
 setGeneric(name="right", def=function(x) standardGeneric("right"))

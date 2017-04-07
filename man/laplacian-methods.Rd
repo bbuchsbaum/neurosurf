@@ -4,9 +4,15 @@
 \name{laplacian,SurfaceGeometry,missing,missing-method}
 \alias{laplacian,SurfaceGeometry,missing,missing-method}
 \alias{laplacian,SurfaceGeometry,missing,numeric-method}
+\title{laplacian}
 \usage{
 \S4method{laplacian}{SurfaceGeometry,missing,missing}(x)
 
 \S4method{laplacian}{SurfaceGeometry,missing,numeric}(x, weights)
+}
+\description{
+laplacian
+
+laplacian
 }
 

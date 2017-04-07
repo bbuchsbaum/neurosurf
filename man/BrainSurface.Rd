@@ -2,7 +2,7 @@
 % Please edit documentation in R/BrainSurface.R
 \name{BrainSurface}
 \alias{BrainSurface}
-\title{construct a new BrainSurface object}
+\title{BrainSurface}
 \usage{
 BrainSurface(geometry, indices, data)
 }

@@ -4,9 +4,15 @@
 \name{left,BilatBrainSurfaceVector-method}
 \alias{left,BilatBrainSurfaceVector-method}
 \alias{right,BilatBrainSurfaceVector-method}
+\title{left}
 \usage{
 \S4method{left}{BilatBrainSurfaceVector}(x)
 
 \S4method{right}{BilatBrainSurfaceVector}(x)
+}
+\description{
+left
+
+right
 }
 

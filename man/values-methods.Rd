@@ -4,9 +4,15 @@
 \name{values,ROISurface-method}
 \alias{values,ROISurface-method}
 \alias{values,ROISurfaceVector-method}
+\title{values}
 \usage{
 \S4method{values}{ROISurface}(x, ...)
 
 \S4method{values}{ROISurfaceVector}(x, ...)
+}
+\description{
+values
+
+values
 }
 

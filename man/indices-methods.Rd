@@ -5,11 +5,17 @@
 \alias{indices,BrainSurfaceVector-method}
 \alias{indices,ROISurface-method}
 \alias{indices,ROISurfaceVector-method}
+\title{indices}
 \usage{
 \S4method{indices}{BrainSurfaceVector}(x)
 
 \S4method{indices}{ROISurface}(x)
 
 \S4method{indices}{ROISurfaceVector}(x)
+}
+\description{
+indices
+
+indices
 }
 

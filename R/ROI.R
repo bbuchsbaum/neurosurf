@@ -80,7 +80,8 @@ roi_surface_matrix <- function(mat, refspace, indices, coords) {
 
 }
 
-
+#' values
+#'
 #' @rdname values-methods
 #' @export
 setMethod("values", signature(x="ROISurface"),
@@ -88,6 +89,9 @@ setMethod("values", signature(x="ROISurface"),
             x@data
           })
 
+
+#' values
+#'
 #' @rdname values-methods
 #' @export
 setMethod("values", signature(x="ROISurfaceVector"),
@@ -95,7 +99,8 @@ setMethod("values", signature(x="ROISurfaceVector"),
             x@data
           })
 
-
+#' indices
+#'
 #' @rdname indices-methods
 #' @export
 setMethod("indices", signature(x="ROISurface"),
@@ -103,6 +108,8 @@ setMethod("indices", signature(x="ROISurface"),
             x@indices
           })
 
+#' indices
+#'
 #' @rdname indices-methods
 #' @export
 setMethod("indices", signature(x="ROISurfaceVector"),
@@ -110,6 +117,7 @@ setMethod("indices", signature(x="ROISurfaceVector"),
             x@indices
           })
 
+#' indices
 #' @export
 #' @rdname coords-methods
 setMethod(f="coords", signature=signature(x="ROISurface"),
@@ -118,6 +126,7 @@ setMethod(f="coords", signature=signature(x="ROISurface"),
           })
 
 
+#' indices
 #' @export
 #' @rdname length-methods
 #' @param x the object to get \code{length}

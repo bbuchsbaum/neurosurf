@@ -5,11 +5,19 @@
 \alias{readMetaInfo,AFNISurfaceFileDescriptor-method}
 \alias{readMetaInfo,FreesurferAsciiSurfaceFileDescriptor-method}
 \alias{readMetaInfo,NIMLSurfaceFileDescriptor-method}
+\title{readMetaInfo}
 \usage{
 \S4method{readMetaInfo}{AFNISurfaceFileDescriptor}(x, fileName)
 
 \S4method{readMetaInfo}{NIMLSurfaceFileDescriptor}(x, fileName)
 
 \S4method{readMetaInfo}{FreesurferAsciiSurfaceFileDescriptor}(x, fileName)
+}
+\description{
+readMetaInfo
+
+readMetaInfo
+
+readMetaInfo
 }
 

@@ -5,11 +5,19 @@
 \alias{adjacency,SurfaceGeometry,character-method}
 \alias{adjacency,SurfaceGeometry,missing-method}
 \alias{adjacency,SurfaceGeometry,numeric-method}
+\title{adjacency}
 \usage{
 \S4method{adjacency}{SurfaceGeometry,numeric}(x, attr)
 
 \S4method{adjacency}{SurfaceGeometry,character}(x, attr)
 
 \S4method{adjacency}{SurfaceGeometry,missing}(x)
+}
+\description{
+adjacency
+
+adjacency
+
+adjacency
 }
 

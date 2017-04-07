@@ -2,12 +2,6 @@
 % Please edit documentation in R/AllGeneric.R, R/BrainSurface.R
 \docType{methods}
 \name{vertices}
-\alias{as.matrix,BrainSurfaceVector-method}
-\alias{coords,BrainSurface-method}
-\alias{coords,BrainSurfaceVector-method}
-\alias{coords,SurfaceGeometry-method}
-\alias{geometry,BrainSurface-method}
-\alias{geometry,BrainSurfaceVector-method}
 \alias{vertices}
 \alias{vertices,BrainSurface-method}
 \alias{vertices,BrainSurfaceVector-method}
@@ -15,18 +9,6 @@
 \title{extract vertices from surface}
 \usage{
 vertices(x, ...)
-
-\S4method{coords}{SurfaceGeometry}(x)
-
-\S4method{coords}{BrainSurfaceVector}(x)
-
-\S4method{coords}{BrainSurface}(x)
-
-\S4method{geometry}{BrainSurface}(x)
-
-\S4method{geometry}{BrainSurfaceVector}(x)
-
-\S4method{as.matrix}{BrainSurfaceVector}(x)
 
 \S4method{vertices}{BrainSurface}(x)
 

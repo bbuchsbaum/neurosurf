@@ -13,6 +13,7 @@
 
 
 #' readFreesurferAsciiHeader
+#'
 #' @param fileName the file
 #' @export
 readFreesurferAsciiHeader <- function(fileName) {
@@ -22,6 +23,7 @@ readFreesurferAsciiHeader <- function(fileName) {
 }
 
 #' readFreesurferAsciiGeometry
+#'
 #' @param fileName the file
 #' @importFrom readr read_table
 #' @export
@@ -42,6 +44,7 @@ readFreesurferAsciiGeometry <- function(fileName) {
 
 
 #' readAFNISurfaceHeader
+#'
 #' @param fileName the name of the AFNI 1D file
 #' @importFrom readr read_table
 #' @export
@@ -80,7 +83,8 @@ readNIMLSurfaceHeader <- function(fileName) {
 }
 
 
-
+#' readMetaInfo
+#'
 #' @rdname readMetaInfo-methods
 #' @export
 setMethod(f="readMetaInfo",signature=signature(x= "AFNISurfaceFileDescriptor"),
@@ -88,14 +92,16 @@ setMethod(f="readMetaInfo",signature=signature(x= "AFNISurfaceFileDescriptor"),
             .readMetaInfo(x, fileName, readAFNISurfaceHeader, AFNISurfaceDataMetaInfo)
           })
 
-
+#' readMetaInfo
+#'
 #' @rdname readMetaInfo-methods
 #' @export
 setMethod(f="readMetaInfo",signature=signature(x= "NIMLSurfaceFileDescriptor"),
           def=function(x, fileName) {
             .readMetaInfo(x, fileName, readNIMLSurfaceHeader, NIMLSurfaceDataMetaInfo)
           })
-
+#' readMetaInfo
+#'
 #' @rdname readMetaInfo-methods
 #' @export
 setMethod(f="readMetaInfo",signature=signature(x= "FreesurferAsciiSurfaceFileDescriptor"),
@@ -112,6 +118,8 @@ setMethod(f="readMetaInfo",signature=signature(x= "FreesurferAsciiSurfaceFileDes
   constructor(desc, header)
 }
 
+#' dataReader
+#'
 #' @rdname dataReader-methods
 setMethod(f="dataReader", signature=signature("SurfaceGeometryMetaInfo"),
           def=function(x) {
@@ -126,6 +134,9 @@ setMethod(f="dataReader", signature=signature("SurfaceGeometryMetaInfo"),
             new("ColumnReader", nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
           })
 
+
+#' dataReader
+#'
 #' @rdname dataReader-methods
 setMethod(f="dataReader", signature=signature("NIMLSurfaceDataMetaInfo"),
           def=function(x) {

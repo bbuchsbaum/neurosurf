@@ -4,9 +4,15 @@
 \name{dataReader,SurfaceGeometryMetaInfo-method}
 \alias{dataReader,NIMLSurfaceDataMetaInfo-method}
 \alias{dataReader,SurfaceGeometryMetaInfo-method}
+\title{dataReader}
 \usage{
 \S4method{dataReader}{SurfaceGeometryMetaInfo}(x)
 
 \S4method{dataReader}{NIMLSurfaceDataMetaInfo}(x)
+}
+\description{
+dataReader
+
+dataReader
 }
 

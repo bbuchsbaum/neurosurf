@@ -8,6 +8,7 @@
 \alias{series,BrainSurfaceVector,numeric-method}
 \alias{series_roi,BrainSurfaceVector,ROISurface-method}
 \alias{series_roi,BrainSurfaceVector,numeric-method}
+\title{series}
 \usage{
 \S4method{series}{BrainSurfaceVector,numeric}(x, i)
 
@@ -25,5 +26,18 @@
 a class of type \code{Matrix}
 
 a class of type \code{ROISurfaceVector}
+}
+\description{
+series
+
+series_roi
+
+series
+
+series
+
+series_roi
+
+series
 }
 
