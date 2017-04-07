@@ -3,6 +3,8 @@
 \docType{methods}
 \name{vertices}
 \alias{as.matrix,BrainSurfaceVector-method}
+\alias{coords,BrainSurface-method}
+\alias{coords,BrainSurfaceVector-method}
 \alias{coords,SurfaceGeometry-method}
 \alias{geometry,BrainSurface-method}
 \alias{geometry,BrainSurfaceVector-method}
@@ -15,6 +17,10 @@
 vertices(x, ...)
 
 \S4method{coords}{SurfaceGeometry}(x)
+
+\S4method{coords}{BrainSurfaceVector}(x)
+
+\S4method{coords}{BrainSurface}(x)
 
 \S4method{geometry}{BrainSurface}(x)
 
