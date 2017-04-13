@@ -1,3 +1,5 @@
+.resample <- function(x, ...) x[sample.int(length(x), ...)]
+
 
 #' Create a Random Searchlight iterator for surface mesh using geodesic distance to define regions.
 #'
@@ -39,6 +41,8 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL) {
 
   prog <- function() { sum(done)/length(done) }
 
+
+
   nextEl <- function() {
     if (!all(done)) {
       ## sample from remaining nodes
@@ -52,10 +56,12 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL) {
         vout <- nodeset[indices]
         attr(vout, "center") <- nodeset[center]
         attr(vout, "center.index") <- nodeset[center]
+        attr(vout, "length") <- length(vout)
         vout
       } else {
         attr(indices, "center") <- center
         attr(indices, "center.index") <- center
+        attr(indices, "length") <- length(indices)
         indices
       }
 
@@ -70,6 +76,9 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL) {
 
 }
 
+
+#' SurfaceSearchlight
+#'
 #' Create a Searchlight iterator for surface mesh using geodesic distance to define regions.
 #'
 #' @param surfgeom a surface mesh: instance of class \code{SurfaceGeometry}
@@ -83,12 +92,12 @@ SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type="
   g <- if (is.null(nodeset)) {
     ## use all surface nodes
     nodeset <- nodes(surfgeom)
-    subgraph = FALSE
-    neuroim::graph(surfgeom)
+    subgraph <- FALSE
+    neurosurf::graph(surfgeom)
   } else {
     assertthat::assert_that(length(nodeset) > 1)
     subgraph=TRUE
-    g <- igraph::induced_subgraph(neuroim::graph(surfgeom), nodeset)
+    igraph::induced_subgraph(neurosurf::graph(surfgeom), nodeset)
   }
 
   bg <- neighborGraph(g, radius=radius, distance_type=distance_type)
@@ -111,10 +120,12 @@ SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type="
         indices <- nodeset[indices]
         attr(indices, "center") <- nodeset[index]
         attr(indices, "center.index") <- nodeset[index]
+        attr(indices, "length") <- length(indices)
         indices
       } else {
         attr(indices, "center") <- index
         attr(indices, "center.index") <- index
+        attr(indices, "length") <- length(indices)
         indices
       }
 

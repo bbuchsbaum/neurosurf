@@ -14,7 +14,6 @@ writeSurfaceData <- function(bsurf, outstem, hemi) {
 
 #' @importFrom stringr str_trim
 #' @importFrom stringr str_split
-#' @export
 loadSpec <- function(spec) {
   base_dir <- dirname(normalizePath(spec))
 
@@ -83,7 +82,8 @@ loadSpec <- function(spec) {
 }
 
 
-
+#' loadSurface
+#'
 #' load a surface from a surface geometry file with optional mapped surface data
 #'
 #' @param surfaceName the name of the file containing the surface geometry.
@@ -160,7 +160,8 @@ loadSurfaceDataset <- function(leftGeometry, rightGeometry, leftDataNames, right
 }
 
 
-
+#' loadSurfaceGeometry
+#'
 #' load surface geometry from file
 #'
 #' @param surfaceName the name of the file containing the surface geometry.
@@ -171,6 +172,9 @@ loadSurfaceGeometry <- function(surfaceName) {
 
 }
 
+
+#' SurfaceGeometrySource
+#'
 #' Constructor for SurfaceGeometrySource
 #'
 #' @param surfaceName the name of the file containing the surface geometry.
@@ -225,6 +229,17 @@ BrainSurfaceSource <- function(surfaceGeom, surfaceDataName, colind=NULL) {
   }
 
 }
+
+#' coords
+#'
+#' @rdname coords-methods
+#' @export
+setMethod(f="coords", signature=c("igraph"),
+          def=function(x) {
+            cbind(igraph:::vertex_attr(x, "x"),
+                  igraph:::vertex_attr(x, "y"),
+                  igraph:::vertex_attr(x, "z"))
+          })
 
 
 #' coords
@@ -457,7 +472,7 @@ setMethod(f="show", signature=signature("BrainSurfaceVector"),
           def=function(object) {
             cat("BrainSurfaceVector \n")
             cat("  num vertices: ", length(nodes(object@geometry)), "\n")
-            cat("  num sub-indices:", length(object@indices), "\n")
+            cat("  num nonzero indices:", length(object@indices), "\n")
             cat("  num samples:", ncol(object@data), "\n")
 
           })
@@ -487,16 +502,15 @@ setMethod(f="loadData", signature=c("BrainSurfaceVectorSource"),
             ## the set of valid nodes
             valid_nodes <- nodes[!allzero]
 
-
-            mat <- if (nvert > length(valid_nodes) && length(nodes)/nvert < .5) {
+            mat <- if (nvert > length(valid_nodes) && length(valid_nodes)/nvert < .5) {
               M <- do.call(rbind, lapply(1:ncol(mat), function(i) {
                 cbind(i=valid_nodes, j=i, x=mat[,i])
               }))
 
               Matrix::sparseMatrix(i=M[,1], j=M[,2], x=M[,3], dim=c(length(nodes), ncol(mat)))
-            } else if (nvert > length(nodes)) {
+            } else if (nvert > length(valid_nodes)) {
               m <- matrix(0, nvert, ncol(mat))
-              m[nodes, 1:ncol(mat)] <- mat[nodes,]
+              m[valid_nodes, 1:ncol(mat)] <- mat[!allzero,]
               Matrix::Matrix(m)
             } else {
               Matrix::Matrix(mat)
@@ -639,8 +653,14 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 #' @export
 #' @importFrom FNN get.knn
 findAllNeighbors <- function(surf, radius, edgeWeights, nodes=NULL, distance_type=c("euclidean", "geodesic", "spherical")) {
+  if (inherits(surf, "igraph")) {
+    g <- surf
+  } else {
+    g <- graph(surf)
+  }
+
+
   distance_type <- match.arg(distance_type)
-  g <- graph(surf)
 
   avg_weight <- quantile(edgeWeights, .25)
 
@@ -650,7 +670,8 @@ findAllNeighbors <- function(surf, radius, edgeWeights, nodes=NULL, distance_typ
 
   all_can <- FNN::get.knn(coords(surf), k=ceiling((radius+2)/avg_weight)^3)
 
-  cds <- coords(surf)
+  cds <- coords(g)
+
   if (distance_type == "spherical") {
     print("spherical")
     R <- diff(range(cds[,1]))/2
@@ -691,6 +712,20 @@ findAllNeighbors <- function(surf, radius, edgeWeights, nodes=NULL, distance_typ
   igraph::E(g)$dist <- as.numeric(mat[,3])
   g
 }
+
+#' @rdname neighborGraph-methods
+#' @importFrom grDevices rainbow
+#' @export
+#' @aliases neighborGraph,igraph,numeric,missing,missing
+setMethod(f="neighborGraph", signature=c(x="igraph", radius="numeric", edgeWeights="missing", nodes="missing"),
+          def=function(x, radius, distance_type=c("geodesic", "euclidean", "spherical")) {
+            distance_type <- match.arg(distance_type)
+            edgeWeights=igraph::E(x)$dist
+            nabeinfo <- findAllNeighbors(x, radius, as.vector(edgeWeights), distance_type=distance_type)
+            .neighbors_to_graph(nabeinfo)
+          })
+
+
 
 
 #' @rdname neighborGraph-methods

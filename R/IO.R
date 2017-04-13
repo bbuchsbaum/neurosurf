@@ -11,7 +11,6 @@
 }
 
 
-
 #' readFreesurferAsciiHeader
 #'
 #' @param fileName the file
