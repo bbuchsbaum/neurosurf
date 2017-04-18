@@ -19,4 +19,3 @@ default is computed based on average edge length.}
 \description{
 Creates a Region on a Surface from a radius and surface
 }
-

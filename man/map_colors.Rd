@@ -9,4 +9,3 @@ map_colors(x, ...)
 \description{
 map_colors
 }
-

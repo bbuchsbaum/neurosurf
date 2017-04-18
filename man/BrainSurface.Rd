@@ -16,4 +16,3 @@ BrainSurface(geometry, indices, data)
 \description{
 construct a new BrainSurface object
 }
-

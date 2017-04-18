@@ -12,4 +12,3 @@ readFreesurferAsciiGeometry(fileName)
 \description{
 readFreesurferAsciiGeometry
 }
-

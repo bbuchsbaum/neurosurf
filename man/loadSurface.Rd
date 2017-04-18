@@ -2,9 +2,10 @@
 % Please edit documentation in R/BrainSurface.R
 \name{loadSurface}
 \alias{loadSurface}
-\title{load a surface from a surface geometry file with optional mapped surface data}
+\title{loadSurface}
 \usage{
-loadSurface(surfaceName, surfaceDataName = NULL, colind = NULL)
+loadSurface(surfaceName, surfaceDataName = NULL, colind = NULL,
+  nodeind = NULL)
 }
 \arguments{
 \item{surfaceName}{the name of the file containing the surface geometry.}
@@ -12,6 +13,8 @@ loadSurface(surfaceName, surfaceDataName = NULL, colind = NULL)
 \item{surfaceDataName}{the name of the file containing the values to be mapped to the surface (optional).}
 
 \item{colind}{the columns/samples to load (optional), only if \code{surfaceDataName} is not \code{NULL}}
+
+\item{nodeind}{the subset of node indices to load}
 }
 \value{
 an instance of the class:
@@ -22,4 +25,3 @@ an instance of the class:
 \description{
 load a surface from a surface geometry file with optional mapped surface data
 }
-

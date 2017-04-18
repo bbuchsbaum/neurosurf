@@ -9,4 +9,3 @@ blend_colors(bottom, top, alpha)
 \description{
 blend two color planes
 }
-

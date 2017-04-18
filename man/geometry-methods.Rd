@@ -19,4 +19,3 @@ geometry(x)
 \description{
 extract geometry object
 }
-

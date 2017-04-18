@@ -2,11 +2,12 @@
 % Please edit documentation in R/AllClass.R, R/BrainSurface.R
 \docType{class}
 \name{BrainSurfaceSource-class}
-\alias{BrainSurfaceSource}
 \alias{BrainSurfaceSource-class}
+\alias{BrainSurfaceSource}
 \title{BrainSurfaceSource}
 \usage{
-BrainSurfaceSource(surfaceGeom, surfaceDataName, colind = NULL)
+BrainSurfaceSource(surfaceGeom, surfaceDataName, colind = NULL,
+  nodeind = NULL)
 }
 \arguments{
 \item{surfaceGeom}{the name of the file containing the surface geometry or a \code{SurfaceGeometry} instance}
@@ -14,6 +15,8 @@ BrainSurfaceSource(surfaceGeom, surfaceDataName, colind = NULL)
 \item{surfaceDataName}{the name of the file containing the data values to be mapped to the surface.}
 
 \item{colind}{the subset of column indices to load from surface data matrix (if provided)}
+
+\item{nodeind}{the subset of node indices to load from surface data matrix (if provided)}
 }
 \description{
 A class that is used to produce a \code{\linkS4class{BrainSurface}} instance

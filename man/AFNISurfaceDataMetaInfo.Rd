@@ -14,4 +14,3 @@ AFNISurfaceDataMetaInfo(descriptor, header)
 \description{
 Constructor for \code{\linkS4class{AFNISurfaceDataMetaInfo}} class
 }
-

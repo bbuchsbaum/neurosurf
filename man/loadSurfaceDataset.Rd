@@ -18,4 +18,3 @@ loadSurfaceDataset(leftGeometry, rightGeometry, leftDataNames, rightDataNames)
 \description{
 load one or more surface datasets for both left and right hemispheres
 }
-

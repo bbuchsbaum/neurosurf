@@ -12,4 +12,3 @@ readAFNISurfaceHeader(fileName)
 \description{
 readAFNISurfaceHeader
 }
-

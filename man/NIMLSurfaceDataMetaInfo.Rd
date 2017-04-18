@@ -14,4 +14,3 @@ NIMLSurfaceDataMetaInfo(descriptor, header)
 \description{
 Constructor for \code{\linkS4class{NIMLSurfaceDataMetaInfo}} class
 }
-

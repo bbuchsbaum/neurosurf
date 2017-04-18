@@ -2,8 +2,8 @@
 % Please edit documentation in R/IO.R
 \docType{methods}
 \name{dataReader,SurfaceGeometryMetaInfo-method}
-\alias{dataReader,NIMLSurfaceDataMetaInfo-method}
 \alias{dataReader,SurfaceGeometryMetaInfo-method}
+\alias{dataReader,NIMLSurfaceDataMetaInfo-method}
 \title{dataReader}
 \usage{
 \S4method{dataReader}{SurfaceGeometryMetaInfo}(x)
@@ -15,4 +15,3 @@ dataReader
 
 dataReader
 }
-

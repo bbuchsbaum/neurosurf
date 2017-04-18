@@ -3,8 +3,8 @@
 \docType{methods}
 \name{readMetaInfo,AFNISurfaceFileDescriptor-method}
 \alias{readMetaInfo,AFNISurfaceFileDescriptor-method}
-\alias{readMetaInfo,FreesurferAsciiSurfaceFileDescriptor-method}
 \alias{readMetaInfo,NIMLSurfaceFileDescriptor-method}
+\alias{readMetaInfo,FreesurferAsciiSurfaceFileDescriptor-method}
 \title{readMetaInfo}
 \usage{
 \S4method{readMetaInfo}{AFNISurfaceFileDescriptor}(x, fileName)
@@ -20,4 +20,3 @@ readMetaInfo
 
 readMetaInfo
 }
-

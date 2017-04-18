@@ -2,12 +2,12 @@
 % Please edit documentation in R/AllGeneric.R, R/BrainSurface.R
 \docType{methods}
 \name{graph}
-\alias{adjacency}
 \alias{graph}
+\alias{laplacian}
+\alias{adjacency}
 \alias{graph,BrainSurface-method}
 \alias{graph,BrainSurfaceVector-method}
 \alias{graph,SurfaceGeometry-method}
-\alias{laplacian}
 \title{extract \code{igraph} object}
 \usage{
 graph(x, ...)
@@ -54,4 +54,3 @@ graph
 
 graph
 }
-

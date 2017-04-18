@@ -114,7 +114,8 @@ setClass("SurfaceGeometrySource",
 setClass("BrainSurfaceSource", representation=
            representation(geometry="SurfaceGeometry",
                           dataMetaInfo="SurfaceDataMetaInfo",
-                          colind="integer"),
+                          colind="integer",
+                          nodeinf="integer"),
          contains=c("BaseSource"))
 
 #' BrainSurfaceVectorSource
@@ -129,7 +130,8 @@ setClass("BrainSurfaceSource", representation=
 setClass("BrainSurfaceVectorSource", representation=
            representation(geometry="SurfaceGeometry",
                           dataMetaInfo="SurfaceDataMetaInfo",
-                          colind="integer"),
+                          colind="integer",
+                          nodeind="integer"),
          contains=c("BrainSurfaceSource"))
 
 

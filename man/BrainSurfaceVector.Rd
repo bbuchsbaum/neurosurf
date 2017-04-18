@@ -16,4 +16,3 @@ BrainSurfaceVector(geometry, indices, mat)
 \description{
 construct a new BrainSurfaceVector
 }
-

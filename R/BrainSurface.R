@@ -1,12 +1,24 @@
 
-
+#' writeSurfaceData
+#'
+#' @param bsurf a class of type \code{BrainSurface} or \code{BrainSurfaceVector}
 writeSurfaceData <- function(bsurf, outstem, hemi) {
-  nodes <- bsurf@indices - 1
-  dat <- bsurf@data
-  out <- as.data.frame(cbind(nodes, dat))
+  assert_that(inherits(bsurf, "BrainSurface") || inherits(bsurf, "BrainSurfaceVector"))
 
-  fname <- paste0(outstem, "_", hemi, ".1D.dset")
-  write.table(out, file=fname, row.names=FALSE, col.names=FALSE)
+  nodes <- bsurf@indices - 1
+  keep <- nodes(bsurf@geometry) %in% bsurf@indices
+
+  if (inherits(bsurf, "BrainSurfaceVector")) {
+    dat <- as.matrix(bsurf@data[keep,])
+    out <- as.data.frame(cbind(nodes, dat))
+    fname <- paste0(outstem, "_", hemi, ".1D.dset")
+    write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
+  } else {
+    dat <- bsurf@data
+    out <- as.data.frame(cbind(nodes, dat[keep]))
+    fname <- paste0(outstem, "_", hemi, ".1D.dset")
+    write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
+  }
 }
 
 
@@ -89,17 +101,18 @@ loadSpec <- function(spec) {
 #' @param surfaceName the name of the file containing the surface geometry.
 #' @param surfaceDataName the name of the file containing the values to be mapped to the surface (optional).
 #' @param colind the columns/samples to load (optional), only if \code{surfaceDataName} is not \code{NULL}
+#' @param nodeind the subset of node indices to load
 #' @return an instance of the class:
 #'  \code{\linkS4class{SurfaceGeometry}}
 #'  or \code{\linkS4class{BrainSurface}}
 #'  or \code{\linkS4class{BrainSurfaceVector}}
 #' @export
-loadSurface  <- function(surfaceName, surfaceDataName=NULL, colind=NULL) {
+loadSurface  <- function(surfaceName, surfaceDataName=NULL, colind=NULL, nodeind=NULL) {
   if (is.null(surfaceDataName)) {
     surfSource <- SurfaceGeometrySource(surfaceName)
     loadData(surfSource)
   } else {
-    src <- BrainSurfaceSource(surfaceName, surfaceDataName, colind)
+    src <- BrainSurfaceSource(surfaceName, surfaceDataName, colind, nodeind)
     loadData(src)
   }
 }
@@ -109,10 +122,11 @@ loadSurface  <- function(surfaceName, surfaceDataName=NULL, colind=NULL) {
 #' @param geometry a \code{\linkS4class{SurfaceGeometry}} instance
 #' @param surfaceDataName the name of the file containing the values to be mapped to the surface.
 #' @param colind the subset column indices of surface dataset to load (optional)
+#' @param nodeind the subset node indices of surface dataset to include (optional)
 #' @return an instance of the class \code{\linkS4class{BrainSurface}} or \code{\linkS4class{BrainSurfaceVector}}
 #' @export
-loadSurfaceData  <- function(geometry, surfaceDataName, colind=NULL) {
-  src <- BrainSurfaceSource(geometry, surfaceDataName, colind)
+loadSurfaceData  <- function(geometry, surfaceDataName, colind=NULL, nodeind=NULL) {
+  src <- BrainSurfaceSource(geometry, surfaceDataName, colind, nodeind)
   loadData(src)
 }
 
@@ -203,9 +217,10 @@ setMethod(f="show", signature=signature("SurfaceGeometry"),
 #' @param surfaceGeom the name of the file containing the surface geometry or a \code{SurfaceGeometry} instance
 #' @param surfaceDataName the name of the file containing the data values to be mapped to the surface.
 #' @param colind the subset of column indices to load from surface data matrix (if provided)
+#' @param nodeind the subset of node indices to load from surface data matrix (if provided)
 #' @export
 #' @rdname BrainSurfaceSource-class
-BrainSurfaceSource <- function(surfaceGeom, surfaceDataName, colind=NULL) {
+BrainSurfaceSource <- function(surfaceGeom, surfaceDataName, colind=NULL, nodeind=NULL) {
   if (is.character(surfaceGeom)) {
     assert_that(file.exists(surfaceGeom))
     src <- SurfaceGeometrySource(surfaceGeom)
@@ -218,14 +233,20 @@ BrainSurfaceSource <- function(surfaceGeom, surfaceDataName, colind=NULL) {
     colind <- 1:dataMetaInfo@nels
   }
 
+  if (is.null(nodeind)) {
+    nodeind <- nodes(surfaceGeom)
+  }
+
   if (length(colind) > 1 && dataMetaInfo@nels > 1) {
     new("BrainSurfaceVectorSource", geometry=surfaceGeom,
         dataMetaInfo=dataMetaInfo,
-        colind=as.integer(colind))
+        colind=as.integer(colind),
+        nodeind=as.integer(nodeind))
   } else {
     new("BrainSurfaceSource", geometry=surfaceGeom,
         dataMetaInfo=dataMetaInfo,
-        colind=as.integer(colind))
+        colind=as.integer(colind),
+        nodeinf=as.integer(nodeind))
   }
 
 }
@@ -492,7 +513,9 @@ setMethod(f="loadData", signature=c("BrainSurfaceVectorSource"),
 
             reader <- dataReader(x@dataMetaInfo,0)
 
+            ## the node indices of the data file -- this could be a subset of the nodes in the surface geometry.
             nodes <- readColumns(reader, 0) + 1
+
             mat <- readColumns(reader, x@colind)
             nvert <- ncol(geometry@mesh$vb)
 
@@ -500,17 +523,20 @@ setMethod(f="loadData", signature=c("BrainSurfaceVectorSource"),
             allzero <- apply(mat, 1, function(vals) all(vals == 0))
 
             ## the set of valid nodes
-            valid_nodes <- nodes[!allzero]
+            keep <- (nodes %in% x@nodeind) & !allzero
+            valid_nodes <- nodes[keep]
 
             mat <- if (nvert > length(valid_nodes) && length(valid_nodes)/nvert < .5) {
+              ## sparse matrix
               M <- do.call(rbind, lapply(1:ncol(mat), function(i) {
-                cbind(i=valid_nodes, j=i, x=mat[,i])
+                cbind(i=valid_nodes, j=i, x=mat[keep,i])
               }))
 
-              Matrix::sparseMatrix(i=M[,1], j=M[,2], x=M[,3], dim=c(length(nodes), ncol(mat)))
+              Matrix::sparseMatrix(i=M[,1], j=M[,2], x=M[,3], dims=c(length(nodes), ncol(mat)))
             } else if (nvert > length(valid_nodes)) {
+              ## dense
               m <- matrix(0, nvert, ncol(mat))
-              m[valid_nodes, 1:ncol(mat)] <- mat[!allzero,]
+              m[valid_nodes, 1:ncol(mat)] <- mat[keep,]
               Matrix::Matrix(m)
             } else {
               Matrix::Matrix(mat)
@@ -540,11 +566,15 @@ setMethod(f="loadData", signature=c("BrainSurfaceSource"),
             geometry <- x@geometry
             reader <- dataReader(x@dataMetaInfo,0)
             nodes <- readColumns(reader,0) + 1
-            vals<- readColumns(reader, x@index)[,1]
+
+            keep <- nodes %in% x@nodeind
+            nodes <- nodes[keep]
+
+            vals <- readColumns(reader, x@index)[,1]
             nvert <- ncol(geometry@mesh$vb)
 
             avals <- numeric(nvert)
-            avals[nodes] <- vals
+            avals[nodes] <- vals[keep]
             surf<- new("BrainSurface", source=x, geometry=geometry, data=avals)
 
           })

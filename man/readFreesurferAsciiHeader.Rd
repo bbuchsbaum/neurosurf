@@ -12,4 +12,3 @@ readFreesurferAsciiHeader(fileName)
 \description{
 readFreesurferAsciiHeader
 }
-

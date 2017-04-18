@@ -3,17 +3,22 @@
 \docType{methods}
 \name{neighborGraph}
 \alias{neighborGraph}
-\alias{neighborGraph,SurfaceGeometry,numeric,missing,integer-method}
-\alias{neighborGraph,SurfaceGeometry,numeric,missing,missing-method}
-\alias{neighborGraph,SurfaceGeometry,numeric,numeric,integer-method}
-\alias{neighborGraph,SurfaceGeometry,numeric,numeric,missing-method}
-\alias{neighborGraph,igraph,numeric,missing,integer}
+\alias{neighborGraph,igraph,numeric,missing,missing-method}
 \alias{neighborGraph,igraph,numeric,missing,missing}
-\alias{neighborGraph,igraph,numeric,numeric,integer}
+\alias{neighborGraph,SurfaceGeometry,numeric,missing,missing-method}
+\alias{neighborGraph,igraph,numeric,missing,missing}
+\alias{neighborGraph,SurfaceGeometry,numeric,numeric,missing-method}
 \alias{neighborGraph,igraph,numeric,numeric,missing}
+\alias{neighborGraph,SurfaceGeometry,numeric,numeric,integer-method}
+\alias{neighborGraph,igraph,numeric,numeric,integer}
+\alias{neighborGraph,SurfaceGeometry,numeric,missing,integer-method}
+\alias{neighborGraph,igraph,numeric,missing,integer}
 \title{Generic function to construct neighborhood graph from surface mesh using edge weights.}
 \usage{
 neighborGraph(x, radius, edgeWeights, nodes, ...)
+
+\S4method{neighborGraph}{igraph,numeric,missing,missing}(x, radius,
+  distance_type = c("geodesic", "euclidean", "spherical"))
 
 \S4method{neighborGraph}{SurfaceGeometry,numeric,missing,missing}(x, radius,
   distance_type = c("geodesic", "euclidean", "spherical"))
@@ -41,4 +46,3 @@ neighborGraph(x, radius, edgeWeights, nodes, ...)
 \description{
 Generic function to construct neighborhood graph from surface mesh using edge weights.
 }
-

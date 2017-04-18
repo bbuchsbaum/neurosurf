@@ -17,4 +17,3 @@ an \code{igraph} instance representing th mesh connectivity.
 \description{
 construct a graph from a set of vertices and nodes faces.
 }
-

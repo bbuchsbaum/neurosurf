@@ -12,4 +12,3 @@ readNIMLSurfaceHeader(fileName)
 \description{
 readNIMLSurfaceHeader
 }
-

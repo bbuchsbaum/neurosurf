@@ -2,7 +2,7 @@
 
 
 .readHeader <- function(fileName) {
-  desc <- findDescriptor(fileName)
+  desc <- findSurfaceDescriptor(fileName)
   if (is.null(desc)) {
     stop(paste("could not find reader for file: ", fileName))
   }
@@ -153,11 +153,11 @@ setMethod(f="dataReader", signature=signature("NIMLSurfaceDataMetaInfo"),
 
 
 
-findDescriptor <- function(fileName) {
+findSurfaceDescriptor <- function(fileName) {
 
-  if (fileMatches(NIML_SURFACE_DSET, fileName)) NIML_SURFACE_DSET
-  else if (fileMatches(FREESURFER_ASCII_SURFACE_DSET, fileName)) FREESURFER_ASCII_SURFACE_DSET
-  else if (fileMatches(AFNI_SURFACE_DSET, fileName)) AFNI_SURFACE_DSET
+  if (neuroim::fileMatches(NIML_SURFACE_DSET, fileName)) NIML_SURFACE_DSET
+  else if (neuroim:::fileMatches(FREESURFER_ASCII_SURFACE_DSET, fileName)) FREESURFER_ASCII_SURFACE_DSET
+  else if (neuroim::fileMatches(AFNI_SURFACE_DSET, fileName)) AFNI_SURFACE_DSET
   else NULL
 }
 

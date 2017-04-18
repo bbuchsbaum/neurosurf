@@ -9,4 +9,3 @@ curvature(x, ...)
 \description{
 curvature
 }
-

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Searchlight.R
 \name{SurfaceSearchlight}
 \alias{SurfaceSearchlight}
-\title{Create a Searchlight iterator for surface mesh using geodesic distance to define regions.}
+\title{SurfaceSearchlight}
 \usage{
 SurfaceSearchlight(surfgeom, radius = 8, nodeset = NULL,
   distance_type = "geodesic")
@@ -17,4 +17,3 @@ SurfaceSearchlight(surfgeom, radius = 8, nodeset = NULL,
 \description{
 Create a Searchlight iterator for surface mesh using geodesic distance to define regions.
 }
-

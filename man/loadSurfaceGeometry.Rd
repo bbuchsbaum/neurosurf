@@ -2,7 +2,7 @@
 % Please edit documentation in R/BrainSurface.R
 \name{loadSurfaceGeometry}
 \alias{loadSurfaceGeometry}
-\title{load surface geometry from file}
+\title{loadSurfaceGeometry}
 \usage{
 loadSurfaceGeometry(surfaceName)
 }
@@ -12,4 +12,3 @@ loadSurfaceGeometry(surfaceName)
 \description{
 load surface geometry from file
 }
-
