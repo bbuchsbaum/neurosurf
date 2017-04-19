@@ -3,7 +3,7 @@
 #'
 #' @param bsurf a class of type \code{BrainSurface} or \code{BrainSurfaceVector}
 writeSurfaceData <- function(bsurf, outstem, hemi) {
-  assert_that(inherits(bsurf, "BrainSurface") || inherits(bsurf, "BrainSurfaceVector"))
+  assert_that(inherits(bsurf, "BrainSurface") || inherits(bsurf, "BrainS urfaceVector"))
 
   nodes <- bsurf@indices - 1
   keep <- nodes(bsurf@geometry) %in% bsurf@indices
