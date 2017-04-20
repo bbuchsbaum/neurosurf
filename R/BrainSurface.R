@@ -246,7 +246,7 @@ BrainSurfaceSource <- function(surfaceGeom, surfaceDataName, colind=NULL, nodein
     new("BrainSurfaceSource", geometry=surfaceGeom,
         dataMetaInfo=dataMetaInfo,
         colind=as.integer(colind),
-        nodeinf=as.integer(nodeind))
+        nodeind=as.integer(nodeind))
   }
 
 }
@@ -356,6 +356,13 @@ setMethod(f="indices", signature=c("BrainSurfaceVector"),
 #' @rdname nodes-methods
 #' @export
 setMethod(f="nodes", signature=c("BrainSurface"),
+          def=function(x) {
+            callGeneric(x@geometry)
+          })
+
+#' @rdname nodes-methods
+#' @export
+setMethod(f="nodes", signature=c("BrainSurfaceVector"),
           def=function(x) {
             callGeneric(x@geometry)
           })
