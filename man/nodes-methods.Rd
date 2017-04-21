@@ -5,6 +5,7 @@
 \alias{nodes}
 \alias{nodes,SurfaceGeometry-method}
 \alias{nodes,BrainSurface-method}
+\alias{nodes,BrainSurfaceVector-method}
 \title{extract surface node numbers}
 \usage{
 nodes(x)
@@ -12,6 +13,8 @@ nodes(x)
 \S4method{nodes}{SurfaceGeometry}(x)
 
 \S4method{nodes}{BrainSurface}(x)
+
+\S4method{nodes}{BrainSurfaceVector}(x)
 }
 \arguments{
 \item{x}{the surface object}

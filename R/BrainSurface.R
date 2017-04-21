@@ -2,7 +2,10 @@
 #' writeSurfaceData
 #'
 #' @param bsurf a class of type \code{BrainSurface} or \code{BrainSurfaceVector}
-writeSurfaceData <- function(bsurf, outstem, hemi) {
+#' @param outstem the name of the output file, not including extension
+#' @param hemi name of hemisphere ("lh" or "rh")
+#' @export
+writeSurfaceData <- function(bsurf, outstem, hemi="") {
   assert_that(inherits(bsurf, "BrainSurface") || inherits(bsurf, "BrainSurfaceVector"))
 
   nodes <- bsurf@indices - 1
