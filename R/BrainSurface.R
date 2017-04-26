@@ -580,7 +580,7 @@ setMethod(f="loadData", signature=c("BrainSurfaceSource"),
             keep <- nodes %in% x@nodeind
             nodes <- nodes[keep]
 
-            vals <- readColumns(reader, x@index)[,1]
+            vals <- readColumns(reader, x@colind)[,1]
             nvert <- ncol(geometry@mesh$vb)
 
             avals <- numeric(nvert)
