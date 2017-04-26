@@ -11,15 +11,21 @@ writeSurfaceData <- function(bsurf, outstem, hemi="") {
   nodes <- bsurf@indices - 1
   keep <- nodes(bsurf@geometry) %in% bsurf@indices
 
+  marker <- if (hemi == "") {
+    ""
+  } else {
+    paste0("_", hemi)
+  }
+
   if (inherits(bsurf, "BrainSurfaceVector")) {
     dat <- as.matrix(bsurf@data[keep,])
     out <- as.data.frame(cbind(nodes, dat))
-    fname <- paste0(outstem, "_", hemi, ".1D.dset")
+    fname <- paste0(outstem, marker, ".1D.dset")
     write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
   } else {
     dat <- bsurf@data
     out <- as.data.frame(cbind(nodes, dat[keep]))
-    fname <- paste0(outstem, "_", hemi, ".1D.dset")
+    fname <- paste0(outstem, marker, ".1D.dset")
     write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
   }
 }
