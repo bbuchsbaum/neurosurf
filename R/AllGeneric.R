@@ -31,6 +31,13 @@ setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
 #' @rdname graph-methods
 setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
 
+#' smooth a surface
+#' @param x the surface object to smooth
+#' @param sigma the bandwidth
+#' @param ... extra args
+#' @rdname smooth-methods
+setGeneric(name="smooth", def=function(x, sigma, ...) standardGeneric("smooth"))
+
 
 #' laplacian
 #'
