@@ -110,6 +110,7 @@ setClass("SurfaceGeometrySource",
 #' @slot geometry a \code{\linkS4class{SurfaceGeometry}} instance
 #' @slot dataMetaInfo a \code{\linkS4class{SurfaceDataMetaInfo}} instance
 #' @slot colind the column index of the surface map to be loaded.
+#' @slot nodeind the node indices of the surface map to be loaded.
 #' @export
 setClass("BrainSurfaceSource", representation=
            representation(geometry="SurfaceGeometry",

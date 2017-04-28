@@ -443,6 +443,57 @@ setMethod("series", signature(x="BrainSurface", i="numeric"),
           })
 
 
+#' fill
+#'
+#' @importMethodsFrom neuroim fill
+#' @export
+#' @rdname fill-methods
+setMethod("fill", signature(x="BrainSurface", lookup="list"),
+          def=function(x,lookup) {
+            outv <- lookup[as.vector(x@data)]
+            BrainSurface(geometry=x@geometry, indices=x@indices, data=outv)
+
+          })
+
+
+
+
+
+#' fill
+#'
+#' @importMethodsFrom neuroim fill
+#' @export
+#' @rdname fill-methods
+setMethod("fill", signature(x="BrainSurface", lookup="matrix"),
+          def=function(x,lookup) {
+            if (ncol(lookup) != 2) {
+              stop("fill: lookup matrix must have two columns: column 1 is key, column 2 is value")
+            } else if (nrow(lookup) < 1) {
+              stop("fill: lookup matrix have at least one row")
+            }
+
+            m <- match(as.vector(x@data), lookup[,1])
+            outv <- lookup[m,2]
+
+            outv[is.na(outv)] <- 0
+            BrainSurface(geometry=x@geometry, indices=x@indices, data=outv)
+
+          })
+
+
+#' convert \code{BrainSurface} instance to vector
+#' @param x the object
+#' @export
+setMethod(f="as.vector", signature=signature(x = "BrainSurface"), def=function(x) as(x, "vector"))
+
+#' convert from \code{BrainSurface} to \code{vector}
+#'
+#' @rdname as-methods
+#' @name as
+#' @export
+setAs(from="BrainSurface", to="vector", def=function(from) as.vector(from@data))
+
+
 #' graph
 #'
 #' @rdname graph-methods
@@ -495,8 +546,8 @@ BrainSurfaceVector <- function(geometry, indices, mat) {
 #' @param indices an integer vector specifying the valid surface nodes.
 #' @param data a \code{vector} of data values.
 #' @export
-BrainSurface <- function(geometry, indices, data) {
-  new("BrainSurface", source=neuroim:::NullSource(), geometry=geometry, indices=as.integer(indices),
+BrainSurface <- function(geometry, indices, data, source=neuroim:::NullSource()) {
+  new("BrainSurface", source=source, geometry=geometry, indices=as.integer(indices),
       data=data)
 
 }
@@ -513,6 +564,20 @@ setMethod(f="show", signature=signature("BrainSurfaceVector"),
             cat("  num samples:", ncol(object@data), "\n")
 
           })
+
+#' show a \code{BrainSurface}
+#' @param x the object
+#' @param ... extra arguments
+#' @export
+setMethod(f="show", signature=signature("BrainSurface"),
+          def=function(object) {
+            cat("BrainSurface \n")
+            cat("  num vertices: ", length(nodes(object@geometry)), "\n")
+            cat("  num nonzero indices:", length(object@indices), "\n")
+            cat("  num samples:", length(object@data), "\n")
+
+          })
+
 
 
 
@@ -591,7 +656,7 @@ setMethod(f="loadData", signature=c("BrainSurfaceSource"),
 
             avals <- numeric(nvert)
             avals[nodes] <- vals[keep]
-            surf<- new("BrainSurface", source=x, geometry=geometry, data=avals)
+            surf<- BrainSurface(geometry=geometry, indices = nodes, data=avals, source=x)
 
           })
 
