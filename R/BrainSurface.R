@@ -2,21 +2,30 @@
 #' writeSurfaceData
 #'
 #' @param bsurf a class of type \code{BrainSurface} or \code{BrainSurfaceVector}
-writeSurfaceData <- function(bsurf, outstem, hemi) {
+#' @param outstem the name of the output file, not including extension
+#' @param hemi name of hemisphere ("lh" or "rh")
+#' @export
+writeSurfaceData <- function(bsurf, outstem, hemi="") {
   assert_that(inherits(bsurf, "BrainSurface") || inherits(bsurf, "BrainSurfaceVector"))
 
   nodes <- bsurf@indices - 1
   keep <- nodes(bsurf@geometry) %in% bsurf@indices
 
+  marker <- if (hemi == "") {
+    ""
+  } else {
+    paste0("_", hemi)
+  }
+
   if (inherits(bsurf, "BrainSurfaceVector")) {
     dat <- as.matrix(bsurf@data[keep,])
     out <- as.data.frame(cbind(nodes, dat))
-    fname <- paste0(outstem, "_", hemi, ".1D.dset")
+    fname <- paste0(outstem, marker, ".1D.dset")
     write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
   } else {
     dat <- bsurf@data
     out <- as.data.frame(cbind(nodes, dat[keep]))
-    fname <- paste0(outstem, "_", hemi, ".1D.dset")
+    fname <- paste0(outstem, marker, ".1D.dset")
     write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
   }
 }
@@ -580,7 +589,7 @@ setMethod(f="loadData", signature=c("BrainSurfaceSource"),
             keep <- nodes %in% x@nodeind
             nodes <- nodes[keep]
 
-            vals <- readColumns(reader, x@index)[,1]
+            vals <- readColumns(reader, x@colind)[,1]
             nvert <- ncol(geometry@mesh$vb)
 
             avals <- numeric(nvert)
