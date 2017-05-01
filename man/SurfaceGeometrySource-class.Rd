@@ -2,8 +2,8 @@
 % Please edit documentation in R/AllClass.R, R/BrainSurface.R
 \docType{class}
 \name{SurfaceGeometrySource-class}
-\alias{SurfaceGeometrySource-class}
 \alias{SurfaceGeometrySource}
+\alias{SurfaceGeometrySource-class}
 \title{SurfaceGeometrySource}
 \usage{
 SurfaceGeometrySource(surfaceName)

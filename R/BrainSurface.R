@@ -492,8 +492,8 @@ setMethod(f="as.vector", signature=signature(x = "BrainSurface"), def=function(x
 #' convert from \code{BrainSurface} to \code{vector}
 #'
 #' @rdname as-methods
-#' @name as
 #' @export
+#' @name as
 setAs(from="BrainSurface", to="vector", def=function(from) as.vector(from@data))
 
 

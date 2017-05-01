@@ -2,10 +2,10 @@
 % Please edit documentation in R/BrainSurface.R
 \docType{methods}
 \name{loadData,BrainSurfaceVectorSource-method}
-\alias{loadData,BrainSurfaceVectorSource-method}
-\alias{loadData,SurfaceGeometrySource-method}
 \alias{loadData,BrainSurfaceSource-method}
+\alias{loadData,BrainSurfaceVectorSource-method}
 \alias{loadData,FreesurferSurfaceGeometryMetaInfo-method}
+\alias{loadData,SurfaceGeometrySource-method}
 \title{load a BrainSurfaceVector}
 \usage{
 \S4method{loadData}{BrainSurfaceVectorSource}(x)
@@ -25,3 +25,4 @@ load a BrainSurface
 
 load a Freesurfer surface geometry
 }
+

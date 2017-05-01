@@ -21,3 +21,4 @@ an instance of the class \code{\linkS4class{BrainSurface}} or \code{\linkS4class
 \description{
 load surface data and attach to \code{\linkS4class{SurfaceGeometry}}
 }
+

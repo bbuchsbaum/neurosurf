@@ -3,9 +3,9 @@
 \docType{methods}
 \name{nodes}
 \alias{nodes}
-\alias{nodes,SurfaceGeometry-method}
 \alias{nodes,BrainSurface-method}
 \alias{nodes,BrainSurfaceVector-method}
+\alias{nodes,SurfaceGeometry-method}
 \title{extract surface node numbers}
 \usage{
 nodes(x)
@@ -22,3 +22,4 @@ nodes(x)
 \description{
 extract surface node numbers
 }
+

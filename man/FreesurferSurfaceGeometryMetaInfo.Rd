@@ -14,3 +14,4 @@ FreesurferSurfaceGeometryMetaInfo(descriptor, header)
 \description{
 Constructor for \code{\linkS4class{SurfaceGeometryMetaInfo}} class
 }
+

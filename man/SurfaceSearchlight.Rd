@@ -17,3 +17,4 @@ SurfaceSearchlight(surfgeom, radius = 8, nodeset = NULL,
 \description{
 Create a Searchlight iterator for surface mesh using geodesic distance to define regions.
 }
+

@@ -6,3 +6,4 @@
 \description{
 convert from \code{BrainSurface} to \code{vector}
 }
+

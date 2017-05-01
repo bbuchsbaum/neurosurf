@@ -2,12 +2,12 @@
 % Please edit documentation in R/BrainSurface.R
 \docType{methods}
 \name{series,BrainSurfaceVector,numeric-method}
-\alias{series,BrainSurfaceVector,numeric-method}
-\alias{series_roi,BrainSurfaceVector,numeric-method}
-\alias{series,BrainSurfaceVector,integer-method}
-\alias{series,BrainSurfaceVector,ROISurface-method}
-\alias{series_roi,BrainSurfaceVector,ROISurface-method}
 \alias{series,BrainSurface,numeric-method}
+\alias{series,BrainSurfaceVector,ROISurface-method}
+\alias{series,BrainSurfaceVector,integer-method}
+\alias{series,BrainSurfaceVector,numeric-method}
+\alias{series_roi,BrainSurfaceVector,ROISurface-method}
+\alias{series_roi,BrainSurfaceVector,numeric-method}
 \title{series}
 \usage{
 \S4method{series}{BrainSurfaceVector,numeric}(x, i)
@@ -40,3 +40,4 @@ series_roi
 
 series
 }
+

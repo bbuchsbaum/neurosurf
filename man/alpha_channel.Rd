@@ -9,3 +9,4 @@ alpha_channel(x, ...)
 \description{
 alpha_channel
 }
+
