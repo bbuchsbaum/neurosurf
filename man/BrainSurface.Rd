@@ -4,7 +4,7 @@
 \alias{BrainSurface}
 \title{BrainSurface}
 \usage{
-BrainSurface(geometry, indices, data)
+BrainSurface(geometry, indices, data, source = neuroim:::NullSource())
 }
 \arguments{
 \item{geometry}{a \code{SurfaceGeometry} instance}

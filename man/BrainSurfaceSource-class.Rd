@@ -31,5 +31,7 @@ Constructor for BrainSurfaceSource
 \item{\code{dataMetaInfo}}{a \code{\linkS4class{SurfaceDataMetaInfo}} instance}
 
 \item{\code{colind}}{the column index of the surface map to be loaded.}
+
+\item{\code{nodeind}}{the node indices of the surface map to be loaded.}
 }}
 
