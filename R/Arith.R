@@ -34,7 +34,6 @@ setMethod(f="Arith", signature=signature(e1="BrainSurfaceVector", e2="BrainSurfa
             assert_that(all(dim(e1@data) == dim(e2@data)))
 
             res <- callGeneric(e1@data,e2@data)
-
             ind <- sort(union(e1@indices, e2@indices))
             BrainSurfaceVector(geometry=e1@geometry, indices=ind, mat=res)
 
