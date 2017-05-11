@@ -226,7 +226,7 @@ setClass("ROISurfaceVector",
 #' @rdname BrainSurface-class
 #' @slot source the data source for the surface
 #' @slot geometry the surface geometry, an instance of \code{SurfaceGeometry}
-#' @slot indices an \code{integer} vector specifying the subset valid surface nodes encoded in the \code{geometry} object.
+#' @slot indices an \code{integer} vector specifying the subset of valid surface nodes encoded in the \code{geometry} object.
 #' @slot data the 1-D vector of data value at each vertex of the mesh
 #' @importClassesFrom neuroim BaseSource
 #' @export
@@ -243,9 +243,9 @@ setClass("BrainSurface",
 #' @rdname BrainSurfaceVector-class
 #' @slot source the data source for the surface
 #' @slot geometry the surface geometry, an instance of \code{SurfaceGeometry}
-#' @slot indices an \code{integer} vector specifying the subset valid surface nodes encoded in the \code{geometry} object.
+#' @slot indices an \code{integer} vector specifying the subset of valid surface nodes from in the \code{geometry} object.
 #' @slot data a \code{Matrix} of values where each column contains a vector of values
-#' over all the surface nodes.
+#' over all the surface nodes. The number of rows of this \code{Matrix} must equal the number of nodes in the \code{geometry} object.
 #' @export
 setClass("BrainSurfaceVector",
          representation=representation(source="BaseSource",
