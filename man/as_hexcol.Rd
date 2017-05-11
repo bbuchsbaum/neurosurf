@@ -9,3 +9,4 @@ as_hexcol(x, ...)
 \description{
 as_hexcol
 }
+

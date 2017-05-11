@@ -2,11 +2,11 @@
 % Please edit documentation in R/BrainSurface.R, R/ROI.R
 \docType{methods}
 \name{coords,igraph-method}
-\alias{coords,igraph-method}
-\alias{coords,SurfaceGeometry-method}
-\alias{coords,BrainSurfaceVector-method}
 \alias{coords,BrainSurface-method}
+\alias{coords,BrainSurfaceVector-method}
 \alias{coords,ROISurface-method}
+\alias{coords,SurfaceGeometry-method}
+\alias{coords,igraph-method}
 \title{coords}
 \usage{
 \S4method{coords}{igraph}(x)
@@ -30,3 +30,4 @@ coords
 
 indices
 }
+

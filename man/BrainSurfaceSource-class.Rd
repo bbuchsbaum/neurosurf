@@ -2,8 +2,8 @@
 % Please edit documentation in R/AllClass.R, R/BrainSurface.R
 \docType{class}
 \name{BrainSurfaceSource-class}
-\alias{BrainSurfaceSource-class}
 \alias{BrainSurfaceSource}
+\alias{BrainSurfaceSource-class}
 \title{BrainSurfaceSource}
 \usage{
 BrainSurfaceSource(surfaceGeom, surfaceDataName, colind = NULL,

@@ -19,3 +19,4 @@ an instance of class \code{ROISurface}
 \description{
 Create an instance of class \code{\linkS4class{ROISurface}}
 }
+

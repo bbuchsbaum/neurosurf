@@ -28,3 +28,4 @@ nodes <- searchlight$nextElem()
 length(nodes) > 1
 
 }
+

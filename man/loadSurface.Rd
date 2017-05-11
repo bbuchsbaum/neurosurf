@@ -25,3 +25,4 @@ an instance of the class:
 \description{
 load a surface from a surface geometry file with optional mapped surface data
 }
+

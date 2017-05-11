@@ -16,3 +16,4 @@ BrainSurface(geometry, indices, data, source = neuroim:::NullSource())
 \description{
 construct a new BrainSurface object
 }
+

@@ -2,9 +2,9 @@
 % Please edit documentation in R/neighborhood.R
 \docType{methods}
 \name{adjacency,SurfaceGeometry,numeric-method}
-\alias{adjacency,SurfaceGeometry,numeric-method}
 \alias{adjacency,SurfaceGeometry,character-method}
 \alias{adjacency,SurfaceGeometry,missing-method}
+\alias{adjacency,SurfaceGeometry,numeric-method}
 \title{adjacency}
 \usage{
 \S4method{adjacency}{SurfaceGeometry,numeric}(x, attr)
@@ -20,3 +20,4 @@ adjacency
 
 adjacency
 }
+
