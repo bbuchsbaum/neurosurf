@@ -74,7 +74,15 @@ readNIMLSurfaceHeader <- function(fileName) {
   }
 
   whind <- which(unlist(lapply(p, "[[", "label")) == "INDEX_LIST")
-  idat <- p[[whind]]$data[1,]
+
+  if (length(whind) == 0) {
+    warning("readNIMLSurfaceHeader: assuming index is first column of data matrix")
+    idat <- dmat[,1]
+    dmat <- dmat[, 2:ncol(dmat)]
+  } else {
+    idat <- p[[whind]]$data[1,]
+  }
+
   list(headerFile=fileName, dataFile=fileName,
        nodeCount=nrow(dmat), nels=ncol(dmat),
        label=stripExtension(NIML_SURFACE_DSET, basename(fileName)),
