@@ -564,7 +564,7 @@ setMethod(f="show", signature=signature("BrainSurfaceVector"),
             cat("BrainSurfaceVector \n")
             cat("  num vertices: ", length(nodes(object@geometry)), "\n")
             cat("  num nonzero indices:", length(object@indices), "\n")
-            cat("  num samples:", ncol(object@data), "\n")
+            cat("  num columns:", ncol(object@data), "\n")
 
           })
 
@@ -577,8 +577,6 @@ setMethod(f="show", signature=signature("BrainSurface"),
             cat("BrainSurface \n")
             cat("  num vertices: ", length(nodes(object@geometry)), "\n")
             cat("  num nonzero indices:", length(object@indices), "\n")
-            cat("  num samples:", length(object@data), "\n")
-
           })
 
 
