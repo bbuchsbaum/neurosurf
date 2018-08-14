@@ -83,6 +83,7 @@ roi_surface_matrix <- function(mat, refspace, indices, coords) {
 #' values
 #'
 #' @rdname values-methods
+#' @importMethodsFrom neuroim2 values
 #' @export
 setMethod("values", signature(x="ROISurface"),
           function(x, ...) {
@@ -137,6 +138,7 @@ setMethod(f="length", signature=signature(x="ROISurface"),
 
 
 #' subset an \code{ROISurface}
+#'
 #' @export
 #' @param x the object
 #' @param i first index

@@ -1,60 +1,60 @@
 
 
 
-.readHeader <- function(fileName) {
-  desc <- findSurfaceDescriptor(fileName)
+.readHeader <- function(file_name) {
+  desc <- findSurfaceDescriptor(file_name)
   if (is.null(desc)) {
-    stop(paste("could not find reader for file: ", fileName))
+    stop(paste("could not find reader for file: ", file_name))
   }
 
-  readMetaInfo(desc, fileName)
+  read_meta_info(desc, file_name)
 }
 
 
 #' readFreesurferAsciiHeader
 #'
-#' @param fileName the file
+#' @param file_name the file
 #' @export
-readFreesurferAsciiHeader <- function(fileName) {
-  ninfo <- as.integer(strsplit(readLines(fileName, n=2)[2], " ")[[1]])
-  list(vertices=ninfo[1], faces=ninfo[2], label=stripExtension(FREESURFER_ASCII_SURFACE_DSET, basename(fileName)),
-       embedDimension=3, headerFile=fileName, dataFile=fileName)
+readFreesurferAsciiHeader <- function(file_name) {
+  ninfo <- as.integer(strsplit(readLines(file_name, n=2)[2], " ")[[1]])
+  list(vertices=ninfo[1], faces=ninfo[2], label=stripExtension(FREESURFER_ASCII_SURFACE_DSET, basename(file_name)),
+       embed_dimension=3, header_file=file_name, data_file=file_name)
 }
 
 #' readFreesurferAsciiGeometry
 #'
-#' @param fileName the file
+#' @param file_name the file
 #' @importFrom readr read_table
 #' @export
-readFreesurferAsciiGeometry <- function(fileName) {
+readFreesurferAsciiGeometry <- function(file_name) {
   if (!requireNamespace("rgl", quietly = TRUE)) {
     stop("Pkg needed for this function to work. Please install it.",
          call. = FALSE)
   }
-  ninfo <- as.integer(strsplit(readLines(fileName, n=2)[2], " ")[[1]])
-  asctab <- read_table(fileName, skip=2)
-  #asctab <- readr::read_table(fileName, skip=2, col_names=FALSE)
+  ninfo <- as.integer(strsplit(readLines(file_name, n=2)[2], " ")[[1]])
+  asctab <- read_table(file_name, skip=2)
+  #asctab <- readr::read_table(file_name, skip=2, col_names=FALSE)
   vertices <- as.matrix(asctab[1:ninfo[1],1:3])
   nodes <- as.matrix(asctab[(ninfo[1]+1):nrow(asctab),1:3])
 
-  list(mesh=rgl::tmesh3d(vertices, nodes), headerFile=fileName, dataFile=fileName)
+  list(mesh=rgl::tmesh3d(vertices, nodes), header_file=file_name, data_file=file_name)
 
 }
 
 
 #' readAFNISurfaceHeader
 #'
-#' @param fileName the name of the AFNI 1D file
+#' @param file_name the name of the AFNI 1D file
 #' @importFrom readr read_table
 #' @export
-readAFNISurfaceHeader <- function(fileName) {
+readAFNISurfaceHeader <- function(file_name) {
 
-  #dmat <- readr::read_table(fileName, col_names=FALSE)
-  dmat <- read.table(fileName, header=FALSE)
+  #dmat <- readr::read_table(file_name, col_names=FALSE)
+  dmat <- read.table(file_name, header=FALSE)
 
-  list(headerFile=fileName, dataFile=fileName,
-       nodeCount=nrow(dmat), nels=ncol(dmat)-1,
-       label=stripExtension(AFNI_SURFACE_DSET, basename(fileName)),
+  list(header_file=file_name, data_file=file_name,
+       node_count=nrow(dmat), nels=ncol(dmat)-1,
+       label=stripExtension(AFNI_SURFACE_DSET, basename(file_name)),
        data=as.matrix(dmat[,2:ncol(dmat)]), nodes=as.vector(dmat[,1]))
 
 }
@@ -62,10 +62,10 @@ readAFNISurfaceHeader <- function(fileName) {
 
 #' readNIMLSurfaceHeader
 #
-#' @param fileName the name of the NIML file
+#' @param file_name the name of the NIML file
 #' @export
-readNIMLSurfaceHeader <- function(fileName) {
-  p <- neuroim:::parse_niml_file(fileName)
+readNIMLSurfaceHeader <- function(file_name) {
+  p <- neuroim2:::parse_niml_file(file_name)
   whdat <- which(unlist(lapply(p, "[[", "label")) == "SPARSE_DATA")
   dmat <- if (length(whdat) > 1) {
     t(do.call(rbind, lapply(p[[whdat]], "[[", "data")))
@@ -83,73 +83,56 @@ readNIMLSurfaceHeader <- function(fileName) {
     idat <- p[[whind]]$data[1,]
   }
 
-  list(headerFile=fileName, dataFile=fileName,
-       nodeCount=nrow(dmat), nels=ncol(dmat),
-       label=stripExtension(NIML_SURFACE_DSET, basename(fileName)),
+  list(header_file=file_name, data_file=file_name,
+       node_count=nrow(dmat), nels=ncol(dmat),
+       label=stripExtension(NIML_SURFACE_DSET, basename(file_name)),
        data=dmat, nodes=idat)
 }
 
 
-#' readMetaInfo
-#'
-#' @rdname readMetaInfo-methods
+
+#' @rdname read_meta_info-methods
+#' @importMethodsFrom neuroim2 read_meta_info
 #' @export
-setMethod(f="readMetaInfo",signature=signature(x= "AFNISurfaceFileDescriptor"),
-          def=function(x, fileName) {
-            .readMetaInfo(x, fileName, readAFNISurfaceHeader, AFNISurfaceDataMetaInfo)
+setMethod(f="read_meta_info",signature=signature(x= "AFNISurfaceFileDescriptor"),
+          def=function(x, file_name) {
+            .read_meta_info(x, file_name, readAFNISurfaceHeader, AFNISurfaceDataMetaInfo)
           })
 
-#' readMetaInfo
+#' read_meta_info
 #'
-#' @rdname readMetaInfo-methods
+#' @rdname read_meta_info-methods
 #' @export
-setMethod(f="readMetaInfo",signature=signature(x= "NIMLSurfaceFileDescriptor"),
-          def=function(x, fileName) {
-            .readMetaInfo(x, fileName, readNIMLSurfaceHeader, NIMLSurfaceDataMetaInfo)
+setMethod(f="read_meta_info",signature=signature(x= "NIMLSurfaceFileDescriptor"),
+          def=function(x, file_name) {
+            .read_meta_info(x, file_name, readNIMLSurfaceHeader, NIMLSurfaceDataMetaInfo)
           })
-#' readMetaInfo
+#' read_meta_info
 #'
-#' @rdname readMetaInfo-methods
+#' @rdname read_meta_info-methods
 #' @export
-setMethod(f="readMetaInfo",signature=signature(x= "FreesurferAsciiSurfaceFileDescriptor"),
-          def=function(x, fileName) {
-            .readMetaInfo(x, fileName, readFreesurferAsciiHeader, FreesurferSurfaceGeometryMetaInfo)
+setMethod(f="read_meta_info",signature=signature(x= "FreesurferAsciiSurfaceFileDescriptor"),
+          def=function(x, file_name) {
+            .read_meta_info(x, file_name, readFreesurferAsciiHeader, FreesurferSurfaceGeometryMetaInfo)
           })
 
 
-.readMetaInfo <- function(desc, fileName, readFunc, constructor) {
+.read_meta_info <- function(desc, file_name, readFunc, constructor) {
 
-  hfile <- headerFile(desc, fileName)
+  hfile <- header_file(desc, file_name)
   header <- readFunc(hfile)
-  header$fileName <- hfile
+  header$file_name <- hfile
   constructor(desc, header)
 }
 
-#' dataReader
+#' return a reader function
 #'
-#' @rdname dataReader-methods
-setMethod(f="dataReader", signature=signature("SurfaceGeometryMetaInfo"),
+#' @rdname data_reader-methods
+setMethod(f="data_reader", signature=signature("SurfaceGeometryMetaInfo"),
           def=function(x) {
             reader <- function(i) {
               if (length(i) == 1 && i == 0) {
-                x@nodeIndices
-              } else {
-                x@data[,i,drop=FALSE]
-              }
-            }
-
-            new("ColumnReader", nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
-          })
-
-
-#' dataReader
-#'
-#' @rdname dataReader-methods
-setMethod(f="dataReader", signature=signature("NIMLSurfaceDataMetaInfo"),
-          def=function(x) {
-            reader <- function(i) {
-              if (length(i) == 1 && i == 0) {
-                x@nodeIndices
+                x@node_indices
               } else {
                 x@data[,i,drop=FALSE]
               }
@@ -160,35 +143,51 @@ setMethod(f="dataReader", signature=signature("NIMLSurfaceDataMetaInfo"),
 
 
 
+#' @rdname data_reader-methods
+setMethod(f="data_reader", signature=signature("NIMLSurfaceDataMetaInfo"),
+          def=function(x) {
+            reader <- function(i) {
+              if (length(i) == 1 && i == 0) {
+                x@node_indices
+              } else {
+                x@data[,i,drop=FALSE]
+              }
+            }
 
-findSurfaceDescriptor <- function(fileName) {
+            new("ColumnReader", nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
+          })
 
-  if (neuroim::fileMatches(NIML_SURFACE_DSET, fileName)) NIML_SURFACE_DSET
-  else if (neuroim:::fileMatches(FREESURFER_ASCII_SURFACE_DSET, fileName)) FREESURFER_ASCII_SURFACE_DSET
-  else if (neuroim::fileMatches(AFNI_SURFACE_DSET, fileName)) AFNI_SURFACE_DSET
+
+
+
+findSurfaceDescriptor <- function(file_name) {
+
+  if (neuroim2:::file_matches(NIML_SURFACE_DSET, file_name)) NIML_SURFACE_DSET
+  else if (neuroim2:::file_matches(FREESURFER_ASCII_SURFACE_DSET, file_name)) FREESURFER_ASCII_SURFACE_DSET
+  else if (neuroim2:::file_matches(AFNI_SURFACE_DSET, file_name)) AFNI_SURFACE_DSET
   else NULL
 }
 
 NIML_SURFACE_DSET <- new("NIMLSurfaceFileDescriptor",
-                         fileFormat="NIML",
-                         headerEncoding="raw",
-                         headerExtension="niml.dset",
-                         dataEncoding="raw",
-                         dataExtension="niml.dset")
+                         file_format="NIML",
+                         header_encoding="raw",
+                         header_extension="niml.dset",
+                         data_encoding="raw",
+                         data_extension="niml.dset")
 
 AFNI_SURFACE_DSET <- new("AFNISurfaceFileDescriptor",
-                         fileFormat="1D",
-                         headerEncoding="raw",
-                         headerExtension="1D.dset",
-                         dataEncoding="raw",
-                         dataExtension="1D.dset")
+                         file_format="1D",
+                         header_encoding="raw",
+                         header_extension="1D.dset",
+                         data_encoding="raw",
+                         data_extension="1D.dset")
 
 FREESURFER_ASCII_SURFACE_DSET <- new("FreesurferAsciiSurfaceFileDescriptor",
-                                     fileFormat="Freesurfer_ASCII",
-                                     headerEncoding="text",
-                                     headerExtension="asc",
-                                     dataEncoding="raw",
-                                     dataExtension="asc")
+                                     file_format="Freesurfer_ASCII",
+                                     header_encoding="text",
+                                     header_extension="asc",
+                                     data_encoding="raw",
+                                     data_extension="asc")
 
 
 
@@ -201,13 +200,13 @@ FreesurferSurfaceGeometryMetaInfo <- function(descriptor, header) {
 
 
   new("FreesurferSurfaceGeometryMetaInfo",
-      headerFile=header$headerFile,
-      dataFile=header$dataFile,
-      fileDescriptor=descriptor,
+      header_file=header$header_file,
+      data_file=header$data_file,
+      file_descriptor=descriptor,
       vertices=as.integer(header$vertices),
       faces=as.integer(header$faces),
       label=as.character(header$label),
-      embedDimension=as.integer(header$embedDimension))
+      embed_dimension=as.integer(header$embed_dimension))
 }
 
 
@@ -219,10 +218,10 @@ SurfaceDataMetaInfo <- function(descriptor, header) {
   stopifnot(is.numeric(header$nodes))
 
   new("SurfaceDataMetaInfo",
-      headerFile=header$headerFile,
-      dataFile=header$dataFile,
-      fileDescriptor=descriptor,
-      nodeCount=as.integer(header$nodes),
+      header_file=header$header_file,
+      data_file=header$data_file,
+      file_descriptor=descriptor,
+      node_count=as.integer(header$nodes),
       nels=as.integer(header$nels),
       label=as.character(header$label))
 }
@@ -235,14 +234,14 @@ NIMLSurfaceDataMetaInfo <- function(descriptor, header) {
   stopifnot(is.numeric(header$nodes))
 
   new("NIMLSurfaceDataMetaInfo",
-      headerFile=header$headerFile,
-      dataFile=header$dataFile,
-      fileDescriptor=descriptor,
-      nodeCount=as.integer(header$nodeCount),
+      header_file=header$header_file,
+      data_file=header$data_file,
+      file_descriptor=descriptor,
+      node_count=as.integer(header$node_count),
       nels=as.integer(header$nels),
       label=as.character(header$label),
       data=header$data,
-      nodeIndices=header$nodes)
+      node_indices=header$nodes)
 }
 
 #' Constructor for \code{\linkS4class{AFNISurfaceDataMetaInfo}} class
@@ -253,14 +252,14 @@ AFNISurfaceDataMetaInfo <- function(descriptor, header) {
   stopifnot(is.numeric(header$nodes))
 
   new("NIMLSurfaceDataMetaInfo",
-      headerFile=header$headerFile,
-      dataFile=header$dataFile,
-      fileDescriptor=descriptor,
-      nodeCount=as.integer(header$nodeCount),
+      header_file=header$header_file,
+      data_file=header$data_file,
+      file_descriptor=descriptor,
+      node_count=as.integer(header$node_count),
       nels=as.integer(header$nels),
       label=as.character(header$label),
       data=header$data,
-      nodeIndices=header$nodes)
+      node_indices=header$nodes)
 }
 
 
@@ -273,7 +272,7 @@ setMethod(f="show", signature=signature("SurfaceGeometryMetaInfo"),
             cat("number of vertices:", "\t", object@vertices, "\n")
             cat("number of faces:", "\t", object@faces, "\n")
             cat("label:", "\t", object@label, "\n")
-            cat("embed dimension:", "\t", object@embedDimension, "\n")
+            cat("embed dimension:", "\t", object@embed_dimension, "\n")
           })
 
 #' show an \code{SurfaceDataMetaInfo}
@@ -282,7 +281,7 @@ setMethod(f="show", signature=signature("SurfaceGeometryMetaInfo"),
 setMethod(f="show", signature=signature("SurfaceDataMetaInfo"),
           def=function(object) {
             cat("an instance of class",  class(object), "\n\n")
-            cat("nodeCount:", "\t", object@nodeCount, "\n")
+            cat("node_count:", "\t", object@node_count, "\n")
             cat("nels:", "\t", object@nels, "\n")
             cat("label:", "\t", object@label, "\n")
           })

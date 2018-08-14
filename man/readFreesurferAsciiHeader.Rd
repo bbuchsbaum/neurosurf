@@ -4,12 +4,11 @@
 \alias{readFreesurferAsciiHeader}
 \title{readFreesurferAsciiHeader}
 \usage{
-readFreesurferAsciiHeader(fileName)
+readFreesurferAsciiHeader(file_name)
 }
 \arguments{
-\item{fileName}{the file}
+\item{file_name}{the file}
 }
 \description{
 readFreesurferAsciiHeader
 }
-

@@ -6,4 +6,5 @@
 #' @docType package
 #' @name neurosurf
 #' @details none
+#' @import methods
 NULL

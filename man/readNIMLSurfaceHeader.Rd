@@ -4,12 +4,11 @@
 \alias{readNIMLSurfaceHeader}
 \title{readNIMLSurfaceHeader}
 \usage{
-readNIMLSurfaceHeader(fileName)
+readNIMLSurfaceHeader(file_name)
 }
 \arguments{
-\item{fileName}{the name of the NIML file}
+\item{file_name}{the name of the NIML file}
 }
 \description{
 readNIMLSurfaceHeader
 }
-

@@ -4,12 +4,11 @@
 \alias{readFreesurferAsciiGeometry}
 \title{readFreesurferAsciiGeometry}
 \usage{
-readFreesurferAsciiGeometry(fileName)
+readFreesurferAsciiGeometry(file_name)
 }
 \arguments{
-\item{fileName}{the file}
+\item{file_name}{the file}
 }
 \description{
 readFreesurferAsciiGeometry
 }
-

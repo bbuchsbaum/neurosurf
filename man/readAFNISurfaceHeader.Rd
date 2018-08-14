@@ -4,12 +4,11 @@
 \alias{readAFNISurfaceHeader}
 \title{readAFNISurfaceHeader}
 \usage{
-readAFNISurfaceHeader(fileName)
+readAFNISurfaceHeader(file_name)
 }
 \arguments{
-\item{fileName}{the name of the AFNI 1D file}
+\item{file_name}{the name of the AFNI 1D file}
 }
 \description{
 readAFNISurfaceHeader
 }
-

@@ -19,4 +19,3 @@ an instance of class \code{ROISurfaceVector}
 \description{
 Create an instance of class \code{\linkS4class{ROISurfaceVector}}
 }
-

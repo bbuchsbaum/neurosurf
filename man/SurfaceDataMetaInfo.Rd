@@ -14,4 +14,3 @@ SurfaceDataMetaInfo(descriptor, header)
 \description{
 Constructor for \code{\linkS4class{SurfaceDataMetaInfo}} class
 }
-

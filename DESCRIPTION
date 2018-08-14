@@ -1,11 +1,10 @@
 Package: neurosurf
-Depends:
-    neuroim,
 Imports:
     Matrix,
     igraph,
     rgl,
-    assertthat
+    assertthat,
+    neuroim2
 Type: Package
 Title: Data structures and IO for surface-based neuroimaging data
 Version: 0.1.0
@@ -15,4 +14,23 @@ Description: Basic utilties for reading, writing and manipulating neuroimaging
     organized as a trinagle mesh.
 License: GPL (>= 2)
 LazyData: TRUE
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
+Remotes:
+  bbuchsbaum/neuroim2
+Collate:
+    'all_generic.R'
+    'all_class.R'
+    'ColorPlane.R'
+    'IO.R'
+    'ROI.R'
+    'Searchlight.R'
+    'arith.R'
+    'neighborhood.R'
+    'neuro_surface.R'
+    'neurosurf.R'
+    'view_surface.R'
+Suggests: 
+    testthat,
+    covr
+URL: https://github.com/bbuchsbaum/neurosurf
+BugReports: https://github.com/bbuchsbaum/neurosurf/issues

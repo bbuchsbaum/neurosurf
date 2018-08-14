@@ -32,7 +32,7 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL) {
   }
 
 
-  bg <- neighborGraph(g, radius=radius)
+  bg <- neighbor_graph(g, radius=radius)
 
   index <- 0
 
@@ -100,7 +100,7 @@ SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type="
     igraph::induced_subgraph(neurosurf::graph(surfgeom), nodeset)
   }
 
-  bg <- neighborGraph(g, radius=radius, distance_type=distance_type)
+  bg <- neighbor_graph(g, radius=radius, distance_type=distance_type)
 
   index <- 0
 

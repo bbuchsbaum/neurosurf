@@ -19,4 +19,3 @@
 \description{
 subset an \code{ROISurface}
 }
-

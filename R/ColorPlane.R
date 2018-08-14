@@ -1,10 +1,16 @@
+#' @include all_class.R
+#' @include all_generic.R
+NULL
 
 
+#' @keywords internal
+#' @noRd
 IntensityColorPlane <- function(intensity, cols=rainbow(255), alpha=1) {
   new("IntensityColorPlane", intensity=intensity, colmap=cols, alpha=alpha)
 }
 
-
+#' @keywords internal
+#' @noRd
 RGBColorPlane <- function(clrs) {
   stopifnot(is.matrix(clrs))
   if (ncol(clrs) == 3) {
@@ -17,17 +23,22 @@ RGBColorPlane <- function(clrs) {
   new("RGBColorPlane", clrs=clrs)
 }
 
-
+#' @keywords internal
+#' @noRd
 ConstantColorPlane <- function(clr) {
   stopifnot(is.character(clr))
   new("ConstantColorPlane", clrs=clr)
 }
 
+#' @keywords internal
+#' @noRd
 HexColorPlane <- function(clr) {
   stopifnot(is.character(clr))
   new("HexColorPlane", clrs=clr)
 }
 
+#' @keywords internal
+#' @noRd
 rgb2hex <- function(r,g,b, alpha) rgb(r, g, b, alpha, maxColorValue = 255)
 
 
