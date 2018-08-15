@@ -6,7 +6,6 @@ setOldClass("igraph")
 
 
 
-
 #' SurfaceGeometry
 #'
 #' a three-dimensional surface consisting of a set of triangle vertices
@@ -201,7 +200,7 @@ setClass("ROISurface",
 #' @exportClass ROISurfaceVector
 #' @rdname ROISurfaceVector-class
 setClass("ROISurfaceVector",
-         representation=representation(geometry="SurfaceGeometry", data="numericOrMatrix",
+         representation=representation(geometry="SurfaceGeometry", data="matrix",
                                        coords="matrix", indices="integer"),
          validity = function(object) {
            if (ncol(object@coords) != 3) {
