@@ -215,7 +215,6 @@ SurfaceGeometrySource <- function(surface_name) {
 
 #' show a \code{SurfaceGeometry}
 #' @param object the object
-#' @export
 setMethod(f="show", signature=signature("SurfaceGeometry"),
           def=function(object) {
             cat("SurfaceGeometry \n")
@@ -266,6 +265,7 @@ NeuroSurfaceSource <- function(surface_geom, surface_data_name, colind=NULL, nod
 #' coords
 #'
 #' @rdname coords-methods
+#' @importMethodsFrom neuroim2 coords
 #' @export
 setMethod(f="coords", signature=c("igraph"),
           def=function(x) {
@@ -284,8 +284,7 @@ setMethod(f="coords", signature=c("SurfaceGeometry"),
           })
 
 
-#' coords
-#'
+
 #' @rdname coords-methods
 #' @export
 setMethod(f="coords", signature=c("NeuroSurfaceVector"),
@@ -483,6 +482,7 @@ setMethod("map_values", signature(x="NeuroSurface", lookup="matrix"),
 
 
 #' convert \code{NeuroSurface} instance to vector
+#'
 #' @param x the object
 #' @export
 setMethod(f="as.vector", signature=signature(x = "NeuroSurface"), def=function(x) as(x, "vector"))
@@ -490,13 +490,11 @@ setMethod(f="as.vector", signature=signature(x = "NeuroSurface"), def=function(x
 #' convert from \code{NeuroSurface} to \code{vector}
 #'
 #' @rdname as-methods
-#' @export
 #' @name as
 setAs(from="NeuroSurface", to="vector", def=function(from) as.vector(from@data))
 
 
-#' graph
-#'
+
 #' @rdname graph-methods
 #' @export
 setMethod("graph", signature(x="NeuroSurface"),
@@ -505,8 +503,7 @@ setMethod("graph", signature(x="NeuroSurface"),
           })
 
 
-#' graph
-#'
+
 #' @rdname graph-methods
 #' @export
 setMethod("graph", signature(x="NeuroSurfaceVector"),
@@ -515,8 +512,7 @@ setMethod("graph", signature(x="NeuroSurfaceVector"),
           })
 
 
-#' graph
-#'
+
 #' @rdname graph-methods
 #' @export
 setMethod("graph", signature(x="SurfaceGeometry"),

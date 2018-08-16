@@ -2,7 +2,7 @@
 % Please edit documentation in R/neuro_surface.R
 \name{read_surf}
 \alias{read_surf}
-\title{read_surf}
+\title{read a surface data set}
 \usage{
 read_surf(surface_name, surface_data_name = NULL, colind = NULL,
   nodeind = NULL)

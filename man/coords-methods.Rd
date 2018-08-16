@@ -25,6 +25,4 @@ indices
 coords
 
 coords
-
-coords
 }

@@ -263,7 +263,6 @@ AFNISurfaceDataMetaInfo <- function(descriptor, header) {
 
 #' show an \code{SurfaceGeometryMetaInfo}
 #' @param object the object
-#' @export
 setMethod(f="show", signature=signature("SurfaceGeometryMetaInfo"),
           def=function(object) {
             cat("an instance of class",  class(object), "\n\n")
@@ -275,7 +274,6 @@ setMethod(f="show", signature=signature("SurfaceGeometryMetaInfo"),
 
 #' show an \code{SurfaceDataMetaInfo}
 #' @param object the object
-#' @export
 setMethod(f="show", signature=signature("SurfaceDataMetaInfo"),
           def=function(object) {
             cat("an instance of class",  class(object), "\n\n")

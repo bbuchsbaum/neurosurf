@@ -126,7 +126,7 @@ setGeneric(name="right", def=function(x) standardGeneric("right"))
 #' Generic function to read image meta info given a file and a \code{\linkS4class{FileFormat}} instance.
 #' @param x file format
 #' @param file_name file name contianing meta information
-#' @export read_meta_info
+#' @export
 #' @rdname read_meta_info-methods
 setGeneric(name="read_meta_info", def=function(x, file_name) standardGeneric("read_meta_info"))
 
