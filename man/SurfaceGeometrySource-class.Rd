@@ -19,6 +19,6 @@ Constructor for SurfaceGeometrySource
 \section{Slots}{
 
 \describe{
-\item{\code{metaInfo}}{a \code{\linkS4class{SurfaceGeometryMetaInfo}} instance}
+\item{\code{meta_info}}{a \code{\linkS4class{SurfaceGeometryMetaInfo}} instance}
 }}
 

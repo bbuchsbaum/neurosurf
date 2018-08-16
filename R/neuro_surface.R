@@ -103,7 +103,7 @@ loadSpec <- function(spec) {
 }
 
 
-#' read_surf
+#' read a surface data set
 #'
 #' load a surface from a surface geometry file with optional mapped surface data
 #'
@@ -134,7 +134,7 @@ read_surf  <- function(surface_name, surface_data_name=NULL, colind=NULL, nodein
 #' @param nodeind the subset node indices of surface dataset to include (optional)
 #' @return an instance of the class \code{\linkS4class{NeuroSurface}} or \code{\linkS4class{NeuroSurfaceVector}}
 #' @export
-read_surfData  <- function(geometry, surface_data_name, colind=NULL, nodeind=NULL) {
+read_surf_data  <- function(geometry, surface_data_name, colind=NULL, nodeind=NULL) {
   src <- NeuroSurfaceSource(geometry, surface_data_name, colind, nodeind)
   load_data(src)
 }
@@ -744,7 +744,8 @@ loadFSSurface <- function(meta_info) {
   graph <- meshToGraph(vertices, nodes)
 
   mesh <- rgl::tmesh3d(as.vector(t(vertices)), as.vector(t(nodes))+1, homogeneous=FALSE)
-  new("SurfaceGeometry", source=new("SurfaceGeometrySource", meta_info=meta_info), mesh=mesh, graph=graph)
+  #new("SurfaceGeometry", source=new("SurfaceGeometrySource", meta_info=meta_info), mesh=mesh, graph=graph)
+  new("SurfaceGeometry",  mesh=mesh, graph=graph)
 }
 
 

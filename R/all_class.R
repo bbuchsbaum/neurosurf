@@ -96,10 +96,10 @@ setClass("NIMLSurfaceDataMetaInfo",
 #'
 #' A class that is used to produce a \code{\linkS4class{SurfaceGeometry}} instance
 #' @rdname SurfaceGeometrySource-class
-#' @slot metaInfo a \code{\linkS4class{SurfaceGeometryMetaInfo}} instance
+#' @slot meta_info a \code{\linkS4class{SurfaceGeometryMetaInfo}} instance
 #' @export
 setClass("SurfaceGeometrySource",
-         representation=representation(metaInfo="SurfaceGeometryMetaInfo"))
+         representation=representation(meta_info="SurfaceGeometryMetaInfo"))
 
 
 #' NeuroSurfaceSource

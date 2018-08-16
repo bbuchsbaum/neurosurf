@@ -13,8 +13,8 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 
 #' @export
 #' @importFrom FNN get.knn
-findAllNeighbors <- function(surf, radius, edgeWeights, nodes=NULL, distance_type=c("euclidean", "geodesic", "spherical")) {
-
+find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL, distance_type=c("euclidean", "geodesic", "spherical")) {
+  ## check out geosphere package
   if (inherits(surf, "igraph")) {
     g <- surf
   } else {
@@ -83,7 +83,7 @@ setMethod(f="neighbor_graph", signature=c(x="igraph", radius="numeric", edgeWeig
           def=function(x, radius, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
             edgeWeights=igraph::E(x)$dist
-            nabeinfo <- findAllNeighbors(x, radius, as.vector(edgeWeights), distance_type=distance_type)
+            nabeinfo <- find_all_neighbors(x, radius, as.vector(edgeWeights), distance_type=distance_type)
             .neighbors_to_graph(nabeinfo)
           })
 
@@ -98,7 +98,7 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
           def=function(x, radius, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
             edgeWeights=igraph::E(graph(x))$dist
-            nabeinfo <- findAllNeighbors(x, radius, as.vector(edgeWeights), distance_type=distance_type)
+            nabeinfo <- find_all_neighbors(x, radius, as.vector(edgeWeights), distance_type=distance_type)
             .neighbors_to_graph(nabeinfo)
           })
 
@@ -111,7 +111,7 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
           def=function(x, radius, edgeWeights, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
             stopifnot(length(edgeWeights) == length(igraph::E(graph(x))))
-            nabeInfo <- findAllNeighbors(x, radius, edgeWeights, distance_type=distance_type)
+            nabeInfo <- find_all_neighbors(x, radius, edgeWeights, distance_type=distance_type)
             .neighbors_to_graph(nabeinfo)
           })
 
@@ -125,7 +125,7 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
           def=function(x,radius, edgeWeights, nodes, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
             assert_that(length(edgeWeights) == length(igraph::E(graph(x))))
-            nabeInfo <- findAllNeighbors(x,radius, edgeWeights, nodes, distance_type=distance_type)
+            nabeInfo <- find_all_neighbors(x,radius, edgeWeights, nodes, distance_type=distance_type)
             .neighbors_to_graph(nabeinfo)
           })
 
@@ -135,7 +135,7 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
 setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric", edgeWeights="missing", nodes="integer"),
           def=function(x,radius, nodes, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
-            nabeinfo <- findAllNeighbors(x, radius, igraph::E(graph(x))$dist, nodes,distance_type=distance_type)
+            nabeinfo <- find_all_neighbors(x, radius, igraph::E(graph(x))$dist, nodes,distance_type=distance_type)
             .neighbors_to_graph(nabeinfo)
           })
 

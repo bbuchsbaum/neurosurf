@@ -1,4 +1,6 @@
-
+#' @include all_class.R
+#' @include all_generic.R
+NULL
 
 
 .readHeader <- function(file_name) {
@@ -17,7 +19,7 @@
 #' @export
 readFreesurferAsciiHeader <- function(file_name) {
   ninfo <- as.integer(strsplit(readLines(file_name, n=2)[2], " ")[[1]])
-  list(vertices=ninfo[1], faces=ninfo[2], label=stripExtension(FREESURFER_ASCII_SURFACE_DSET, basename(file_name)),
+  list(vertices=ninfo[1], faces=ninfo[2], label=neuroim2:::strip_extension(FREESURFER_ASCII_SURFACE_DSET, basename(file_name)),
        embed_dimension=3, header_file=file_name, data_file=file_name)
 }
 
@@ -54,7 +56,7 @@ readAFNISurfaceHeader <- function(file_name) {
 
   list(header_file=file_name, data_file=file_name,
        node_count=nrow(dmat), nels=ncol(dmat)-1,
-       label=stripExtension(AFNI_SURFACE_DSET, basename(file_name)),
+       label=neuroim2:::strip_extension(AFNI_SURFACE_DSET, basename(file_name)),
        data=as.matrix(dmat[,2:ncol(dmat)]), nodes=as.vector(dmat[,1]))
 
 }
@@ -85,7 +87,7 @@ readNIMLSurfaceHeader <- function(file_name) {
 
   list(header_file=file_name, data_file=file_name,
        node_count=nrow(dmat), nels=ncol(dmat),
-       label=stripExtension(NIML_SURFACE_DSET, basename(file_name)),
+       label=neuroim2:::strip_extension(NIML_SURFACE_DSET, basename(file_name)),
        data=dmat, nodes=idat)
 }
 
@@ -118,8 +120,7 @@ setMethod(f="read_meta_info",signature=signature(x= "FreesurferAsciiSurfaceFileD
 
 
 .read_meta_info <- function(desc, file_name, readFunc, constructor) {
-
-  hfile <- header_file(desc, file_name)
+  hfile <- neuroim2:::header_file(desc, file_name)
   header <- readFunc(hfile)
   header$file_name <- hfile
   constructor(desc, header)
@@ -161,7 +162,6 @@ setMethod(f="data_reader", signature=signature("NIMLSurfaceDataMetaInfo"),
 
 
 findSurfaceDescriptor <- function(file_name) {
-
   if (neuroim2:::file_matches(NIML_SURFACE_DSET, file_name)) NIML_SURFACE_DSET
   else if (neuroim2:::file_matches(FREESURFER_ASCII_SURFACE_DSET, file_name)) FREESURFER_ASCII_SURFACE_DSET
   else if (neuroim2:::file_matches(AFNI_SURFACE_DSET, file_name)) AFNI_SURFACE_DSET
@@ -198,7 +198,6 @@ FreesurferSurfaceGeometryMetaInfo <- function(descriptor, header) {
   stopifnot(is.numeric(header$vertices))
   stopifnot(is.numeric(header$faces))
 
-
   new("FreesurferSurfaceGeometryMetaInfo",
       header_file=header$header_file,
       data_file=header$data_file,
@@ -208,7 +207,6 @@ FreesurferSurfaceGeometryMetaInfo <- function(descriptor, header) {
       label=as.character(header$label),
       embed_dimension=as.integer(header$embed_dimension))
 }
-
 
 
 #' Constructor for \code{\linkS4class{SurfaceDataMetaInfo}} class

@@ -20,11 +20,11 @@ Remotes:
 Collate:
     'all_generic.R'
     'all_class.R'
-    'ColorPlane.R'
     'IO.R'
     'ROI.R'
     'Searchlight.R'
     'arith.R'
+    'color_plane.R'
     'neighborhood.R'
     'neuro_surface.R'
     'neurosurf.R'
