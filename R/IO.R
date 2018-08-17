@@ -129,6 +129,7 @@ setMethod(f="read_meta_info",signature=signature(x= "FreesurferAsciiSurfaceFileD
 #' return a reader function
 #'
 #' @rdname data_reader-methods
+#' @importClassesFrom neuroim2 ColumnReader
 setMethod(f="data_reader", signature=signature("SurfaceGeometryMetaInfo"),
           def=function(x) {
             reader <- function(i) {
@@ -139,7 +140,7 @@ setMethod(f="data_reader", signature=signature("SurfaceGeometryMetaInfo"),
               }
             }
 
-            new("ColumnReader", nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
+            ColumnReader(nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
           })
 
 
@@ -155,7 +156,8 @@ setMethod(f="data_reader", signature=signature("NIMLSurfaceDataMetaInfo"),
               }
             }
 
-            new("ColumnReader", nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
+            ColumnReader(nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
+            #new("ColumnReader", nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
           })
 
 
