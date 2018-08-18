@@ -1,7 +1,7 @@
 
 inflated_asc <- system.file("testdata", "std.40.lh.inflated.asc", package="neurosurf")
 niml_data_lh <- system.file("testdata", "rscan01_lh.niml.dset", package="neurosurf")
-
+curv_lh <- system.file("testdata", "std.40.lh.curv.niml.dset", package="neurosurf")
 
 test_that("can read a freesurfer ascii geometry file", {
   surf <- neurosurf::read_surf(inflated_asc)

@@ -1,6 +1,10 @@
 #' @importMethodsFrom neuroim2 data_reader
 NULL
 
+#' @export
+setGeneric("plot", function(x, ...) standardGeneric("plot"))
+
+
 
 #' Generic function to construct neighborhood graph from surface mesh using edge weights.
 #'

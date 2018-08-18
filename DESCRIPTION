@@ -18,12 +18,12 @@ RoxygenNote: 6.0.1
 Remotes:
   bbuchsbaum/neuroim2
 Collate:
-    'Arith.R'
     'all_generic.R'
     'all_class.R'
     'IO.R'
     'ROI.R'
     'Searchlight.R'
+    'arith.R'
     'color_plane.R'
     'neighborhood.R'
     'neuro_surface.R'

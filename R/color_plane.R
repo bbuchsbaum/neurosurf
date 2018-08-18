@@ -70,9 +70,11 @@ setMethod("blend_colors", signature(bottom="ColorPlane", top="ColorPlane", alpha
 
 setMethod("blend_colors", signature(bottom="HexColorPlane", top="RGBColorPlane", alpha="numeric"),
           def=function(bottom, top, alpha) {
-            print('hello')
-            callGeneric(bottom, top, alpha)
+            bottom <- as_rgb(bottom)
 
+            ## multiple constant alpha with alpha channel of top level
+            clrs <- (1-alpha)*bottom[,1:3,drop=FALSE] + alpha*top@clrs[,1:3,drop=FALSE]
+            RGBColorPlane(clrs)
           })
 
 setMethod("as_rgb", signature(x="RGBColorPlane"),
@@ -122,6 +124,7 @@ setMethod("map_colors", signature=c("ConstantColorPlane"),
 
 setMethod("map_colors", signature=c("IntensityColorPlane"),
           def=function(x, alpha=1, threshold=NULL, irange=NULL) {
+            #browser()
             if (is.null(irange)) {
               irange <- range(x@intensity)
               clrs <- x@colmap[as.integer((x@intensity - irange[1])/ diff(irange) * (length(x@colmap) -1) + 1)]

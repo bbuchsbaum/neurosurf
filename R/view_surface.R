@@ -1,90 +1,118 @@
 
 
 
-#' plotlySurface <- function(surfgeom, vals, col=brewer_pal(palette="RdBu")(9),
-#'                           alpha=1,
-#'                           add_normals=FALSE,
-#'                           threshold=NULL,
-#'                           irange=NULL,
-#'                           bgcol="#D3D3D3") {
+# plotlySurface <- function(surfgeom, vals, col=brewer_pal(palette="RdBu")(9),
+#                           alpha=1,
+#                           add_normals=FALSE,
+#                           threshold=NULL,
+#                           irange=NULL,
+#                           bgcol="#D3D3D3") {
+#
+#
+#
+#   curv <- curvature(surfgeom)
+#
+#   cmat <- rbind(vals[surfgeom@mesh$it[1,]],vals[surfgeom@mesh$it[2,]],vals[surfgeom@mesh$it[3,]] )
+#   fvals <- colMeans(cmat)
+#
+#   fg_layer <- IntensityColorPlane(fvals, col,alpha=1)
+#   fg_clrs <- map_colors(fg_layer, alpha=alpha, threshold=threshold, irange=irange)
+#
+#   #bg_layer <- IntensityColorPlane(curv, c("#D3D3D3FF", "#A9A9A9FF", "#A9A9A9FF"),alpha=1)
+#   #bg_clrs <- map_colors(bg_layer, alpha=1)
+#
+#   #browser()
+#
+#
+#   #combined <- blend_colors(bg_clrs, fg_clrs, alpha=alpha)
+#   #face_cols <- as_hexcol(combined)
+#   face_cols <- as_hexcol(fg_clrs)
+#
+#   cds <- coords(surfgeom)
+#   p <- plot_ly(
+#     x = cds[,1], y=cds[,2], z = cds[,3],
+#     i = surfgeom@mesh$it[1,]-1, j =surfgeom@mesh$it[2,]-1, k = surfgeom@mesh$it[3,]-1,
+#     facecolor=face_cols,
+#     #vertexcolor=face_cols,
+#     #intensity=vals,
+#     type = "mesh3d",
+#     flatshading=TRUE
+#   )
+#   p
+#
+#
+# }
+#
+#
+#
+
+
+
+view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
+                        bgcol = "lightgray",
+                        alpha=1,
+                        add_normals=TRUE,
+                        threshold=NULL,
+                        irange=range(vals)) {
+
+
+  if (add_normals) {
+    surfgeom@mesh <- rgl::addNormals(surfgeom@mesh)
+  }
+
+
+
+  if (is.character(bgcol)) {
+    bgcol <- gplots::col2hex(bgcol)
+  }
+
+  if (length(bgcol) == 1) {
+    bg_layer <- HexColorPlane(rep(bgcol, length(nodes(surf))))
+  } else {
+    bg_layer <- HexColorPlane(bgcol)
+  }
+
+
+  if (!is.na(vals) && !is.null(vals)) {
+    fg_layer <- IntensityColorPlane(vals, col,alpha=1)
+    #fg_layer <- IntensityColorPlane(vals, colmap,alpha=1)
+    fg_clrs <- map_colors(fg_layer, alpha=alpha, threshold=threshold, irange=irange)
+    combined <- blend_colors(bg_layer, fg_clrs, alpha=alpha)
+    vertex_cols <- as_hexcol(combined)
+  } else {
+    vertex_cols <- as_hexcol(bg_layer)
+  }
+
+  #shade3d(surfgeom@mesh, col=rep(vertex_cols,3))
+  rgl::shade3d(surfgeom@mesh,col=vertex_cols[surf@mesh$it])
+  #shade3d(surfgeom@mesh, col=vertex_cols)
+
+}
+
+#' plot an image
 #'
-#'
-#'
-#'   curv <- curvature(surfgeom)
-#'
-#'   cmat <- rbind(vals[surfgeom@mesh$it[1,]],vals[surfgeom@mesh$it[2,]],vals[surfgeom@mesh$it[3,]] )
-#'   fvals <- colMeans(cmat)
-#'
-#'   fg_layer <- IntensityColorPlane(fvals, col,alpha=1)
-#'   fg_clrs <- map_colors(fg_layer, alpha=alpha, threshold=threshold, irange=irange)
-#'
-#'   #bg_layer <- IntensityColorPlane(curv, c("#D3D3D3FF", "#A9A9A9FF", "#A9A9A9FF"),alpha=1)
-#'   #bg_clrs <- map_colors(bg_layer, alpha=1)
-#'
-#'   #browser()
-#'
-#'
-#'   #combined <- blend_colors(bg_clrs, fg_clrs, alpha=alpha)
-#'   #face_cols <- as_hexcol(combined)
-#'   face_cols <- as_hexcol(fg_clrs)
-#'
-#'   cds <- coords(surfgeom)
-#'   p <- plot_ly(
-#'     x = cds[,1], y=cds[,2], z = cds[,3],
-#'     i = surfgeom@mesh$it[1,]-1, j =surfgeom@mesh$it[2,]-1, k = surfgeom@mesh$it[3,]-1,
-#'     facecolor=face_cols,
-#'     #vertexcolor=face_cols,
-#'     #intensity=vals,
-#'     type = "mesh3d",
-#'     flatshading=TRUE
-#'   )
-#'   p
-#'
-#'
-#' }
-#'
-#'
-#'
-#' #' @importFrom gplots col2hex
-#' #' @export
-#' viewSurface <- function(surfgeom, vals, col=rainbow(256, alpha = 1),
-#'                         bg_col = "lightgray",
-#'                         alpha=1,
-#'                         add_normals=FALSE,
-#'                         threshold=NULL,
-#'                         irange=range(vals),
-#'                         bgcol="#D3D3D3") {
-#'
-#'
-#'   if (add_normals) {
-#'     surfgeom@mesh <- rgl::addNormals(surfgeom@mesh)
-#'   }
-#'
-#'
-#'   face_vals <- rowMeans(cbind(vals[surfgeom@mesh$it[1,]],vals[surfgeom@mesh$it[2,]],vals[surfgeom@mesh$it[3,]]))
-#'   fg_layer <- IntensityColorPlane(face_vals, col,alpha=1)
-#'
-#'   #fg_layer <- IntensityColorPlane(vals, colmap,alpha=1)
-#'   fg_clrs <- map_colors(fg_layer, alpha=alpha, threshold=threshold, irange=irange)
-#'
-#'   if (is.character(bg_col)) {
-#'     bgcol <- gplots::col2hex(bg_col)
-#'   }
-#'
-#'   if (length(bgcol) == 1) {
-#'     bg_layer <- HexColorPlane(rep(bgcol, length(face_vals)))
-#'   } else {
-#'     bg_layer <- HexColorPlane(bgcol)
-#'   }
-#'
-#'   combined <- blend_colors(bg_layer, fg_clrs, alpha)
-#'   vertex_cols <- as_hexcol(combined)
-#'   #shade3d(surfgeom@mesh, col=rep(vertex_cols,3))
-#'   rgl::shade3d(surfgeom@mesh, col=rep(vertex_cols,each=3))
-#'   #shade3d(surfgeom@mesh, col=vertex_cols)
-#'
-#' }
-#'
+#' @rdname plot-methods
+#' @param x the surface to display
+#' @param vals the \code{vector} of values at each surface node.
+#' @param cmap a color map consisting of a vector of colors in hex format (e.g. \code{gray(n=255)})
+#' @param irange the intensity range indicating the low and high values of the color scale.
+#' @param thresh a 2-element vector indicating the lower and upper transparency thresholds.
+#' @param alpha the foreground trasnparency, default is 1 (opaque).
+#' @param bgvol a background color or vector of colors used to shade the surface.
+#' @export
+#' @importFrom graphics plot
+setMethod("plot", signature=signature(x="SurfaceGeometry"),
+          def=function(x,vals=NA, cmap=gray(seq(0,1,length.out=255)),
+                       irange=range(vals),
+                       thresh=c(0,0),
+                       alpha=1,
+                       bgcol="lightgray") {
+
+            view_surface(x,vals,col=cmap,irange=irange,thresh=thresh,alpha=alpha,bgcol=bgcol)
+
+          })
+
+
 #' viewShiny <- function(surfgeom, vals=1:length(nodes(surfgeom)), col=rainbow(255, alpha = 1)) {
 #'   options(rgl.useNULL = TRUE)
 #'
