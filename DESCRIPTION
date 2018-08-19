@@ -31,6 +31,9 @@ Collate:
     'view_surface.R'
 Suggests: 
     testthat,
-    covr
+    covr,
+    knitr,
+    rmarkdown
 URL: https://github.com/bbuchsbaum/neurosurf
 BugReports: https://github.com/bbuchsbaum/neurosurf/issues
+VignetteBuilder: knitr

@@ -187,16 +187,24 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
             igraph::as_adjacency_matrix(graph(x))
           })
 
-setMethod(f="smooth", signature=c(x="NeuroSurface", sigma="missing"),
-           def=function(x, sigma, ...) {
-             g <- graph(geometry(bsurf))
-             ind <- indices(x)
-             vlist <- igraph::adjacent_vertices(g, indices(x))
+
+setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
+          def=function(x, type=c("taubin","laplace","HClaplace","fujiLaplace","angWeight","surfPreserveLaplace"), lambda=.5, mu=-.53, delta=.1) {
+            smesh <- Rvcg::vcgSmooth(x@mesh, type=type, lambda=lambda, mu=mu, delta=.1)
+            x@mesh <- smesh
+            x
+          })
+
+setMethod(f="smooth", signature=c(x="NeuroSurface"),
+           def=function(x, sigma=5, ...) {
+             g <- graph(geometry(x))
+
+             ind <- x@indices
+             vlist <- igraph::adjacent_vertices(g, ind)
              cds <- coords(x)
 
-             smat <- parallel::mclapply(1:length(vlist), function(i) {
-               print(i)
+             smat <- lapply(1:length(vlist), function(i) {
                m <- series(x, c(ind[i], vlist[[i]]))
-               Matrix::rowMeans(m)
-             }, mc.cores=parallel::detectCores())
+               mean(m)
+             })
            })

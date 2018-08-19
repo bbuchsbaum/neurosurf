@@ -46,8 +46,6 @@
 #
 #
 
-
-
 view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
                         bgcol = "lightgray",
                         alpha=1,
@@ -67,7 +65,7 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
   }
 
   if (length(bgcol) == 1) {
-    bg_layer <- HexColorPlane(rep(bgcol, length(nodes(surf))))
+    bg_layer <- HexColorPlane(rep(bgcol, length(nodes(surfgeom))))
   } else {
     bg_layer <- HexColorPlane(bgcol)
   }
@@ -84,7 +82,7 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
   }
 
   #shade3d(surfgeom@mesh, col=rep(vertex_cols,3))
-  rgl::shade3d(surfgeom@mesh,col=vertex_cols[surf@mesh$it])
+  rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it])
   #shade3d(surfgeom@mesh, col=vertex_cols)
 
 }

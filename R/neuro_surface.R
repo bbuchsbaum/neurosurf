@@ -440,7 +440,7 @@ setMethod("series_roi", signature(x="NeuroSurfaceVector", i="ROISurface"),
 #' @export
 setMethod("series", signature(x="NeuroSurface", i="numeric"),
           def=function(x, i) {
-            stop("not implemented")
+            Matrix::t(x@data[i])
           })
 
 

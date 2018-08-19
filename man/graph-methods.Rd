@@ -47,10 +47,4 @@ extract \code{igraph} object
 get compute graph laplacian
 
 get adjacency graph
-
-graph
-
-graph
-
-graph
 }
