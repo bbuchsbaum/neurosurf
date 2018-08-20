@@ -1,5 +1,6 @@
-
-
+#' @include all_class.R
+#' @include all_generic.R
+NULL
 
 setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="NeuroSurface"),
           def=function(e1, e2) {

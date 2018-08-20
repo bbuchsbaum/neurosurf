@@ -1,3 +1,6 @@
+#' @include all_class.R
+#' @include all_generic.R
+NULL
 
 findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
   if (is.null(max_order)) {

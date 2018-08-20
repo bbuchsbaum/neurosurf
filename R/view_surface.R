@@ -51,7 +51,8 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
                         alpha=1,
                         add_normals=TRUE,
                         threshold=NULL,
-                        irange=range(vals)) {
+                        irange=range(vals),
+                        ...) {
 
 
   if (add_normals) {
@@ -82,7 +83,7 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
   }
 
   #shade3d(surfgeom@mesh, col=rep(vertex_cols,3))
-  rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it])
+  rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it], ...)
   #shade3d(surfgeom@mesh, col=vertex_cols)
 
 }
@@ -104,9 +105,9 @@ setMethod("plot", signature=signature(x="SurfaceGeometry"),
                        irange=range(vals),
                        thresh=c(0,0),
                        alpha=1,
-                       bgcol="lightgray") {
+                       bgcol="lightgray", ...) {
 
-            view_surface(x,vals,col=cmap,irange=irange,thresh=thresh,alpha=alpha,bgcol=bgcol)
+            view_surface(x,vals,col=cmap,irange=irange,thresh=thresh,alpha=alpha,bgcol=bgcol,...)
 
           })
 
