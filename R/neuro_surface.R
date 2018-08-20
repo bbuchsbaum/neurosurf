@@ -385,7 +385,8 @@ setMethod(f="nodes", signature=c(x="NeuroSurfaceVector"),
             callGeneric(x@geometry)
           })
 
-
+#' connected components on a surface
+#'
 #' @rdname conn_comp-methods
 #' @export
 #' @importMethodsFrom neuroim2 conn_comp
@@ -394,7 +395,7 @@ setMethod(f="conn_comp", signature=c(x="NeuroSurface"),
             keep <- x@data < threshold[1] | x@data > threshold[2]
             vs <- V(ssurf@geometry@graph)[keep]
             sg <- igraph::induced_subgraph(x@geometry@graph, vs)
-            comps <- components(sg)
+            comps <- igraph::components(sg)
 
 
 
