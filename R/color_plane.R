@@ -72,6 +72,7 @@ setMethod("blend_colors", signature(bottom="HexColorPlane", top="RGBColorPlane",
           def=function(bottom, top, alpha) {
             bottom <- as_rgb(bottom)
 
+            alpha <- alpha_channel(top) * alpha
             ## multiple constant alpha with alpha channel of top level
             clrs <- (1-alpha)*bottom[,1:3,drop=FALSE] + alpha*top@clrs[,1:3,drop=FALSE]
             RGBColorPlane(clrs)
@@ -140,12 +141,12 @@ setMethod("map_colors", signature=c("IntensityColorPlane"),
             if (!is.null(threshold)) {
               clrs <- col2rgb(clrs, alpha=TRUE)
               if (length(threshold) == 1) {
-                idx <- which(x@intensity > threshold)
-                clrs[4,-idx] <- 0
+                trans <- x@intensity < threshold
+                clrs[4,trans] <- 0
               } else if (length(threshold) == 2) {
                 cat("thresholding ", threshold)
-                idx <- which(x@intensity < threshold[1] | x@intensity > threshold[2])
-                clrs[4,-idx] <- 0
+                trans <- x@intensity > threshold[1] & x@intensity < threshold[2]
+                clrs[4,trans] <- 0
 
               } else {
                 stop("threshold must be a numeric vector with 1 or 2 elements")

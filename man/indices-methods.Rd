@@ -5,6 +5,7 @@
 \alias{indices,ROISurface-method}
 \alias{indices,ROISurfaceVector-method}
 \alias{indices,NeuroSurfaceVector-method}
+\alias{indices,NeuroSurface-method}
 \title{indices}
 \usage{
 \S4method{indices}{ROISurface}(x)
@@ -12,6 +13,8 @@
 \S4method{indices}{ROISurfaceVector}(x)
 
 \S4method{indices}{NeuroSurfaceVector}(x)
+
+\S4method{indices}{NeuroSurface}(x)
 }
 \description{
 indices

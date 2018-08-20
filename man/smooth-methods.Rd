@@ -4,12 +4,10 @@
 \alias{smooth}
 \title{smooth a surface}
 \usage{
-smooth(x, sigma, ...)
+smooth(x, ...)
 }
 \arguments{
 \item{x}{the surface object to smooth}
-
-\item{sigma}{the bandwidth}
 
 \item{...}{extra args}
 }

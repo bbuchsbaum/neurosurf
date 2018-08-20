@@ -229,7 +229,12 @@ setClass("ROISurfaceVector",
 setClass("NeuroSurface",
          representation=representation(geometry="SurfaceGeometry",
                                        indices="integer",
-                                       data="numeric"))
+                                       data="numeric"),
+         validity = function(object) {
+           if (length(data) != length(indices)) {
+             stop("length of 'data' must equal length of 'indices'")
+           }
+         })
 
 #' NeuroSurfaceVector
 #'

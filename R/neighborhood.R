@@ -203,8 +203,10 @@ setMethod(f="smooth", signature=c(x="NeuroSurface"),
              vlist <- igraph::adjacent_vertices(g, ind)
              cds <- coords(x)
 
-             smat <- lapply(1:length(vlist), function(i) {
+             svals <- purrr::map_dbl(1:length(vlist), function(i) {
                m <- series(x, c(ind[i], vlist[[i]]))
                mean(m)
              })
+
+             NeuroSurface(x@geometry, indices=ind, data=unlist(svals))
            })

@@ -363,6 +363,14 @@ setMethod(f="indices", signature=c("NeuroSurfaceVector"),
             x@indices
           })
 
+#' @rdname indices-methods
+#' @importMethodsFrom neuroim2 indices
+#' @export
+setMethod(f="indices", signature=c("NeuroSurface"),
+          def=function(x) {
+            x@indices
+          })
+
 #' @rdname nodes-methods
 #' @export
 setMethod(f="nodes", signature=c("NeuroSurface"),
@@ -372,9 +380,34 @@ setMethod(f="nodes", signature=c("NeuroSurface"),
 
 #' @rdname nodes-methods
 #' @export
-setMethod(f="nodes", signature=c("NeuroSurfaceVector"),
+setMethod(f="nodes", signature=c(x="NeuroSurfaceVector"),
           def=function(x) {
             callGeneric(x@geometry)
+          })
+
+
+#' @rdname conn_comp-methods
+#' @export
+#' @importMethodsFrom neuroim2 conn_comp
+setMethod(f="conn_comp", signature=c(x="NeuroSurface"),
+          def=function(x, threshold) {
+            keep <- x@data < threshold[1] | x@data > threshold[2]
+            vs <- V(ssurf@geometry@graph)[keep]
+            sg <- igraph::induced_subgraph(x@geometry@graph, vs)
+            comps <- components(sg)
+
+
+
+            memb <- numeric(length(keep))
+            memb[keep] <- comps$membership
+
+            sizes <- numeric(length(keep))
+            sizes[keep] <- comps$csize[comps$membership]
+
+            index_surf <- NeuroSurface(x@geometry, x@indices, memb)
+            size_surf <- NeuroSurface(x@geometry, x@indices, sizes)
+
+            list(index=index_surf, size=size_surf)
           })
 
 

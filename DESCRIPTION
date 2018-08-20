@@ -8,7 +8,8 @@ Imports:
 Type: Package
 Title: Data structures and IO for surface-based neuroimaging data
 Version: 0.1.0
-Author: Bradley R. Buchsbaum
+Authors@R: c(
+    person(c("Bradley", "R"), "Buchsbaum", role = c("aut", "cre"), email = "brad.buchsbaum@gmail.com"))
 Maintainer: Bradley Buchsbaum <brad.buchsbaum@gmail.com>
 Description: Basic utilties for reading, writing and manipulating neuroimaging
     organized as a trinagle mesh.

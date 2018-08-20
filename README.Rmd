@@ -26,10 +26,8 @@ You can install neurosurf from github with:
 devtools::install_github("bbuchsbaum/neurosurf")
 ```
 
-## Example
+## Vignettes
 
-This is a basic example which shows you how to solve a common problem:
+See examples of use of `neurosurf` in the [vignettes](https://bbuchsbaum.github.io/neurosurf/articles/index.html).
 
-```{r example}
-## basic example code
-```
+

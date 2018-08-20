@@ -110,10 +110,20 @@ rglwidget()
 ```{r, fig.width=7, fig.height=5} 
 
 #xvals <- coords(white_surf)[,1]
+
 open3d()
+mfrow3d(1, 2, byrow = TRUE)
 vals <- rnorm(length(nodes(white_surf1)))
 surf <- NeuroSurface(white_surf1, indices=1:length(vals), data=vals)
-p <- plot(white_surf1, vals=curv, cmap=c("green", "red"))
+ssurf <- smooth(smooth(surf))
+p <- plot(ssurf@geometry, vals=ssurf@data, cmap=rainbow(100), irange=c(-2,2), thresh=c(-.2, .2))
+
+comp <- conn_comp(ssurf, threshold=c(-.2,.2))
+
+vals <- ssurf@data
+vals[comp$size@data < 100] <- 0
+p2 <- plot(ssurf@geometry, vals=vals, cmap=rainbow(100), irange=c(-2,2), thresh=c(-.2, .2))
+
 rglwidget()
 
 ```
