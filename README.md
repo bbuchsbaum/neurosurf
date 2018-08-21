@@ -20,4 +20,4 @@ devtools::install_github("bbuchsbaum/neurosurf")
 ## Vignettes
 
 See examples of use of `neurosurf` in the
-[vignettes](https://bbuchsbaum.github.io/neurosurf/docs/index.html).
+[vignettes](https://bbuchsbaum.github.io/neurosurf/articles/index.html).
