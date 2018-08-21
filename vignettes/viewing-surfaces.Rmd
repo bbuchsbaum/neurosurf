@@ -36,28 +36,6 @@ white_rh_surf <-  read_surf(white_rh_asc)
 p <- plot(white_surf)
 rglwidget()
 
-white_rh_surf <- read_surf(white_rh_asc)
-
-```
-
-## Plotting two surfaces side by side
-
-
-```{r, fig.width=7, fig.height=5} 
-
-white_surf <- read_surf(white_lh_asc)
-inflated_surf <- read_surf(inflated_lh_asc)
-
-inflated_rh_surf <- read_surf(inflated_rh_asc)
-
-
-open3d()
-mfrow3d(1, 2, byrow = TRUE)
-
-p <- plot(white_surf)
-next3d()
-p2 <- plot(inflated_surf)
-rglwidget()
 
 ```
 
@@ -99,17 +77,6 @@ rglwidget()
 
 ```
 
-## Showing the curvature of a surface
-
-```{r, fig.width=7, fig.height=5} 
-
-open3d()
-curv <- curvature(white_surf1)
-curv <- ifelse(curv > median(curv), 1, 0)
-p <- plot(white_surf1, bgcol=curv_cols(curv))
-rglwidget()
-
-```
 
 ## Showing an activation on a surface
 
@@ -131,6 +98,7 @@ p2 <- plot(ssurf@geometry, vals=vals, cmap=rainbow(100), irange=c(-2,2), thresh=
 rglwidget()
 
 ```
+
 ## Showing an activation overlaid on a curvature map
 
 ```{r, fig.width=7, fig.height=5} 
@@ -145,23 +113,6 @@ ssurf <- smooth(smooth(surf))
 
 
 p <- plot(white_surf1, vals=ssurf@data, bgcol=curv_cols(curv),cmap=rainbow(100), irange=c(-2,2), thresh=c(-.3, .3))
-rglwidget()
-
-```
-
-## Changing lighting, background and specular color
-
-```{r, fig.width=7, fig.height=5} 
-
-
-open3d()
-bg3d("black")
-mfrow3d(nc=3, nr=1)
-
-p <- plot(white_surf1, bgcol=curv_cols(curv), lit=TRUE); next3d()
-p <- plot(white_surf1, bgcol=curv_cols(curv), lit=FALSE); next3d()
-p <- plot(white_surf1, bgcol=curv_cols(curv), lit=TRUE, specular="white");
-
 rglwidget()
 
 ```

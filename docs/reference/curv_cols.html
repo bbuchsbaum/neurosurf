@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>SurfaceGeometryMetaInfo — SurfaceGeometryMetaInfo-class • neurosurf</title>
+<title>convert curvature vector to a set of binary colors — curv_cols • neurosurf</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="SurfaceGeometryMetaInfo — SurfaceGeometryMetaInfo-class" />
+<meta property="og:title" content="convert curvature vector to a set of binary colors — curv_cols" />
 
-<meta property="og:description" content="This class contains meta information for brain surface geometry" />
+<meta property="og:description" content="convert curvature vector to a set of binary colors" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -109,40 +109,43 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>SurfaceGeometryMetaInfo</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bbuchsbaum/neurosurf/blob/master/R/all_class.R'><code>R/all_class.R</code></a></small>
-    <div class="hidden name"><code>SurfaceGeometryMetaInfo-class.Rd</code></div>
+    <h1>convert curvature vector to a set of binary colors</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bbuchsbaum/neurosurf/blob/master/R/view_surface.R'><code>R/view_surface.R</code></a></small>
+    <div class="hidden name"><code>curv_cols.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This class contains meta information for brain surface geometry</p>
+    <p>convert curvature vector to a set of binary colors</p>
     
     </div>
 
-        
-    <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
-
+    <pre class="usage"><span class='fu'>curv_cols</span>(<span class='no'>vals</span>, <span class='kw'>incol</span> <span class='kw'>=</span> <span class='st'>"#B3B3B3"</span>, <span class='kw'>outcol</span> <span class='kw'>=</span> <span class='st'>"#404040"</span>)</pre>
     
-    <dl class='dl-horizontal'>
-<dt><code>header_file</code></dt><dd><p>name of the file containing meta information</p></dd>
-    <dt><code>data_file</code></dt><dd><p>name of the file containing data</p></dd>
-    <dt><code>file_descriptor</code></dt><dd><p>descriptor of image file format</p></dd>
-    <dt><code>vertices</code></dt><dd><p>the number of surface vertices</p></dd>
-    <dt><code>faces</code></dt><dd><p>the number of faces</p></dd>
-    <dt><code>embed_dimension</code></dt><dd><p>the dimensionality of the embedding</p></dd>
-    <dt><code>label</code></dt><dd><p>a label indicating the type of surface (e.g. white, pial, inflated, flat, spherical)</p></dd>
-    <dt><code>hemi</code></dt><dd><p>a label indicating the hemisphere, one of ('lh', 'rh', or 'unknown')</p></dd>
-</dl>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>vals</th>
+      <td><p>the curvature values</p></td>
+    </tr>
+    <tr>
+      <th>incol</th>
+      <td><p>the hex color for the sulci (inward)</p></td>
+    </tr>
+    <tr>
+      <th>outcol</th>
+      <td><p>the hex color for the gyri (outward)</p></td>
+    </tr>
+    </table>
     
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      
-      <li><a href="#slots">Slots</a></li>
-          </ul>
+      <li><a href="#arguments">Arguments</a></li>
+                </ul>
 
   </div>
 </div>
