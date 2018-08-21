@@ -23,5 +23,7 @@ This class contains meta information for brain surface geometry
 \item{\code{embed_dimension}}{the dimensionality of the embedding}
 
 \item{\code{label}}{a label indicating the type of surface (e.g. white, pial, inflated, flat, spherical)}
+
+\item{\code{hemi}}{a label indicating the hemisphere, one of ('lh', 'rh', or 'unknown')}
 }}
 
