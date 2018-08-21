@@ -46,12 +46,24 @@
 #
 #
 
+surface_views <- list(
+  left_lateral=rbind(c(0,-1,0,0), c(0,0,1,0),c(-1,0,0,0), c(0,0,0,1)),
+  left_medial=rbind(c(0,1,0,0), c(0,0,1,0),c(1,0,0,0), c(0,0,0,1)),
+  left_ventral=rbind(c(-1,0,0,0), c(0,1,0,0),c(0,0,-1,0), c(0,0,0,1)),
+  left_posterior=rbind(c(1,0,0,0), c(0,0,1,0),c(0,-1,0,0), c(0,0,0,1)),
+  left_parietal=rbind(c(0.91752613, -0.3973827, 0.01525377, 0),
+                       c(-0.38506675, -0.8781998, 0.28370535, 0),
+                       c(0, 0, 0,1)))
+
+
+
 view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
                         bgcol = "lightgray",
                         alpha=1,
                         add_normals=TRUE,
                         threshold=NULL,
                         irange=range(vals),
+                        specular=specular,
                         ...) {
 
 
@@ -83,7 +95,7 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
   }
 
   #shade3d(surfgeom@mesh, col=rep(vertex_cols,3))
-  rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it], ...)
+  rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it], specular=specular, ...)
   #shade3d(surfgeom@mesh, col=vertex_cols)
 
 }
@@ -105,9 +117,10 @@ setMethod("plot", signature=signature(x="SurfaceGeometry"),
                        irange=range(vals),
                        thresh=c(0,0),
                        alpha=1,
+                       specular="black",
                        bgcol="lightgray", ...) {
 
-            view_surface(x,vals,col=cmap,irange=irange,thresh=thresh,alpha=alpha,bgcol=bgcol,...)
+            view_surface(x,vals,col=cmap,irange=irange,thresh=thresh,alpha=alpha,bgcol=bgcol,specular=specular,...)
 
           })
 
