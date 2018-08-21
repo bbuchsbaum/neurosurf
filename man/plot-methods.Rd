@@ -7,7 +7,7 @@
 \usage{
 \S4method{plot}{SurfaceGeometry}(x, vals = NA, cmap = gray(seq(0, 1,
   length.out = 255)), irange = range(vals), thresh = c(0, 0), alpha = 1,
-  bgcol = "lightgray", ...)
+  specular = "black", bgcol = "lightgray", ...)
 }
 \arguments{
 \item{x}{the surface to display}
