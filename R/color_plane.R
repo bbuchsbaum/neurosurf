@@ -144,7 +144,7 @@ setMethod("map_colors", signature=c("IntensityColorPlane"),
                 trans <- x@intensity < threshold
                 clrs[4,trans] <- 0
               } else if (length(threshold) == 2) {
-                cat("thresholding ", threshold)
+                #cat("thresholding ", threshold)
                 trans <- x@intensity > threshold[1] & x@intensity < threshold[2]
                 clrs[4,trans] <- 0
 

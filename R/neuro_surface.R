@@ -218,8 +218,9 @@ SurfaceGeometrySource <- function(surface_name) {
 setMethod(f="show", signature=signature("SurfaceGeometry"),
           def=function(object) {
             cat("SurfaceGeometry \n")
-            #cat("  file: ", object@source@meta_info@header_file, "\n")
+            cat("  hemisphere: ", if (object@hemi == "lh") "left" else if (object@hemi == "rh") "right" else object@hemi, "\n")
             cat("  num vertices:", length(nodes(object)), "\n")
+            cat("  num faces:", ncol(white_surf@mesh$it), "\n")
           })
 
 
@@ -773,9 +774,17 @@ loadFSSurface <- function(meta_info) {
 
   graph <- meshToGraph(vertices, nodes)
 
+  if (meta_info@hemi == "unknown") {
+    if (mean(vertices[,1]) < 0) {
+      meta_info@hemi <- "lh"
+    } else if (mean(vertices[,1]) > 0) {
+      meta_info@hemi <- "rh"
+    }
+  }
+
   mesh <- rgl::tmesh3d(as.vector(t(vertices)), as.vector(t(nodes))+1, homogeneous=FALSE)
   #new("SurfaceGeometry", source=new("SurfaceGeometrySource", meta_info=meta_info), mesh=mesh, graph=graph)
-  new("SurfaceGeometry",  mesh=mesh, graph=graph)
+  new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=meta_info@hemi)
 }
 
 

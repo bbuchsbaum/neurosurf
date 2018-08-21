@@ -46,15 +46,27 @@
 #
 #
 
+#' convert curvature vector to a set of binary colors
+#'
+#' @param vals the curvature values
+#' @param incol the hex color for the sulci (inward)
+#' @param outcol the hex color for the gyri (outward)
+#' @export
+curv_cols <- function(vals, incol="#B3B3B3", outcol="#404040") {
+  ifelse(vals > median(vals), incol, outcol)
+}
+
 surface_views <- list(
   left_lateral=rbind(c(0,-1,0,0), c(0,0,1,0),c(-1,0,0,0), c(0,0,0,1)),
   left_medial=rbind(c(0,1,0,0), c(0,0,1,0),c(1,0,0,0), c(0,0,0,1)),
   left_ventral=rbind(c(-1,0,0,0), c(0,1,0,0),c(0,0,-1,0), c(0,0,0,1)),
   left_posterior=rbind(c(1,0,0,0), c(0,0,1,0),c(0,-1,0,0), c(0,0,0,1)),
-  left_parietal=rbind(c(0.91752613, -0.3973827, 0.01525377, 0),
-                       c(-0.38506675, -0.8781998, 0.28370535, 0),
-                       c(0, 0, 0,1)))
 
+  right_lateral=rbind(c(0,1,0,0), c(0,0,1,0), c(1,0,0,0), c(0,0,0,1)),
+  right_medial=rbind(c(0,-1,0,0), c(0,0,1,0), c(-1,0,0,0), c(0,0,0,1)),
+  right_ventral=rbind(c(-1,0,0,0), c(0,1,0,0),c(0,0,-1,0), c(0,0,0,1)),
+  right_posterior=rbind(c(1,0,0,0), c(0,0,1,0),c(0,-1,0,0), c(0,0,0,1))
+)
 
 
 view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
@@ -64,6 +76,7 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
                         threshold=NULL,
                         irange=range(vals),
                         specular=specular,
+                        viewpoint=c("lateral","medial", "ventral", "posterior"),
                         ...) {
 
 
@@ -71,7 +84,18 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
     surfgeom@mesh <- rgl::addNormals(surfgeom@mesh)
   }
 
+  viewpoint <- match.arg(viewpoint)
 
+  umat <- if (surfgeom@hemi == "lh") {
+    viewpoint <- paste0("left_", viewpoint)
+    surface_views[[viewpoint]]
+  } else if (surfgeom@hemi == "rh") {
+    viewpoint <- paste0("right_", viewpoint)
+    surface_views[[viewpoint]]
+  } else {
+    warning("unknown hemisphere, default using viewpoint")
+    par3d()$userMatrix
+  }
 
   if (is.character(bgcol)) {
     bgcol <- gplots::col2hex(bgcol)
@@ -86,7 +110,6 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
 
   if (!is.na(vals) && !is.null(vals)) {
     fg_layer <- IntensityColorPlane(vals, col,alpha=1)
-    #fg_layer <- IntensityColorPlane(vals, colmap,alpha=1)
     fg_clrs <- map_colors(fg_layer, alpha=alpha, threshold=threshold, irange=irange)
     combined <- blend_colors(bg_layer, fg_clrs, alpha=alpha)
     vertex_cols <- as_hexcol(combined)
@@ -94,9 +117,8 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
     vertex_cols <- as_hexcol(bg_layer)
   }
 
-  #shade3d(surfgeom@mesh, col=rep(vertex_cols,3))
   rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it], specular=specular, ...)
-  #shade3d(surfgeom@mesh, col=vertex_cols)
+  par3d(userMatrix = umat)
 
 }
 

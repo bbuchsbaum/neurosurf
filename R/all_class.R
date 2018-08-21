@@ -14,7 +14,7 @@ setOldClass("igraph")
 #' @slot graph underlying graph structure
 #' @export
 setClass("SurfaceGeometry",
-         representation=representation(mesh="mesh3d", graph="igraph"))
+         representation=representation(mesh="mesh3d", graph="igraph", hemi="character"))
 
 
 #' SurfaceGeometryMetaInfo
@@ -29,6 +29,7 @@ setClass("SurfaceGeometry",
 #' @slot faces the number of faces
 #' @slot embed_dimension the dimensionality of the embedding
 #' @slot label a label indicating the type of surface (e.g. white, pial, inflated, flat, spherical)
+#' @slot hemi a label indicating the hemisphere, one of ('lh', 'rh', or 'unknown')
 #' @importClassesFrom neuroim2 FileFormat
 #' @export
 setClass("SurfaceGeometryMetaInfo",
@@ -40,6 +41,7 @@ setClass("SurfaceGeometryMetaInfo",
              vertices="integer",
              faces="integer",
              label="character",
+             hemi="character",
              embed_dimension="integer"))
 
 

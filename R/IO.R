@@ -18,9 +18,22 @@ NULL
 #' @param file_name the file
 #' @export
 readFreesurferAsciiHeader <- function(file_name) {
+  has_hemi <- grep(".*\\.[lr]h\\..*", file_name)
+  hemi <- if (length(has_hemi) > 0) {
+    if (length(grep(".*\\.lh\\..*", file_name))>0) {
+      "lh"
+    } else if (length(grep(".*\\.rh\\..*", file_name)) > 0) {
+      "rh"
+    } else {
+      "unknown"
+    }
+  } else {
+    "unknown"
+  }
+
   ninfo <- as.integer(strsplit(readLines(file_name, n=2)[2], " ")[[1]])
   list(vertices=ninfo[1], faces=ninfo[2], label=neuroim2:::strip_extension(FREESURFER_ASCII_SURFACE_DSET, basename(file_name)),
-       embed_dimension=3, header_file=file_name, data_file=file_name)
+       embed_dimension=3, header_file=file_name, data_file=file_name, hemi=hemi)
 }
 
 #' readFreesurferAsciiGeometry
@@ -207,6 +220,7 @@ FreesurferSurfaceGeometryMetaInfo <- function(descriptor, header) {
       vertices=as.integer(header$vertices),
       faces=as.integer(header$faces),
       label=as.character(header$label),
+      hemi=header$hemi,
       embed_dimension=as.integer(header$embed_dimension))
 }
 
@@ -247,7 +261,6 @@ NIMLSurfaceDataMetaInfo <- function(descriptor, header) {
 #' Constructor for \code{\linkS4class{AFNISurfaceDataMetaInfo}} class
 #' @param descriptor the file descriptor
 #' @param header a \code{list} containing header information
-#'
 AFNISurfaceDataMetaInfo <- function(descriptor, header) {
   stopifnot(is.numeric(header$nodes))
 
@@ -271,6 +284,7 @@ setMethod(f="show", signature=signature("SurfaceGeometryMetaInfo"),
             cat("number of vertices:", "\t", object@vertices, "\n")
             cat("number of faces:", "\t", object@faces, "\n")
             cat("label:", "\t", object@label, "\n")
+            cat("hemisphere:", "\t", object@hemi, "\n")
             cat("embed dimension:", "\t", object@embed_dimension, "\n")
           })
 
