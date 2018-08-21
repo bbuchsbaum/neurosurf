@@ -1,0 +1,55 @@
+---
+title: "Manipulating Surfaces"
+author: "Bradley Buchsbaum"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Manipulating Surfaces}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(rgl)
+library(neuroim2)
+devtools::load_all()
+#knitr::knit_hooks$set(webgl = hook_webgl)
+inflated_lh_asc <- system.file("testdata", "std.40.lh.inflated.asc", package="neurosurf")
+white_lh_asc <- system.file("testdata", "std.40.lh.smoothwm.asc", package="neurosurf")
+
+white_rh_asc <- system.file("testdata", "std.40.rh.smoothwm.asc", package="neurosurf")
+inflated_rh_asc <- system.file("testdata", "std.40.rh.inflated.asc", package="neurosurf")
+
+```
+
+
+
+## Smoothing surface geometry
+
+
+```{r, fig.width=8, fig.height=5} 
+
+white_surf <- read_surf(white_lh_asc)
+
+open3d()
+layout3d(matrix(1:6, 2,3), heights=c(1,3))
+t1 <- text3d(0,0,0,"taubin smooth, lambda=.12"); next3d()
+white_surf1 <- smooth(white_surf, type="taubin", lambda=.9)
+p1 <- plot(white_surf1); next3d()
+
+t2 <- text3d(0,0,0,"taubin smooth, lambda=.8"); next3d()
+white_surf2 <- smooth(white_surf, type="taubin", lambda=.7)
+p2 <- plot(white_surf2); next3d()
+
+t3 <- text3d(0,0,0,"taubin smooth, lambda=.4"); next3d()
+white_surf3 <- smooth(white_surf, type="taubin", lambda=.5)
+p3 <- plot(white_surf3); 
+
+rglwidget()
+
+```
