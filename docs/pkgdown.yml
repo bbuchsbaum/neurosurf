@@ -4,4 +4,5 @@ pkgdown_sha: ~
 articles:
   manipulating-surfaces: manipulating-surfaces.html
   viewing-surfaces: viewing-surfaces.html
+  viewing-surfaces2: viewing-surfaces2.html
 
