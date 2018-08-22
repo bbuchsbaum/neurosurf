@@ -30,10 +30,33 @@ white_rh_surf <-  read_surf(white_rh_asc)
 
 ```
 
+## Showing an activation on a surface
+
+```{r, fig.width=7, fig.height=5} 
+
+white_surf1 <- smooth(white_surf, type="taubin", lambda=.9)
+
+open3d()
+mfrow3d(1, 2, byrow = TRUE)
+vals <- rnorm(length(nodes(white_surf1)))
+surf <- NeuroSurface(white_surf1, indices=1:length(vals), data=vals)
+ssurf <- smooth(smooth(surf))
+p <- plot(ssurf@geometry, vals=ssurf@data, cmap=rainbow(100), irange=c(-2,2), thresh=c(-.2, .2))
+
+next3d()
+comp <- conn_comp(ssurf, threshold=c(-.2,.2))
+vals <- ssurf@data
+vals[comp$size@data < 100] <- 0
+p2 <- plot(ssurf@geometry, vals=vals, cmap=rainbow(100), irange=c(-2,2), thresh=c(-.2, .2))
+
+rglwidget()
+
+```
+
 
 ## Showing an activation overlaid on a curvature map
 
-```{r, fig.width=7, fig.height=5} 
+```{r, fig.width=6, fig.height=5} 
 
 open3d()
 white_surf1 <- smooth(white_surf, type="taubin", lambda=.9)
@@ -45,20 +68,5 @@ ssurf <- smooth(smooth(surf))
 p <- plot(white_surf1, vals=ssurf@data, bgcol=curv_cols(curv),cmap=rainbow(100), irange=c(-2,2), thresh=c(-.3, .3))
 rglwidget()
 
-```
-
-## Showing two hemisperes in same scene
-
-```{r, fig.width=7, fig.height=5} 
-
-open3d()
-
-curv_lh <- curvature(white_surf1)
-white_rh_surf1 <- smooth(white_rh_surf, type="taubin", lambda=.9)
-curv_rh <- curvature(white_rh_surf1)
-
-p <- plot(white_surf1, bgcol=curv_cols(curv_lh), viewpoint="posterior")
-p <- plot(white_rh_surf1,bgcol=curv_cols(curv_rh), viewpoint="posterior")
-rglwidget()
 ```
 

@@ -3,6 +3,7 @@ pkgdown: 1.1.0
 pkgdown_sha: ~
 articles:
   manipulating-surfaces: manipulating-surfaces.html
-  viewing-surfaces: viewing-surfaces.html
+  viewing-surfaces1: viewing-surfaces1.html
   viewing-surfaces2: viewing-surfaces2.html
+  viewing-surfaces3: viewing-surfaces3.html
 
