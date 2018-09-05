@@ -891,6 +891,8 @@ setAs(from="BilatNeuroSurfaceVector", to="matrix",
 
       })
 
+
+#' @export
 setMethod("as.matrix", signature(x = "BilatNeuroSurfaceVector"), function(x) as(x, "matrix"))
 
 

@@ -9,12 +9,16 @@ setOldClass("igraph")
 #' SurfaceGeometry
 #'
 #' a three-dimensional surface consisting of a set of triangle vertices
+#'
 #' @rdname SurfaceGeometry-class
 #' @slot mesh the underlying \code{mesh3d} object
 #' @slot graph underlying graph structure
 #' @export
 setClass("SurfaceGeometry",
          representation=representation(mesh="mesh3d", graph="igraph", hemi="character"))
+
+
+
 
 
 #' SurfaceGeometryMetaInfo
