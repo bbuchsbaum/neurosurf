@@ -811,7 +811,7 @@ setMethod(f="right", signature=c(x="BilatNeuroSurfaceVector"),
 
 
 
-
+#' @keywords internal
 normalize <- function(vals) (vals - min(vals))/(max(vals)-min(vals))
 
 
@@ -878,7 +878,7 @@ setMethod(f="[", signature=signature(x = "NeuroSurfaceVector", i = "missing", j 
             x@data[,]
           })
 
-
+#' @export
 setAs(from="BilatNeuroSurfaceVector", to="matrix",
       def=function(from) {
         mat1 <- left(from)[]
