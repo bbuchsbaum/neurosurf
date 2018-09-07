@@ -4,7 +4,8 @@ Imports:
     igraph,
     rgl,
     assertthat,
-    neuroim2
+    neuroim2,
+    colorplane
 Type: Package
 Title: Data structures and IO for surface-based neuroimaging data
 Version: 0.1.0
@@ -18,6 +19,7 @@ LazyData: TRUE
 RoxygenNote: 6.0.1
 Remotes:
   bbuchsbaum/neuroim2
+  bbuchsbaum/colorplane
 Collate:
     'all_generic.R'
     'all_class.R'
