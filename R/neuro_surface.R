@@ -220,7 +220,7 @@ setMethod(f="show", signature=signature("SurfaceGeometry"),
             cat("SurfaceGeometry \n")
             cat("  hemisphere: ", if (object@hemi == "lh") "left" else if (object@hemi == "rh") "right" else object@hemi, "\n")
             cat("  num vertices:", length(nodes(object)), "\n")
-            cat("  num faces:", ncol(white_surf@mesh$it), "\n")
+            cat("  num faces:", ncol(object@mesh$it), "\n")
           })
 
 

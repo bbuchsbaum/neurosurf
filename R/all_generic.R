@@ -67,41 +67,6 @@ setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardG
 #' @rdname adjacency-methods
 setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacency"))
 
-#' blend_colors
-#'
-#' blend two color planes
-#' @param bottom the bottom color plane
-#' @param top the top color plane
-#' @param alpha the alpha blending value
-setGeneric(name="blend_colors", def=function(bottom, top, alpha) standardGeneric("blend_colors"))
-
-#' color mapping
-#'
-#' map data values to a set of colors
-#'
-#' @param x the object to map over
-setGeneric(name="map_colors", def=function(x, ...) standardGeneric("map_colors"))
-
-#' color conversion
-#'
-#' convert to rgb colors
-#'
-#' @param x the object to convert
-#' @param ... extra args
-#' @rdname color-conversion
-setGeneric(name="as_rgb", def=function(x, ...) standardGeneric("as_rgb"))
-
-
-#' @rdname color-conversion
-setGeneric(name="as_hexcol", def=function(x, ...) standardGeneric("as_hexcol"))
-
-#' alpha_channel
-#'
-#' extract the alpha channel
-#'
-#' @param x the object to extract alpha channel from
-#' @param ... extra args
-setGeneric(name="alpha_channel", def=function(x, ...) standardGeneric("alpha_channel"))
 
 
 #' curvature
