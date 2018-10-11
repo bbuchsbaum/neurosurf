@@ -18,7 +18,7 @@ License: GPL (>= 2)
 LazyData: TRUE
 RoxygenNote: 6.0.1
 Remotes:
-  bbuchsbaum/neuroim2
+  bbuchsbaum/neuroim2,
   bbuchsbaum/colorplane
 Collate:
     'all_generic.R'
