@@ -153,7 +153,7 @@ setMethod(f="data_reader", signature=signature("SurfaceGeometryMetaInfo"),
               }
             }
 
-            ColumnReader(nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
+            neuroim2::ColumnReader(nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
           })
 
 
@@ -169,7 +169,7 @@ setMethod(f="data_reader", signature=signature("NIMLSurfaceDataMetaInfo"),
               }
             }
 
-            ColumnReader(nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
+            neuroim2::ColumnReader(nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
             #new("ColumnReader", nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
           })
 

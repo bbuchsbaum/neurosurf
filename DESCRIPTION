@@ -27,7 +27,6 @@ Collate:
     'IO.R'
     'ROI.R'
     'Searchlight.R'
-    'color_plane.R'
     'neighborhood.R'
     'neuro_surface.R'
     'neurosurf.R'

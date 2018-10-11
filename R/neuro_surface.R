@@ -610,7 +610,6 @@ setMethod(f="show", signature=signature("NeuroSurface"),
 
 
 
-
 #' load a NeuroSurfaceVector
 #'
 #' @importFrom Matrix Matrix
@@ -625,9 +624,9 @@ setMethod(f="load_data", signature=c("NeuroSurfaceVectorSource"),
             reader <- data_reader(x@data_meta_info,0)
 
             ## the node indices of the data file -- this could be a subset of the nodes in the surface geometry.
-            nodes <- read_columns(reader, 0) + 1
+            nodes <- neuroim2::read_columns(reader, as.integer(0)) + 1
 
-            mat <- read_columns(reader, x@colind)
+            mat <- neuroim2::read_columns(reader, as.integer(x@colind))
             nvert <- ncol(geometry@mesh$vb)
 
             ## check for all-zero columns
@@ -653,7 +652,7 @@ setMethod(f="load_data", signature=c("NeuroSurfaceVectorSource"),
               Matrix::Matrix(mat)
             }
 
-            svec <- new("NeuroSurfaceVector", source=x, geometry=geometry,
+            svec <- new("NeuroSurfaceVector", geometry=geometry,
                         indices=as.integer(valid_nodes), data=mat)
 
           })
@@ -676,17 +675,17 @@ setMethod(f="load_data", signature=c("NeuroSurfaceSource"),
           def=function(x) {
             geometry <- x@geometry
             reader <- data_reader(x@data_meta_info,0)
-            nodes <- read_columns(reader,0) + 1
+            nodes <- neuroim2::read_columns(reader,as.integer(0)) + 1
 
             keep <- nodes %in% x@nodeind
             nodes <- nodes[keep]
 
-            vals <- read_columns(reader, x@colind)[,1]
+            vals <- neuroim2::read_columns(reader, as.integer(x@colind))[,1]
             nvert <- ncol(geometry@mesh$vb)
 
             avals <- numeric(nvert)
             avals[nodes] <- vals[keep]
-            surf<- NeuroSurface(geometry=geometry, indices = nodes, data=avals, source=x)
+            surf<- NeuroSurface(geometry=geometry, indices = nodes, data=avals)
 
           })
 

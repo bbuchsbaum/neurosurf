@@ -94,7 +94,7 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
     surface_views[[viewpoint]]
   } else {
     warning("unknown hemisphere, default using viewpoint")
-    par3d()$userMatrix
+    rgl::par3d()$userMatrix
   }
 
   if (is.character(bgcol)) {
@@ -102,23 +102,23 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
   }
 
   if (length(bgcol) == 1) {
-    bg_layer <- HexColorPlane(rep(bgcol, length(nodes(surfgeom))))
+    bg_layer <- colorplane::HexColorPlane(rep(bgcol, length(nodes(surfgeom))))
   } else {
-    bg_layer <- HexColorPlane(bgcol)
+    bg_layer <- colorplane::HexColorPlane(bgcol)
   }
 
 
   if (!is.na(vals) && !is.null(vals)) {
-    fg_layer <- IntensityColorPlane(vals, col,alpha=1)
-    fg_clrs <- map_colors(fg_layer, alpha=alpha, threshold=threshold, irange=irange)
-    combined <- blend_colors(bg_layer, fg_clrs, alpha=alpha)
-    vertex_cols <- as_hexcol(combined)
+    fg_layer <- colorplane::IntensityColorPlane(vals, col,alpha=1)
+    fg_clrs <- colorplane::map_colors(fg_layer, alpha=alpha, threshold=threshold, irange=irange)
+    combined <- colorplane::blend_colors(bg_layer, fg_clrs, alpha=alpha)
+    vertex_cols <- colorplane::as_hexcol(combined)
   } else {
-    vertex_cols <- as_hexcol(bg_layer)
+    vertex_cols <- colorplane::as_hexcol(bg_layer)
   }
 
   rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it], specular=specular, ...)
-  par3d(userMatrix = umat)
+  rgl::par3d(userMatrix = umat)
 
 }
 
