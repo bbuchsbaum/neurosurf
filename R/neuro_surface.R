@@ -825,6 +825,20 @@ setMethod(f="curvature", signature=c(x="SurfaceGeometry"),
             vbmean
           })
 
+
+
+#' extractor
+#' @export
+#' @param x the object
+#' @param i first index
+setMethod(f="[[", signature=signature(x = "NeuroSurfaceVector", i = "numeric"),
+          def=function (x, i) {
+            x@data[,i]
+
+          })
+
+
+
 #' extractor
 #' @export
 #' @param x the object
@@ -834,7 +848,6 @@ setMethod(f="curvature", signature=c(x="SurfaceGeometry"),
 #' @param drop dimension
 setMethod(f="[", signature=signature(x = "NeuroSurfaceVector", i = "numeric", j = "numeric", drop="ANY"),
           def=function (x, i, j, ..., drop=TRUE) {
-
             x@data[i,j]
 
           })
