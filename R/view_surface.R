@@ -77,6 +77,7 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
                         irange=range(vals),
                         specular=specular,
                         viewpoint=c("lateral","medial", "ventral", "posterior"),
+                        sfac=1,
                         ...) {
 
 
@@ -117,8 +118,14 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
     vertex_cols <- colorplane::as_hexcol(bg_layer)
   }
 
+  if (sfac != 1) {
+    umat <- umat %*% scaleMatrix(sfac,sfac,sfac)
+  }
+
   rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it], specular=specular, ...)
   rgl::par3d(userMatrix = umat)
+
+
 
 }
 
