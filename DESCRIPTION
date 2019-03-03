@@ -5,7 +5,8 @@ Imports:
     rgl,
     assertthat,
     neuroim2,
-    colorplane
+    colorplane,
+    FNN
 Type: Package
 Title: Data structures and IO for surface-based neuroimaging data
 Version: 0.1.0
