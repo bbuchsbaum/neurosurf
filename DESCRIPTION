@@ -6,7 +6,8 @@ Imports:
     assertthat,
     neuroim2,
     colorplane,
-    FNN
+    FNN,
+    readr
 Type: Package
 Title: Data structures and IO for surface-based neuroimaging data
 Version: 0.1.0
