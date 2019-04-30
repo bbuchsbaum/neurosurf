@@ -69,12 +69,14 @@ surface_views <- list(
 )
 
 
-view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
+view_surface <- function(surfgeom, vals=NA,
+                        cmap=rainbow(256, alpha = 1),
+                        vert_clrs=NULL,
                         bgcol = "lightgray",
                         alpha=1,
                         add_normals=TRUE,
                         threshold=NULL,
-                        irange=range(vals),
+                        irange=range(vals,na.rm=TRUE),
                         specular=specular,
                         viewpoint=c("lateral","medial", "ventral", "posterior"),
                         sfac=1,
@@ -109,9 +111,14 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
   }
 
 
-  if (!is.na(vals) && !is.null(vals)) {
-    fg_layer <- colorplane::IntensityColorPlane(vals, col,alpha=1)
+  if (!is.na(vals) && !is.null(vals) && is.null(vert_clrs)) {
+    fg_layer <- colorplane::IntensityColorPlane(vals, cmap,alpha=1)
     fg_clrs <- colorplane::map_colors(fg_layer, alpha=alpha, threshold=threshold, irange=irange)
+    combined <- colorplane::blend_colors(bg_layer, fg_clrs, alpha=alpha)
+    vertex_cols <- colorplane::as_hexcol(combined)
+  } else if (!is.null(vert_clrs)) {
+    fg_layer <- colorplane::HexColorPlane(vert_clrs, cmap,alpha=1)
+    fg_clrs <- fg_layer@clrs
     combined <- colorplane::blend_colors(bg_layer, fg_clrs, alpha=alpha)
     vertex_cols <- colorplane::as_hexcol(combined)
   } else {
@@ -122,7 +129,8 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
     umat <- umat %*% scaleMatrix(sfac,sfac,sfac)
   }
 
-  rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it], specular=specular, ...)
+  #rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it], specular=specular, meshColor="legacy", ...)
+  rgl::shade3d(surfgeom@mesh,col=vertex_cols, specular=specular, meshColor="vertices", ...)
   rgl::par3d(userMatrix = umat)
 
 
@@ -135,6 +143,7 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
 #' @param x the surface to display
 #' @param vals the \code{vector} of values at each surface node.
 #' @param cmap a color map consisting of a vector of colors in hex format (e.g. \code{gray(n=255)})
+#' @param vert_clrs vertex colors in hex format
 #' @param irange the intensity range indicating the low and high values of the color scale.
 #' @param thresh a 2-element vector indicating the lower and upper transparency thresholds.
 #' @param alpha the foreground trasnparency, default is 1 (opaque).
@@ -143,15 +152,36 @@ view_surface <- function(surfgeom, vals=NA, col=rainbow(256, alpha = 1),
 #' @importFrom graphics plot
 setMethod("plot", signature=signature(x="SurfaceGeometry"),
           def=function(x,vals=NA, cmap=gray(seq(0,1,length.out=255)),
+                       vert_clrs=NULL,
                        irange=range(vals),
                        thresh=c(0,0),
                        alpha=1,
                        specular="black",
                        bgcol="lightgray", ...) {
 
-            view_surface(x,vals,col=cmap,irange=irange,thresh=thresh,alpha=alpha,bgcol=bgcol,specular=specular,...)
+            view_surface(x,vals,cmap=cmap,vert_clrs=vert_clrs, irange=irange,thresh=thresh,alpha=alpha,bgcol=bgcol,specular=specular,...)
 
           })
+
+
+#' @export
+setMethod("plot", signature=signature(x="NeuroSurface"),
+          def=function(x,cmap=gray(seq(0,1,length.out=255)),
+                       vert_clrs=NULL,
+                       irange=range(x@data, na.rm=TRUE),
+                       thresh=c(0,0),
+                       alpha=1,
+                       specular="black",
+                       bgcol="lightgray", ...) {
+
+            ind <- x@indices
+            vals <- rep(NA, length(nodes(x)))
+            vals[ind] <- x@data
+
+            view_surface(x@geometry,vals,cmap=cmap,vert_clrs=vert_clrs, irange=irange,thresh=thresh,alpha=alpha,bgcol=bgcol,specular=specular,...)
+
+          })
+
 
 
 #' viewShiny <- function(surfgeom, vals=1:length(nodes(surfgeom)), col=rainbow(255, alpha = 1)) {

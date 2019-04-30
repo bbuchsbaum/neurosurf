@@ -22,7 +22,7 @@ On every call to \code{nextElem} a set of surface nodes are returned.
 }
 \examples{
 file <- system.file("extdata", "std.lh.smoothwm.asc", package = "neuroim")
-geom <- loadSurface(file)
+geom <- read_surf(file)
 searchlight <- RandomSurfaceSearchlight(geom, 12)
 nodes <- searchlight$nextElem()
 length(nodes) > 1

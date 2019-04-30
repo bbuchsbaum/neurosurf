@@ -6,8 +6,9 @@
 \title{plot an image}
 \usage{
 \S4method{plot}{SurfaceGeometry}(x, vals = NA, cmap = gray(seq(0, 1,
-  length.out = 255)), irange = range(vals), thresh = c(0, 0), alpha = 1,
-  specular = "black", bgcol = "lightgray", ...)
+  length.out = 255)), vert_clrs = NULL, irange = range(vals),
+  thresh = c(0, 0), alpha = 1, specular = "black", bgcol = "lightgray",
+  ...)
 }
 \arguments{
 \item{x}{the surface to display}
@@ -15,6 +16,8 @@
 \item{vals}{the \code{vector} of values at each surface node.}
 
 \item{cmap}{a color map consisting of a vector of colors in hex format (e.g. \code{gray(n=255)})}
+
+\item{vert_clrs}{vertex colors in hex format}
 
 \item{irange}{the intensity range indicating the low and high values of the color scale.}
 

@@ -15,15 +15,7 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 }
 
 
-
-vol_to_surf <- function(surf_a, surf_b, vol, mask, knn=6, sigma=1) {
-  vol_cds <- coords(space(vol), which(mask!=0))
-  surf_a_cds <- coords(surf_a)
-  surf_b_cds <- coords(surf_b)
-  cds <- (surf_a_cds + surf_b_cds)/2
-
-}
-
+connect.neighborhood()
 
 #' @export
 #' @importFrom FNN get.knn

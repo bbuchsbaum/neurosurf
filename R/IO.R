@@ -108,7 +108,6 @@ readNIMLSurfaceHeader <- function(file_name) {
 
 #' @rdname read_meta_info-methods
 #' @importMethodsFrom neuroim2 read_meta_info
-#' @export
 setMethod(f="read_meta_info",signature=signature(x= "AFNISurfaceFileDescriptor"),
           def=function(x, file_name) {
             .read_meta_info(x, file_name, readAFNISurfaceHeader, AFNISurfaceDataMetaInfo)
@@ -117,7 +116,6 @@ setMethod(f="read_meta_info",signature=signature(x= "AFNISurfaceFileDescriptor")
 #' read_meta_info
 #'
 #' @rdname read_meta_info-methods
-#' @export
 setMethod(f="read_meta_info",signature=signature(x= "NIMLSurfaceFileDescriptor"),
           def=function(x, file_name) {
             .read_meta_info(x, file_name, readNIMLSurfaceHeader, NIMLSurfaceDataMetaInfo)
@@ -125,7 +123,6 @@ setMethod(f="read_meta_info",signature=signature(x= "NIMLSurfaceFileDescriptor")
 #' read_meta_info
 #'
 #' @rdname read_meta_info-methods
-#' @export
 setMethod(f="read_meta_info",signature=signature(x= "FreesurferAsciiSurfaceFileDescriptor"),
           def=function(x, file_name) {
             .read_meta_info(x, file_name, readFreesurferAsciiHeader, FreesurferSurfaceGeometryMetaInfo)
@@ -255,7 +252,7 @@ NIMLSurfaceDataMetaInfo <- function(descriptor, header) {
       nels=as.integer(header$nels),
       label=as.character(header$label),
       data=header$data,
-      node_indices=header$nodes)
+      node_indices=as.integer(header$nodes))
 }
 
 #' Constructor for \code{\linkS4class{AFNISurfaceDataMetaInfo}} class
@@ -272,7 +269,7 @@ AFNISurfaceDataMetaInfo <- function(descriptor, header) {
       nels=as.integer(header$nels),
       label=as.character(header$label),
       data=header$data,
-      node_indices=header$nodes)
+      node_indices=as.integer(header$nodes))
 }
 
 

@@ -10,5 +10,5 @@ read_surf_geometry(surface_name)
 \item{surface_name}{the name of the file containing the surface geometry.}
 }
 \description{
-load surface geometry from file
+load a supported surface geometry from file
 }

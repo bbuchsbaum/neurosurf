@@ -33,6 +33,7 @@ Collate:
     'neuro_surface.R'
     'neurosurf.R'
     'view_surface.R'
+    'vol_to_surf.R'
 Suggests: 
     testthat,
     covr,

@@ -35,7 +35,7 @@ write_surf_data <- function(bsurf, outstem, hemi="") {
 
 #' @importFrom stringr str_trim
 #' @importFrom stringr str_split
-loadSpec <- function(spec) {
+load_spec <- function(spec) {
   base_dir <- dirname(normalizePath(spec))
 
   lin <- readLines(spec)
@@ -126,7 +126,7 @@ read_surf  <- function(surface_name, surface_data_name=NULL, colind=NULL, nodein
   }
 }
 
-#' load surface data and attach to \code{\linkS4class{SurfaceGeometry}}
+#' load surface data and link to \code{\linkS4class{SurfaceGeometry}}
 #'
 #' @param geometry a \code{\linkS4class{SurfaceGeometry}} instance
 #' @param surface_data_name the name of the file containing the values to be mapped to the surface.
@@ -188,7 +188,7 @@ read_surf_data_seq <- function(leftGeometry, rightGeometry, leftDataNames, right
 
 #' read_surf_geometry
 #'
-#' load surface geometry from file
+#' load a supported surface geometry from file
 #'
 #' @param surface_name the name of the file containing the surface geometry.
 #' @export

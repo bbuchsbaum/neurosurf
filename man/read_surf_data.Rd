@@ -2,7 +2,7 @@
 % Please edit documentation in R/neuro_surface.R
 \name{read_surf_data}
 \alias{read_surf_data}
-\title{load surface data and attach to \code{\linkS4class{SurfaceGeometry}}}
+\title{load surface data and link to \code{\linkS4class{SurfaceGeometry}}}
 \usage{
 read_surf_data(geometry, surface_data_name, colind = NULL, nodeind = NULL)
 }
@@ -19,5 +19,5 @@ read_surf_data(geometry, surface_data_name, colind = NULL, nodeind = NULL)
 an instance of the class \code{\linkS4class{NeuroSurface}} or \code{\linkS4class{NeuroSurfaceVector}}
 }
 \description{
-load surface data and attach to \code{\linkS4class{SurfaceGeometry}}
+load surface data and link to \code{\linkS4class{SurfaceGeometry}}
 }
