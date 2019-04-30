@@ -14,7 +14,7 @@
 #'
 #' @examples
 #' file <- system.file("extdata", "std.lh.smoothwm.asc", package = "neuroim")
-#' geom <- loadSurface(file)
+#' geom <- read_surf(file)
 #' searchlight <- RandomSurfaceSearchlight(geom, 12)
 #' nodes <- searchlight$nextElem()
 #' length(nodes) > 1

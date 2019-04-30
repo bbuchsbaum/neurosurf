@@ -15,7 +15,6 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 }
 
 
-connect.neighborhood()
 
 #' @export
 #' @importFrom FNN get.knn
