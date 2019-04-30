@@ -87,7 +87,7 @@ view_surface <- function(surfgeom, vals=NA,
     surfgeom@mesh <- rgl::addNormals(surfgeom@mesh)
   }
 
-  viewpoint <- match.arg(viewpoint)
+  #viewpoint <- match.arg(viewpoint)
 
   umat <- if (is.matrix(viewpoint)) {
     stopifnot(nrow(viewpoint) == 4 && ncol(viewpoint) == 4)
