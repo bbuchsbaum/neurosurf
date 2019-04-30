@@ -89,7 +89,10 @@ view_surface <- function(surfgeom, vals=NA,
 
   viewpoint <- match.arg(viewpoint)
 
-  umat <- if (surfgeom@hemi == "lh") {
+  umat <- if (is.matrix(viewpoint)) {
+    stopifnot(nrow(viewpoint) == 4 && ncol(viewpoint) == 4)
+    viewpoint
+  } else if (surfgeom@hemi == "lh") {
     viewpoint <- paste0("left_", viewpoint)
     surface_views[[viewpoint]]
   } else if (surfgeom@hemi == "rh") {
