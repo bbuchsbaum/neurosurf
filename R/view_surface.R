@@ -80,6 +80,7 @@ view_surface <- function(surfgeom, vals=NA,
                         specular=specular,
                         viewpoint=c("lateral","medial", "ventral", "posterior"),
                         sfac=1,
+                        offset=c(0,0,0),
                         ...) {
 
 
@@ -87,7 +88,7 @@ view_surface <- function(surfgeom, vals=NA,
     surfgeom@mesh <- rgl::addNormals(surfgeom@mesh)
   }
 
-  #viewpoint <- match.arg(viewpoint)
+  viewpoint <- match.arg(viewpoint)
 
   umat <- if (is.matrix(viewpoint)) {
     stopifnot(nrow(viewpoint) == 4 && ncol(viewpoint) == 4)
@@ -135,10 +136,13 @@ view_surface <- function(surfgeom, vals=NA,
   par3d(mouseMode="trackball")
   #rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it], specular=specular, meshColor="legacy", ...)
 
-  centroid <- colMeans(vertices(surfgeom))
-  ret <- rgl::shade3d(translate3d(surfgeom@mesh,x=-centroid[1], y=-centroid[2], z=-centroid[3]),
-                      col=vertex_cols, specular=specular, meshColor="vertices", ...)
-  rgl::par3d(userMatrix = umat)
+  #centroid <- colMeans(vertices(surfgeom))
+
+  #ret <- rgl::shade3d(translate3d(surfgeom@mesh,x=-offset[1], y=-offset[2], z=-offset[3]),
+  #                    col=vertex_cols, specular=specular, meshColor="vertices", ...)
+  ret <- rgl::shade3d(surfgeom@mesh,col=vertex_cols, specular=specular, meshColor="vertices", ...)
+  view3d(fov=0, userMatrix=umat)
+  #rgl::par3d(userMatrix = umat)
 
   ret
 

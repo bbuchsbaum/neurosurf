@@ -194,8 +194,8 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
 
 
 setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
-          def=function(x, type=c("taubin","laplace","HClaplace","fujiLaplace","angWeight","surfPreserveLaplace"), lambda=.5, mu=-.53, delta=.1) {
-            smesh <- Rvcg::vcgSmooth(x@mesh, type=type, lambda=lambda, mu=mu, delta=.1)
+          def=function(x, type=c("taubin","laplace","HClaplace","fujiLaplace","angWeight","surfPreserveLaplace"), lambda=.5, mu=-.53, delta=.1, iteration=10) {
+            smesh <- Rvcg::vcgSmooth(x@mesh, type=type, lambda=lambda, mu=mu, delta=delta, iteration=iteration)
             x@mesh <- smesh
             x
           })
