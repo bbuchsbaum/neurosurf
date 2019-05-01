@@ -81,6 +81,7 @@ view_surface <- function(surfgeom, vals=NA,
                         viewpoint=c("lateral","medial", "ventral", "posterior"),
                         sfac=1,
                         offset=c(0,0,0),
+                        zoom=1,
                         ...) {
 
 
@@ -141,7 +142,7 @@ view_surface <- function(surfgeom, vals=NA,
   #ret <- rgl::shade3d(translate3d(surfgeom@mesh,x=-offset[1], y=-offset[2], z=-offset[3]),
   #                    col=vertex_cols, specular=specular, meshColor="vertices", ...)
   ret <- rgl::shade3d(surfgeom@mesh,col=vertex_cols, specular=specular, meshColor="vertices", ...)
-  view3d(fov=0, userMatrix=umat)
+  view3d(fov=0, userMatrix=umat, zoom=zoom)
   #rgl::par3d(userMatrix = umat)
 
   ret
