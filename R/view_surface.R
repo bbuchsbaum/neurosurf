@@ -137,10 +137,6 @@ view_surface <- function(surfgeom, vals=NA,
   par3d(mouseMode="trackball")
   #rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it], specular=specular, meshColor="legacy", ...)
 
-  #centroid <- colMeans(vertices(surfgeom))
-
-  #ret <- rgl::shade3d(translate3d(surfgeom@mesh,x=-offset[1], y=-offset[2], z=-offset[3]),
-  #                    col=vertex_cols, specular=specular, meshColor="vertices", ...)
   ret <- rgl::shade3d(surfgeom@mesh,col=vertex_cols, specular=specular, meshColor="vertices", ...)
   view3d(fov=0, userMatrix=umat, zoom=zoom)
   #rgl::par3d(userMatrix = umat)
