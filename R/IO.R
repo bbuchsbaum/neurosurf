@@ -13,6 +13,38 @@ NULL
 }
 
 
+read_freesurfer_annot <- function(file_name) {
+  fp <- file(file_name, "rb")
+  nvertex <- readBin(fp, integer(),n = 1, size=4, endian="big")
+  vertex_dat <- readBin(fp, integer(),n = nvertex*2, size=4, endian="big")
+  vertices <- vertex_dat[seq(1,length(vertex_dat), by=2)]
+  clabs <- vertex_dat[seq(2,length(vertex_dat), by=2)]
+  tags <- readBin(fp, integer(),n=4, size=4, endian="big")
+  maxstruc <- tags[3]
+  slen <- tags[4]
+  fn <- readChar(fp, slen, useBytes=TRUE)
+  nlut <- readBin(fp, integer(),n=1, size=4, endian="big")
+  labs <- vector(nlut, mode="list")
+  for (i in 1:nlut) {
+    lnum <- readBin(fp, integer(),n=1, size=4, endian="big")
+    len <- readBin(fp, integer(),n=1, size=4, endian="big")
+    label <- readChar(fp, len, useBytes=TRUE)
+    rgba <- readBin(fp, integer(),n=4, size=4, endian="big")
+    #(B * 256^2) + (G * 256) + (R)
+    labs[[i]] <- list(
+      num=lnum,
+      label=label,
+      red=rgba[1],
+      blue=rgba[2],
+      green=rgba[3],
+      code=rgba[3] * 256^2 + (rgba[2] * 256) + rgba[1]
+    )
+
+
+  }
+}
+
+
 #' readFreesurferAsciiHeader
 #'
 #' @param file_name the file
