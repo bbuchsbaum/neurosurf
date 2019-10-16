@@ -19,7 +19,7 @@ get_mode <- function(v) {
 #' @param knn the number of nearest neighbors to consider (for "avg" mapping function)
 #' @param sigma the bandwidth of the smoothing kernel (for the "avg" mapping function)
 #' @param dthresh a valid mapping voxel only if it is less than \code{dthresh} units away from vertex.
-#' @export
+#' TODO does this work?
 #'
 #' @examples
 #'
