@@ -22,7 +22,8 @@ vol_to_surf(surf_wm, surf_pial, vol, mask = NULL, fun = c("avg", "nn",
 
 \item{sigma}{the bandwidth of the smoothing kernel (for the "avg" mapping function)}
 
-\item{dthresh}{a valid mapping voxel only if it is less than \code{dthresh} units away from vertex.}
+\item{dthresh}{a valid mapping voxel only if it is less than \code{dthresh} units away from vertex.
+TODO does this work?}
 }
 \description{
 map values from a 3d volume to a surface in the same coordinate space

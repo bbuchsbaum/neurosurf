@@ -4,7 +4,8 @@
 \alias{read_surf_data}
 \title{load surface data and link to \code{\linkS4class{SurfaceGeometry}}}
 \usage{
-read_surf_data(geometry, surface_data_name, colind = NULL, nodeind = NULL)
+read_surf_data(geometry, surface_data_name, colind = NULL,
+  nodeind = NULL)
 }
 \arguments{
 \item{geometry}{a \code{\linkS4class{SurfaceGeometry}} instance}

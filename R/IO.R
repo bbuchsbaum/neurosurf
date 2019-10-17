@@ -13,6 +13,11 @@ NULL
 }
 
 
+#' read a freesurfer annotation file as a \code{LabeledNeuroSurface}
+#'
+#' @param file_name name of the '.annot' file
+#' @param geometry an appropriate \code{SurfaceGeometry} instance
+#' @export
 read_freesurfer_annot <- function(file_name, geometry) {
   fp <- file(file_name, "rb")
   nvertex <- readBin(fp, integer(),n = 1, size=4, endian="big")
