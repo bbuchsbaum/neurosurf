@@ -2,6 +2,13 @@
 #' @include all_generic.R
 NULL
 
+setMethod(f="Compare", signature=signature(e1="NeuroSurface", e2="numeric"),
+          def=function(e1, e2) {
+            ret <- callGeneric(e1@data,e2)
+            NeuroSurface(e1@geometry, e1@indices, as.numeric(ret))
+          })
+
+
 setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="NeuroSurface"),
           def=function(e1, e2) {
             assert_that(length(nodes(e1)) == length(nodes(e2)))
