@@ -39,9 +39,9 @@ read_freesurfer_annot <- function(file_name) {
       green=rgba[3],
       code=rgba[3] * 256^2 + (rgba[2] * 256) + rgba[1]
     )
-
-
   }
+
+
 }
 
 
