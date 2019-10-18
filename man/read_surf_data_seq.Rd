@@ -4,7 +4,8 @@
 \alias{read_surf_data_seq}
 \title{read_surf_data_seq}
 \usage{
-read_surf_data_seq(leftGeometry, rightGeometry, leftDataNames, rightDataNames)
+read_surf_data_seq(leftGeometry, rightGeometry, leftDataNames,
+  rightDataNames)
 }
 \arguments{
 \item{leftGeometry}{a \code{\linkS4class{SurfaceGeometry}} instance for the left hemisphere}

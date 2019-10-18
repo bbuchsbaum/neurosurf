@@ -6,7 +6,6 @@
 \alias{neighbor_graph,igraph,numeric,missing,missing-method}
 \alias{neighbor_graph,igraph,numeric,missing,missing}
 \alias{neighbor_graph,SurfaceGeometry,numeric,missing,missing-method}
-\alias{neighbor_graph,igraph,numeric,missing,missing}
 \alias{neighbor_graph,SurfaceGeometry,numeric,numeric,missing-method}
 \alias{neighbor_graph,igraph,numeric,numeric,missing}
 \alias{neighbor_graph,SurfaceGeometry,numeric,numeric,integer-method}
@@ -20,17 +19,19 @@ neighbor_graph(x, radius, edgeWeights, nodes, ...)
 \S4method{neighbor_graph}{igraph,numeric,missing,missing}(x, radius,
   distance_type = c("geodesic", "euclidean", "spherical"))
 
-\S4method{neighbor_graph}{SurfaceGeometry,numeric,missing,missing}(x, radius,
-  distance_type = c("geodesic", "euclidean", "spherical"))
+\S4method{neighbor_graph}{SurfaceGeometry,numeric,missing,missing}(x,
+  radius, distance_type = c("geodesic", "euclidean", "spherical"))
 
-\S4method{neighbor_graph}{SurfaceGeometry,numeric,numeric,missing}(x, radius,
-  edgeWeights, distance_type = c("geodesic", "euclidean", "spherical"))
+\S4method{neighbor_graph}{SurfaceGeometry,numeric,numeric,missing}(x,
+  radius, edgeWeights, distance_type = c("geodesic", "euclidean",
+  "spherical"))
 
-\S4method{neighbor_graph}{SurfaceGeometry,numeric,numeric,integer}(x, radius,
-  edgeWeights, nodes, distance_type = c("geodesic", "euclidean", "spherical"))
+\S4method{neighbor_graph}{SurfaceGeometry,numeric,numeric,integer}(x,
+  radius, edgeWeights, nodes, distance_type = c("geodesic", "euclidean",
+  "spherical"))
 
-\S4method{neighbor_graph}{SurfaceGeometry,numeric,missing,integer}(x, radius,
-  nodes, distance_type = c("geodesic", "euclidean", "spherical"))
+\S4method{neighbor_graph}{SurfaceGeometry,numeric,missing,integer}(x,
+  radius, nodes, distance_type = c("geodesic", "euclidean", "spherical"))
 }
 \arguments{
 \item{x}{surface mesh}

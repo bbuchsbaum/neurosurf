@@ -13,7 +13,12 @@ NULL
 }
 
 
-read_freesurfer_annot <- function(file_name) {
+#' read a freesurfer annotation file as a \code{LabeledNeuroSurface}
+#'
+#' @param file_name name of the '.annot' file
+#' @param geometry an appropriate \code{SurfaceGeometry} instance
+#' @export
+read_freesurfer_annot <- function(file_name, geometry) {
   fp <- file(file_name, "rb")
   nvertex <- readBin(fp, integer(),n = 1, size=4, endian="big")
   vertex_dat <- readBin(fp, integer(),n = nvertex*2, size=4, endian="big")
@@ -37,9 +42,16 @@ read_freesurfer_annot <- function(file_name) {
       red=rgba[1],
       blue=rgba[2],
       green=rgba[3],
+      col=rgb(rgba[1]/255, rgba[2]/255, rgba[3]/255),
       code=rgba[3] * 256^2 + (rgba[2] * 256) + rgba[1]
     )
   }
+
+  codes <- match(clabs, sapply(labs, "[[", "code"))
+  labels <- sapply(labs, "[[", "label")
+  cols <- sapply(labs, "[[", "col")
+
+  close(fp)
 
 
 }
@@ -84,9 +96,69 @@ readFreesurferAsciiGeometry <- function(file_name) {
   vertices <- as.matrix(asctab[1:ninfo[1],1:3])
   nodes <- as.matrix(asctab[(ninfo[1]+1):nrow(asctab),1:3])
 
-  list(mesh=rgl::tmesh3d(vertices, nodes), header_file=file_name, data_file=file_name)
+  list(vertices=vertices, nodes=nodes, header_file=file_name, data_file=file_name)
 
 }
+
+#' readFreesurferBinaryHeader
+#'
+#' @param file_name the file
+#' @export
+readFreesurferBinaryHeader <- function(file_name) {
+  has_hemi <- grep("^[lr]h\\..*", basename(file_name))
+  hemi <- if (length(has_hemi) > 0) {
+    if (length(grep("^lh.*", basename(file_name))>0)) {
+      "lh"
+    } else if (length(grep("^rh.*", basename(file_name))>0)) {
+      "rh"
+    } else {
+      "unknown"
+    }
+  } else {
+    "unknown"
+  }
+
+  fp <- file(file_name, "rb")
+  magic <- readBin(fp, what="raw", n=3)
+  created_by <- readLines(fp, 2)
+  vcount <- readBin(fp, what="integer", n=1, endian="big")
+  fcount <- readBin(fp, what="integer", n=1, endian="big")
+
+  close(fp)
+
+  list(vertices=vcount, faces=fcount, label=basename(file_name),
+       embed_dimension=3, header_file=file_name, data_file=file_name, hemi=hemi)
+}
+
+#' readFreesurferBinaryGeometry
+#'
+#' @param file_name the file
+#' @importFrom readr read_table
+#' @export
+readFreesurferBinaryGeometry <- function(file_name) {
+  if (!requireNamespace("rgl", quietly = TRUE)) {
+    stop("Pkg needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
+
+  fp <- file(file_name, "rb")
+  magic <- readBin(fp, what="raw", n=3)
+  created_by <- readLines(fp, 2)
+  vcount <- readBin(fp, what="integer", n=1, endian="big")
+  fcount <- readBin(fp, what="integer", n=1, endian="big")
+
+  coords <- readBin(fp, what="double", n=vcount*3, size=4, endian="big")
+  coords <- matrix(coords, vcount, 3, byrow=TRUE)
+
+  faces <- readBin(fp, what="integer", n=fcount*3, size=4, endian="big")
+  faces <- matrix(faces, fcount, 3, byrow=TRUE)
+
+  close(fp)
+
+  list(coords=coords, faces=faces, header_file=file_name, data_file=file_name)
+
+}
+
 
 
 #' readAFNISurfaceHeader
@@ -152,12 +224,22 @@ setMethod(f="read_meta_info",signature=signature(x= "NIMLSurfaceFileDescriptor")
           def=function(x, file_name) {
             .read_meta_info(x, file_name, readNIMLSurfaceHeader, NIMLSurfaceDataMetaInfo)
           })
+
 #' read_meta_info
 #'
 #' @rdname read_meta_info-methods
 setMethod(f="read_meta_info",signature=signature(x= "FreesurferAsciiSurfaceFileDescriptor"),
           def=function(x, file_name) {
             .read_meta_info(x, file_name, readFreesurferAsciiHeader, FreesurferSurfaceGeometryMetaInfo)
+          })
+
+
+#' read_meta_info
+#'
+#' @rdname read_meta_info-methods
+setMethod(f="read_meta_info",signature=signature(x= "FreesurferBinarySurfaceFileDescriptor"),
+          def=function(x, file_name) {
+            .read_meta_info(x, file_name, readFreesurferBinaryHeader, FreesurferSurfaceGeometryMetaInfo)
           })
 
 
@@ -209,7 +291,7 @@ findSurfaceDescriptor <- function(file_name) {
   if (neuroim2:::file_matches(NIML_SURFACE_DSET, file_name)) NIML_SURFACE_DSET
   else if (neuroim2:::file_matches(FREESURFER_ASCII_SURFACE_DSET, file_name)) FREESURFER_ASCII_SURFACE_DSET
   else if (neuroim2:::file_matches(AFNI_SURFACE_DSET, file_name)) AFNI_SURFACE_DSET
-  else NULL
+  else FREESURFER_BINARY_SURFACE_DSET
 }
 
 NIML_SURFACE_DSET <- new("NIMLSurfaceFileDescriptor",
@@ -232,6 +314,15 @@ FREESURFER_ASCII_SURFACE_DSET <- new("FreesurferAsciiSurfaceFileDescriptor",
                                      header_extension="asc",
                                      data_encoding="raw",
                                      data_extension="asc")
+
+FREESURFER_BINARY_SURFACE_DSET <- new("FreesurferBinarySurfaceFileDescriptor",
+                                     file_format="Freesurfer_BINARY",
+                                     header_encoding="raw",
+                                     header_extension=".",
+                                     #header_extension=c("orig", "pial", "inflated", "sphere", "sphere.reg", "white", "smoothwm", "thickness", "volume"),
+                                     data_encoding="raw",
+                                     data_extension=".")
+                                     #data_extension=c("orig", "pial", "inflated", "sphere", "sphere.reg", "white", "smoothwm", "thickness", "volume"))
 
 
 

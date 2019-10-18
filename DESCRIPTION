@@ -18,7 +18,7 @@ Description: Basic utilties for reading, writing and manipulating neuroimaging
     organized as a trinagle mesh.
 License: GPL (>= 2)
 LazyData: TRUE
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Remotes:
   bbuchsbaum/neuroim2,
   bbuchsbaum/colorplane

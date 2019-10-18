@@ -42,8 +42,6 @@ adjacency(x, attr, ...)
 \item{...}{extra args}
 }
 \description{
-extract \code{igraph} object
-
 get compute graph laplacian
 
 get adjacency graph

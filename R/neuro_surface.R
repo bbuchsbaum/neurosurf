@@ -777,28 +777,37 @@ loadFSSurface <- function(meta_info) {
          call. = FALSE)
   }
 
-  meshname <- meta_info@header_file
-  ninfo <- as.integer(strsplit(readLines(meshname, n=2)[2], " ")[[1]])
-  message("loading ", meshname)
-  #asctab <- readr::read_table(meshname, skip=2, col_names=FALSE)
-  asctab <- read.table(meshname, skip=2)
+  if (meta_info@file_descriptor@file_format == "Freesurfer_BINARY") {
+    bdat <- readFreesurferBinaryGeometry(meta_info@data_file)
+    graph <- meshToGraph(bdat$coords, bdat$faces)
+    mesh <- rgl::tmesh3d(as.vector(t(bdat$coords)), as.vector(t(bdat$faces))+1, homogeneous=FALSE)
+    new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=meta_info@hemi)
 
-  vertices <- as.matrix(asctab[1:ninfo[1],1:3])
-  nodes <- as.matrix(asctab[(ninfo[1]+1):nrow(asctab),1:3])
+  } else {
 
-  graph <- meshToGraph(vertices, nodes)
+    meshname <- meta_info@header_file
+    ninfo <- as.integer(strsplit(readLines(meshname, n=2)[2], " ")[[1]])
+    message("loading ", meshname)
+    #asctab <- readr::read_table(meshname, skip=2, col_names=FALSE)
+    asctab <- read.table(meshname, skip=2)
 
-  if (meta_info@hemi == "unknown") {
-    if (mean(vertices[,1]) < 0) {
-      meta_info@hemi <- "lh"
-    } else if (mean(vertices[,1]) > 0) {
-      meta_info@hemi <- "rh"
+    vertices <- as.matrix(asctab[1:ninfo[1],1:3])
+    nodes <- as.matrix(asctab[(ninfo[1]+1):nrow(asctab),1:3])
+
+    graph <- meshToGraph(vertices, nodes)
+
+    if (meta_info@hemi == "unknown") {
+      if (mean(vertices[,1]) < 0) {
+        meta_info@hemi <- "lh"
+      } else if (mean(vertices[,1]) > 0) {
+        meta_info@hemi <- "rh"
+      }
     }
-  }
 
-  mesh <- rgl::tmesh3d(as.vector(t(vertices)), as.vector(t(nodes))+1, homogeneous=FALSE)
-  #new("SurfaceGeometry", source=new("SurfaceGeometrySource", meta_info=meta_info), mesh=mesh, graph=graph)
-  new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=meta_info@hemi)
+    mesh <- rgl::tmesh3d(as.vector(t(vertices)), as.vector(t(nodes))+1, homogeneous=FALSE)
+    #new("SurfaceGeometry", source=new("SurfaceGeometrySource", meta_info=meta_info), mesh=mesh, graph=graph)
+    new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=meta_info@hemi)
+  }
 }
 
 

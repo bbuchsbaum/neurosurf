@@ -20,8 +20,6 @@ NeuroSurfaceSource(surface_geom, surface_data_name, colind = NULL,
 }
 \description{
 A class that is used to produce a \code{\linkS4class{NeuroSurface}} instance
-
-Constructor for NeuroSurfaceSource
 }
 \section{Slots}{
 

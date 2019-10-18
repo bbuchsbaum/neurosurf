@@ -170,6 +170,14 @@ setClass("AFNISurfaceFileDescriptor", contains=c("FileFormat"))
 #' @export
 setClass("FreesurferAsciiSurfaceFileDescriptor", contains=c("FileFormat"))
 
+#' FresurferBinarySurfaceFileDescriptor
+#'
+#' This class supports the Freesurfer binary file format for surface geometry
+#'
+#' @rdname FreesurferBinarySurfaceFileDescriptor-class
+#' @export
+setClass("FreesurferBinarySurfaceFileDescriptor", contains=c("FileFormat"))
+
 
 
 #' ROISurface
@@ -222,6 +230,24 @@ setClass("ROISurfaceVector",
          }, contains="ROI")
 
 
+#' VertexData
+#'
+#' A set of arbitary vertices associated with a data table
+#'
+#' @rdname VertexData-class
+#' @slot indices the node indices
+#' @slot data the associated table with \code{nrow(data)} == length(indices)}
+#' @export
+setClass("VertexData",
+         representation=representation(indices="integer",
+                                       data="data.frame"),
+         validity = function(object) {
+           if (nrow(object@data) != length(object@indices)) {
+             stop("length of 'data' must equal length of 'indices'")
+           }
+         })
+
+
 
 #' NeuroSurface
 #'
@@ -233,14 +259,37 @@ setClass("ROISurfaceVector",
 #' @slot data the 1-D vector of data value at each vertex of the mesh
 #' @export
 setClass("NeuroSurface",
-         representation=representation(geometry="SurfaceGeometry",
-                                       indices="integer",
-                                       data="numeric"),
+         slots=c(geometry="SurfaceGeometry",
+                 indices="integer",
+                 data="numeric"),
          validity = function(object) {
-           if (length(data) != length(indices)) {
+           if (length(object@data) != length(object@indices)) {
              stop("length of 'data' must equal length of 'indices'")
            }
          })
+
+
+
+#' LabeledNeuroSurface
+#'
+#' a three-dimensional surface consisting of a set of triangle vertices with one value per vertex and associated labels and colors.
+#'
+#' @rdname LabeledNeuroSurface-class
+#' @slot labels the list of label annotations
+#' @slot cols the vector of colors specified as a hex character vector
+#' @export
+setClass("LabeledNeuroSurface",
+         slots=c(labels="character",cols="character"),
+                        contains=c("NeuroSurface"))
+         # validity = function(object) {
+         #   if (length(object@indices) != length(object@data)) {
+         #     stop("length of 'indices' must equal length of 'codes'")
+         #   }
+         #
+         #   if (length(object@cols) != length(object@labels)) {
+         #     stop("length of 'cols' must equal length of 'labels'")
+         #   }
+         #})
 
 #' NeuroSurfaceVector
 #'
