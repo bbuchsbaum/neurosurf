@@ -52,7 +52,11 @@ read_freesurfer_annot <- function(file_name, geometry) {
   cols <- sapply(labs, "[[", "col")
 
   close(fp)
-
+  new("LabeledNeuroSurface", geometry=geometry,
+      indices=as.integer(vertices+1),
+      data=as.numeric(codes),
+      labels=as.character(labels),
+      cols=as.character(cols))
 
 }
 
