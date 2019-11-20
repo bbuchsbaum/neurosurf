@@ -44,11 +44,12 @@ vol_to_surf <- function(surf_wm, surf_pial, vol, mask=NULL, fun=c("avg", "nn", "
   valid <- nnres$nn.dist[,1] < dthresh
 
   mapped_vals <- sapply(1:nrow(nnres$nn.index), function(i) {
+    d <- nnres$nn.dist[i,]
     if (!valid[i] || length(which(d < dthresh)) == 0) {
       NA
     } else {
       idx <- nnres$nn.index[i,]
-      d <- nnres$nn.dist[i,]
+
 
       if (fun == "avg") {
         wts <- hk(d, sigma=sigma)
