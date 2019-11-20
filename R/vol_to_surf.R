@@ -54,7 +54,7 @@ vol_to_surf <- function(surf_wm, surf_pial, vol, mask=NULL, fun=c("avg", "nn", "
       if (fun == "avg") {
         wts <- hk(d, sigma=sigma)
         wts <- wts/sum(wts)
-        wts * vol[indices[idx]]
+        sum(wts * vol[indices[idx]])
       } else if (fun == "nn") {
         vol[indices[idx[1]]]
       } else if (fun == "mode") {
