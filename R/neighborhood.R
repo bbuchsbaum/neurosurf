@@ -195,6 +195,7 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
 
 #' @export
 #' @rdname smooth-methods
+#' @import Rvcg
 setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
           def=function(x, type=c("taubin","laplace","HClaplace","fujiLaplace","angWeight","surfPreserveLaplace"),
                        lambda=.7, mu=-.53, delta=.1, iteration=25) {

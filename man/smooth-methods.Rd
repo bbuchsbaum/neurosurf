@@ -11,7 +11,7 @@ smooth(x, ...)
 
 \S4method{smooth}{SurfaceGeometry}(x, type = c("taubin", "laplace",
   "HClaplace", "fujiLaplace", "angWeight", "surfPreserveLaplace"),
-  lambda = 0.5, mu = -0.53, delta = 0.1, iteration = 10)
+  lambda = 0.7, mu = -0.53, delta = 0.1, iteration = 25)
 
 \S4method{smooth}{NeuroSurface}(x, sigma = 5, ...)
 }
