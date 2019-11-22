@@ -4,7 +4,7 @@ author: "Bradley Buchsbaum"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Manipulating Surfaces}
+  %\VignetteIndexEntry{Displaying Surfaces}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -89,6 +89,21 @@ rglwidget()
 
 ```
 
+## Showing two hemisperes in same scene
+
+```{r, fig.width=6, fig.height=5} 
+
+open3d()
+white_surf1 <- smooth(white_surf, type="taubin", lambda=.5)
+
+curv_lh <- curvature(white_surf1)
+white_rh_surf1 <- smooth(white_rh_surf, type="taubin", lambda=.5)
+curv_rh <- curvature(white_rh_surf1)
+
+p <- plot(white_surf1, bgcol=curv_cols(curv_lh), viewpoint="posterior")
+p <- plot(white_rh_surf1,bgcol=curv_cols(curv_rh), viewpoint="posterior")
+rglwidget()
+```
 
 
 

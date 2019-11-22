@@ -99,6 +99,8 @@ setGeneric(name="right", def=function(x) standardGeneric("right"))
 #' @param threshold the numeric threshold range
 #' @param size the minimum cluster size
 #' @param ... extra args
+#' @seealso conn_comp
+#' @export
 setGeneric(name="cluster_threshold", def=function(x, threshold, size, ...) standardGeneric("cluster_threshold"))
 
 
