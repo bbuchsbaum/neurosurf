@@ -45,6 +45,7 @@ p1 <- plot(white_surf1); next3d()
 t2 <- text3d(0,0,0,"HCLaplace smooth, delta=.2, iteration=5"); next3d()
 white_surf2 <- smooth(white_surf, type="HCLaplace", delta=.2, iteration=5)
 p2 <- plot(white_surf2)
+rglwidget()
 #next3d()
 ```
 
