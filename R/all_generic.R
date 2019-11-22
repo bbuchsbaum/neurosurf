@@ -6,7 +6,7 @@ setGeneric("plot", function(x, ...) standardGeneric("plot"))
 
 
 
-#' Generic function to construct neighborhood graph from surface mesh using edge weights.
+#' function to construct neighborhood graph from surface mesh using edge weights.
 #'
 #' @param x surface mesh
 #' @param radius the edge radius defining the neighborhood
@@ -18,17 +18,20 @@ setGeneric("plot", function(x, ...) standardGeneric("plot"))
 setGeneric(name="neighbor_graph", def=function(x, radius, edgeWeights, nodes, ...) standardGeneric("neighbor_graph"))
 
 #' extract vertices from surface
+#'
 #' @param x the surface object
 #' @param ... extra args
 #' @rdname vertices-methods
 setGeneric(name="vertices", def=function(x,...) standardGeneric("vertices"))
 
 #' extract surface node numbers
+#'
 #' @param x the surface object
 #' @rdname nodes-methods
 setGeneric(name="nodes", def=function(x) standardGeneric("nodes"))
 
 #' extract geometry object
+#'
 #' @param x the surface object
 #' @rdname geometry-methods
 setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
@@ -41,6 +44,7 @@ setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
 setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
 
 #' smooth a surface
+#'
 #' @param x the surface object to smooth
 #' @param ... extra args
 #' @rdname smooth-methods
@@ -89,6 +93,13 @@ setGeneric(name="left", def=function(x) standardGeneric("left"))
 #' @param x the surface
 setGeneric(name="right", def=function(x) standardGeneric("right"))
 
+#' cluster_threshold
+#'
+#' @param x the object to threshold
+#' @param threshold the numeric threshold range
+#' @param size the minimum cluster size
+#' @param ... extra args
+setGeneric(name="cluster_threshold", def=function(x, threshold, size, ...) standardGeneric("cluster_threshold"))
 
 
 # Generic function to read image meta info given a file and a \code{\linkS4class{FileFormat}} instance.

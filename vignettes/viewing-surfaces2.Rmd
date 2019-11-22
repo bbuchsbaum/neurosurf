@@ -37,7 +37,7 @@ white_rh_surf <-  read_surf(white_rh_asc)
 white_surf1 <- smooth(white_surf, type="taubin", lambda=.9)
 
 open3d()
-mfrow3d(1, 2, byrow = TRUE)
+mfrow3d(1, 3, byrow = TRUE)
 vals <- rnorm(length(nodes(white_surf1)))
 surf <- NeuroSurface(white_surf1, indices=1:length(vals), data=vals)
 ssurf <- smooth(smooth(surf))
@@ -48,6 +48,12 @@ comp <- conn_comp(ssurf, threshold=c(-.2,.2))
 vals <- ssurf@data
 vals[comp$size@data < 5] <- 0
 p2 <- plot(ssurf@geometry, vals=vals, cmap=rainbow(100), irange=c(-2,2), thresh=c(-.2, .2))
+
+next3d()
+csurf <- cluster_threshold(ssurf, size=33, threshold=c(-.2,.2))
+p2 <- plot(csurf, cmap=rainbow(100), irange=c(-2,2), thresh=c(-.2, .2))
+
+
 
 rglwidget()
 
