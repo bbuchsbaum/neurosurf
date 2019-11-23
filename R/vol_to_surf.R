@@ -65,7 +65,7 @@ vol_to_surf <- function(surf_wm, surf_pial, vol, mask=NULL, fun=c("avg", "nn", "
       }
     }
   })
-
+  mapped_vals[is.na(mapped_vals)] <- 0
   #v <- which(!is.na(mapped_vals))
   NeuroSurface(surf_wm, 1:length(mapped_vals), mapped_vals)
 }

@@ -401,6 +401,32 @@ setMethod(f="conn_comp", signature=c(x="NeuroSurfaceVector"),
 
           })
 
+
+#' threshold based on the connected components on a surface
+#'
+#' @rdname cluster_threshold-methods
+#' @export
+setMethod(f="cluster_threshold", signature=c(x="NeuroSurfaceVector"),
+          def=function(x, threshold, size=10, index=1) {
+            vals <- x@data[,index]
+            surf <- NeuroSurface(x@geometry, indices=x@indices, vals)
+            ret <- conn_comp(surf, threshold)
+            surf@vals[ret@size < size] <- 0
+            surf
+          })
+
+
+
+
+#' @rdname cluster_threshold-methods
+#' @export
+setMethod(f="cluster_threshold", signature=c(x="NeuroSurface"),
+          def=function(x, threshold, size=10) {
+            ret <- conn_comp(x, threshold)
+            x@data[ret$size@data < size] <- 0
+            x
+          })
+
 #' connected components on a surface
 #'
 #' @rdname conn_comp-methods
@@ -408,12 +434,10 @@ setMethod(f="conn_comp", signature=c(x="NeuroSurfaceVector"),
 #' @importMethodsFrom neuroim2 conn_comp
 setMethod(f="conn_comp", signature=c(x="NeuroSurface"),
           def=function(x, threshold) {
-            keep <- x@data < threshold[1] | x@data > threshold[2]
+            keep <- x@data <= threshold[1] | x@data >= threshold[2]
             vs <- V(x@geometry@graph)[keep]
             sg <- igraph::induced_subgraph(x@geometry@graph, vs)
             comps <- igraph::components(sg)
-
-
 
             memb <- numeric(length(keep))
             memb[keep] <- comps$membership

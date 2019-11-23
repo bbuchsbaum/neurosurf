@@ -1,0 +1,21 @@
+reference:
+  - title: read surfaces
+    desc: >
+      read different surface files into R
+    contents:
+    - read_surf
+    - read_surf_data
+    - read_surf_data_seq
+    - read_freesurfer_annot
+    - read_surf_geometry
+
+  - title: surface manipulation
+    desc: >
+      process of manipulate surface data and geometry
+    contents:
+    - smooth
+    - cluster_threshold
+    - conn_comp
+    - curvature
+
+

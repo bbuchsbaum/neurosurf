@@ -2,8 +2,5 @@ pandoc: 2.3.1
 pkgdown: 1.4.1
 pkgdown_sha: ~
 articles:
-  manipulating-surfaces: manipulating-surfaces.html
-  viewing-surfaces1: viewing-surfaces1.html
-  viewing-surfaces2: viewing-surfaces2.html
-  viewing-surfaces3: viewing-surfaces3.html
+  displaying-surfaces: displaying-surfaces.html
 
