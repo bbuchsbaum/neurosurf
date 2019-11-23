@@ -35,7 +35,7 @@ inflated_rh_asc <- system.file("extdata", "std.8_rh.inflated.asc", package="neur
 ```{r, fig.width=8, fig.height=5} 
 
 white_surf <- read_surf(white_lh_asc)
-
+white_rh_surf <- read_surf(white_rh_asc)
 open3d()
 layout3d(matrix(1:4, 2,2), heights=c(1,3))
 t1 <- text3d(0,0,0,"taubin smooth, lambda=.8"); next3d()
