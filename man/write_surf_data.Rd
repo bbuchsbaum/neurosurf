@@ -4,10 +4,10 @@
 \alias{write_surf_data}
 \title{write_surf_data}
 \usage{
-write_surf_data(bsurf, outstem, hemi = "")
+write_surf_data(surf, outstem, hemi = "")
 }
 \arguments{
-\item{bsurf}{a class of type \code{NeuroSurface} or \code{NeuroSurfaceVector}}
+\item{surf}{a class of type \code{NeuroSurface} or \code{NeuroSurfaceVector}}
 
 \item{outstem}{the name of the output file, not including extension}
 
