@@ -1,15 +1,15 @@
 
 #' write_surf_data
 #'
-#' @param bsurf a class of type \code{NeuroSurface} or \code{NeuroSurfaceVector}
+#' @param surf a class of type \code{NeuroSurface} or \code{NeuroSurfaceVector}
 #' @param outstem the name of the output file, not including extension
 #' @param hemi name of hemisphere ("lh" or "rh")
 #' @export
-write_surf_data <- function(bsurf, outstem, hemi="") {
-  assert_that(inherits(bsurf, "NeuroSurface") || inherits(bsurf, "NeuroSurfaceVector"))
+write_surf_data <- function(surf, outstem, hemi="") {
+  assert_that(inherits(surf, "NeuroSurface") || inherits(surf, "NeuroSurfaceVector"))
 
-  nodes <- bsurf@indices - 1
-  keep <- nodes(bsurf@geometry) %in% bsurf@indices
+  nodes <- surf@indices - 1
+  keep <- nodes(surf@geometry) %in% surf@indices
 
   marker <- if (hemi == "") {
     ""
@@ -17,13 +17,13 @@ write_surf_data <- function(bsurf, outstem, hemi="") {
     paste0("_", hemi)
   }
 
-  if (inherits(bsurf, "NeuroSurfaceVector")) {
-    dat <- as.matrix(bsurf@data[keep,])
+  if (inherits(surf, "NeuroSurfaceVector")) {
+    dat <- as.matrix(surf@data[keep,])
     out <- as.data.frame(cbind(nodes, dat))
     fname <- paste0(outstem, marker, ".1D.dset")
     write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
   } else {
-    dat <- bsurf@data
+    dat <- surf@data
     out <- as.data.frame(cbind(nodes, dat[keep]))
     fname <- paste0(outstem, marker, ".1D.dset")
     write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
