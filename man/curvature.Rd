@@ -2,7 +2,7 @@
 % Please edit documentation in R/all_generic.R
 \name{curvature}
 \alias{curvature}
-\title{curvature}
+\title{compute surface curvature vector}
 \usage{
 curvature(x, ...)
 }
@@ -12,5 +12,5 @@ curvature(x, ...)
 \item{...}{extra args}
 }
 \description{
-curvature
+compute surface curvature vector
 }

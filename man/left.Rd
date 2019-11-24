@@ -2,7 +2,7 @@
 % Please edit documentation in R/all_generic.R
 \name{left}
 \alias{left}
-\title{left}
+\title{get left hemisphere}
 \usage{
 left(x)
 }

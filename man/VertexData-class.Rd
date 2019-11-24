@@ -11,5 +11,7 @@ A set of arbitary vertices associated with a data table
 
 \describe{
 \item{\code{indices}}{the node indices}
+
+\item{\code{data}}{the associated table with \code{nrow(data) == length(indices)}}
 }}
 

@@ -1,12 +1,13 @@
 #' @importMethodsFrom neuroim2 data_reader
 NULL
 
-#' @export
-setGeneric("plot", function(x, ...) standardGeneric("plot"))
+
+if (!isGeneric("plot"))
+  setGeneric("plot", function(x, y, ...) standardGeneric("plot"))
 
 
 
-#' function to construct neighborhood graph from surface mesh using edge weights.
+#' construct neighborhood graph from surface mesh using edge weights.
 #'
 #' @param x surface mesh
 #' @param radius the edge radius defining the neighborhood
@@ -38,6 +39,7 @@ setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
 
 
 #' extract \code{igraph} object
+#'
 #' @param x the object to extract the graph from
 #' @param ... extra args
 #' @rdname graph-methods
@@ -51,9 +53,9 @@ setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
 setGeneric(name="smooth", def=function(x, ...) standardGeneric("smooth"))
 
 
-#' laplacian
+
+#' compute graph laplacian
 #'
-#' get compute graph laplacian
 #' @param x the object to get Laplacian from
 #' @param normalized logical indicating whether laplcian is normalized
 #' @param weights edge weights for weighted Laplacian matrix
@@ -61,9 +63,9 @@ setGeneric(name="smooth", def=function(x, ...) standardGeneric("smooth"))
 #' @rdname graph-methods
 setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardGeneric("laplacian"))
 
-#' adjacency
-#'
+
 #' get adjacency graph
+#'
 #' @param x graph structure
 #' @param weights a \code{character} string indicating the edge attribute in the \code{igraph} object for the weights. If absent, weights are 0, 1.
 #' @param ... extra args
@@ -73,31 +75,33 @@ setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacen
 
 
 
-#' curvature
+#' compute surface curvature vector
 #'
 #' @param x the object to get curvature from
 #' @param ... extra args
 #' @export
 setGeneric(name="curvature", def=function(x, ...) standardGeneric("curvature"))
 
-#' left
-#'
+
 #' get left hemisphere
+#'
 #' @param x the surface
+#' @export
 setGeneric(name="left", def=function(x) standardGeneric("left"))
 
 
-#' right
-#'
+
 #' get right hemisphere
+#'
 #' @param x the surface
+#' @export
 setGeneric(name="right", def=function(x) standardGeneric("right"))
 
-#' cluster_threshold
+#' apply a cluster-extent threshold to surface data
 #'
 #' @param x the object to threshold
 #' @param threshold the numeric threshold range
-#' @param size the minimum cluster size
+#' @param size the minimum cluster size in nodes
 #' @param ... extra args
 #' @seealso conn_comp
 #' @export

@@ -236,7 +236,7 @@ setClass("ROISurfaceVector",
 #'
 #' @rdname VertexData-class
 #' @slot indices the node indices
-#' @slot data the associated table with \code{nrow(data)} == length(indices)}
+#' @slot data the associated table with \code{nrow(data) == length(indices)}
 #' @export
 setClass("VertexData",
          representation=representation(indices="integer",

@@ -160,7 +160,7 @@ view_surface <- function(surfgeom, vals=NA,
 #' @param bgvol a background color or vector of colors used to shade the surface.
 #' @export
 #' @importFrom graphics plot
-setMethod("plot", signature=signature(x="SurfaceGeometry"),
+setMethod("plot", signature=signature(x="SurfaceGeometry", y="missing"),
           def=function(x,vals=NA, cmap=gray(seq(0,1,length.out=255)),
                        vert_clrs=NULL,
                        irange=range(vals),
@@ -175,7 +175,7 @@ setMethod("plot", signature=signature(x="SurfaceGeometry"),
 
 
 #' @export
-setMethod("plot", signature=signature(x="NeuroSurface"),
+setMethod("plot", signature=signature(x="NeuroSurface", y="missing"),
           def=function(x,cmap=gray(seq(0,1,length.out=255)),
                        vert_clrs=NULL,
                        irange=range(x@data, na.rm=TRUE),
@@ -193,7 +193,8 @@ setMethod("plot", signature=signature(x="NeuroSurface"),
           })
 
 #' @export
-setMethod("plot", signature=signature(x="LabeledNeuroSurface"),
+#' @importFrom graphics plot
+setMethod("plot", signature=signature(x="LabeledNeuroSurface", y="missing"),
           def=function(x,cmap=x@cols,
                        vert_clrs=NULL,
                        irange=range(x@data, na.rm=TRUE),

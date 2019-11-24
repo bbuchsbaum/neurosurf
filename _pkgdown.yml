@@ -8,8 +8,9 @@ reference:
     - read_surf_data_seq
     - read_freesurfer_annot
     - read_surf_geometry
+    - write_surf_data
 
-  - title: surface manipulation
+  - title: surface-based operations and functions
     desc: >
       process of manipulate surface data and geometry
     contents:
@@ -17,5 +18,14 @@ reference:
     - cluster_threshold
     - conn_comp
     - curvature
+
+  - title: extractors
+    desc: >
+      extract infromation from surface data structures
+    contents:
+    - left
+    - right
+    - adjacency
+    - laplacian
 
 
