@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>smooth a surface — smooth • neurosurf</title>
+<title>extract vertices from surface — vertices • neurosurf</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,8 @@
 
 
 
-<meta property="og:title" content="smooth a surface — smooth" />
-<meta property="og:description" content="smooth a surface" />
+<meta property="og:title" content="extract vertices from surface — vertices" />
+<meta property="og:description" content="extract vertices from surface" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -117,27 +117,34 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>smooth a surface</h1>
-    <small class="dont-index">Source: <a href='https://github.com/bbuchsbaum/neurosurf/blob/master/R/all_generic.R'><code>R/all_generic.R</code></a></small>
-    <div class="hidden name"><code>smooth-methods.Rd</code></div>
+    <h1>extract vertices from surface</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bbuchsbaum/neurosurf/blob/master/R/all_generic.R'><code>R/all_generic.R</code></a>, <a href='https://github.com/bbuchsbaum/neurosurf/blob/master/R/neuro_surface.R'><code>R/neuro_surface.R</code></a></small>
+    <div class="hidden name"><code>vertices.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>smooth a surface</p>
+    <p>extract vertices from surface</p>
     </div>
 
-    <pre class="usage"><span class='fu'>smooth</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'><a href='vertices-methods.html'>vertices</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)
+
+<span class='co'># S4 method for NeuroSurfaceVector</span>
+<span class='fu'><a href='vertices-methods.html'>vertices</a></span>(<span class='no'>x</span>, <span class='no'>indices</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>the surface object to smooth</p></td>
+      <td><p>the surface object</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>extra args</p></td>
+    </tr>
+    <tr>
+      <th>indices</th>
+      <td><p>a vector of indices specifying the valid surface nodes.</p></td>
     </tr>
     </table>
 

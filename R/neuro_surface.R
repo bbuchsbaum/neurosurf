@@ -327,14 +327,15 @@ setMethod(f="as.matrix", signature=c("NeuroSurfaceVector"),
           })
 
 
-#' @rdname vertices-methods
+
 #' @export
 setMethod(f="vertices", signature=c("NeuroSurface"),
           def=function(x) {
             vertices(x@geometry)
           })
 
-#' @rdname vertices-methods
+
+#' @rdname vertices
 #' @param indices a vector of indices specifying the valid surface nodes.
 #' @export
 setMethod(f="vertices", signature=c("NeuroSurfaceVector"),
@@ -342,21 +343,20 @@ setMethod(f="vertices", signature=c("NeuroSurfaceVector"),
             callGeneric(x@geometry, indices)
           })
 
-#' @rdname vertices-methods
 #' @export
 setMethod(f="vertices", signature=c("SurfaceGeometry"),
           def=function(x, indices) {
             t(x@mesh$vb[1:3,indices, drop=FALSE])
           })
 
-#' @rdname nodes-methods
+
 #' @export
 setMethod(f="nodes", signature=c("SurfaceGeometry"),
           def=function(x) {
             seq(1, ncol(x@mesh$vb))
           })
 
-#' @rdname indices-methods
+
 #' @importMethodsFrom neuroim2 indices
 #' @export
 setMethod(f="indices", signature=c("NeuroSurfaceVector"),
@@ -364,7 +364,7 @@ setMethod(f="indices", signature=c("NeuroSurfaceVector"),
             x@indices
           })
 
-#' @rdname indices-methods
+
 #' @importMethodsFrom neuroim2 indices
 #' @export
 setMethod(f="indices", signature=c("NeuroSurface"),
@@ -372,14 +372,14 @@ setMethod(f="indices", signature=c("NeuroSurface"),
             x@indices
           })
 
-#' @rdname nodes-methods
+
 #' @export
 setMethod(f="nodes", signature=c("NeuroSurface"),
           def=function(x) {
             callGeneric(x@geometry)
           })
 
-#' @rdname nodes-methods
+
 #' @export
 setMethod(f="nodes", signature=c(x="NeuroSurfaceVector"),
           def=function(x) {
@@ -390,7 +390,6 @@ setMethod(f="nodes", signature=c(x="NeuroSurfaceVector"),
 
 #' connected components on a surface
 #'
-#' @rdname conn_comp-methods
 #' @export
 #' @importMethodsFrom neuroim2 conn_comp
 setMethod(f="conn_comp", signature=c(x="NeuroSurfaceVector"),
@@ -402,9 +401,7 @@ setMethod(f="conn_comp", signature=c(x="NeuroSurfaceVector"),
           })
 
 
-#' threshold based on the connected components on a surface
-#'
-#' @rdname cluster_threshold-methods
+
 #' @export
 setMethod(f="cluster_threshold", signature=c(x="NeuroSurfaceVector"),
           def=function(x, threshold, size=10, index=1) {
@@ -418,7 +415,7 @@ setMethod(f="cluster_threshold", signature=c(x="NeuroSurfaceVector"),
 
 
 
-#' @rdname cluster_threshold-methods
+
 #' @export
 setMethod(f="cluster_threshold", signature=c(x="NeuroSurface"),
           def=function(x, threshold, size=10) {
@@ -427,9 +424,7 @@ setMethod(f="cluster_threshold", signature=c(x="NeuroSurface"),
             x
           })
 
-#' connected components on a surface
-#'
-#' @rdname conn_comp-methods
+
 #' @export
 #' @importMethodsFrom neuroim2 conn_comp
 setMethod(f="conn_comp", signature=c(x="NeuroSurface"),
@@ -569,7 +564,7 @@ setAs(from="NeuroSurface", to="vector", def=function(from) as.vector(from@data))
 
 
 
-#' @rdname graph-methods
+
 #' @export
 setMethod("graph", signature(x="NeuroSurface"),
           def=function(x,...) {
@@ -578,7 +573,7 @@ setMethod("graph", signature(x="NeuroSurface"),
 
 
 
-#' @rdname graph-methods
+
 #' @export
 setMethod("graph", signature(x="NeuroSurfaceVector"),
           def=function(x, ...) {
@@ -587,7 +582,7 @@ setMethod("graph", signature(x="NeuroSurfaceVector"),
 
 
 
-#' @rdname graph-methods
+
 #' @export
 setMethod("graph", signature(x="SurfaceGeometry"),
           def=function(x) {

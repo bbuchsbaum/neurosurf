@@ -3,18 +3,12 @@
 \docType{methods}
 \name{vertices}
 \alias{vertices}
-\alias{vertices,NeuroSurface-method}
 \alias{vertices,NeuroSurfaceVector-method}
-\alias{vertices,SurfaceGeometry-method}
 \title{extract vertices from surface}
 \usage{
 vertices(x, ...)
 
-\S4method{vertices}{NeuroSurface}(x)
-
 \S4method{vertices}{NeuroSurfaceVector}(x, indices)
-
-\S4method{vertices}{SurfaceGeometry}(x, indices)
 }
 \arguments{
 \item{x}{the surface object}

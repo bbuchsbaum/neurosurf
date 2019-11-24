@@ -80,8 +80,9 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL, distance_t
   g
 }
 
-#' @rdname neighbor_graph-methods
+#' @rdname neighbor_graph
 #' @importFrom grDevices rainbow
+#' @param distance_type the distance function
 #' @export
 #' @aliases neighbor_graph,igraph,numeric,missing,missing
 setMethod(f="neighbor_graph", signature=c(x="igraph", radius="numeric", edgeWeights="missing", nodes="missing"),
@@ -95,7 +96,7 @@ setMethod(f="neighbor_graph", signature=c(x="igraph", radius="numeric", edgeWeig
 
 
 
-#' @rdname neighbor_graph-methods
+#' @rdname neighbor_graph
 #' @importFrom grDevices rainbow
 #' @export
 #' @aliases neighbor_graph,igraph,numeric,missing,missing
@@ -109,7 +110,7 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
 
 
 
-#' @rdname neighbor_graph-methods
+#' @rdname neighbor_graph
 #' @export
 #' @aliases neighbor_graph,igraph,numeric,numeric,missing
 setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric", edgeWeights="numeric", nodes="missing"),
@@ -122,7 +123,7 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
 
 
 
-#' @rdname neighbor_graph-methods
+#' @rdname neighbor_graph
 #' @export
 #' @aliases neighbor_graph,igraph,numeric,numeric,integer
 setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric", edgeWeights="numeric", nodes="integer"),
@@ -134,7 +135,7 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
             .neighbors_to_graph(nabeinfo)
           })
 
-#' @rdname neighbor_graph-methods
+#' @rdname neighbor_graph
 #' @export
 #' @aliases neighbor_graph,igraph,numeric,missing,integer
 setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric", edgeWeights="missing", nodes="integer"),
@@ -145,27 +146,21 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
           })
 
 
-#' laplacian
-#'
-#' @rdname laplacian-methods
+
 #' @export
 setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", weights="missing"),
           def=function(x) {
             igraph::laplacian_matrix(graph(x))
           })
 
-#' laplacian
-#'
-#' @rdname laplacian-methods
+
 #' @export
 setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", weights="numeric"),
           def=function(x, weights) {
             igraph::laplacian_matrix(neurosurf::graph(x), weights=weights)
           })
 
-#' adjacency
-#'
-#' @rdname adjacency-methods
+
 #' @export
 setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="numeric"),
           def=function(x, attr) {
@@ -174,18 +169,14 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="numeric"),
             igraph::as_adjacency_matrix(g, attr="awt")
           })
 
-#' adjacency
-#'
-#' @rdname adjacency-methods
+
 #' @export
 setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="character"),
           def=function(x, attr) {
             igraph::as_adjacency_matrix(graph(x), attr=attr)
           })
 
-#' adjacency
-#'
-#' @rdname adjacency-methods
+
 #' @export
 setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
           def=function(x) {
@@ -194,7 +185,6 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
 
 
 #' @export
-#' @rdname smooth-methods
 #' @import Rvcg
 setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
           def=function(x, type=c("taubin","laplace","HClaplace","fujiLaplace","angWeight","surfPreserveLaplace"),
@@ -205,7 +195,6 @@ setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
           })
 
 #' @export
-#' @rdname smooth-methods
 setMethod(f="smooth", signature=c(x="NeuroSurface"),
            def=function(x, sigma=5, ...) {
              g <- graph(geometry(x))

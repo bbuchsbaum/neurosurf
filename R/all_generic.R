@@ -14,27 +14,27 @@ if (!isGeneric("plot"))
 #' @param edgeWeights vector of edgeWeights used to define edge distance.
 #' @param nodes the subset of nodes to use
 #' @param ... extra arguments
-#' @exportMethod neighbor_graph
-#' @rdname neighbor_graph-methods
+#' @export
 setGeneric(name="neighbor_graph", def=function(x, radius, edgeWeights, nodes, ...) standardGeneric("neighbor_graph"))
 
 #' extract vertices from surface
 #'
 #' @param x the surface object
 #' @param ... extra args
-#' @rdname vertices-methods
+#' @export
 setGeneric(name="vertices", def=function(x,...) standardGeneric("vertices"))
 
 #' extract surface node numbers
 #'
 #' @param x the surface object
-#' @rdname nodes-methods
+#' @export
 setGeneric(name="nodes", def=function(x) standardGeneric("nodes"))
 
 #' extract geometry object
 #'
 #' @param x the surface object
 #' @rdname geometry-methods
+#' @export
 setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
 
 
@@ -42,7 +42,7 @@ setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
 #'
 #' @param x the object to extract the graph from
 #' @param ... extra args
-#' @rdname graph-methods
+#' @export
 setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
 
 #' smooth a surface
@@ -50,6 +50,7 @@ setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
 #' @param x the surface object to smooth
 #' @param ... extra args
 #' @rdname smooth-methods
+#' @export
 setGeneric(name="smooth", def=function(x, ...) standardGeneric("smooth"))
 
 
@@ -60,7 +61,7 @@ setGeneric(name="smooth", def=function(x, ...) standardGeneric("smooth"))
 #' @param normalized logical indicating whether laplcian is normalized
 #' @param weights edge weights for weighted Laplacian matrix
 #' @param ... extra args
-#' @rdname graph-methods
+#' @export
 setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardGeneric("laplacian"))
 
 
@@ -69,8 +70,7 @@ setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardG
 #' @param x graph structure
 #' @param weights a \code{character} string indicating the edge attribute in the \code{igraph} object for the weights. If absent, weights are 0, 1.
 #' @param ... extra args
-#' @rdname graph-methods
-#' @rdname adjacency-methods
+#' @export
 setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacency"))
 
 

@@ -3,15 +3,10 @@
 \docType{methods}
 \name{conn_comp,NeuroSurfaceVector-method}
 \alias{conn_comp,NeuroSurfaceVector-method}
-\alias{conn_comp,NeuroSurface-method}
 \title{connected components on a surface}
 \usage{
 \S4method{conn_comp}{NeuroSurfaceVector}(x, threshold, index = 1)
-
-\S4method{conn_comp}{NeuroSurface}(x, threshold)
 }
 \description{
-connected components on a surface
-
 connected components on a surface
 }

@@ -12,7 +12,7 @@
 \alias{neighbor_graph,igraph,numeric,numeric,integer}
 \alias{neighbor_graph,SurfaceGeometry,numeric,missing,integer-method}
 \alias{neighbor_graph,igraph,numeric,missing,integer}
-\title{function to construct neighborhood graph from surface mesh using edge weights.}
+\title{construct neighborhood graph from surface mesh using edge weights.}
 \usage{
 neighbor_graph(x, radius, edgeWeights, nodes, ...)
 
@@ -43,7 +43,9 @@ neighbor_graph(x, radius, edgeWeights, nodes, ...)
 \item{nodes}{the subset of nodes to use}
 
 \item{...}{extra arguments}
+
+\item{distance_type}{the distance function}
 }
 \description{
-function to construct neighborhood graph from surface mesh using edge weights.
+construct neighborhood graph from surface mesh using edge weights.
 }

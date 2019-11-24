@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>smooth a surface — smooth • neurosurf</title>
+<title>get adjacency graph — adjacency • neurosurf</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,8 @@
 
 
 
-<meta property="og:title" content="smooth a surface — smooth" />
-<meta property="og:description" content="smooth a surface" />
+<meta property="og:title" content="get adjacency graph — adjacency" />
+<meta property="og:description" content="get adjacency graph" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -117,27 +117,31 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>smooth a surface</h1>
+    <h1>get adjacency graph</h1>
     <small class="dont-index">Source: <a href='https://github.com/bbuchsbaum/neurosurf/blob/master/R/all_generic.R'><code>R/all_generic.R</code></a></small>
-    <div class="hidden name"><code>smooth-methods.Rd</code></div>
+    <div class="hidden name"><code>adjacency.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>smooth a surface</p>
+    <p>get adjacency graph</p>
     </div>
 
-    <pre class="usage"><span class='fu'>smooth</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'><a href='graph-methods.html'>adjacency</a></span>(<span class='no'>x</span>, <span class='no'>attr</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>the surface object to smooth</p></td>
+      <td><p>graph structure</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>extra args</p></td>
+    </tr>
+    <tr>
+      <th>weights</th>
+      <td><p>a <code>character</code> string indicating the edge attribute in the <code>igraph</code> object for the weights. If absent, weights are 0, 1.</p></td>
     </tr>
     </table>
 
