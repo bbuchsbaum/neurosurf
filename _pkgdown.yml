@@ -16,7 +16,6 @@ reference:
     contents:
     - smooth
     - cluster_threshold
-    - conn_comp
     - curvature
 
   - title: extractors
