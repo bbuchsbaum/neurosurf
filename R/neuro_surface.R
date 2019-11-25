@@ -21,12 +21,12 @@ write_surf_data <- function(surf, outstem, hemi="") {
     dat <- as.matrix(surf@data[keep,])
     out <- as.data.frame(cbind(nodes, dat))
     fname <- paste0(outstem, marker, ".1D.dset")
-    write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
+    utils::write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
   } else {
     dat <- surf@data
     out <- as.data.frame(cbind(nodes, dat[keep]))
     fname <- paste0(outstem, marker, ".1D.dset")
-    write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
+    utils::write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
   }
 }
 
@@ -73,12 +73,12 @@ load_spec <- function(spec) {
 
   meshdomain <- sapply(keyval, function(x) x$LocalDomainParent)
   meshdomain <- meshdomain[(meshdomain != "./SAME") & (meshdomain != "SAME")]
-  meshdomain <- meshdomain[!sapply(x, is.null)]
+  meshdomain <- meshdomain[!sapply(meshdomain, is.null)]
   domain <- meshdomain[[1]]
 
   curvature <- sapply(keyval, function(x) x$LocalCurvatureParent)
   curvature <- curvature[(curvature != "./SAME") & (curvature != "SAME")]
-  curvature <- curvature[!sapply(x, is.null)]
+  curvature <- curvature[!sapply(curvature, is.null)]
   curvature <- curvature[[1]]
 
   surfaces <- sapply(keyval, function(x) {
@@ -213,8 +213,7 @@ SurfaceGeometrySource <- function(surface_name) {
   new("SurfaceGeometrySource", meta_info=meta_info)
 }
 
-#' show a \code{SurfaceGeometry}
-#' @param object the object
+#' @rdname show
 setMethod(f="show", signature=signature("SurfaceGeometry"),
           def=function(object) {
             cat("SurfaceGeometry \n")
@@ -263,9 +262,7 @@ NeuroSurfaceSource <- function(surface_geom, surface_data_name, colind=NULL, nod
 
 }
 
-#' coords
-#'
-#' @rdname coords-methods
+#' @rdname coords
 #' @importMethodsFrom neuroim2 coords
 #' @export
 setMethod(f="coords", signature=c("igraph"),
@@ -277,7 +274,7 @@ setMethod(f="coords", signature=c("igraph"),
 
 
 
-#' @rdname coords-methods
+#' @rdname coords
 #' @export
 setMethod(f="coords", signature=c("SurfaceGeometry"),
           def=function(x) {
@@ -286,7 +283,7 @@ setMethod(f="coords", signature=c("SurfaceGeometry"),
 
 
 
-#' @rdname coords-methods
+#' @rdname coords
 #' @export
 setMethod(f="coords", signature=c("NeuroSurfaceVector"),
           def=function(x) {
@@ -294,9 +291,8 @@ setMethod(f="coords", signature=c("NeuroSurfaceVector"),
           })
 
 
-#' coords
-#'
-#' @rdname coords-methods
+
+#' @rdname coords
 #' @export
 setMethod(f="coords", signature=c("NeuroSurface"),
           def=function(x) {
@@ -305,21 +301,21 @@ setMethod(f="coords", signature=c("NeuroSurface"),
 
 
 
-#' @rdname geometry-methods
+#' @rdname geometry
 #' @export
 setMethod(f="geometry", signature=c("NeuroSurface"),
           def=function(x) {
             x@geometry
           })
 
-#' @rdname geometry-methods
+#' @rdname geometry
 #' @export
 setMethod(f="geometry", signature=c("NeuroSurfaceVector"),
           def=function(x) {
             x@geometry
           })
 
-#' @rdname as.matrix-methods
+#' @rdname as.matrix
 #' @export
 setMethod(f="as.matrix", signature=c("NeuroSurfaceVector"),
           def=function(x) {
@@ -329,6 +325,7 @@ setMethod(f="as.matrix", signature=c("NeuroSurfaceVector"),
 
 
 #' @export
+#' @rdname vertices
 setMethod(f="vertices", signature=c("NeuroSurface"),
           def=function(x) {
             vertices(x@geometry)
@@ -344,6 +341,7 @@ setMethod(f="vertices", signature=c("NeuroSurfaceVector"),
           })
 
 #' @export
+#' @rdname vertices
 setMethod(f="vertices", signature=c("SurfaceGeometry"),
           def=function(x, indices) {
             t(x@mesh$vb[1:3,indices, drop=FALSE])
@@ -351,6 +349,7 @@ setMethod(f="vertices", signature=c("SurfaceGeometry"),
 
 
 #' @export
+#' @rdname nodes
 setMethod(f="nodes", signature=c("SurfaceGeometry"),
           def=function(x) {
             seq(1, ncol(x@mesh$vb))
@@ -359,6 +358,7 @@ setMethod(f="nodes", signature=c("SurfaceGeometry"),
 
 #' @importMethodsFrom neuroim2 indices
 #' @export
+#' @rdname indices
 setMethod(f="indices", signature=c("NeuroSurfaceVector"),
           def=function(x) {
             x@indices
@@ -367,6 +367,7 @@ setMethod(f="indices", signature=c("NeuroSurfaceVector"),
 
 #' @importMethodsFrom neuroim2 indices
 #' @export
+#' @rdname indices
 setMethod(f="indices", signature=c("NeuroSurface"),
           def=function(x) {
             x@indices
@@ -374,6 +375,7 @@ setMethod(f="indices", signature=c("NeuroSurface"),
 
 
 #' @export
+#' @rdname nodes
 setMethod(f="nodes", signature=c("NeuroSurface"),
           def=function(x) {
             callGeneric(x@geometry)
@@ -381,6 +383,7 @@ setMethod(f="nodes", signature=c("NeuroSurface"),
 
 
 #' @export
+#' @rdname nodes
 setMethod(f="nodes", signature=c(x="NeuroSurfaceVector"),
           def=function(x) {
             callGeneric(x@geometry)
@@ -392,6 +395,10 @@ setMethod(f="nodes", signature=c(x="NeuroSurfaceVector"),
 #'
 #' @export
 #' @importMethodsFrom neuroim2 conn_comp
+#' @param x the object
+#' @param threshold the two-element threshold range to use to define connected components
+#' @param index of the data vector to find connected components on
+#' @rdname conn_comp
 setMethod(f="conn_comp", signature=c(x="NeuroSurfaceVector"),
           def=function(x, threshold, index=1) {
             vals <- x@data[,index]
@@ -403,6 +410,8 @@ setMethod(f="conn_comp", signature=c(x="NeuroSurfaceVector"),
 
 
 #' @export
+#' @param index the index/column of the underlying data matrix to cluster
+#' @rdname cluster_threshold
 setMethod(f="cluster_threshold", signature=c(x="NeuroSurfaceVector"),
           def=function(x, threshold, size=10, index=1) {
             vals <- x@data[,index]
@@ -417,6 +426,7 @@ setMethod(f="cluster_threshold", signature=c(x="NeuroSurfaceVector"),
 
 
 #' @export
+#' @rdname cluster_threshold
 setMethod(f="cluster_threshold", signature=c(x="NeuroSurface"),
           def=function(x, threshold, size=10) {
             ret <- conn_comp(x, threshold)
@@ -427,6 +437,7 @@ setMethod(f="cluster_threshold", signature=c(x="NeuroSurface"),
 
 #' @export
 #' @importMethodsFrom neuroim2 conn_comp
+#' @rdname conn_comp
 setMethod(f="conn_comp", signature=c(x="NeuroSurface"),
           def=function(x, threshold) {
             keep <- x@data <= threshold[1] | x@data >= threshold[2]
@@ -447,9 +458,11 @@ setMethod(f="conn_comp", signature=c(x="NeuroSurface"),
           })
 
 
-#' series
+#' extract a series of values for a surface vector
 #'
-#' @rdname series-methods
+#' @rdname series
+#' @param x the object to extract series from
+#' @param i the indices of the series set
 #' @importFrom Matrix Matrix
 #' @importFrom Matrix t
 #' @importMethodsFrom neuroim2 series
@@ -462,7 +475,9 @@ setMethod("series", signature(x="NeuroSurfaceVector", i="numeric"),
 
 #' series_roi
 #'
-#' @rdname series-methods
+#' @rdname series_roi
+#' @param x the object o extract series from
+#' @param i the set of indices to extract
 #' @return a class of type \code{ROISurfaceVector}
 #' @importMethodsFrom neuroim2 series_roi
 #' @export
@@ -472,9 +487,8 @@ setMethod("series_roi", signature(x="NeuroSurfaceVector", i="numeric"),
             ROISurfaceVector(geometry=x@geometry, indices=i, data=m)
           })
 
-#' series
-#'
-#' @rdname series-methods
+
+#' @rdname series
 #' @importFrom Matrix Matrix
 #' @export
 setMethod("series", signature(x="NeuroSurfaceVector", i="integer"),
@@ -482,9 +496,7 @@ setMethod("series", signature(x="NeuroSurfaceVector", i="integer"),
             Matrix::t(x@data[i,])
           })
 
-#' series
-#'
-#' @rdname series-methods
+#' @rdname series
 #' @export
 setMethod("series", signature(x="NeuroSurfaceVector", i="ROISurface"),
           def=function(x, i) {
@@ -492,9 +504,8 @@ setMethod("series", signature(x="NeuroSurfaceVector", i="ROISurface"),
           })
 
 
-#' series_roi
-#'
-#' @rdname series-methods
+
+#' @rdname series_roi
 #' @importMethodsFrom neuroim2 series_roi
 #' @export
 setMethod("series_roi", signature(x="NeuroSurfaceVector", i="ROISurface"),
@@ -503,9 +514,8 @@ setMethod("series_roi", signature(x="NeuroSurfaceVector", i="ROISurface"),
             ROISurfaceVector(x@geometry, indices(i), as.matrix(mat))
           })
 
-#' series
-#'
-#' @rdname series-methods
+
+#' @rdname series
 #' @export
 setMethod("series", signature(x="NeuroSurface", i="numeric"),
           def=function(x, i) {
@@ -513,11 +523,15 @@ setMethod("series", signature(x="NeuroSurface", i="numeric"),
           })
 
 
-#' map data using a lookup table
+#' map_values
+#'
+#' map data using a key -> value lookup table
 #'
 #' @importMethodsFrom neuroim2 map_values
 #' @export
-#' @rdname map_values-methods
+#' @param x the object to map over
+#' @param lookup the lookup table
+#' @rdname map_values
 setMethod("map_values", signature(x="NeuroSurface", lookup="list"),
           def=function(x,lookup) {
             outv <- lookup[as.vector(x@data)]
@@ -532,7 +546,7 @@ setMethod("map_values", signature(x="NeuroSurface", lookup="list"),
 
 #' @importMethodsFrom neuroim2 map_values
 #' @export
-#' @rdname map_values-methods
+#' @rdname map_values
 setMethod("map_values", signature(x="NeuroSurface", lookup="matrix"),
           def=function(x,lookup) {
             if (ncol(lookup) != 2) {
@@ -566,6 +580,7 @@ setAs(from="NeuroSurface", to="vector", def=function(from) as.vector(from@data))
 
 
 #' @export
+#' @rdname graph
 setMethod("graph", signature(x="NeuroSurface"),
           def=function(x,...) {
             callGeneric(x@geometry)
@@ -575,6 +590,7 @@ setMethod("graph", signature(x="NeuroSurface"),
 
 
 #' @export
+#' @rdname graph
 setMethod("graph", signature(x="NeuroSurfaceVector"),
           def=function(x, ...) {
             callGeneric(x@geometry)
@@ -584,6 +600,7 @@ setMethod("graph", signature(x="NeuroSurfaceVector"),
 
 
 #' @export
+#' @rdname graph
 setMethod("graph", signature(x="SurfaceGeometry"),
           def=function(x) {
             x@graph
@@ -618,9 +635,8 @@ NeuroSurface <- function(geometry, indices, data) {
 
 }
 
-#' show a \code{NeuroSurfaceVector}
-#' @param x the object
-#' @param ... extra arguments
+
+#' @rdname show
 #' @export
 setMethod(f="show", signature=signature("NeuroSurfaceVector"),
           def=function(object) {
@@ -631,9 +647,7 @@ setMethod(f="show", signature=signature("NeuroSurfaceVector"),
 
           })
 
-#' show a \code{NeuroSurface}
-#' @param x the object
-#' @param ... extra arguments
+#' @rdname show
 #' @export
 setMethod(f="show", signature=signature("NeuroSurface"),
           def=function(object) {
@@ -649,7 +663,8 @@ setMethod(f="show", signature=signature("NeuroSurface"),
 #' @importFrom Matrix Matrix
 #' @importMethodsFrom neuroim2 load_data
 #' @export
-#' @rdname load_data-methods
+#' @param x the data source to load
+#' @rdname load_data
 setMethod(f="load_data", signature=c("NeuroSurfaceVectorSource"),
           def=function(x) {
 
@@ -691,20 +706,18 @@ setMethod(f="load_data", signature=c("NeuroSurfaceVectorSource"),
 
           })
 
-#' load a \code{SurfaceGeometry} instance
-#'
+
 #' @export
-#' @rdname load_data-methods
+#' @rdname load_data
 setMethod(f="load_data", signature=c("SurfaceGeometrySource"),
           def=function(x) {
             geometry <- load_data(x@meta_info)
           })
 
 
-#' load a NeuroSurface
-#'
+
 #' @export
-#' @rdname load_data-methods
+#' @rdname load_data
 setMethod(f="load_data", signature=c("NeuroSurfaceSource"),
           def=function(x) {
             geometry <- x@geometry
@@ -771,10 +784,10 @@ meshToGraph <- function(vertices, nodes) {
 ## ccol <- rep(ccol,each=3)
 ####
 
-#' load a Freesurfer surface geometry
+
 #' @export
 #' @importFrom utils read.table
-#' @rdname load_data-methods
+#' @rdname load_data
 setMethod(f="load_data", signature=c("FreesurferSurfaceGeometryMetaInfo"),
           def=function(x) {
             loadFSSurface(x)
@@ -832,9 +845,8 @@ loadFSSurface <- function(meta_info) {
 
 
 
-#' left
-#'
-#' @rdname left-methods
+
+#' @rdname left
 #' @export
 setMethod(f="left", signature=c(x="BilatNeuroSurfaceVector"),
           def=function(x) {
@@ -842,9 +854,8 @@ setMethod(f="left", signature=c(x="BilatNeuroSurfaceVector"),
           })
 
 
-#' right
-#'
-#' @rdname left-methods
+
+#' @rdname right
 #' @export
 setMethod(f="right", signature=c(x="BilatNeuroSurfaceVector"),
           def=function(x) {
@@ -857,9 +868,8 @@ setMethod(f="right", signature=c(x="BilatNeuroSurfaceVector"),
 normalize <- function(vals) (vals - min(vals))/(max(vals)-min(vals))
 
 
-#' curvature
-#'
-#' @rdname curvature-methods
+
+#' @rdname curvature
 #' @export
 setMethod(f="curvature", signature=c(x="SurfaceGeometry"),
           def=function(x) {
@@ -948,6 +958,7 @@ setAs(from="BilatNeuroSurfaceVector", to="matrix",
 
 
 #' @export
+#' @rdname as.matrix
 setMethod("as.matrix", signature(x = "BilatNeuroSurfaceVector"), function(x) as(x, "matrix"))
 
 

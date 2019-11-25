@@ -5,7 +5,7 @@
 \title{SurfaceSearchlight}
 \usage{
 SurfaceSearchlight(surfgeom, radius = 8, nodeset = NULL,
-  distance_type = "geodesic")
+  distance_type = c("euclidean", "geodesic", "spherical"))
 }
 \arguments{
 \item{surfgeom}{a surface mesh: instance of class \code{SurfaceGeometry}}
@@ -13,6 +13,8 @@ SurfaceSearchlight(surfgeom, radius = 8, nodeset = NULL,
 \item{radius}{radius of the searchlight as a geodesic distance in mm}
 
 \item{nodeset}{the subset of surface nodes to use}
+
+\item{distance_type}{the distance metric to use}
 }
 \description{
 Create a Searchlight iterator for surface mesh using geodesic distance to define regions.

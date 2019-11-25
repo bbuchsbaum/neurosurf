@@ -26,7 +26,7 @@ A class that is used to produce a \code{\linkS4class{NeuroSurface}} instance
 \describe{
 \item{\code{geometry}}{a \code{\linkS4class{SurfaceGeometry}} instance}
 
-\item{\code{dataMetaInfo}}{a \code{\linkS4class{SurfaceDataMetaInfo}} instance}
+\item{\code{data_meta_info}}{a \code{\linkS4class{SurfaceDataMetaInfo}} instance}
 
 \item{\code{colind}}{the column index of the surface map to be loaded.}
 

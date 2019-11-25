@@ -2,7 +2,7 @@
 % Please edit documentation in R/IO.R
 \name{AFNISurfaceDataMetaInfo}
 \alias{AFNISurfaceDataMetaInfo}
-\title{Constructor for \code{\linkS4class{AFNISurfaceDataMetaInfo}} class}
+\title{Constructor for \code{AFNISurfaceDataMetaInfo} class}
 \usage{
 AFNISurfaceDataMetaInfo(descriptor, header)
 }
@@ -12,5 +12,5 @@ AFNISurfaceDataMetaInfo(descriptor, header)
 \item{header}{a \code{list} containing header information}
 }
 \description{
-Constructor for \code{\linkS4class{AFNISurfaceDataMetaInfo}} class
+Constructor for \code{AFNISurfaceDataMetaInfo} class
 }

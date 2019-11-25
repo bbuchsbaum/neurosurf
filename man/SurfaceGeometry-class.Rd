@@ -13,5 +13,7 @@ a three-dimensional surface consisting of a set of triangle vertices
 \item{\code{mesh}}{the underlying \code{mesh3d} object}
 
 \item{\code{graph}}{underlying graph structure}
+
+\item{\code{hemi}}{the surface hemisphere}
 }}
 

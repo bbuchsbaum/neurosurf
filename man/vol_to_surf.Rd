@@ -22,14 +22,14 @@ vol_to_surf(surf_wm, surf_pial, vol, mask = NULL, fun = c("avg", "nn",
 
 \item{sigma}{the bandwidth of the smoothing kernel (for the "avg" mapping function)}
 
-\item{dthresh}{a valid mapping voxel only if it is less than \code{dthresh} units away from vertex.
-TODO does this work?}
+\item{dthresh}{a valid mapping voxel only if it is less than \code{dthresh} units away from vertex.}
 }
 \description{
 map values from a 3d volume to a surface in the same coordinate space
 }
 \examples{
 
-volname <- system.file("inst/testdata/Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii", package="neurosurf")
-vol <- neuroim2::read_vol(volname)
+#volname <- system.file("inst/testdata/Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii",
+#package="neurosurf")
+#vol <- neuroim2::read_vol(volname)
 }

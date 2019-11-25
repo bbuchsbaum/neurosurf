@@ -22,6 +22,10 @@ reference:
     desc: >
       extract infromation from surface data structures
     contents:
+    - vertices
+    - nodes
+    - geometry
+    - graph
     - left
     - right
     - adjacency

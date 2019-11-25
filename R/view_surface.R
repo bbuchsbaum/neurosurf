@@ -53,7 +53,7 @@
 #' @param outcol the hex color for the gyri (outward)
 #' @export
 curv_cols <- function(vals, incol="#B3B3B3", outcol="#404040") {
-  ifelse(vals > median(vals), incol, outcol)
+  ifelse(vals > stats::median(vals), incol, outcol)
 }
 
 surface_views <- list(
@@ -69,17 +69,34 @@ surface_views <- list(
 )
 
 
+#' display a surface via with rgl
+#'
+#' @importFrom gplots col2hex
+#' @param surfgeom surface geometty of type \code{SurfaceGeometry}
+#' @param vals the \code{vector} of values at each surface node in \code{x}
+#' @param cmap a color map consisting of a vector of colors in hex format (e.g. \code{gray(n=255)})
+#' @param vert_clrs optional vertex colors in hex format
+#' @param irange the intensity range indicating the low and high values of the color scale.
+#' @param thresh a 2-element vector indicating the lower and upper transparency thresholds.
+#' @param alpha the foreground trasnparency, default is 1 (opaque).
+#' @param add_normals whether to add_normals
+#' @param viewpoint the surface viewpoint (one of: 'lateral', 'medial', 'ventral', 'posterior')
+#' @param specular see\code{rgl material3d}
+#' @param bgcol a background color or vector of colors used to shade the surface.
+#' @param offset translation offset
+#' @param zoom zoom factor
+#' @param ... args to send to rgl::shade3d
 view_surface <- function(surfgeom, vals=NA,
                         cmap=rainbow(256, alpha = 1),
                         vert_clrs=NULL,
                         bgcol = "lightgray",
                         alpha=1,
                         add_normals=TRUE,
-                        threshold=NULL,
+                        thresh=NULL,
                         irange=range(vals,na.rm=TRUE),
                         specular=specular,
                         viewpoint=c("lateral","medial", "ventral", "posterior"),
-                        sfac=1,
+                        #sfac=1,
                         offset=c(0,0,0),
                         zoom=1,
                         ...) {
@@ -118,7 +135,7 @@ view_surface <- function(surfgeom, vals=NA,
 
   if (!is.na(vals) && !is.null(vals) && is.null(vert_clrs)) {
     fg_layer <- colorplane::IntensityColorPlane(vals, cmap,alpha=1)
-    fg_clrs <- colorplane::map_colors(fg_layer, alpha=alpha, threshold=threshold, irange=irange)
+    fg_clrs <- colorplane::map_colors(fg_layer, alpha=alpha, threshold=thresh, irange=irange)
     combined <- colorplane::blend_colors(bg_layer, fg_clrs, alpha=alpha)
     vertex_cols <- colorplane::as_hexcol(combined)
   } else if (!is.null(vert_clrs)) {
@@ -130,15 +147,15 @@ view_surface <- function(surfgeom, vals=NA,
     vertex_cols <- colorplane::as_hexcol(bg_layer)
   }
 
-  if (sfac != 1) {
-    umat <- umat %*% scaleMatrix(sfac,sfac,sfac)
-  }
+  #if (sfac != 1) {
+  #  umat <- umat %*% rgl::scaleMatrix(sfac,sfac,sfac)
+  #}
 
-  par3d(mouseMode="trackball")
+  rgl::par3d(mouseMode="trackball")
   #rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it], specular=specular, meshColor="legacy", ...)
 
   ret <- rgl::shade3d(surfgeom@mesh,col=vertex_cols, specular=specular, meshColor="vertices", ...)
-  view3d(fov=0, userMatrix=umat, zoom=zoom)
+  rgl::view3d(fov=0, userMatrix=umat, zoom=zoom)
   #rgl::par3d(userMatrix = umat)
 
   ret
@@ -147,21 +164,17 @@ view_surface <- function(surfgeom, vals=NA,
 
 }
 
-#' plot an image
+#' plot a surface
 #'
-#' @rdname plot-methods
-#' @param x the surface to display
-#' @param vals the \code{vector} of values at each surface node.
-#' @param cmap a color map consisting of a vector of colors in hex format (e.g. \code{gray(n=255)})
-#' @param vert_clrs vertex colors in hex format
-#' @param irange the intensity range indicating the low and high values of the color scale.
-#' @param thresh a 2-element vector indicating the lower and upper transparency thresholds.
-#' @param alpha the foreground trasnparency, default is 1 (opaque).
-#' @param bgvol a background color or vector of colors used to shade the surface.
+#' @rdname plot
+#' @param x the surface to plot
+#' @param ... extra args to send to \code{view_surface}
 #' @export
 #' @importFrom graphics plot
+#' @importFrom grDevices gray
+#' @inheritParams view_surface
 setMethod("plot", signature=signature(x="SurfaceGeometry", y="missing"),
-          def=function(x,vals=NA, cmap=gray(seq(0,1,length.out=255)),
+          def=function(x,vals=NA, cmap=grDevices::gray(seq(0,1,length.out=255)),
                        vert_clrs=NULL,
                        irange=range(vals),
                        thresh=c(0,0),
@@ -175,8 +188,9 @@ setMethod("plot", signature=signature(x="SurfaceGeometry", y="missing"),
 
 
 #' @export
+#' @rdname plot
 setMethod("plot", signature=signature(x="NeuroSurface", y="missing"),
-          def=function(x,cmap=gray(seq(0,1,length.out=255)),
+          def=function(x,cmap=grDevices::gray(seq(0,1,length.out=255)),
                        vert_clrs=NULL,
                        irange=range(x@data, na.rm=TRUE),
                        thresh=c(0,0),
@@ -194,6 +208,7 @@ setMethod("plot", signature=signature(x="NeuroSurface", y="missing"),
 
 #' @export
 #' @importFrom graphics plot
+#' @rdname plot
 setMethod("plot", signature=signature(x="LabeledNeuroSurface", y="missing"),
           def=function(x,cmap=x@cols,
                        vert_clrs=NULL,

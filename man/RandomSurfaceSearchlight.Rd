@@ -21,7 +21,7 @@ On every call to \code{nextElem} a set of surface nodes are returned.
   These nodes index into the vertices of the \code{igraph} instance.
 }
 \examples{
-file <- system.file("extdata", "std.lh.smoothwm.asc", package = "neuroim")
+file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 geom <- read_surf(file)
 searchlight <- RandomSurfaceSearchlight(geom, 12)
 nodes <- searchlight$nextElem()

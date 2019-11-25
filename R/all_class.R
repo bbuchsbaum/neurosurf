@@ -13,6 +13,7 @@ setOldClass("igraph")
 #' @rdname SurfaceGeometry-class
 #' @slot mesh the underlying \code{mesh3d} object
 #' @slot graph underlying graph structure
+#' @slot hemi the surface hemisphere
 #' @export
 setClass("SurfaceGeometry",
          representation=representation(mesh="mesh3d", graph="igraph", hemi="character"))
@@ -114,7 +115,7 @@ setClass("SurfaceGeometrySource",
 #'
 #' @rdname NeuroSurfaceSource-class
 #' @slot geometry a \code{\linkS4class{SurfaceGeometry}} instance
-#' @slot dataMetaInfo a \code{\linkS4class{SurfaceDataMetaInfo}} instance
+#' @slot data_meta_info a \code{\linkS4class{SurfaceDataMetaInfo}} instance
 #' @slot colind the column index of the surface map to be loaded.
 #' @slot nodeind the node indices of the surface map to be loaded.
 #' @export
@@ -130,7 +131,7 @@ setClass("NeuroSurfaceSource", representation=
 #'
 #' @rdname NeuroSurfaceVectorSource-class
 #' @slot geometry a \code{\linkS4class{SurfaceGeometry}} instance
-#' @slot dataMetaInfo a \code{\linkS4class{SurfaceDataMetaInfo}} instance
+#' @slot data_meta_info a \code{\linkS4class{SurfaceDataMetaInfo}} instance
 #' @slot colind the column indices vector of the surface maps to be loaded
 #' @export
 setClass("NeuroSurfaceVectorSource", representation=

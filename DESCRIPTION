@@ -7,7 +7,12 @@ Imports:
     neuroim2,
     colorplane,
     FNN,
-    readr
+    readr,
+    stringr,
+    plyr,
+    Rvcg,
+    methods,
+    gplots
 Type: Package
 Title: Data structures and IO for surface-based neuroimaging data
 Version: 0.1.0

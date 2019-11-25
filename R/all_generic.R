@@ -33,7 +33,7 @@ setGeneric(name="nodes", def=function(x) standardGeneric("nodes"))
 #' extract geometry object
 #'
 #' @param x the surface object
-#' @rdname geometry-methods
+#' @rdname geometry
 #' @export
 setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
 
@@ -49,7 +49,7 @@ setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
 #'
 #' @param x the surface object to smooth
 #' @param ... extra args
-#' @rdname smooth-methods
+#' @rdname smooth
 #' @export
 setGeneric(name="smooth", def=function(x, ...) standardGeneric("smooth"))
 
@@ -68,7 +68,7 @@ setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardG
 #' get adjacency graph
 #'
 #' @param x graph structure
-#' @param weights a \code{character} string indicating the edge attribute in the \code{igraph} object for the weights. If absent, weights are 0, 1.
+#' @param attr a \code{character} string indicating the edge attribute in the \code{igraph} object for the weights. If absent, weights are 0, 1.
 #' @param ... extra args
 #' @export
 setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacency"))

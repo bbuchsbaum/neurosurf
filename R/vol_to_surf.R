@@ -19,12 +19,13 @@ get_mode <- function(v) {
 #' @param knn the number of nearest neighbors to consider (for "avg" mapping function)
 #' @param sigma the bandwidth of the smoothing kernel (for the "avg" mapping function)
 #' @param dthresh a valid mapping voxel only if it is less than \code{dthresh} units away from vertex.
-#' TODO does this work?
+#'
 #'
 #' @examples
 #'
-#' volname <- system.file("inst/testdata/Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii", package="neurosurf")
-#' vol <- neuroim2::read_vol(volname)
+#' #volname <- system.file("inst/testdata/Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii",
+#' #package="neurosurf")
+#' #vol <- neuroim2::read_vol(volname)
 #' @export
 vol_to_surf <- function(surf_wm, surf_pial, vol, mask=NULL, fun=c("avg", "nn", "mode"), knn=6, sigma=8, dthresh=sigma*2) {
   fun <- match.arg(fun)

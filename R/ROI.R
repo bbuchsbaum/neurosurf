@@ -27,7 +27,7 @@ ROISurfaceVector <- function(geometry, indices, data) {
 
 #' convert a \code{ROISurfaceVector} to an augmented matrix
 #'
-#' @rdname as.matrix-methods
+#' @rdname as.matrix
 #' @param x the object
 #' @export
 setMethod(f="as.matrix", signature=signature(x = "ROISurfaceVector"), def=function(x) {
@@ -82,7 +82,9 @@ roi_surface_matrix <- function(mat, refspace, indices, coords) {
 
 #' values
 #'
-#' @rdname values-methods
+#' @param x the object to extract values from
+#' @param ... extra args
+#' @rdname values
 #' @importMethodsFrom neuroim2 values
 #' @export
 setMethod("values", signature(x="ROISurface"),
@@ -91,9 +93,8 @@ setMethod("values", signature(x="ROISurface"),
           })
 
 
-#' values
-#'
-#' @rdname values-methods
+
+#' @rdname values
 #' @export
 setMethod("values", signature(x="ROISurfaceVector"),
           function(x, ...) {
@@ -102,7 +103,7 @@ setMethod("values", signature(x="ROISurfaceVector"),
 
 #' indices
 #'
-#' @rdname indices-methods
+#' @rdname indices
 #' @export
 setMethod("indices", signature(x="ROISurface"),
           function(x) {
@@ -111,26 +112,37 @@ setMethod("indices", signature(x="ROISurface"),
 
 #' indices
 #'
-#' @rdname indices-methods
+#' extract indices
+#'
+#' @param x the object to extract indices from
+#'
+#' @rdname indices
 #' @export
 setMethod("indices", signature(x="ROISurfaceVector"),
           function(x) {
             x@indices
           })
 
-#' indices
+#' coords
+#'
+#' extract coordinates
+#'
+#' @param x the object to extract cooords from
 #' @export
-#' @rdname coords-methods
+#' @rdname coords
 setMethod(f="coords", signature=signature(x="ROISurface"),
           function(x) {
             x@coords
           })
 
 
-#' indices
+#' length
+#'
+#' get number of elements in object
+#'
+#' @param x the object
 #' @export
-#' @rdname length-methods
-#' @param x the object to get \code{length}
+#' @rdname length
 setMethod(f="length", signature=signature(x="ROISurface"),
           function(x) {
             length(x@indices)
@@ -152,9 +164,11 @@ setMethod("[", signature=signature(x = "ROISurface", i = "numeric", j = "missing
           })
 
 
-#' show an \code{\linkS4class{ROISurface}}
+#' show an object
+#'
 #' @param object the object
 #' @export
+#' @rdname show
 setMethod("show", signature=signature(object = "ROISurface"),
           function (object) {
             cat("\n\n\tROISurface", "\n")

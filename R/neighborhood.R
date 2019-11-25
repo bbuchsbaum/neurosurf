@@ -15,10 +15,16 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 }
 
 
-
+#' find all neighbors in a surface mesh within a radius
+#' @param surf the \code{SurfaceGeometry} object
+#' @param radius the spatial radius to search within
+#' @param edgeWeights the set of edgeWeights used to compute distances
+#' @param nodes the set of nodes to find neighbors of
+#' @param distance_type the distance metric to use
 #' @export
 #' @importFrom FNN get.knn
-find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL, distance_type=c("euclidean", "geodesic", "spherical")) {
+find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
+                               distance_type=c("euclidean", "geodesic", "spherical")) {
   ## check out geosphere package
   if (inherits(surf, "igraph")) {
     g <- surf
@@ -29,7 +35,7 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL, distance_t
 
   distance_type <- match.arg(distance_type)
 
-  avg_weight <- quantile(edgeWeights, .25)
+  avg_weight <- stats::quantile(edgeWeights, .25)
 
   if (is.null(nodes)) {
     nodes <- igraph::V(g)
@@ -73,6 +79,7 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL, distance_t
 }
 
 # convert an edge list to an 'igraph' instance
+#' @importFrom plyr rbind.fill.matrix
 .neighbors_to_graph <- function(nabelist) {
   mat <- plyr::rbind.fill.matrix(nabelist)
   g <- igraph::graph.edgelist(mat[,1:2])
@@ -89,7 +96,8 @@ setMethod(f="neighbor_graph", signature=c(x="igraph", radius="numeric", edgeWeig
           def=function(x, radius, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
             edgeWeights=igraph::E(x)$dist
-            nabeinfo <- find_all_neighbors(x, radius, as.vector(edgeWeights), distance_type=distance_type)
+            nabeinfo <- find_all_neighbors(x, radius, as.vector(edgeWeights),
+                                           distance_type=distance_type)
             .neighbors_to_graph(nabeinfo)
           })
 
@@ -117,7 +125,7 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
           def=function(x, radius, edgeWeights, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
             stopifnot(length(edgeWeights) == length(igraph::E(graph(x))))
-            nabeInfo <- find_all_neighbors(x, radius, edgeWeights, distance_type=distance_type)
+            nabeinfo <- find_all_neighbors(x, radius, edgeWeights, distance_type=distance_type)
             .neighbors_to_graph(nabeinfo)
           })
 
@@ -131,7 +139,7 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
           def=function(x,radius, edgeWeights, nodes, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
             assert_that(length(edgeWeights) == length(igraph::E(graph(x))))
-            nabeInfo <- find_all_neighbors(x,radius, edgeWeights, nodes, distance_type=distance_type)
+            nabeinfo <- find_all_neighbors(x,radius, edgeWeights, nodes, distance_type=distance_type)
             .neighbors_to_graph(nabeinfo)
           })
 
@@ -148,6 +156,7 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
 
 
 #' @export
+#' @rdname laplacian
 setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", weights="missing"),
           def=function(x) {
             igraph::laplacian_matrix(graph(x))
@@ -155,6 +164,7 @@ setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", 
 
 
 #' @export
+#' @rdname laplacian
 setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", weights="numeric"),
           def=function(x, weights) {
             igraph::laplacian_matrix(neurosurf::graph(x), weights=weights)
@@ -162,6 +172,7 @@ setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", 
 
 
 #' @export
+#' @rdname adjacency
 setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="numeric"),
           def=function(x, attr) {
             g <- graph(x)
@@ -171,6 +182,7 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="numeric"),
 
 
 #' @export
+#' @rdname adjacency
 setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="character"),
           def=function(x, attr) {
             igraph::as_adjacency_matrix(graph(x), attr=attr)
@@ -178,6 +190,7 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="character"),
 
 
 #' @export
+#' @rdname adjacency
 setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
           def=function(x) {
             igraph::as_adjacency_matrix(graph(x))
@@ -186,6 +199,12 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
 
 #' @export
 #' @import Rvcg
+#' @rdname smooth
+#' @param type the smoothing method
+#' @param lambda smoothing parameter (see Rvcg::vcgSmooth)
+#' @param mu smoothing parameter (see Rvcg::vcgSmooth)
+#' @param delta smoothing parameter (see Rvcg::vcgSmooth)
+#' @param iteration number of smoothing iterations
 setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
           def=function(x, type=c("taubin","laplace","HClaplace","fujiLaplace","angWeight","surfPreserveLaplace"),
                        lambda=.7, mu=-.53, delta=.1, iteration=25) {
@@ -195,6 +214,8 @@ setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
           })
 
 #' @export
+#' @rdname smooth
+#' @param sigma the smoothing radius
 setMethod(f="smooth", signature=c(x="NeuroSurface"),
            def=function(x, sigma=5, ...) {
              g <- graph(geometry(x))

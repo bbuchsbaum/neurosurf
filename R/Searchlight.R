@@ -13,7 +13,7 @@
 #'   These nodes index into the vertices of the \code{igraph} instance.
 #'
 #' @examples
-#' file <- system.file("extdata", "std.lh.smoothwm.asc", package = "neuroim")
+#' file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 #' geom <- read_surf(file)
 #' searchlight <- RandomSurfaceSearchlight(geom, 12)
 #' nodes <- searchlight$nextElem()
@@ -84,11 +84,12 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL) {
 #' @param surfgeom a surface mesh: instance of class \code{SurfaceGeometry}
 #' @param radius radius of the searchlight as a geodesic distance in mm
 #' @param nodeset the subset of surface nodes to use
+#' @param distance_type the distance metric to use
 #' @importFrom igraph neighborhood induced_subgraph
 #' @export
-SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type="geodesic") {
+SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type=c("euclidean", "geodesic", "spherical")) {
   assertthat::assert_that(length(radius) == 1)
-
+  distance_type <- match.arg(distance_type)
   g <- if (is.null(nodeset)) {
     ## use all surface nodes
     nodeset <- nodes(surfgeom)
