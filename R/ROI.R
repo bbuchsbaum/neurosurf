@@ -80,6 +80,8 @@ roi_surface_matrix <- function(mat, refspace, indices, coords) {
 
 }
 
+
+
 #' values
 #'
 #' @param x the object to extract values from
@@ -100,6 +102,18 @@ setMethod("values", signature(x="ROISurfaceVector"),
           function(x, ...) {
             x@data
           })
+
+
+#
+#' @rdname values
+#' @export
+setMethod("values", signature(x="NeuroSurface"),
+          function(x, ...) {
+            x@data
+          })
+
+
+
 
 #' indices
 #'

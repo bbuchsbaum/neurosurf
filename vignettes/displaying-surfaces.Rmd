@@ -84,11 +84,11 @@ mfrow3d(1, 3, byrow = TRUE)
 vals <- rnorm(length(nodes(white_surf2)))
 surf <- NeuroSurface(white_surf2, indices=1:length(vals), data=vals)
 ssurf <- smooth(surf)
-p <- plot(ssurf@geometry, vals=ssurf@data, cmap=rainbow(100), irange=c(-2,2))
+p <- plot(geometry(ssurf), vals=values(ssurf), cmap=rainbow(100), irange=c(-2,2))
 
 next3d()
 comp <- conn_comp(ssurf, threshold=c(-.2,.2))
-p2 <- plot(ssurf@geometry, vals=ssurf@data, cmap=rainbow(100), irange=c(-2,2), thresh=c(-.2, .2))
+p2 <- plot(geometry(ssurf), vals=values(ssurf), cmap=rainbow(100), irange=c(-2,2), thresh=c(-.2, .2))
 
 next3d()
 csurf <- cluster_threshold(ssurf, size=30, threshold=c(-.2,.2))

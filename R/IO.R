@@ -60,11 +60,24 @@ read_freesurfer_annot <- function(file_name, geometry) {
 
 }
 
+readGiftiHeader <- function(file_name) {
+  hdr <- gifti::readgii(file_name)
+  list(header_file=file_name, data_file=file_name,
+       info=hdr,
+       label=neuroim2:::strip_extension(GIFTI_SURFACE_DSET, basename(file_name)))
+}
+
+readGiftiGZHeader <- function(file_name) {
+  hdr <- gifti::readgii(file_name)
+  list(header_file=file_name, data_file=file_name,
+       info=hdr,
+       label=neuroim2:::strip_extension(GIFTI_GZ_SURFACE_DSET, basename(file_name)))
+}
+
 
 #' readFreesurferAsciiHeader
 #'
 #' @param file_name the file
-#' @export
 readFreesurferAsciiHeader <- function(file_name) {
   has_hemi <- grep(".*\\.[lr]h\\..*", file_name)
   hemi <- if (length(has_hemi) > 0) {
@@ -88,7 +101,6 @@ readFreesurferAsciiHeader <- function(file_name) {
 #'
 #' @param file_name the file
 #' @importFrom readr read_table
-#' @export
 readFreesurferAsciiGeometry <- function(file_name) {
   if (!requireNamespace("rgl", quietly = TRUE)) {
     stop("Pkg needed for this function to work. Please install it.",
@@ -107,7 +119,6 @@ readFreesurferAsciiGeometry <- function(file_name) {
 #' readFreesurferBinaryHeader
 #'
 #' @param file_name the file
-#' @export
 readFreesurferBinaryHeader <- function(file_name) {
   has_hemi <- grep("^[lr]h\\..*", basename(file_name))
   hemi <- if (length(has_hemi) > 0) {
@@ -138,7 +149,6 @@ readFreesurferBinaryHeader <- function(file_name) {
 #'
 #' @param file_name the file
 #' @importFrom readr read_table
-#' @export
 readFreesurferBinaryGeometry <- function(file_name) {
   if (!requireNamespace("rgl", quietly = TRUE)) {
     stop("Pkg needed for this function to work. Please install it.",
@@ -169,7 +179,6 @@ readFreesurferBinaryGeometry <- function(file_name) {
 #'
 #' @param file_name the name of the AFNI 1D file
 #' @importFrom readr read_table
-#' @export
 readAFNISurfaceHeader <- function(file_name) {
 
   #dmat <- readr::read_table(file_name, col_names=FALSE)
@@ -186,7 +195,6 @@ readAFNISurfaceHeader <- function(file_name) {
 #' readNIMLSurfaceHeader
 #
 #' @param file_name the name of the NIML file
-#' @export
 readNIMLSurfaceHeader <- function(file_name) {
   p <- neuroim2:::parse_niml_file(file_name)
   whdat <- which(unlist(lapply(p, "[[", "label")) == "SPARSE_DATA")
@@ -244,6 +252,12 @@ setMethod(f="read_meta_info",signature=signature(x= "FreesurferBinarySurfaceFile
             .read_meta_info(x, file_name, readFreesurferBinaryHeader, FreesurferSurfaceGeometryMetaInfo)
           })
 
+#' @rdname read_meta_info
+setMethod(f="read_meta_info",signature=signature(x= "GIFTISurfaceFileDescriptor"),
+          def=function(x, file_name) {
+            .read_meta_info(x, file_name, readGIFTIHeader, SurfaceGeometryMetaInfo)
+          })
+
 
 .read_meta_info <- function(desc, file_name, readFunc, constructor) {
   hfile <- neuroim2:::header_file(desc, file_name)
@@ -297,8 +311,24 @@ findSurfaceDescriptor <- function(file_name) {
   if (neuroim2:::file_matches(NIML_SURFACE_DSET, file_name)) NIML_SURFACE_DSET
   else if (neuroim2:::file_matches(FREESURFER_ASCII_SURFACE_DSET, file_name)) FREESURFER_ASCII_SURFACE_DSET
   else if (neuroim2:::file_matches(AFNI_SURFACE_DSET, file_name)) AFNI_SURFACE_DSET
+  else if (neuroim2:::file_matches(GIFTI_SURFACE_DSET, file_name)) GIFTI_SURFACE_DSET
+  else if (neuroim2:::file_matches(GIFTI_GZ_SURFACE_DSET, file_name)) GIFTI_GZ_SURFACE_DSET
   else FREESURFER_BINARY_SURFACE_DSET
 }
+
+GIFTI_SURFACE_DSET <- new("GIFTISurfaceFileDescriptor",
+                         file_format="GIFTI",
+                         header_encoding="raw",
+                         header_extension="gii",
+                         data_encoding="gii",
+                         data_extension="gii")
+GIFTI_GZ_SURFACE_DSET <- new("GIFTISurfaceFileDescriptor",
+                          file_format="GIFTI",
+                          header_encoding="raw",
+                          header_extension="gii.gz",
+                          data_encoding="gii.gz",
+                          data_extension="gii.gz")
+
 
 NIML_SURFACE_DSET <- new("NIMLSurfaceFileDescriptor",
                          file_format="NIML",
@@ -399,6 +429,22 @@ AFNISurfaceDataMetaInfo <- function(descriptor, header) {
       label=as.character(header$label),
       data=header$data,
       node_indices=as.integer(header$nodes))
+}
+
+#' Constructor for \code{GIFTISurfaceDataMetaInfo} class
+#' @param descriptor the file descriptor
+#' @param header a \code{list} containing header information
+GIFTISurfaceDataMetaInfo <- function(descriptor, header) {
+  #stopifnot(is.numeric(header$nodes))
+  browser()
+  new("GIFTISurfaceDataMetaInfo",
+      header_file=header$header_file,
+      data_file=header$data_file,
+      file_descriptor=descriptor,
+      node_count=as.integer(header$node_count),
+      nels=as.integer(header$nels),
+      label=as.character(header$label),
+      info=heasder$info)
 }
 
 

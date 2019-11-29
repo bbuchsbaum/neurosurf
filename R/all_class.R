@@ -96,6 +96,35 @@ setClass("NIMLSurfaceDataMetaInfo",
          contains=c("SurfaceDataMetaInfo"))
 
 
+#' GIFTISurfaceGeometryMetaInfo
+#'
+#' This class contains meta information for surface-based geometry for the GIFTI data format
+#'
+#' @rdname GIFTISurfaceGeometryMetaInfo-class
+#' @slot info the underlying \code{gifti} object returned by \code{\link{readgii}}
+#' @import gifti
+#' @export
+setClass("GIFTISurfaceGeometryMetaInfo",
+         representation=
+           representation(
+             info="gifti"),
+         contains=c("SurfaceGeometryMetaInfo"))
+
+#' GIFTISurfaceDataMetaInfo
+#'
+#' This class contains meta information for surface-based data for the GIFTI data format
+#'
+#' @rdname GIFTISurfaceDataMetaInfo-class
+#' @slot info the underlying \code{gifti} object returned by \code{\link{readgii}}
+#' @import gifti
+#' @export
+setClass("GIFTISurfaceDataMetaInfo",
+         representation=
+           representation(
+             info="gifti"),
+         contains=c("SurfaceDataMetaInfo"))
+
+
 
 
 
@@ -162,6 +191,13 @@ setClass("NIMLSurfaceFileDescriptor", contains=c("FileFormat"))
 #' @rdname AFNISurfaceFileDescriptor-class
 #' @export
 setClass("AFNISurfaceFileDescriptor", contains=c("FileFormat"))
+
+#' GIFTISurfaceFileDescriptor
+#'
+#' This class supports the GIFTI file format for surface-based data
+#' @rdname GIFTISurfaceFileDescriptor-class
+#' @export
+setClass("GIFTISurfaceFileDescriptor", contains=c("FileFormat"))
 
 
 #' FresurferAsciiSurfaceFileDescriptor
