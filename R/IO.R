@@ -196,7 +196,7 @@ readAFNISurfaceHeader <- function(file_name) {
 #
 #' @param file_name the name of the NIML file
 readNIMLSurfaceHeader <- function(file_name) {
-  p <- neuroim2::parse_niml_file(file_name)
+  p <- neuroim2:::parse_niml_file(file_name)
   whdat <- which(unlist(lapply(p, "[[", "label")) == "SPARSE_DATA")
   dmat <- if (length(whdat) > 1) {
     t(do.call(rbind, lapply(p[[whdat]], "[[", "data")))
@@ -255,7 +255,7 @@ setMethod(f="read_meta_info",signature=signature(x= "FreesurferBinarySurfaceFile
 #' @rdname read_meta_info
 setMethod(f="read_meta_info",signature=signature(x= "GIFTISurfaceFileDescriptor"),
           def=function(x, file_name) {
-            .read_meta_info(x, file_name, readGIFTIHeader, SurfaceGeometryMetaInfo)
+            .read_meta_info(x, file_name, readGIFTIHeader, GIFTISurfaceDataMetaInfo)
           })
 
 
@@ -436,7 +436,7 @@ AFNISurfaceDataMetaInfo <- function(descriptor, header) {
 #' @param header a \code{list} containing header information
 GIFTISurfaceDataMetaInfo <- function(descriptor, header) {
   #stopifnot(is.numeric(header$nodes))
-  browser()
+  #browser()
   id0 <- which(header$info$data_info$name == "pointset")
   id1 <- which(header$info$data_info$name == "triangle")
   assertthat::assert_that(length(id0) > 0, msg="gifti surface file must have pointset")

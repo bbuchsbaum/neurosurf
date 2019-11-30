@@ -8,6 +8,15 @@ env:
   global: RGL_USE_NULL=TRUE
 
 r_check_args: "--as-cran --install-args=--build"
+warnings_are_errors: false
+r_binary_packages:
+  - Matrix
+  - igraph
+  - FNN
+  - readr
+  - stringr
+  - plyr
+  - Rvcg
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install libcgal-dev libglu1-mesa-dev mesa-common-dev; fi
