@@ -6,6 +6,7 @@
 \alias{read_meta_info,NIMLSurfaceFileDescriptor-method}
 \alias{read_meta_info,FreesurferAsciiSurfaceFileDescriptor-method}
 \alias{read_meta_info,FreesurferBinarySurfaceFileDescriptor-method}
+\alias{read_meta_info,GIFTISurfaceFileDescriptor-method}
 \title{read_meta_info}
 \usage{
 \S4method{read_meta_info}{AFNISurfaceFileDescriptor}(x, file_name)
@@ -17,6 +18,8 @@
 
 \S4method{read_meta_info}{FreesurferBinarySurfaceFileDescriptor}(x,
   file_name)
+
+\S4method{read_meta_info}{GIFTISurfaceFileDescriptor}(x, file_name)
 }
 \arguments{
 \item{x}{the file descriptor object}

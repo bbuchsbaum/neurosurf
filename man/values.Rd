@@ -4,11 +4,14 @@
 \name{values,ROISurface-method}
 \alias{values,ROISurface-method}
 \alias{values,ROISurfaceVector-method}
+\alias{values,NeuroSurface-method}
 \title{values}
 \usage{
 \S4method{values}{ROISurface}(x, ...)
 
 \S4method{values}{ROISurfaceVector}(x, ...)
+
+\S4method{values}{NeuroSurface}(x, ...)
 }
 \arguments{
 \item{x}{the object to extract values from}

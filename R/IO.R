@@ -437,12 +437,16 @@ AFNISurfaceDataMetaInfo <- function(descriptor, header) {
 GIFTISurfaceDataMetaInfo <- function(descriptor, header) {
   #stopifnot(is.numeric(header$nodes))
   browser()
+  id0 <- which(header$info$data_info$name == "pointset")
+  id1 <- which(header$info$data_info$name == "triangle")
+  assertthat::assert_that(length(id0) > 0, msg="gifti surface file must have pointset")
+  assertthat::assert_that(length(id1) > 0, msg="gifti surface file must have triangles")
   new("GIFTISurfaceDataMetaInfo",
       header_file=header$header_file,
       data_file=header$data_file,
       file_descriptor=descriptor,
-      node_count=as.integer(header$node_count),
-      nels=as.integer(header$nels),
+      node_count=as.integer(header$info$data_info$Dim0[id0]),
+      nels=1,
       label=as.character(header$label),
       info=heasder$info)
 }

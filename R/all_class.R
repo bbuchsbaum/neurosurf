@@ -3,7 +3,7 @@ NULL
 
 setOldClass("mesh3d")
 setOldClass("igraph")
-
+setOldClass("gifti")
 
 
 #' SurfaceGeometry
