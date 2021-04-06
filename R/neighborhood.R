@@ -14,12 +14,14 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
   cand[keep]
 }
 
-
+#' find node neighbors
+#'
 #' find all neighbors in a surface mesh within a radius
+#'
 #' @param surf the \code{SurfaceGeometry} object
 #' @param radius the spatial radius to search within
 #' @param edgeWeights the set of edgeWeights used to compute distances
-#' @param nodes the set of nodes to find neighbors of
+#' @param nodes the subset of nodes to find neighbors of. If `NULL` use all nodes.
 #' @param distance_type the distance metric to use
 #' @export
 #' @importFrom FNN get.knn
@@ -31,7 +33,6 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
   } else {
     g <- graph(surf)
   }
-
 
   distance_type <- match.arg(distance_type)
 
@@ -46,7 +47,6 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
   cds <- coords(g)
 
   if (distance_type == "spherical") {
-    print("spherical")
     R <- diff(range(cds[,1]))/2
     lat <- asin(cds[,3]/R)
     lon <- atan2(cds[,2], cds[,1])
