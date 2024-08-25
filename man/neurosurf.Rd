@@ -2,12 +2,24 @@
 % Please edit documentation in R/neurosurf.R
 \docType{package}
 \name{neurosurf}
-\alias{neurosurf}
 \alias{neurosurf-package}
+\alias{neurosurf}
 \title{neurosurf}
 \description{
 Data structures and IO for surface-based neuroimaging data.
 }
 \details{
 none
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/bbuchsbaum/neurosurf}
+  \item Report bugs at \url{https://github.com/bbuchsbaum/neurosurf/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Bradley R Buchsbaum \email{brad.buchsbaum@gmail.com}
+
 }

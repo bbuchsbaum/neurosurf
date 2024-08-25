@@ -4,8 +4,16 @@
 \alias{vol_to_surf}
 \title{map values from a 3d volume to a surface in the same coordinate space}
 \usage{
-vol_to_surf(surf_wm, surf_pial, vol, mask = NULL, fun = c("avg", "nn",
-  "mode"), knn = 6, sigma = 8, dthresh = sigma * 2)
+vol_to_surf(
+  surf_wm,
+  surf_pial,
+  vol,
+  mask = NULL,
+  fun = c("avg", "nn", "mode"),
+  knn = 6,
+  sigma = 8,
+  dthresh = sigma * 2
+)
 }
 \arguments{
 \item{surf_wm}{the white matter (inner) surface}

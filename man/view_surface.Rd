@@ -2,43 +2,82 @@
 % Please edit documentation in R/view_surface.R
 \name{view_surface}
 \alias{view_surface}
-\title{display a surface via with rgl}
+\title{Display a Brain Surface with RGL}
 \usage{
-view_surface(surfgeom, vals = NA, cmap = rainbow(256, alpha = 1),
-  vert_clrs = NULL, bgcol = "lightgray", alpha = 1,
-  add_normals = TRUE, thresh = NULL, irange = range(vals, na.rm =
-  TRUE), specular = specular, viewpoint = c("lateral", "medial",
-  "ventral", "posterior"), offset = c(0, 0, 0), zoom = 1, ...)
+view_surface(
+  surfgeom,
+  vals = NA,
+  cmap = rainbow(256, alpha = 1),
+  vert_clrs = NULL,
+  bgcol = "lightgray",
+  alpha = 1,
+  add_normals = TRUE,
+  thresh = NULL,
+  irange = range(vals, na.rm = TRUE),
+  specular = "white",
+  viewpoint = c("lateral", "medial", "ventral", "posterior"),
+  new_window = TRUE,
+  offset = c(0, 0, 0),
+  zoom = 1,
+  spheres = NULL,
+  ...
+)
 }
 \arguments{
-\item{surfgeom}{surface geometty of type \code{SurfaceGeometry}}
+\item{surfgeom}{A \code{\linkS4class{SurfaceGeometry}} object representing the 3D brain surface geometry to be displayed.}
 
-\item{vals}{the \code{vector} of values at each surface node in \code{x}}
+\item{vals}{A numeric vector of values corresponding to each surface node. These values will be mapped to colors using the provided color map (\code{cmap}).}
 
-\item{cmap}{a color map consisting of a vector of colors in hex format (e.g. \code{gray(n=255)})}
+\item{cmap}{A color map consisting of a vector of colors in hex format. Default is \code{rainbow(256, alpha = 1)}. This color map is used to color the surface based on the \code{vals} vector.}
 
-\item{vert_clrs}{optional vertex colors in hex format}
+\item{vert_clrs}{Optional vertex colors in hex format. If provided, these colors will override the colors generated from \code{vals} and \code{cmap}.}
 
-\item{bgcol}{a background color or vector of colors used to shade the surface.}
+\item{bgcol}{A color or vector of colors in hex format used to shade the surface background. Default is \code{"lightgray"}.}
 
-\item{alpha}{the foreground trasnparency, default is 1 (opaque).}
+\item{alpha}{A numeric value indicating the transparency level of the surface. The default is 1 (fully opaque). Values should be between 0 (fully transparent) and 1 (fully opaque).}
 
-\item{add_normals}{whether to add_normals}
+\item{add_normals}{Logical, indicating whether to add normals to the surface mesh. This is useful for improving the lighting effects. Default is \code{TRUE}.}
 
-\item{thresh}{a 2-element vector indicating the lower and upper transparency thresholds.}
+\item{thresh}{A numeric vector of length 2 indicating the lower and upper transparency thresholds. Nodes with values outside this range will be made transparent.}
 
-\item{irange}{the intensity range indicating the low and high values of the color scale.}
+\item{irange}{A numeric vector of length 2 indicating the lower and upper bounds of the intensity range for the color scale. Default is the range of \code{vals}.}
 
-\item{specular}{see\code{rgl material3d}}
+\item{specular}{A color in hex format or a numeric value indicating the specular reflection color used for lighting. Default is \code{"white"}.}
 
-\item{viewpoint}{the surface viewpoint (one of: 'lateral', 'medial', 'ventral', 'posterior')}
+\item{viewpoint}{A character string specifying the initial viewpoint of the surface. Options are \code{"lateral"}, \code{"medial"}, \code{"ventral"}, or \code{"posterior"}.}
 
-\item{offset}{translation offset}
+\item{new_window}{Logical, indicating whether to open a new RGL window for the surface display. Default is \code{TRUE}. If \code{FALSE}, the current RGL window will be cleared and reused.}
 
-\item{zoom}{zoom factor}
+\item{offset}{A numeric vector of length 3 specifying the translation offset of the surface in the x, y, and z directions. Default is \code{c(0, 0, 0)}.}
 
-\item{...}{args to send to rgl::shade3d}
+\item{zoom}{A numeric value specifying the zoom factor. Default is 1 (no zoom).}
+
+\item{spheres}{Optional. A data frame containing the coordinates (\code{x}, \code{y}, \code{z}), radii (\code{radius}), and optional colors (\code{color}) for spheres to be displayed on the surface. Each row represents a sphere.}
+
+\item{...}{Additional arguments passed to \code{rgl::shade3d}.}
+}
+\value{
+An object returned by \code{rgl::shade3d} representing the rendered surface. This can be used for further manipulation of the rendered object.
 }
 \description{
-display a surface via with rgl
+This function visualizes a 3D brain surface using the \code{rgl} package. It allows for the rendering of a surface with optional vertex colors, transparency, and lighting effects. Additionally, the function supports the display of spheres at specified coordinates on the surface, making it versatile for highlighting specific regions or points of interest.
+}
+\examples{
+\dontrun{
+  # Example surface geometry object (assuming `white_surf` is preloaded)
+  sphere_data <- data.frame(
+    x = c(10, 20, 30),
+    y = c(10, 20, 30),
+    z = c(10, 20, 30),
+    radius = c(2, 3, 4),
+    color = c("#FF0000", "#00FF00", "#0000FF")
+  )
+
+  # Display the surface with spheres
+  view_surface(white_surf, viewpoint = "lateral", spheres = sphere_data)
+}
+
+}
+\seealso{
+\code{\link[rgl]{shade3d}}, \code{\link[rgl]{spheres3d}}, \code{\link[rgl]{view3d}}
 }

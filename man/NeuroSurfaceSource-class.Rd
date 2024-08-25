@@ -6,8 +6,12 @@
 \alias{NeuroSurfaceSource}
 \title{NeuroSurfaceSource}
 \usage{
-NeuroSurfaceSource(surface_geom, surface_data_name, colind = NULL,
-  nodeind = NULL)
+NeuroSurfaceSource(
+  surface_geom,
+  surface_data_name,
+  colind = NULL,
+  nodeind = NULL
+)
 }
 \arguments{
 \item{surface_geom}{the name of the file containing the surface geometry or a \code{SurfaceGeometry} instance}

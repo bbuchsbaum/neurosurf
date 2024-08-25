@@ -1,4 +1,12 @@
 
+
+SurfaceGeometry <- function(vert, faces, hemi) {
+  ##bdat <- readFreesurferBinaryGeometry(meta_info@data_file)
+  graph <- meshToGraph(vert, faces)
+  mesh <- rgl::tmesh3d(as.vector(t(vert)), as.vector(t(faces))+1, homogeneous=FALSE)
+  new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=hemi)
+}
+
 #' write_surf_data
 #'
 #' @param surf a class of type \code{NeuroSurface} or \code{NeuroSurfaceVector}
@@ -735,6 +743,27 @@ setMethod(f="load_data", signature=c("NeuroSurfaceSource"),
             surf<- NeuroSurface(geometry=geometry, indices = nodes, data=avals)
 
           })
+
+
+#' Remesh a SurfaceGeometry object
+#'
+#' @param surfgeom A \code{SurfaceGeometry} object to be remeshed.
+#' @param ... Additional arguments to pass to \code{Rvcg::vcgUniformRemesh}.
+#' @return A new \code{SurfaceGeometry} object with the remeshed surface.
+#' @export
+remeshSurface <- function(surfgeom, voxelSize=2, ...) {
+  # Perform remeshing using Rvcg::vcgUniformRemesh
+  smesh <- Rvcg::vcgUniformRemesh(surfgeom@mesh, ...)
+
+  # Extract vertices and faces from the remeshed object
+  vertices <- t(smesh$vb[1:3, ])
+  faces <- t(smesh$it)
+
+  # Create a new SurfaceGeometry object with the remeshed surface
+  new_surfgeom <- SurfaceGeometry(vert = vertices, faces = faces-1, hemi = surfgeom@hemi)
+
+  return(new_surfgeom)
+}
 
 
 

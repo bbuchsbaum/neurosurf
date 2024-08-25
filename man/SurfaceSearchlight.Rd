@@ -4,8 +4,12 @@
 \alias{SurfaceSearchlight}
 \title{SurfaceSearchlight}
 \usage{
-SurfaceSearchlight(surfgeom, radius = 8, nodeset = NULL,
-  distance_type = c("euclidean", "geodesic", "spherical"))
+SurfaceSearchlight(
+  surfgeom,
+  radius = 8,
+  nodeset = NULL,
+  distance_type = c("euclidean", "geodesic", "spherical")
+)
 }
 \arguments{
 \item{surfgeom}{a surface mesh: instance of class \code{SurfaceGeometry}}

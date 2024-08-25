@@ -2,10 +2,15 @@
 % Please edit documentation in R/neighborhood.R
 \name{find_all_neighbors}
 \alias{find_all_neighbors}
-\title{find all neighbors in a surface mesh within a radius}
+\title{find node neighbors}
 \usage{
-find_all_neighbors(surf, radius, edgeWeights, nodes = NULL,
-  distance_type = c("euclidean", "geodesic", "spherical"))
+find_all_neighbors(
+  surf,
+  radius,
+  edgeWeights,
+  nodes = NULL,
+  distance_type = c("euclidean", "geodesic", "spherical")
+)
 }
 \arguments{
 \item{surf}{the \code{SurfaceGeometry} object}
@@ -14,7 +19,7 @@ find_all_neighbors(surf, radius, edgeWeights, nodes = NULL,
 
 \item{edgeWeights}{the set of edgeWeights used to compute distances}
 
-\item{nodes}{the set of nodes to find neighbors of}
+\item{nodes}{the subset of nodes to find neighbors of. If `NULL` use all nodes.}
 
 \item{distance_type}{the distance metric to use}
 }

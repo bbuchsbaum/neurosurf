@@ -197,25 +197,73 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
           })
 
 
+#' Smooth a Brain Surface Geometry
+#'
+#' This method applies smoothing to a brain surface geometry object of class \code{SurfaceGeometry} using various algorithms. Smoothing is useful for removing noise and creating a more continuous surface.
+#'
+#' @param x A \code{\linkS4class{SurfaceGeometry}} object representing the brain surface to be smoothed.
+#' @param type A character string specifying the smoothing algorithm to use. Available options are:
+#' \describe{
+#'   \item{"taubin"}{Applies Taubin smoothing, which preserves the overall shape of the surface while reducing noise.}
+#'   \item{"laplace"}{Performs Laplacian smoothing, which is a basic smoothing method that averages the position of each vertex with its neighbors.}
+#'   \item{"HClaplace"}{Applies a Laplacian smoothing with hard constraints. It preserves the boundary vertices and is useful for surfaces with important edge features.}
+#'   \item{"fujiLaplace"}{Uses a Laplacian smoothing method that preserves features more aggressively than the basic Laplacian method.}
+#'   \item{"angWeight"}{Performs angle-weighted smoothing, which considers the angles between faces to preserve sharp features.}
+#'   \item{"surfPreserveLaplace"}{Applies surface-preserving Laplacian smoothing, aiming to maintain the original surface's key characteristics while smoothing.}
+#' }
+#' @param lambda A numeric value that controls the amount of smoothing. Higher values lead to more aggressive smoothing. This parameter is particularly relevant for Taubin and Laplacian smoothing methods.
+#' @param mu A numeric value used in Taubin smoothing to control shrinkage. A value close to zero reduces shrinkage, while a negative value can help in shape preservation.
+#' @param delta A numeric value used in certain smoothing algorithms to adjust the influence of smoothing (e.g., in surface-preserving methods).
+#' @param iteration An integer specifying the number of smoothing iterations to apply. More iterations result in a smoother surface but can also lead to excessive flattening.
+#'
+#' @return The function returns the smoothed \code{SurfaceGeometry} object with the updated mesh.
+#'
+#' @examples
+#' \dontrun{
+#'   # Example of applying Taubin smoothing to a brain surface
+#'   smoothed_surface <- smooth(white_surf, type="taubin", lambda=0.5, mu=-0.5, iteration=10)
+#'
+#'   # Example of using surface-preserving Laplacian smoothing
+#'   smoothed_surface <- smooth(white_surf, type="surfPreserveLaplace", iteration=5)
+#' }
+#'
+#' @importFrom Rvcg vcgSmooth
+#' @seealso \code{\link[Rvcg]{vcgSmooth}} for more details on the underlying smoothing algorithms.
 #' @export
-#' @import Rvcg
-#' @rdname smooth
-#' @param type the smoothing method
-#' @param lambda smoothing parameter (see Rvcg::vcgSmooth)
-#' @param mu smoothing parameter (see Rvcg::vcgSmooth)
-#' @param delta smoothing parameter (see Rvcg::vcgSmooth)
-#' @param iteration number of smoothing iterations
 setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
           def=function(x, type=c("taubin","laplace","HClaplace","fujiLaplace","angWeight","surfPreserveLaplace"),
-                       lambda=.7, mu=-.53, delta=.1, iteration=25) {
+                       lambda=.7, mu=-.53, delta=.1, iteration=5) {
             smesh <- Rvcg::vcgSmooth(x@mesh, type=type, lambda=lambda, mu=mu, delta=delta, iteration=iteration)
             x@mesh <- smesh
             x
           })
 
+#' Smooth Data on a NeuroSurface Object
+#'
+#' This method applies smoothing to the data values associated with a \code{\linkS4class{NeuroSurface}} object. Unlike the geometric smoothing applied to \code{\linkS4class{SurfaceGeometry}}, this function smooths the scalar values (e.g., intensity or activation) associated with each vertex on the surface.
+#'
+#' @param x A \code{\linkS4class{NeuroSurface}} object containing the brain surface and associated data to be smoothed.
+#' @param sigma A numeric value specifying the smoothing radius. This defines the neighborhood around each vertex used to compute the smoothed value. Default is 5.
+#' @param ... Additional arguments passed to the smoothing function.
+#'
+#' @return A new \code{NeuroSurface} object with the smoothed data values. The geometry remains unchanged.
+#'
+#' @details
+#' The smoothing process involves averaging the data values within the neighborhood of each vertex. For each vertex on the surface, the function calculates the mean of its own value and the values of its adjacent vertices within the graph structure of the surface. The result is a smoother representation of the data, which can be useful for reducing noise or visualizing broader trends on the surface.
+#'
+#' The smoothing is particularly useful when working with noisy data or when a smoother representation of the underlying signal is desired. It is commonly applied in neuroimaging to enhance visualization or prepare data for further analysis.
+#'
+#' @examples
+#' \dontrun{
+#'   # Example of smoothing data on a NeuroSurface object
+#'   smoothed_data_surface <- smooth(neuro_surf, sigma=3)
+#'
+#'   # The original geometry is preserved, but the data is smoothed
+#'   plot_surface(smoothed_data_surface)
+#' }
+#'
+#' @seealso \code{\link{smooth,SurfaceGeometry-method}} for smoothing the geometry of a surface.
 #' @export
-#' @rdname smooth
-#' @param sigma the smoothing radius
 setMethod(f="smooth", signature=c(x="NeuroSurface"),
            def=function(x, sigma=5, ...) {
              g <- graph(geometry(x))
@@ -231,3 +279,64 @@ setMethod(f="smooth", signature=c(x="NeuroSurface"),
 
              NeuroSurface(x@geometry, indices=ind, data=unlist(svals))
            })
+
+
+
+#' Project 3D Coordinates onto a Surface and Smooth the Values
+#'
+#' This function projects a set of 3D coordinates onto a given surface and creates a \code{\linkS4class{NeuroSurface}} object with the smoothed values.
+#' The projection is performed by finding the closest points on the surface, and then a kernel density smoother is applied locally to produce the final values.
+#'
+#' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the surface onto which the coordinates will be projected.
+#' @param coords A numeric matrix with three columns (x, y, z) representing the 3D coordinates to be projected onto the surface.
+#' @param sigma A numeric value specifying the smoothing radius for the kernel density smoother. Default is 5.
+#' @param ... Additional arguments passed to the smoothing function.
+#'
+#' @return A \code{\linkS4class{NeuroSurface}} object with the smoothed values mapped onto the surface.
+#'
+#' @details
+#' The function first projects each 3D coordinate onto the closest point on the surface defined by \code{surfgeom}.
+#' The values at these projected points are then smoothed using a kernel density smoother, where the \code{sigma} parameter controls the extent of the smoothing.
+#' The result is a \code{NeuroSurface} object containing the smoothed values, suitable for further analysis or visualization.
+#'
+#' @examples
+#' \dontrun{
+#'   # Example surface geometry and coordinates
+#'   coords <- matrix(runif(300, min=-30, max=30), ncol=3)  # 100 random 3D points
+#'   smooth_surface <- projectCoordinates(surfgeom, coords, sigma=3)
+#'   plot(smooth_surface)
+#' }
+#'
+#' @export
+projectCoordinates <- function(surfgeom, coords, sigma=5, ...) {
+
+  # Ensure coordinates are a matrix with three columns
+  stopifnot(is.matrix(coords) && ncol(coords) == 3)
+
+  # Get the surface vertices
+  surf_coords <- coords(surfgeom)
+
+  # Find the closest vertex on the surface for each coordinate
+  nearest_vertices <- apply(coords, 1, function(coord) {
+    dists <- rowSums((surf_coords - coord)^2)
+    which.min(dists)
+  })
+
+  nearest_vertices <- FNN::get.knnx(surf_coords, coords, k=1)$nn.index[,1]
+
+  # Create initial data vector for the NeuroSurface with counts of nearest points
+  data_vec <- numeric(ncol(surfgeom@mesh$vb))
+  tabulated_vertices <- table(nearest_vertices)
+  data_vec[as.numeric(names(tabulated_vertices))] <- as.numeric(tabulated_vertices)
+
+  # Define valid surface node indices
+  valid_indices <- 1:nrow(surf_coords)
+
+  # Create a NeuroSurface object with these values
+  neuro_surface <- NeuroSurface(geometry = surfgeom, indices = valid_indices, data = data_vec[valid_indices])
+
+  # Smooth the values on the NeuroSurface
+  smooth_surface <- smooth(neuro_surface, sigma = sigma, ...)
+
+  return(smooth_surface)
+}

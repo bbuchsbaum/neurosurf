@@ -4,8 +4,12 @@
 \alias{read_surf}
 \title{read a surface data set}
 \usage{
-read_surf(surface_name, surface_data_name = NULL, colind = NULL,
-  nodeind = NULL)
+read_surf(
+  surface_name,
+  surface_data_name = NULL,
+  colind = NULL,
+  nodeind = NULL
+)
 }
 \arguments{
 \item{surface_name}{the name of the file containing the surface geometry.}

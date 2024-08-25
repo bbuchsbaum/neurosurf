@@ -45,10 +45,32 @@ setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
 #' @export
 setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
 
-#' smooth a surface
+#' Generic Function for Smoothing a Surface or Associated Data
 #'
-#' @param x the surface object to smooth
-#' @param ... extra args
+#' The \code{smooth} function is a generic function designed to apply smoothing operations to various surface objects. The specific behavior of the function depends on the class of the object passed as the \code{x} argument. It can be used to smooth the geometry of a surface, the data associated with a surface, or other related operations depending on the method implemented for the object's class.
+#'
+#' @param x The surface object to smooth. The specific class of \code{x} determines the type of smoothing applied.
+#' @param ... Additional arguments passed to the specific method for smoothing the surface object.
+#'
+#' @details
+#' The \code{smooth} function provides a common interface for smoothing operations on different types of surface objects. The actual smoothing process varies based on the class of the object provided:
+#' \itemize{
+#'   \item For \code{\linkS4class{SurfaceGeometry}} objects, the function smooths the surface geometry, modifying the shape of the mesh to reduce noise.
+#'   \item For \code{\linkS4class{NeuroSurface}} objects, the function smooths the data values associated with each vertex, preserving the surface geometry but producing a smoother dataset.
+#' }
+#'
+#' Users should refer to the specific method documentation for the class of object they are working with to understand the exact behavior and parameters.
+#'
+#' @examples
+#' \dontrun{
+#'   # Smooth a SurfaceGeometry object
+#'   smoothed_geom <- smooth(surface_geom_obj, type="taubin", lambda=0.7, iteration=10)
+#'
+#'   # Smooth a NeuroSurface object's data
+#'   smoothed_data_surface <- smooth(neuro_surf_obj, sigma=5)
+#' }
+#'
+#' @seealso \code{\link{smooth,SurfaceGeometry-method}}, \code{\link{smooth,NeuroSurface-method}}
 #' @rdname smooth
 #' @export
 setGeneric(name="smooth", def=function(x, ...) standardGeneric("smooth"))

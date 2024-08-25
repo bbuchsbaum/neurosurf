@@ -69,37 +69,73 @@ surface_views <- list(
 )
 
 
-#' display a surface via with rgl
+#' Display a Brain Surface with RGL
+#'
+#' This function visualizes a 3D brain surface using the \code{rgl} package. It allows for the rendering of a surface with optional vertex colors, transparency, and lighting effects. Additionally, the function supports the display of spheres at specified coordinates on the surface, making it versatile for highlighting specific regions or points of interest.
+#'
+#' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the 3D brain surface geometry to be displayed.
+#' @param vals A numeric vector of values corresponding to each surface node. These values will be mapped to colors using the provided color map (\code{cmap}).
+#' @param cmap A color map consisting of a vector of colors in hex format. Default is \code{rainbow(256, alpha = 1)}. This color map is used to color the surface based on the \code{vals} vector.
+#' @param vert_clrs Optional vertex colors in hex format. If provided, these colors will override the colors generated from \code{vals} and \code{cmap}.
+#' @param irange A numeric vector of length 2 indicating the lower and upper bounds of the intensity range for the color scale. Default is the range of \code{vals}.
+#' @param thresh A numeric vector of length 2 indicating the lower and upper transparency thresholds. Nodes with values outside this range will be made transparent.
+#' @param alpha A numeric value indicating the transparency level of the surface. The default is 1 (fully opaque). Values should be between 0 (fully transparent) and 1 (fully opaque).
+#' @param add_normals Logical, indicating whether to add normals to the surface mesh. This is useful for improving the lighting effects. Default is \code{TRUE}.
+#' @param viewpoint A character string specifying the initial viewpoint of the surface. Options are \code{"lateral"}, \code{"medial"}, \code{"ventral"}, or \code{"posterior"}.
+#' @param specular A color in hex format or a numeric value indicating the specular reflection color used for lighting. Default is \code{"white"}.
+#' @param bgcol A color or vector of colors in hex format used to shade the surface background. Default is \code{"lightgray"}.
+#' @param offset A numeric vector of length 3 specifying the translation offset of the surface in the x, y, and z directions. Default is \code{c(0, 0, 0)}.
+#' @param zoom A numeric value specifying the zoom factor. Default is 1 (no zoom).
+#' @param new_window Logical, indicating whether to open a new RGL window for the surface display. Default is \code{TRUE}. If \code{FALSE}, the current RGL window will be cleared and reused.
+#' @param spheres Optional. A data frame containing the coordinates (\code{x}, \code{y}, \code{z}), radii (\code{radius}), and optional colors (\code{color}) for spheres to be displayed on the surface. Each row represents a sphere.
+#' @param ... Additional arguments passed to \code{rgl::shade3d}.
+#'
+#' @return An object returned by \code{rgl::shade3d} representing the rendered surface. This can be used for further manipulation of the rendered object.
 #'
 #' @importFrom gplots col2hex
-#' @param surfgeom surface geometty of type \code{SurfaceGeometry}
-#' @param vals the \code{vector} of values at each surface node in \code{x}
-#' @param cmap a color map consisting of a vector of colors in hex format (e.g. \code{gray(n=255)})
-#' @param vert_clrs optional vertex colors in hex format
-#' @param irange the intensity range indicating the low and high values of the color scale.
-#' @param thresh a 2-element vector indicating the lower and upper transparency thresholds.
-#' @param alpha the foreground trasnparency, default is 1 (opaque).
-#' @param add_normals whether to add_normals
-#' @param viewpoint the surface viewpoint (one of: 'lateral', 'medial', 'ventral', 'posterior')
-#' @param specular see\code{rgl material3d}
-#' @param bgcol a background color or vector of colors used to shade the surface.
-#' @param offset translation offset
-#' @param zoom zoom factor
-#' @param ... args to send to rgl::shade3d
+#' @importFrom rgl open3d clear3d shade3d spheres3d view3d par3d addNormals
+#'
+#' @examples
+#' \dontrun{
+#'   # Example surface geometry object (assuming `white_surf` is preloaded)
+#'   sphere_data <- data.frame(
+#'     x = c(10, 20, 30),
+#'     y = c(10, 20, 30),
+#'     z = c(10, 20, 30),
+#'     radius = c(2, 3, 4),
+#'     color = c("#FF0000", "#00FF00", "#0000FF")
+#'   )
+#'
+#'   # Display the surface with spheres
+#'   view_surface(white_surf, viewpoint = "lateral", spheres = sphere_data)
+#' }
+#'
+#' @seealso \code{\link[rgl]{shade3d}}, \code{\link[rgl]{spheres3d}}, \code{\link[rgl]{view3d}}
+#' @export
 view_surface <- function(surfgeom, vals=NA,
-                        cmap=rainbow(256, alpha = 1),
-                        vert_clrs=NULL,
-                        bgcol = "lightgray",
-                        alpha=1,
-                        add_normals=TRUE,
-                        thresh=NULL,
-                        irange=range(vals,na.rm=TRUE),
-                        specular=specular,
-                        viewpoint=c("lateral","medial", "ventral", "posterior"),
-                        #sfac=1,
-                        offset=c(0,0,0),
-                        zoom=1,
-                        ...) {
+                         cmap=rainbow(256, alpha = 1),
+                         vert_clrs=NULL,
+                         bgcol = "lightgray",
+                         alpha=1,
+                         add_normals=TRUE,
+                         thresh=NULL,
+                         irange=range(vals,na.rm=TRUE),
+                         specular="white",  # Default to white for a shiny surface
+                         viewpoint=c("lateral","medial", "ventral", "posterior"),
+                         new_window=TRUE,  # New argument to control RGL window
+                         offset=c(0,0,0),
+                         zoom=1,
+                         spheres=NULL,  # New argument for spheres
+                         ...) {
+
+
+  # Open a new rgl window only if not in Shiny
+  if (new_window && !rgl::rgl.useNULL()) {
+    rgl::open3d()
+  } else {
+    #rgl::clear3d(type = "all")
+  }
+
 
 
   if (add_normals) {
@@ -127,43 +163,50 @@ view_surface <- function(surfgeom, vals=NA,
   }
 
   if (length(bgcol) == 1) {
-    bg_layer <- colorplane::HexColorPlane(rep(bgcol, length(nodes(surfgeom))))
+    bg_layer <- colorplane::HexColorPlane(rep(bgcol, length(surfgeom@mesh$vb[1,])))
   } else {
     bg_layer <- colorplane::HexColorPlane(bgcol)
   }
 
-
-  if (!is.na(vals) && !is.null(vals) && is.null(vert_clrs)) {
-    fg_layer <- colorplane::IntensityColorPlane(vals, cmap,alpha=1)
+  if (any(!is.na(vals)) && !is.null(vals) && is.null(vert_clrs)) {
+    fg_layer <- colorplane::IntensityColorPlane(vals, cmap, alpha=1)
     fg_clrs <- colorplane::map_colors(fg_layer, alpha=alpha, threshold=thresh, irange=irange)
     combined <- colorplane::blend_colors(bg_layer, fg_clrs, alpha=alpha)
     vertex_cols <- colorplane::as_hexcol(combined)
   } else if (!is.null(vert_clrs)) {
-    fg_layer <- colorplane::HexColorPlane(vert_clrs, cmap,alpha=1)
-    fg_clrs <- fg_layer@clrs
-    combined <- colorplane::blend_colors(bg_layer, fg_clrs, alpha=alpha)
+    fg_layer <- colorplane::HexColorPlane(vert_clrs)
+    #fg_clrs <- fg_layer@clr
+    combined <- colorplane::blend_colors(bg_layer, fg_layer, alpha=alpha)
     vertex_cols <- colorplane::as_hexcol(combined)
   } else {
     vertex_cols <- colorplane::as_hexcol(bg_layer)
   }
 
-  #if (sfac != 1) {
-  #  umat <- umat %*% rgl::scaleMatrix(sfac,sfac,sfac)
-  #}
-
   rgl::par3d(mouseMode="trackball")
-  #rgl::shade3d(surfgeom@mesh,col=vertex_cols[surfgeom@mesh$it], specular=specular, meshColor="legacy", ...)
-
-  ret <- rgl::shade3d(surfgeom@mesh,col=vertex_cols, specular=specular, meshColor="vertices", ...)
+  ret <- rgl::shade3d(surfgeom@mesh, col=vertex_cols, specular=specular, meshColor="vertices", ...)
   rgl::view3d(fov=0, userMatrix=umat, zoom=zoom)
-  #rgl::par3d(userMatrix = umat)
+
+  # Add spheres if specified
+  if (!is.null(spheres)) {
+    # Ensure the spheres data frame has the required columns
+    if (!all(c("x", "y", "z", "radius") %in% names(spheres))) {
+      stop("spheres data frame must contain columns 'x', 'y', 'z', and 'radius'.")
+    }
+    for (i in seq_len(nrow(spheres))) {
+      # Use provided color or default to black
+      sphere_color <- if ("color" %in% names(spheres)) spheres$color[i] else "black"
+      rgl::spheres3d(
+        x = spheres$x[i],
+        y = spheres$y[i],
+        z = spheres$z[i],
+        radius = spheres$radius[i],
+        color = sphere_color
+      )
+    }
+  }
 
   ret
-
-
-
 }
-
 #' plot a surface
 #'
 #' @rdname plot
