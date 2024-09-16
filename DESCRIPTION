@@ -13,7 +13,9 @@ Imports:
     Rvcg,
     methods,
     gplots,
-    gifti
+    gifti,
+    reticulate,
+    downloader
 Type: Package
 Title: Data structures and IO for surface-based neuroimaging data
 Version: 0.1.0
