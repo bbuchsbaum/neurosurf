@@ -31,10 +31,113 @@ This function identifies the boundaries between regions of interest (ROIs) on a 
 It supports multiple methods for boundary detection, including using faces, midpoints of edges,
 centroids of faces, edge vertices, and edge faces.
 }
+\details{
+This function identifies the boundaries between different regions of interest (ROIs) on a surface mesh.
+The algorithm works by analyzing the connectivity between vertices and faces with different ROI assignments.
+
+The boundary detection process follows these general steps:
+\enumerate{
+  \item Identify all edges in the mesh from the face definitions
+  \item Determine which edges cross between different ROIs
+  \item For each ROI, find connected components of boundary edges
+  \item Trace the boundary path for each component using graph theory algorithms
+}
+
+The different \code{boundary_method} options produce different boundary representations:
+\describe{
+  \item{\code{"faces"}}{Simply identifies faces that contain vertices from multiple ROIs.}
+  \item{\code{"midpoint"}}{Creates boundaries using midpoints of edges between different ROIs.
+        This produces smooth boundaries that run between vertices.}
+  \item{\code{"centroid"}}{Creates boundaries using centroids of faces along the boundary.
+        This produces boundaries that run through the centers of triangular faces.}
+  \item{\code{"edge_vertices"}}{Uses the actual vertices on ROI boundaries.
+        This produces boundaries that follow the original mesh vertices.}
+  \item{\code{"edge_faces"}}{Complex method that follows face relationships.
+        This can produce more detailed boundaries but may be less stable.}
+}
+
+The function relies on graph theory algorithms to find and trace boundary paths,
+using adjacency matrices and shortest path algorithms to ensure boundaries form
+complete cycles around each ROI component.
+}
 \examples{
-\dontrun{
-# Assuming 'vertices', 'faces', and 'vertex_id' are defined
-result <- find_roi_boundaries(vertices, faces, vertex_id, boundary_method = "midpoint")
+\donttest{
+# Create a simple toy mesh: a cube with 8 vertices and 12 triangular faces
+# Define vertices (corners of a cube)
+vertices <- matrix(c(
+  0, 0, 0,  # vertex 1
+  1, 0, 0,  # vertex 2
+  1, 1, 0,  # vertex 3
+  0, 1, 0,  # vertex 4
+  0, 0, 1,  # vertex 5
+  1, 0, 1,  # vertex 6
+  1, 1, 1,  # vertex 7
+  0, 1, 1   # vertex 8
+), ncol = 3, byrow = TRUE)
+
+# Define faces (12 triangular faces making a cube)
+faces <- matrix(c(
+  # bottom face (z=0)
+  1, 2, 3,
+  1, 3, 4,
+  # top face (z=1)
+  5, 6, 7,
+  5, 7, 8,
+  # front face (y=0)
+  1, 2, 6,
+  1, 6, 5,
+  # back face (y=1)
+  3, 4, 8,
+  3, 8, 7,
+  # left face (x=0)
+  1, 4, 8,
+  1, 8, 5,
+  # right face (x=1)
+  2, 3, 7,
+  2, 7, 6
+), ncol = 3, byrow = TRUE)
+
+# Define two ROIs: vertices 1-4 in ROI 1, vertices 5-8 in ROI 2
+# This creates a boundary between the bottom half and top half of the cube
+vertex_id <- c(1, 1, 1, 1, 2, 2, 2, 2)
+
+# Find the boundaries between ROIs using midpoint method
+boundary_result <- find_roi_boundaries(
+  vertices = vertices,
+  faces = faces,
+  vertex_id = vertex_id,
+  boundary_method = "midpoint"
+)
+
+# The result contains:
+# - boundary: List of coordinate matrices for each boundary
+# - boundary_roi_id: ROI ID for each boundary
+# - roi_components: Number of components per ROI
+# - boundary_verts: Vertices used to define each boundary
+
+# To visualize (if rgl package is installed):
+if (requireNamespace("rgl", quietly = TRUE)) {
+  # Plot the mesh
+  mesh <- rgl::tmesh3d(
+    vertices = t(vertices),
+    indices = t(faces),
+    homogeneous = FALSE
+  )
+  rgl::open3d()
+  rgl::shade3d(mesh, col = vertex_id)
+  
+  # Plot the boundary
+  for (i in seq_along(boundary_result$boundary)) {
+    boundary_coords <- boundary_result$boundary[[i]]
+    rgl::lines3d(
+      boundary_coords[,1], 
+      boundary_coords[,2], 
+      boundary_coords[,3], 
+      col = "black", 
+      lwd = 3
+    )
+  }
+}
 }
 
 }

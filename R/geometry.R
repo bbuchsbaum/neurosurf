@@ -39,14 +39,14 @@ SurfaceGeometrySource <- function(surface_name) {
 #' # Create a simple icosahedron-like mesh with 12 vertices
 #' set.seed(123)
 #' vertices <- matrix(rnorm(36), ncol=3)
-#' 
+#'
 #' # Create faces with 0-based indices (0 to 11)
 #' # Each face connects three vertices
 #' faces <- matrix(sample(0:11, 60, replace=TRUE), ncol=3)
-#' 
+#'
 #' # Create the SurfaceGeometry object
 #' surf_geom <- SurfaceGeometry(vertices, faces, "lh")
-#' 
+#'
 #' # Visualize the mesh if rgl is available
 #' if(requireNamespace("rgl", quietly = TRUE)) {
 #'   rgl::open3d()
@@ -74,8 +74,8 @@ SurfaceGeometry <- function(vert, faces, hemi) {
 #' @details
 #' This function supports loading surface geometries from the following file formats:
 #' \itemize{
-#'   \item FreeSurfer ASCII (.asc)
-#'   \item FreeSurfer binary
+#'   \item Freesurfer ASCII (.asc)
+#'   \item Freesurfer binary
 #'   \item GIFTI (.gii)
 #' }
 #' The appropriate loader is automatically selected based on the file extension or content.
@@ -113,7 +113,7 @@ setMethod(f="curvature", signature=c(x="SurfaceGeometry"),
 #' Remesh a SurfaceGeometry object
 #'
 #' @description
-#' This function applies uniform remeshing to a SurfaceGeometry object, 
+#' This function applies uniform remeshing to a SurfaceGeometry object,
 #' creating a new mesh with more regular face sizes and improved quality.
 #'
 #' @param surfgeom A \code{SurfaceGeometry} object to be remeshed.
@@ -158,7 +158,7 @@ setMethod(f="curvature", signature=c(x="SurfaceGeometry"),
 #'   1, 1, 1,  # vertex 7
 #'   0, 1, 1   # vertex 8
 #' ), ncol = 3, byrow = TRUE)
-#' 
+#'
 #' # Define faces (12 triangular faces making a cube)
 #' # Note indices are 0-based
 #' faces <- matrix(c(
@@ -181,33 +181,33 @@ setMethod(f="curvature", signature=c(x="SurfaceGeometry"),
 #'   1, 2, 6,
 #'   1, 6, 5
 #' ), ncol = 3, byrow = TRUE)
-#' 
+#'
 #' # Create the SurfaceGeometry object
 #' surf_geom <- SurfaceGeometry(vertices, faces, "lh")
-#' 
+#'
 #' # Remesh with a coarse voxel size - fewer triangles
 #' coarse_remesh <- remeshSurface(surf_geom, voxel_size = 0.5)
-#' 
+#'
 #' # Remesh with a fine voxel size - more triangles
 #' fine_remesh <- remeshSurface(surf_geom, voxel_size = 0.2)
-#' 
+#'
 #' # Visualize the meshes if rgl is available
 #' if(requireNamespace("rgl", quietly = TRUE)) {
 #'   # Original mesh
 #'   rgl::open3d()
 #'   rgl::shade3d(surf_geom@mesh, col = "red")
 #'   rgl::title3d(main = "Original Mesh")
-#'   
+#'
 #'   # Coarse remesh
 #'   rgl::open3d()
 #'   rgl::shade3d(coarse_remesh@mesh, col = "green")
 #'   rgl::title3d(main = "Coarse Remesh (voxel_size = 0.5)")
-#'   
+#'
 #'   # Fine remesh
 #'   rgl::open3d()
 #'   rgl::shade3d(fine_remesh@mesh, col = "blue")
 #'   rgl::title3d(main = "Fine Remesh (voxel_size = 0.2)")
-#'   
+#'
 #'   # Compare the number of faces in each mesh
 #'   cat("Original mesh faces:", ncol(surf_geom@mesh$it), "\n")
 #'   cat("Coarse remesh faces:", ncol(coarse_remesh@mesh$it), "\n")
@@ -242,7 +242,7 @@ remeshSurface <- function(surfgeom, voxel_size=2, ...) {
 #'
 #' @param vertices A numeric matrix with 3 columns representing the x, y, and z coordinates of vertices.
 #'   Each row corresponds to a vertex.
-#' @param nodes A numeric matrix where each row represents a triangular face, containing 0-based indices 
+#' @param nodes A numeric matrix where each row represents a triangular face, containing 0-based indices
 #'   of three vertices that form the face.
 #'
 #' @return An \code{igraph} object representing the mesh connectivity. The graph has the following attributes:
@@ -257,7 +257,7 @@ remeshSurface <- function(surfgeom, voxel_size=2, ...) {
 #'   \item Vertices of the graph correspond to vertices of the mesh
 #'   \item Edges of the graph correspond to the edges of triangular faces in the mesh
 #' }
-#' 
+#'
 #' The function performs the following steps:
 #' \enumerate{
 #'   \item Extracts all unique edges from the triangular faces
@@ -266,7 +266,7 @@ remeshSurface <- function(surfgeom, voxel_size=2, ...) {
 #'   \item Calculates Euclidean distances between connected vertices
 #'   \item Adds vertex coordinates and edge distances as attributes to the graph
 #' }
-#' 
+#'
 #' Note that the input \code{nodes} matrix should use 0-based indexing (starting from 0),
 #' as the function will increment indices by 1 when creating the graph.
 #'
@@ -283,7 +283,7 @@ remeshSurface <- function(surfgeom, voxel_size=2, ...) {
 #'   1, 1, 1,  # vertex 7
 #'   0, 1, 1   # vertex 8
 #' ), ncol = 3, byrow = TRUE)
-#' 
+#'
 #' # Define triangular faces with 0-based indices
 #' faces <- matrix(c(
 #'   # bottom face (z=0)
@@ -305,16 +305,16 @@ remeshSurface <- function(surfgeom, voxel_size=2, ...) {
 #'   1, 2, 6,
 #'   1, 6, 5
 #' ), ncol = 3, byrow = TRUE)
-#' 
+#'
 #' # Create the graph representation of the mesh
 #' graph <- meshToGraph(vertices, faces)
-#' 
+#'
 #' # Examine the graph properties
 #' cat("Number of vertices:", igraph::vcount(graph), "\n")
 #' cat("Number of edges:", igraph::ecount(graph), "\n")
-#' 
+#'
 #' # Plot the graph if igraph is available
-#' if (requireNamespace("igraph", quietly = TRUE) && 
+#' if (requireNamespace("igraph", quietly = TRUE) &&
 #'     requireNamespace("rgl", quietly = TRUE)) {
 #'   # First visualize the mesh
 #'   rgl::open3d()
@@ -325,7 +325,7 @@ remeshSurface <- function(surfgeom, voxel_size=2, ...) {
 #'   )
 #'   rgl::shade3d(mesh, col = "lightblue")
 #'   rgl::title3d(main = "Original Mesh")
-#'   
+#'
 #'   # Visualize the graph connections using the 3D coordinates
 #'   rgl::open3d()
 #'   # Plot vertices
@@ -380,7 +380,7 @@ setMethod(f="show", signature=signature("SurfaceGeometry"),
           def=function(object) {
             # Check if crayon is available
             has_crayon <- requireNamespace("crayon", quietly = TRUE)
-            
+
             # Define styling functions that degrade gracefully if crayon isn't available
             header <- if(has_crayon) function(x) crayon::bgBlue(crayon::white(crayon::bold(x))) else function(x) x
             title <- if(has_crayon) function(x) crayon::blue(crayon::bold(x)) else function(x) x
@@ -388,14 +388,14 @@ setMethod(f="show", signature=signature("SurfaceGeometry"),
             highlight <- if(has_crayon) function(x) crayon::yellow(x) else function(x) x
             normal <- if(has_crayon) function(x) crayon::silver(x) else function(x) x
             warning_style <- if(has_crayon) function(x) crayon::red(x) else function(x) x
-            
+
             # Get basic mesh statistics
             num_vertices <- length(nodes(object))
             num_faces <- ncol(object@mesh$it)
-            
+
             # Get hemisphere
             hemi_text <- if (object@hemi == "lh") "left" else if (object@hemi == "rh") "right" else object@hemi
-            
+
             # Calculate additional metrics
             ## Get unique edges
             edges <- rbind(
@@ -405,11 +405,11 @@ setMethod(f="show", signature=signature("SurfaceGeometry"),
             )
             edges <- unique(t(apply(edges, 1, sort)))
             num_edges <- nrow(edges)
-            
+
             ## Calculate Euler characteristic (V - E + F)
             euler <- num_vertices - num_edges + num_faces
             genus <- (2 - euler) / 2
-            
+
             ## Calculate some basic quality metrics
             if (num_vertices > 0 && num_faces > 0) {
               # Calculate average edge length
@@ -423,69 +423,66 @@ setMethod(f="show", signature=signature("SurfaceGeometry"),
               avg_edge_length <- mean(edge_lengths)
               max_edge_length <- max(edge_lengths)
               min_edge_length <- min(edge_lengths)
-              
+
               # Estimate surface area (sum of triangle areas)
               face_areas <- numeric(num_faces)
-              for (i in 1:num_faces) {
+
+              for (i in seq_len(num_faces)) {
                 v1 <- object@mesh$it[1, i]
                 v2 <- object@mesh$it[2, i]
                 v3 <- object@mesh$it[3, i]
-                
+
                 # Calculate vectors for two sides of triangle
-                side1 <- v_coords[v2,] - v_coords[v1,]
-                side2 <- v_coords[v3,] - v_coords[v1,]
-                
-                # Cross product to get area
-                cp <- c(
-                  side1[2]*side2[3] - side1[3]*side2[2],
-                  side1[3]*side2[1] - side1[1]*side2[3],
-                  side1[1]*side2[2] - side1[2]*side2[1]
-                )
+                side1 <- v_coords[v2, ] - v_coords[v1,]
+                side2 <- v_coords[v3, ] - v_coords[v1,]
+
+                # Cross product for triangle area
+                cp <- crossprod(matrix(side1), matrix(side2))
                 face_areas[i] <- sqrt(sum(cp^2)) / 2
               }
               total_area <- sum(face_areas)
-              
+
               # Check mesh quality
               edge_length_ratio <- max_edge_length / min_edge_length
               has_quality_issues <- edge_length_ratio > 100
             }
-            
+
             # Create a simple ASCII art mesh
-            mesh_art <- "    /\\     \n   /  \\    \n  /____\\   \n /      \\  \n/        \\ "
-            
+            mesh_art <- "    /\\     \n   /  \\    \n  /____\\   \n /      \\  \n/        \\  "
+
             # Print the formatted output
             cat("\n")
-            cat(" ◢◤ SurfaceGeometry ◥◣ \n")
+            cat(" SurfaceGeometry \n")
             cat("\n")
-            
+
             # Add ASCII art
             cat(normal(mesh_art), "\n\n")
-            
+
             # Basic information
-            cat(title("◆ Basic Information:"), "\n")
+            cat(title("  Basic Information:"), "\n")
             cat("  ", subtitle("Hemisphere:"), " ", highlight(hemi_text), "\n", sep="")
             cat("  ", subtitle("Vertices:"), "   ", highlight(format(num_vertices, big.mark=",")), "\n", sep="")
             cat("  ", subtitle("Faces:"), "      ", highlight(format(num_faces, big.mark=",")), "\n", sep="")
             cat("  ", subtitle("Edges:"), "      ", highlight(format(num_edges, big.mark=",")), "\n", sep="")
             cat("\n")
-            
+
             # Geometry metrics
-            cat(title("◆ Geometry Metrics:"), "\n")
+            cat(title(" Geometry Metrics:"), "\n")
             cat("  ", subtitle("Euler Characteristic:"), " ", highlight(euler), "\n", sep="")
             cat("  ", subtitle("Genus:"), "               ", highlight(genus), "\n", sep="")
-            
+
             if (exists("total_area")) {
               cat("  ", subtitle("Surface Area:"), "        ", highlight(format(total_area, digits=4)), "\n", sep="")
               cat("  ", subtitle("Avg Edge Length:"), "     ", highlight(format(avg_edge_length, digits=4)), "\n", sep="")
-              
+
               if (has_quality_issues) {
                 cat("\n")
-                cat(warning_style("⚠ Warning: Mesh quality issues detected ⚠"), "\n")
+                cat(warning_style(" Warning: Mesh quality issues detected  "), "\n")
                 cat(warning_style("  Edge length ratio: ", format(edge_length_ratio, digits=2)), "\n")
                 cat(warning_style("  Consider using remeshSurface() to improve mesh quality"), "\n")
               }
             }
-            
+
             cat("\n")
           })
 

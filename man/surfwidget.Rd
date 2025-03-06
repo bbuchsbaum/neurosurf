@@ -48,13 +48,13 @@ surfwidget(x, width = NULL, height = NULL, ...)
 An HTMLWidget object representing the surface visualization.
 }
 \description{
-This generic function creates a widget for visualizing surface data, 
+This generic function creates a widget for visualizing surface data,
 allowing for different implementations based on the type of surface object.
 }
 \details{
-The surfwidget function creates an interactive widget for visualizing 
-surface data, such as brain surfaces. The specific implementation depends 
-on the class of the object provided, allowing for customized behavior 
+The surfwidget function creates an interactive widget for visualizing
+surface data, such as brain surfaces. The specific implementation depends
+on the class of the object provided, allowing for customized behavior
 for different types of surface representations.
 }
 \seealso{

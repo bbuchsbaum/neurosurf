@@ -13,10 +13,10 @@ NULL
 }
 
 
-#' Read FreeSurfer Annotation File
+#' Read Freesurfer Annotation File
 #'
 #' @description
-#' Reads a FreeSurfer annotation file and creates a LabeledNeuroSurface object.
+#' Reads a Freesurfer annotation file and creates a LabeledNeuroSurface object.
 #'
 #' @param file_name Character string; path to the '.annot' file
 #' @param geometry A SurfaceGeometry object representing the surface structure
@@ -319,7 +319,7 @@ write_surf_data <- function(surf, outstem, hemi="") {
 #' @param surface_data_name the name of the file containing the values to be mapped to the surface (optional).
 #' @param colind the columns/samples to load (optional), only if \code{surface_data_name} is not \code{NULL}
 #' @param nodeind the subset of node indices to load
-#' 
+#'
 #' @return an instance of the class:
 #'  \code{\linkS4class{SurfaceGeometry}}
 #'  or \code{\linkS4class{NeuroSurface}}
@@ -328,8 +328,8 @@ write_surf_data <- function(surf, outstem, hemi="") {
 #' @details
 #' The function supports reading surface data from various formats including:
 #' \itemize{
-#'   \item FreeSurfer ASCII (.asc)
-#'   \item FreeSurfer binary
+#'   \item Freesurfer ASCII (.asc)
+#'   \item Freesurfer binary
 #'   \item GIFTI (.gii)
 #'   \item NIML Surface Dataset (.niml.dset)
 #' }
@@ -340,38 +340,38 @@ write_surf_data <- function(surf, outstem, hemi="") {
 #' \donttest{
 #' # Find the path to the example surface file in the package
 #' surf_file <- system.file("extdata", "std.8.lh.white.asc", package = "neurosurfr")
-#' 
+#'
 #' # Check if the file exists
 #' if (file.exists(surf_file)) {
 #'   # Read the surface data
 #'   surf <- read_surf(surf_file)
-#'   
+#'
 #'   # Display basic information about the surface
 #'   print(surf)
-#'   
+#'
 #'   # Get summary statistics of the surface data
 #'   summary(surf@data)
-#'   
+#'
 #'   # Visualize the surface if rgl is available
 #'   if (requireNamespace("rgl", quietly = TRUE)) {
 #'     # Plot the surface mesh
 #'     rgl::open3d()
 #'     rgl::shade3d(surf@geometry@mesh, col = "lightblue")
 #'     rgl::title3d(main = "Example Surface")
-#'     
+#'
 #'     # If the surface has data values, color the mesh by these values
 #'     if (length(surf@data) > 0) {
 #'       # Normalize data to [0,1] for coloring
 #'       norm_data <- (surf@data - min(surf@data)) / (max(surf@data) - min(surf@data))
-#'       
+#'
 #'       # Create a color palette
-#'       colors <- grDevices::colorRampPalette(c("blue", "cyan", "green", 
+#'       colors <- grDevices::colorRampPalette(c("blue", "cyan", "green",
 #'                                              "yellow", "red"))(100)
-#'       
+#'
 #'       # Map data values to colors
 #'       col_idx <- ceiling(norm_data * 99) + 1
 #'       vertex_colors <- colors[col_idx]
-#'       
+#'
 #'       # Plot colored mesh
 #'       rgl::open3d()
 #'       rgl::shade3d(surf@geometry@mesh, col = vertex_colors)

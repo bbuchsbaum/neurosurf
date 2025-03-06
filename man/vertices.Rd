@@ -26,7 +26,7 @@ vertices(x, ...)
 A matrix or data structure containing vertex information.
 }
 \description{
-Extracts the vertices from a surface object, providing a standardized 
+Extracts the vertices from a surface object, providing a standardized
 interface across different surface representations.
 }
 \examples{

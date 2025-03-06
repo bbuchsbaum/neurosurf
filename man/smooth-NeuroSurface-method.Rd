@@ -25,13 +25,26 @@ The smoothing process involves averaging the data values within the neighborhood
 The smoothing is particularly useful when working with noisy data or when a smoother representation of the underlying signal is desired. It is commonly applied in neuroimaging to enhance visualization or prepare data for further analysis.
 }
 \examples{
-\dontrun{
-  # Example of smoothing data on a NeuroSurface object
-  smoothed_data_surface <- smooth(neuro_surf, sigma=3)
+# Load a surface file from the extdata directory
+surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
+surface <- readAsc(surf_file)
 
-  # The original geometry is preserved, but the data is smoothed
-  plot(smoothed_data_surface)
-}
+# Create some random data for the surface vertices
+n_vertices <- nrow(coords(surface))
+random_data <- rnorm(n_vertices)
+
+# Create a NeuroSurface object with the surface and data
+neuro_surf <- NeuroSurface(geometry = surface, 
+                          indices = 1:n_vertices,
+                          data = random_data)
+
+# Apply smoothing to the data
+smoothed_data_surface <- smooth(neuro_surf, sigma = 3)
+
+# The original geometry is preserved, but the data is smoothed
+# Compare a small section of data before and after smoothing
+head(random_data)
+head(series(smoothed_data_surface))
 
 }
 \seealso{

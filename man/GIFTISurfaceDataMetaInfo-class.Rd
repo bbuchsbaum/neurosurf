@@ -13,3 +13,34 @@ This class contains meta information for surface-based data for the GIFTI data f
 \item{\code{info}}{the underlying \code{gifti} object returned by \code{\link{readgii}}}
 }}
 
+\examples{
+\donttest{
+# First create a SurfaceDataMetaInfo parent object
+meta_info <- new("SurfaceDataMetaInfo",
+                 header_file = "rscan01_lh.gii",
+                 data_file = "rscan01_lh.gii",
+                 file_descriptor = new("FileFormat"),
+                 node_count = 40000L,
+                 nels = 1L,
+                 label = "thickness")
+
+# Use the example file included in the package
+example_gii_file <- system.file("extdata", "rscan01_lh.gii", package = "neurostyle")
+
+if (file.exists(example_gii_file) && requireNamespace("gifti", quietly = TRUE)) {
+  # Load the actual GIFTI file
+  gifti_obj <- gifti::readgii(example_gii_file)
+
+  # Create GIFTISurfaceDataMetaInfo object with the real file
+  gifti_data_meta <- new("GIFTISurfaceDataMetaInfo",
+                        header_file = meta_info@header_file,
+                        data_file = meta_info@data_file,
+                        file_descriptor = meta_info@file_descriptor,
+                        node_count = meta_info@node_count,
+                        nels = meta_info@nels,
+                        label = meta_info@label,
+                        info = gifti_obj)
+}
+}
+
+}

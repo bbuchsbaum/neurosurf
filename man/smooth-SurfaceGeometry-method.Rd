@@ -42,13 +42,15 @@ The function returns the smoothed \code{SurfaceGeometry} object with the updated
 This method applies smoothing to a brain surface geometry object of class \code{SurfaceGeometry} using various algorithms. Smoothing is useful for removing noise and creating a more continuous surface.
 }
 \examples{
-\dontrun{
-  # Example of applying Taubin smoothing to a brain surface
-  smoothed_surface <- smooth(white_surf, type="taubin", lambda=0.5, mu=-0.5, iteration=10)
+# Load a surface file from the extdata directory
+surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
+surface <- readAsc(surf_file)
 
-  # Example of using surface-preserving Laplacian smoothing
-  smoothed_surface <- smooth(white_surf, type="surfPreserveLaplace", iteration=5)
-}
+# Apply Taubin smoothing to the brain surface
+smoothed_surface1 <- smooth(surface, type = "taubin", lambda = 0.5, mu = -0.5, iteration = 10)
+
+# Apply surface-preserving Laplacian smoothing
+smoothed_surface2 <- smooth(surface, type = "surfPreserveLaplace", iteration = 5)
 
 }
 \seealso{

@@ -14,6 +14,17 @@ The \code{cmap} slot contains a vector of hex color codes that define the colorm
 The \code{irange} slot specifies the range of data values to be mapped to the colormap.
 The \code{thresh} slot defines the visibility thresholds: data values below \code{thresh[1]}
 or above \code{thresh[2]} are visible, while values in between are not visible.
+
+The color mapping process works as follows:
+\enumerate{
+  \item Data values are linearly mapped to the range [0,1] based on \code{irange}
+  \item These normalized values are used to interpolate colors from the \code{cmap}
+  \item Values falling between the thresholds in \code{thresh} are marked as invisible
+}
+
+This approach is particularly useful for visualizing statistical maps (e.g., t-statistics)
+where researchers are often interested in highlighting values above or below certain
+significance thresholds.
 }
 \section{Slots}{
 
@@ -31,6 +42,71 @@ or above \code{thresh[2]} are visible, while values in between are not visible.
 \item{\code{thresh}}{A numeric vector of length 2 specifying the low and high thresholds for visibility}
 }}
 
+\examples{
+\donttest{
+# First create a simple tetrahedron mesh
+vertices <- c(
+  0, 0, 0,
+  1, 0, 0,
+  0, 1, 0,
+  0, 0, 1
+)
+triangles <- c(
+  1, 2, 3,
+  1, 2, 4,
+  1, 3, 4,
+  2, 3, 4
+)
+
+# Create mesh3d object
+mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
+
+# Create a graph representation
+edges <- rbind(
+  c(1,2), c(1,3), c(1,4),
+  c(2,3), c(2,4),
+  c(3,4)
+)
+graph <- igraph::graph_from_edgelist(edges)
+
+# Create a SurfaceGeometry object
+geometry <- new("SurfaceGeometry",
+               mesh = mesh,
+               graph = graph,
+               hemi = "left")
+
+# Define indices for all vertices
+indices <- 1:4
+
+# Create data values for each vertex
+vertex_data <- c(-1.5, -0.5, 0.8, 2.0)  # example values for the vertices
+
+# Define a simple colormap (blue to red)
+colormap <- c("#0000FF", "#FFFFFF", "#FF0000")
+
+# Define intensity range for mapping data to colors
+intensity_range <- c(-2.0, 2.0)
+
+# Define thresholds (values between -0.5 and 0.5 will be invisible)
+thresholds <- c(-0.5, 0.5)
+
+# Create the ColorMappedNeuroSurface object
+colored_surface <- new("ColorMappedNeuroSurface",
+                      geometry = geometry,
+                      indices = indices,
+                      data = vertex_data,
+                      cmap = colormap,
+                      irange = intensity_range,
+                      thresh = thresholds)
+
+# In this example:
+# - Vertex 1 (-1.5) will be visible and colored blue (below lower threshold)
+# - Vertex 2 (-0.5) will be exactly at the lower threshold
+# - Vertex 3 (0.8) will be visible and colored light red (above upper threshold)
+# - Vertex 4 (2.0) will be visible and colored bright red (above upper threshold)
+}
+
+}
 \seealso{
 \code{\link{view_surface}}
 }

@@ -18,10 +18,9 @@ This function loads a supported surface geometry from a file and returns a Surfa
 \details{
 This function supports loading surface geometries from the following file formats:
 \itemize{
-  \item FreeSurfer ASCII (.asc)
-  \item FreeSurfer binary
+  \item Freesurfer ASCII (.asc)
+  \item Freesurfer binary
   \item GIFTI (.gii)
-  \item VTK (.vtk)
 }
 The appropriate loader is automatically selected based on the file extension or content.
 }

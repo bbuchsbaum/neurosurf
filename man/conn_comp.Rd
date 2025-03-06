@@ -35,12 +35,43 @@ This method computes connected components on the surface by:
 Vertices that do not pass the threshold are assigned a value of 0 in both output surfaces.
 }
 \examples{
-\dontrun{
-# Assuming 'surface' is a NeuroSurface object
-components <- conn_comp(surface, c(-2, 2))
-plot(components$index)  # Visualize component indices
-plot(components$size)   # Visualize component sizes
+# Load a sample surface from the package
+surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
+surf_geom <- readAsc(surf_file)
+
+# Create random data for the surface with some clusters
+n_vertices <- nrow(coords(surf_geom))
+set.seed(123)
+random_data <- rnorm(n_vertices, mean = 0, sd = 1)
+
+# Create a few clusters of higher values
+cluster_centers <- sample(1:n_vertices, 5)
+g <- graph(surf_geom)
+
+# For each cluster center, set nearby vertices to higher values
+for (center in cluster_centers) {
+  # Get neighbors within 2 steps
+  neighbors <- unlist(igraph::neighborhood(g, 2, center))
+  random_data[neighbors] <- random_data[neighbors] + 2
 }
+
+# Create a NeuroSurface object
+neuro_surf <- NeuroSurface(geometry = surf_geom, 
+                          indices = 1:n_vertices,
+                          data = random_data)
+
+# Find connected components with threshold c(-Inf, 1.5)
+# This will identify clusters where values are >= 1.5
+components <- conn_comp(neuro_surf, c(-Inf, 1.5))
+
+# Check the number of components found
+max(series(components$index))
+
+# Check the size of the largest component
+max(series(components$size))
+
+# Count vertices in components of size >= 10
+sum(series(components$size) >= 10)
 
 }
 \seealso{

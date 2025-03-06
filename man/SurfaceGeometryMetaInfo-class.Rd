@@ -35,7 +35,7 @@ proper handling and processing of brain surface data in neuroimaging analyses.
 }}
 
 \examples{
-\dontrun{
+\donttest{
 meta_info <- new("SurfaceGeometryMetaInfo",
                  header_file = "surface_meta.txt",
                  data_file = "surface_data.gii",

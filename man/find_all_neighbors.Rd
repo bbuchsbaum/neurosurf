@@ -37,10 +37,24 @@ The function supports three distance metrics: Euclidean, geodesic, and spherical
 For spherical distances, the surface is assumed to be a sphere.
 }
 \examples{
-\dontrun{
-surf <- readSurfaceGeometry("path/to/surface.gii")
-edge_weights <- rep(1, length(E(graph(surf))))
-neighbors <- find_all_neighbors(surf, radius = 10, edgeWeights = edge_weights)
-}
+# Load a sample inflated surface from the package
+surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
+surf <- readAsc(surf_file)
+
+# Create edge weights (using uniform weights for simplicity)
+g <- graph(surf)
+edge_weights <- rep(1, length(E(g)))
+
+# Find neighbors within a 10mm radius for the first 5 vertices
+neighbors <- find_all_neighbors(surf, radius = 10, 
+                               edgeWeights = edge_weights,
+                               nodes = 1:5,
+                               distance_type = "geodesic")
+
+# Check the number of neighbors found for the first vertex
+nrow(neighbors[[1]])
+
+# Look at the first few neighbors of the first vertex
+head(neighbors[[1]])
 
 }

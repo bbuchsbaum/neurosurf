@@ -30,7 +30,7 @@ for each node in the input graph. Edge weights are taken from the 'dist' attribu
 of the input graph's edges.
 }
 \examples{
-\dontrun{
+\donttest{
 g <- make_graph("Zachary")
 E(g)$dist <- runif(ecount(g))
 neighbor_g <- neighbor_graph(g, radius = 0.5, distance_type = "geodesic")

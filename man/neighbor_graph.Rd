@@ -68,7 +68,7 @@ neuroimaging analyses for defining local connectivity on brain surfaces.
 \examples{
 \dontrun{
 # Assuming 'surface_mesh' is a pre-defined surface mesh object
-graph <- neighbor_graph(surface_mesh, radius = 5, 
+graph <- neighbor_graph(surface_mesh, radius = 5,
                         edgeWeights = runif(nrow(surface_mesh$vertices)),
                         nodes = 1:1000)
 }

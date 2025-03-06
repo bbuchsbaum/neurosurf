@@ -39,10 +39,10 @@ setOldClass("gifti")
 #'   1, 3, 4,
 #'   2, 3, 4
 #' )
-#' 
+#'
 #' # Create mesh3d object
 #' mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
-#' 
+#'
 #' # Create a graph representation
 #' edges <- rbind(
 #'   c(1,2), c(1,3), c(1,4),
@@ -50,7 +50,7 @@ setOldClass("gifti")
 #'   c(3,4)
 #' )
 #' graph <- igraph::graph_from_edgelist(edges)
-#' 
+#'
 #' # Create a SurfaceGeometry object
 #' surface <- new("SurfaceGeometry",
 #'                mesh = mesh,
@@ -120,23 +120,23 @@ setClass("SurfaceGeometryMetaInfo",
            embed_dimension = "integer"
          ))
 
-#' FreeSurferSurfaceGeometryMetaInfo Class
+#' FreesurferSurfaceGeometryMetaInfo Class
 #'
 #' @description
-#' The `FreeSurferSurfaceGeometryMetaInfo` class extends `SurfaceGeometryMetaInfo` to specifically
-#' handle meta information for FreeSurfer-formatted brain surface geometries.
+#' The `FreesurferSurfaceGeometryMetaInfo` class extends `SurfaceGeometryMetaInfo` to specifically
+#' handle meta information for Freesurfer-formatted brain surface geometries.
 #'
 #' @details
 #' This class inherits all slots from the parent `SurfaceGeometryMetaInfo` class and is specialized
-#' for working with FreeSurfer surface files (e.g., .asc, .pial, .white, .inflated). It maintains
-#' the same structure but is used specifically when the surface data originates from FreeSurfer
+#' for working with Freesurfer surface files (e.g., .asc, .pial, .white, .inflated). It maintains
+#' the same structure but is used specifically when the surface data originates from Freesurfer
 #' processing pipelines.
 #'
 #' @seealso \code{\link{SurfaceGeometryMetaInfo}}
 #'
 #' @examples
 #' \donttest{
-#' fs_meta <- new("FreeSurferSurfaceGeometryMetaInfo",
+#' fs_meta <- new("FreesurferSurfaceGeometryMetaInfo",
 #'                header_file = "lh.white.asc",
 #'                data_file = "lh.white.asc",
 #'                file_descriptor = new("FileFormat"),
@@ -147,9 +147,9 @@ setClass("SurfaceGeometryMetaInfo",
 #'                hemi = "lh")
 #' }
 #'
-#' @rdname FreeSurferSurfaceGeometryMetaInfo-class
+#' @rdname FreesurferSurfaceGeometryMetaInfo-class
 #' @export
-setClass("FreeSurferSurfaceGeometryMetaInfo", contains=c("SurfaceGeometryMetaInfo"))
+setClass("FreesurferSurfaceGeometryMetaInfo", contains=c("SurfaceGeometryMetaInfo"))
 
 #' SurfaceDataMetaInfo
 #'
@@ -164,7 +164,7 @@ setClass("FreeSurferSurfaceGeometryMetaInfo", contains=c("SurfaceGeometryMetaInf
 #' in the surface data matrix; nels = 1 for a single surface data set)
 #' @slot label a label indicating the type of surface
 #' (e.g. white, pial, inflated, flat, spherical)
-#' 
+#'
 #' @examples
 #' \donttest{
 #' # Create a SurfaceDataMetaInfo object
@@ -176,7 +176,7 @@ setClass("FreeSurferSurfaceGeometryMetaInfo", contains=c("SurfaceGeometryMetaInf
 #'                  nels = 1L,
 #'                  label = "thickness")
 #' }
-#' 
+#'
 #' @export
 setClass("SurfaceDataMetaInfo",
          representation=
@@ -196,7 +196,7 @@ setClass("SurfaceDataMetaInfo",
 #' @rdname NIMLSurfaceDataMetaInfo-class
 #' @slot data the numeric data matrix of surface values (rows = nodes, columns=surface vectors)
 #' @slot node_indices the indices of the nodes for mapping to associated surface geometry.
-#' 
+#'
 #' @examples
 #' \donttest{
 #' # Create a SurfaceDataMetaInfo parent object
@@ -207,13 +207,13 @@ setClass("SurfaceDataMetaInfo",
 #'                  node_count = 10000L,
 #'                  nels = 2L,
 #'                  label = "thickness")
-#'                  
+#'
 #' # Create sample data matrix (10000 nodes, 2 data vectors)
 #' surface_data <- matrix(rnorm(20000), nrow = 10000, ncol = 2)
-#' 
+#'
 #' # Create node indices
 #' node_indices <- 1:10000
-#' 
+#'
 #' # Create NIMLSurfaceDataMetaInfo object
 #' niml_meta <- new("NIMLSurfaceDataMetaInfo",
 #'                 header_file = meta_info@header_file,
@@ -225,7 +225,7 @@ setClass("SurfaceDataMetaInfo",
 #'                 data = surface_data,
 #'                 node_indices = node_indices)
 #' }
-#' 
+#'
 #' @export
 setClass("NIMLSurfaceDataMetaInfo",
          representation=
@@ -241,7 +241,7 @@ setClass("NIMLSurfaceDataMetaInfo",
 #'
 #' @rdname GIFTISurfaceGeometryMetaInfo-class
 #' @slot info the underlying \code{gifti} object returned by \code{\link{readgii}}
-#' 
+#'
 #' @examples
 #' \donttest{
 #' # First create a SurfaceGeometryMetaInfo parent object
@@ -254,14 +254,14 @@ setClass("NIMLSurfaceDataMetaInfo",
 #'                  embed_dimension = 3L,
 #'                  label = "white",
 #'                  hemi = "lh")
-#'                  
+#'
 #' # Use the example file included in the package
 #' example_gii_file <- system.file("extdata", "rscan01_lh.gii", package = "neurostyle")
-#' 
+#'
 #' if (file.exists(example_gii_file) && requireNamespace("gifti", quietly = TRUE)) {
 #'   # Load the actual GIFTI file
 #'   gifti_obj <- gifti::readgii(example_gii_file)
-#'   
+#'
 #'   # Create GIFTISurfaceGeometryMetaInfo object with the real file
 #'   gifti_meta <- new("GIFTISurfaceGeometryMetaInfo",
 #'                    header_file = meta_info@header_file,
@@ -275,7 +275,7 @@ setClass("NIMLSurfaceDataMetaInfo",
 #'                    info = gifti_obj)
 #' }
 #' }
-#' 
+#'
 #' @import gifti
 #' @export
 setClass("GIFTISurfaceGeometryMetaInfo",
@@ -290,7 +290,7 @@ setClass("GIFTISurfaceGeometryMetaInfo",
 #'
 #' @rdname GIFTISurfaceDataMetaInfo-class
 #' @slot info the underlying \code{gifti} object returned by \code{\link{readgii}}
-#' 
+#'
 #' @examples
 #' \donttest{
 #' # First create a SurfaceDataMetaInfo parent object
@@ -301,14 +301,14 @@ setClass("GIFTISurfaceGeometryMetaInfo",
 #'                  node_count = 40000L,
 #'                  nels = 1L,
 #'                  label = "thickness")
-#'                  
+#'
 #' # Use the example file included in the package
 #' example_gii_file <- system.file("extdata", "rscan01_lh.gii", package = "neurostyle")
-#' 
+#'
 #' if (file.exists(example_gii_file) && requireNamespace("gifti", quietly = TRUE)) {
 #'   # Load the actual GIFTI file
 #'   gifti_obj <- gifti::readgii(example_gii_file)
-#'   
+#'
 #'   # Create GIFTISurfaceDataMetaInfo object with the real file
 #'   gifti_data_meta <- new("GIFTISurfaceDataMetaInfo",
 #'                         header_file = meta_info@header_file,
@@ -320,7 +320,7 @@ setClass("GIFTISurfaceGeometryMetaInfo",
 #'                         info = gifti_obj)
 #' }
 #' }
-#' 
+#'
 #' @import gifti
 #' @export
 setClass("GIFTISurfaceDataMetaInfo",
@@ -417,10 +417,10 @@ setClass("SurfaceGeometrySource",
 #'   1, 3, 4,
 #'   2, 3, 4
 #' )
-#' 
+#'
 #' # Create mesh3d object
 #' mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
-#' 
+#'
 #' # Create a graph representation
 #' edges <- rbind(
 #'   c(1,2), c(1,3), c(1,4),
@@ -428,13 +428,13 @@ setClass("SurfaceGeometrySource",
 #'   c(3,4)
 #' )
 #' graph <- igraph::graph_from_edgelist(edges)
-#' 
+#'
 #' # Create a SurfaceGeometry object
 #' geometry <- new("SurfaceGeometry",
 #'                mesh = mesh,
 #'                graph = graph,
 #'                hemi = "left")
-#'                
+#'
 #' # Create a SurfaceDataMetaInfo object
 #' data_meta_info <- new("SurfaceDataMetaInfo",
 #'                       header_file = "data_meta.txt",
@@ -443,7 +443,7 @@ setClass("SurfaceGeometrySource",
 #'                       node_count = 4L,
 #'                       nels = 1L,
 #'                       label = "thickness")
-#'                       
+#'
 #' # Create a NeuroSurfaceSource object
 #' neuro_source <- new("NeuroSurfaceSource",
 #'                     geometry = geometry,
@@ -510,22 +510,22 @@ setClass("GIFTISurfaceFileDescriptor", contains=c("FileFormat"))
 #' FresurferAsciiSurfaceFileDescriptor
 #'
 #' This class supports the Freesurfer Ascii file format for surface geometry
-#' 
+#'
 #' @rdname FreesurferAsciiSurfaceFileDescriptor-class
-#' 
+#'
 #' @examples
 #' \donttest{
 #' # Create a FreesurferAsciiSurfaceFileDescriptor object
 #' fs_ascii_descriptor <- new("FreesurferAsciiSurfaceFileDescriptor")
-#' 
+#'
 #' # This descriptor would typically be used when loading Freesurfer ASCII surfaces
 #' # Example of a path to a Freesurfer ASCII surface file:
 #' # fs_ascii_file <- "/path/to/subject/surf/lh.pial.asc"
-#' 
+#'
 #' # In practice, this descriptor would be used in code like:
 #' # surface_geo <- loadSurfaceGeometry(fs_ascii_file, descriptor = fs_ascii_descriptor)
 #' }
-#' 
+#'
 #' @export
 setClass("FreesurferAsciiSurfaceFileDescriptor", contains=c("FileFormat"))
 
@@ -534,20 +534,20 @@ setClass("FreesurferAsciiSurfaceFileDescriptor", contains=c("FileFormat"))
 #' This class supports the Freesurfer binary file format for surface geometry
 #'
 #' @rdname FreesurferBinarySurfaceFileDescriptor-class
-#' 
+#'
 #' @examples
 #' \donttest{
 #' # Create a FreesurferBinarySurfaceFileDescriptor object
 #' fs_binary_descriptor <- new("FreesurferBinarySurfaceFileDescriptor")
-#' 
+#'
 #' # This descriptor would typically be used when loading Freesurfer binary surfaces
 #' # Example of a path to a Freesurfer binary surface file:
 #' # fs_binary_file <- "/path/to/subject/surf/lh.pial"
-#' 
+#'
 #' # In practice, this descriptor would be used in code like:
 #' # surface_geo <- loadSurfaceGeometry(fs_binary_file, descriptor = fs_binary_descriptor)
 #' }
-#' 
+#'
 #' @export
 setClass("FreesurferBinarySurfaceFileDescriptor", contains=c("FileFormat"))
 
@@ -561,18 +561,18 @@ setClass("FreesurferBinarySurfaceFileDescriptor", contains=c("FileFormat"))
 #' @slot data the vector-valued \code{numeric} data stored in ROI
 #' @slot coords the surface-based coordinates of the data
 #' @slot indices the node indices of the parent surface stored in the \code{geometry} field.
-#' 
+#'
 #' @details
-#' The ROISurface class provides a way to represent a specific subset of vertices on a 
+#' The ROISurface class provides a way to represent a specific subset of vertices on a
 #' brain surface along with their associated data values. This is particularly useful
 #' for analyzing or visualizing specific anatomical or functional regions on the cortical
 #' surface.
-#' 
+#'
 #' The class maintains a reference to the complete parent surface geometry while storing
-#' only the relevant subset of vertices, their coordinates, and their data values. The 
+#' only the relevant subset of vertices, their coordinates, and their data values. The
 #' \code{indices} slot allows mapping back to the original vertex indices in the parent
 #' surface.
-#' 
+#'
 #' Typical use cases include:
 #' \itemize{
 #'   \item Extracting and analyzing data from anatomical regions of interest
@@ -580,7 +580,7 @@ setClass("FreesurferBinarySurfaceFileDescriptor", contains=c("FileFormat"))
 #'   \item Isolating specific surface features for detailed investigation
 #'   \item Statistical analysis of data within defined surface regions
 #' }
-#' 
+#'
 #' @examples
 #' \donttest{
 #' # Create a simple tetrahedron mesh for the example
@@ -596,10 +596,10 @@ setClass("FreesurferBinarySurfaceFileDescriptor", contains=c("FileFormat"))
 #'   1, 3, 4,
 #'   2, 3, 4
 #' )
-#' 
+#'
 #' # Create mesh3d object
 #' mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
-#' 
+#'
 #' # Create a graph representation
 #' edges <- rbind(
 #'   c(1,2), c(1,3), c(1,4),
@@ -607,26 +607,26 @@ setClass("FreesurferBinarySurfaceFileDescriptor", contains=c("FileFormat"))
 #'   c(3,4)
 #' )
 #' graph <- igraph::graph_from_edgelist(edges)
-#' 
+#'
 #' # Create a SurfaceGeometry object
 #' geometry <- new("SurfaceGeometry",
 #'                mesh = mesh,
 #'                graph = graph,
 #'                hemi = "left")
-#'                
+#'
 #' # Define the ROI - just using vertices 1 and 2 as an example
 #' roi_indices <- c(1L, 2L)
-#' 
+#'
 #' # Extract coordinates for these vertices
 #' roi_coords <- matrix(
 #'   c(0, 0, 0,  # coordinates for vertex 1
 #'     1, 0, 0), # coordinates for vertex 2
 #'   ncol = 3, byrow = TRUE
 #' )
-#' 
+#'
 #' # Create data values for the ROI vertices
 #' roi_data <- c(0.75, 1.25)  # example values for the two vertices
-#' 
+#'
 #' # Create the ROISurface object
 #' roi <- new("ROISurface",
 #'           geometry = geometry,
@@ -634,7 +634,7 @@ setClass("FreesurferBinarySurfaceFileDescriptor", contains=c("FileFormat"))
 #'           coords = roi_coords,
 #'           indices = roi_indices)
 #' }
-#' 
+#'
 #' @importClassesFrom neuroim2 ROI
 #' @exportClass ROISurface
 #' @rdname ROISurface-class
@@ -658,14 +658,14 @@ setClass("ROISurface",
 #' @slot data \code{matrix} data stored in ROI with number of columns equal to number of coordinates in ROI.
 #' @slot coords the surface-based coordinates of the data
 #' @slot indices the nodes of the parent surface stored in the \code{geometry} field.
-#' 
+#'
 #' @details
-#' The ROISurfaceVector class extends the concept of ROISurface to handle multiple measurements 
+#' The ROISurfaceVector class extends the concept of ROISurface to handle multiple measurements
 #' for each vertex in the region of interest. While ROISurface stores a single value per vertex,
 #' ROISurfaceVector stores a matrix of values where each row represents a different measure and
 #' each column corresponds to a vertex.
-#' 
-#' This structure is particularly useful for multivariate analyses of specific brain regions, 
+#'
+#' This structure is particularly useful for multivariate analyses of specific brain regions,
 #' allowing researchers to:
 #' \itemize{
 #'   \item Store time series data for each vertex in an ROI
@@ -673,11 +673,11 @@ setClass("ROISurface",
 #'   \item Perform multivariate statistical analyses on regional surface data
 #'   \item Compare different metrics within the same anatomical region
 #' }
-#' 
+#'
 #' The data matrix is organized with rows representing different measures and columns
 #' representing different vertices, which facilitates efficient access to all measurements
 #' for a particular vertex or all vertices for a particular measurement.
-#' 
+#'
 #' @examples
 #' \donttest{
 #' # Create a simple tetrahedron mesh for the example
@@ -693,10 +693,10 @@ setClass("ROISurface",
 #'   1, 3, 4,
 #'   2, 3, 4
 #' )
-#' 
+#'
 #' # Create mesh3d object
 #' mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
-#' 
+#'
 #' # Create a graph representation
 #' edges <- rbind(
 #'   c(1,2), c(1,3), c(1,4),
@@ -704,32 +704,32 @@ setClass("ROISurface",
 #'   c(3,4)
 #' )
 #' graph <- igraph::graph_from_edgelist(edges)
-#' 
+#'
 #' # Create a SurfaceGeometry object
 #' geometry <- new("SurfaceGeometry",
 #'                mesh = mesh,
 #'                graph = graph,
 #'                hemi = "left")
-#'                
+#'
 #' # Define the ROI - just using vertices 1 and 2 as an example
 #' roi_indices <- c(1L, 2L)
-#' 
+#'
 #' # Extract coordinates for these vertices
 #' roi_coords <- matrix(
 #'   c(0, 0, 0,  # coordinates for vertex 1
 #'     1, 0, 0), # coordinates for vertex 2
 #'   ncol = 3, byrow = TRUE
 #' )
-#' 
+#'
 #' # Create data matrix for the ROI vertices - 3 different measures
 #' # Each row represents a different measure, each column a different vertex
 #' roi_data <- matrix(
-#'   c(0.75, 1.25,  # values for measure 1 
+#'   c(0.75, 1.25,  # values for measure 1
 #'     0.50, 0.80,  # values for measure 2
 #'     0.30, 0.60), # values for measure 3
 #'   nrow = 3, ncol = 2
 #' )
-#' 
+#'
 #' # Create the ROISurfaceVector object
 #' roi_vector <- new("ROISurfaceVector",
 #'                  geometry = geometry,
@@ -737,7 +737,7 @@ setClass("ROISurface",
 #'                  coords = roi_coords,
 #'                  indices = roi_indices)
 #' }
-#' 
+#'
 #' @exportClass ROISurfaceVector
 #' @rdname ROISurfaceVector-class
 setClass("ROISurfaceVector",
@@ -764,13 +764,13 @@ setClass("ROISurfaceVector",
 #' @rdname VertexData-class
 #' @slot indices the node indices
 #' @slot data the associated table with \code{nrow(data) == length(indices)}
-#' 
+#'
 #' @details
 #' The VertexData class provides a flexible way to associate arbitrary data with specific vertices
-#' in a brain surface. Unlike ROISurface and similar classes, VertexData does not require or 
-#' maintain a reference to surface geometry, making it lighter and more versatile for storing 
+#' in a brain surface. Unlike ROISurface and similar classes, VertexData does not require or
+#' maintain a reference to surface geometry, making it lighter and more versatile for storing
 #' and manipulating vertex-specific information.
-#' 
+#'
 #' This class is particularly useful for:
 #' \itemize{
 #'   \item Storing heterogeneous data (different data types) associated with vertices
@@ -778,17 +778,17 @@ setClass("ROISurfaceVector",
 #'   \item Tracking vertex-specific annotations or classifications
 #'   \item Creating lookup tables for vertex properties that can be joined with other data
 #' }
-#' 
-#' The \code{data} slot contains a data frame where each row corresponds to a vertex 
+#'
+#' The \code{data} slot contains a data frame where each row corresponds to a vertex
 #' in the same order as the \code{indices} slot. This structure allows storing multiple attributes
-#' of different types (numeric, character, logical) for each vertex, and facilitates 
+#' of different types (numeric, character, logical) for each vertex, and facilitates
 #' standard data frame operations like filtering, sorting, and joining.
-#' 
+#'
 #' @examples
 #' \donttest{
 #' # Create a set of vertex indices
 #' vertex_indices <- c(10L, 25L, 50L, 100L, 200L)
-#' 
+#'
 #' # Create a data frame with information for each vertex
 #' # Each row corresponds to one vertex in the same order as indices
 #' vertex_data <- data.frame(
@@ -796,18 +796,18 @@ setClass("ROISurfaceVector",
 #'   label = c("A", "B", "A", "C", "B"),
 #'   significant = c(TRUE, FALSE, TRUE, TRUE, FALSE)
 #' )
-#' 
+#'
 #' # Create the VertexData object
 #' vd <- new("VertexData",
 #'          indices = vertex_indices,
 #'          data = vertex_data)
-#'          
+#'
 #' # Access the data
 #' # vd@data$value
 #' # vd@data$label[vd@data$significant]
 #' # vd@indices[vd@data$label == "A"]
 #' }
-#' 
+#'
 #' @export
 setClass("VertexData",
          representation=representation(indices="integer",
@@ -828,28 +828,28 @@ setClass("VertexData",
 #' @slot geometry the surface geometry, an instance of \code{SurfaceGeometry}
 #' @slot indices an \code{integer} vector specifying the subset of valid surface nodes encoded in the \code{geometry} object.
 #' @slot data the 1-D vector of data value at each vertex of the mesh
-#' 
+#'
 #' @details
 #' The NeuroSurface class is a fundamental representation of surface-based neuroimaging data.
-#' It combines geometric information about a brain surface with data values mapped to 
+#' It combines geometric information about a brain surface with data values mapped to
 #' each vertex of that surface.
-#' 
+#'
 #' The class consists of three core components:
 #' \itemize{
 #'   \item \code{geometry}: The underlying 3D surface structure, containing vertex coordinates,
 #'      face definitions, and topological information
 #'   \item \code{indices}: Identifiers for the subset of vertices in the geometry that have
 #'      associated data values
-#'   \item \code{data}: A numeric vector containing one value per vertex, representing 
+#'   \item \code{data}: A numeric vector containing one value per vertex, representing
 #'      measurements such as cortical thickness, functional activation, or any other
 #'      surface-mapped metric
 #' }
-#' 
+#'
 #' This class serves as the foundation for more specialized surface representations like
 #' \code{ColorMappedNeuroSurface}, \code{VertexColoredNeuroSurface}, and \code{LabeledNeuroSurface}.
 #' It facilitates common operations such as visualization, statistical analysis, and spatial
 #' processing of surface-based neuroimaging data.
-#' 
+#'
 #' @examples
 #' \donttest{
 #' # Create a simple tetrahedron mesh for the example
@@ -865,10 +865,10 @@ setClass("VertexData",
 #'   1, 3, 4,
 #'   2, 3, 4
 #' )
-#' 
+#'
 #' # Create mesh3d object
 #' mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
-#' 
+#'
 #' # Create a graph representation
 #' edges <- rbind(
 #'   c(1,2), c(1,3), c(1,4),
@@ -876,29 +876,29 @@ setClass("VertexData",
 #'   c(3,4)
 #' )
 #' graph <- igraph::graph_from_edgelist(edges)
-#' 
+#'
 #' # Create a SurfaceGeometry object
 #' geometry <- new("SurfaceGeometry",
 #'                mesh = mesh,
 #'                graph = graph,
 #'                hemi = "left")
-#'                
+#'
 #' # Define indices for all vertices
 #' indices <- 1:4
-#' 
+#'
 #' # Create data values for each vertex
 #' vertex_data <- c(0.5, 1.2, 0.8, 1.5)  # example values for the vertices
-#' 
+#'
 #' # Create the NeuroSurface object
 #' neuro_surface <- new("NeuroSurface",
 #'                     geometry = geometry,
 #'                     indices = indices,
 #'                     data = vertex_data)
-#'                     
+#'
 #' # The data values are now mapped to the surface vertices
 #' # and can be visualized or analyzed
 #' }
-#' 
+#'
 #' @export
 setClass("NeuroSurface",
          slots=c(geometry="SurfaceGeometry",
@@ -922,7 +922,7 @@ setClass("NeuroSurface",
 #' @slot cmap A character vector of hex color codes representing the colormap
 #' @slot irange A numeric vector of length 2 specifying the low and high values for color mapping
 #' @slot thresh A numeric vector of length 2 specifying the low and high thresholds for visibility
-#' 
+#'
 #' @details
 #' This class extends \code{NeuroSurface} by adding color mapping functionality.
 #' The \code{cmap} slot contains a vector of hex color codes that define the colormap.
@@ -938,11 +938,11 @@ setClass("NeuroSurface",
 #' }
 #'
 #' This approach is particularly useful for visualizing statistical maps (e.g., t-statistics)
-#' where researchers are often interested in highlighting values above or below certain 
+#' where researchers are often interested in highlighting values above or below certain
 #' significance thresholds.
 #'
 #' @seealso \code{\link{view_surface}}
-#' 
+#'
 #' @examples
 #' \donttest{
 #' # First create a simple tetrahedron mesh
@@ -958,10 +958,10 @@ setClass("NeuroSurface",
 #'   1, 3, 4,
 #'   2, 3, 4
 #' )
-#' 
+#'
 #' # Create mesh3d object
 #' mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
-#' 
+#'
 #' # Create a graph representation
 #' edges <- rbind(
 #'   c(1,2), c(1,3), c(1,4),
@@ -969,28 +969,28 @@ setClass("NeuroSurface",
 #'   c(3,4)
 #' )
 #' graph <- igraph::graph_from_edgelist(edges)
-#' 
+#'
 #' # Create a SurfaceGeometry object
 #' geometry <- new("SurfaceGeometry",
 #'                mesh = mesh,
 #'                graph = graph,
 #'                hemi = "left")
-#'                
+#'
 #' # Define indices for all vertices
 #' indices <- 1:4
-#' 
+#'
 #' # Create data values for each vertex
 #' vertex_data <- c(-1.5, -0.5, 0.8, 2.0)  # example values for the vertices
-#' 
+#'
 #' # Define a simple colormap (blue to red)
 #' colormap <- c("#0000FF", "#FFFFFF", "#FF0000")
-#' 
+#'
 #' # Define intensity range for mapping data to colors
 #' intensity_range <- c(-2.0, 2.0)
-#' 
+#'
 #' # Define thresholds (values between -0.5 and 0.5 will be invisible)
 #' thresholds <- c(-0.5, 0.5)
-#' 
+#'
 #' # Create the ColorMappedNeuroSurface object
 #' colored_surface <- new("ColorMappedNeuroSurface",
 #'                       geometry = geometry,
@@ -999,14 +999,14 @@ setClass("NeuroSurface",
 #'                       cmap = colormap,
 #'                       irange = intensity_range,
 #'                       thresh = thresholds)
-#'                       
+#'
 #' # In this example:
 #' # - Vertex 1 (-1.5) will be visible and colored blue (below lower threshold)
-#' # - Vertex 2 (-0.5) will be exactly at the lower threshold 
+#' # - Vertex 2 (-0.5) will be exactly at the lower threshold
 #' # - Vertex 3 (0.8) will be visible and colored light red (above upper threshold)
 #' # - Vertex 4 (2.0) will be visible and colored bright red (above upper threshold)
 #' }
-#' 
+#'
 #' @export
 setClass("ColorMappedNeuroSurface",
          slots = c(
@@ -1043,7 +1043,7 @@ setClass("ColorMappedNeuroSurface",
 #' @slot geometry The surface geometry, an instance of \code{SurfaceGeometry}
 #' @slot indices An \code{integer} vector specifying the subset of valid surface nodes encoded in the \code{geometry} object
 #' @slot colors A character vector of hex color codes representing the color of each vertex
-#' 
+#'
 #' @examples
 #' \donttest{
 #' # First create a simple tetrahedron mesh
@@ -1059,10 +1059,10 @@ setClass("ColorMappedNeuroSurface",
 #'   1, 3, 4,
 #'   2, 3, 4
 #' )
-#' 
+#'
 #' # Create mesh3d object
 #' mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
-#' 
+#'
 #' # Create a graph representation
 #' edges <- rbind(
 #'   c(1,2), c(1,3), c(1,4),
@@ -1070,19 +1070,19 @@ setClass("ColorMappedNeuroSurface",
 #'   c(3,4)
 #' )
 #' graph <- igraph::graph_from_edgelist(edges)
-#' 
+#'
 #' # Create a SurfaceGeometry object
 #' geometry <- new("SurfaceGeometry",
 #'                mesh = mesh,
 #'                graph = graph,
 #'                hemi = "left")
-#'                
+#'
 #' # Define indices for all vertices
 #' indices <- 1:4
-#' 
+#'
 #' # Create placeholder data (required by NeuroSurface parent class)
 #' vertex_data <- c(0, 0, 0, 0)  # Not used for coloring
-#' 
+#'
 #' # Define explicit colors for each vertex
 #' vertex_colors <- c(
 #'   "#FF0000",  # Red for vertex 1
@@ -1090,21 +1090,21 @@ setClass("ColorMappedNeuroSurface",
 #'   "#0000FF",  # Blue for vertex 3
 #'   "#FFFF00"   # Yellow for vertex 4
 #' )
-#' 
+#'
 #' # Create the VertexColoredNeuroSurface object
 #' colored_vertices <- new("VertexColoredNeuroSurface",
 #'                        geometry = geometry,
 #'                        indices = indices,
 #'                        data = vertex_data,
 #'                        colors = vertex_colors)
-#'                        
+#'
 #' # In this example, each vertex has an explicit color:
 #' # - Vertex 1 is red
-#' # - Vertex 2 is green 
+#' # - Vertex 2 is green
 #' # - Vertex 3 is blue
 #' # - Vertex 4 is yellow
 #' }
-#' 
+#'
 #' @details
 #' This class extends \code{NeuroSurface} by adding per-vertex coloring functionality.
 #' The \code{colors} slot contains a vector of hex color codes that define the color for each vertex.
@@ -1112,7 +1112,7 @@ setClass("ColorMappedNeuroSurface",
 #' but instead directly specifies colors for each vertex.
 #'
 #' @seealso \code{\link{view_surface}}
-#' 
+#'
 #' @export
 setClass("VertexColoredNeuroSurface",
          slots = c(
@@ -1155,10 +1155,10 @@ setClass("VertexColoredNeuroSurface",
 #'   1, 3, 4,
 #'   2, 3, 4
 #' )
-#' 
+#'
 #' # Create mesh3d object
 #' mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
-#' 
+#'
 #' # Create a graph representation
 #' edges <- rbind(
 #'   c(1,2), c(1,3), c(1,4),
@@ -1166,25 +1166,25 @@ setClass("VertexColoredNeuroSurface",
 #'   c(3,4)
 #' )
 #' graph <- igraph::graph_from_edgelist(edges)
-#' 
+#'
 #' # Create a SurfaceGeometry object
 #' geometry <- new("SurfaceGeometry",
 #'                mesh = mesh,
 #'                graph = graph,
 #'                hemi = "left")
-#'                
+#'
 #' # Define indices for all vertices
 #' indices <- 1:4
-#' 
+#'
 #' # Create data values for each vertex
 #' vertex_data <- c(1, 2, 1, 3)  # Values representing region IDs
-#' 
+#'
 #' # Define the unique labels for the regions
 #' labels <- c("Region A", "Region B", "Region C")
-#' 
+#'
 #' # Define colors for each label (in the same order as labels)
 #' colors <- c("#FF0000", "#00FF00", "#0000FF")  # Red, Green, Blue
-#' 
+#'
 #' # Create the LabeledNeuroSurface object
 #' labeled_surface <- new("LabeledNeuroSurface",
 #'                       geometry = geometry,
@@ -1192,19 +1192,19 @@ setClass("VertexColoredNeuroSurface",
 #'                       data = vertex_data,
 #'                       labels = labels,
 #'                       cols = colors)
-#'                       
+#'
 #' # In this example, vertices are labeled as follows:
 #' # - Vertices 1 and 3 belong to "Region A" (Red)
 #' # - Vertex 2 belongs to "Region B" (Green)
 #' # - Vertex 4 belongs to "Region C" (Blue)
 #' }
-#' 
+#'
 #' @details
 #' The LabeledNeuroSurface class provides a way to represent anatomical parcellations
 #' or other categorical divisions of a brain surface. Each vertex is assigned a label
 #' based on its data value, which typically represents a region ID. The class maintains
 #' a mapping between these IDs and human-readable labels, along with colors for visualization.
-#' 
+#'
 #' This is particularly useful for displaying anatomical atlases or the results of clustering
 #' algorithms on the brain surface.
 #'
@@ -1232,11 +1232,11 @@ setClass("LabeledNeuroSurface",
 #' @slot data Matrix of values, where columns represent different measures and rows correspond to surface nodes
 #'
 #' @details
-#' The NeuroSurfaceVector class extends the concept of NeuroSurface to handle multiple measurements 
+#' The NeuroSurfaceVector class extends the concept of NeuroSurface to handle multiple measurements
 #' for each vertex across the entire surface. Unlike NeuroSurface which stores a single value per vertex,
 #' NeuroSurfaceVector stores a matrix of values where columns represent different measures and rows
 #' correspond to vertices.
-#' 
+#'
 #' This structure is particularly useful for:
 #' \itemize{
 #'   \item Time series data where each column represents a different timepoint
@@ -1244,9 +1244,9 @@ setClass("LabeledNeuroSurface",
 #'   \item Statistical results where columns represent different statistical parameters
 #'   \item Feature vectors for machine learning applications
 #' }
-#' 
+#'
 #' The data matrix organization (vertices as rows, measures as columns) facilitates efficient
-#' vertex-wise operations and analyses. This is in contrast to ROISurfaceVector where the matrix 
+#' vertex-wise operations and analyses. This is in contrast to ROISurfaceVector where the matrix
 #' is transposed (measures as rows, vertices as columns).
 #'
 #' @examples
@@ -1264,10 +1264,10 @@ setClass("LabeledNeuroSurface",
 #'   1, 3, 4,
 #'   2, 3, 4
 #' )
-#' 
+#'
 #' # Create mesh3d object
 #' mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
-#' 
+#'
 #' # Create a graph representation
 #' edges <- rbind(
 #'   c(1,2), c(1,3), c(1,4),
@@ -1275,16 +1275,16 @@ setClass("LabeledNeuroSurface",
 #'   c(3,4)
 #' )
 #' graph <- igraph::graph_from_edgelist(edges)
-#' 
+#'
 #' # Create a SurfaceGeometry object
 #' geometry <- new("SurfaceGeometry",
 #'                mesh = mesh,
 #'                graph = graph,
 #'                hemi = "left")
-#'                
+#'
 #' # Define indices for all vertices
 #' indices <- 1:4
-#' 
+#'
 #' # Create a Matrix with multiple measures for each vertex
 #' # Each row corresponds to a vertex, each column to a different measure
 #' require(Matrix)
@@ -1295,13 +1295,13 @@ setClass("LabeledNeuroSurface",
 #'   nrow = 4, ncol = 3,
 #'   byrow = FALSE
 #' )
-#' 
+#'
 #' # Create the NeuroSurfaceVector object
 #' neuro_surface_vector <- new("NeuroSurfaceVector",
 #'                          geometry = geometry,
 #'                          indices = indices,
 #'                          data = vertex_data)
-#'                     
+#'
 #' # The data matrix now maps multiple values to each surface vertex
 #' # Vertex 1 has values: 0.5, 0.7, 1.1
 #' # Vertex 2 has values: 1.2, 0.3, 0.6
@@ -1330,18 +1330,18 @@ setClass("NeuroSurfaceVector",
 #' @slot right NeuroSurfaceVector instance for the right hemisphere
 #'
 #' @details
-#' The BilatNeuroSurfaceVector class provides a convenient container for organizing and 
-#' analyzing data from both hemispheres of the brain simultaneously. It holds two 
+#' The BilatNeuroSurfaceVector class provides a convenient container for organizing and
+#' analyzing data from both hemispheres of the brain simultaneously. It holds two
 #' NeuroSurfaceVector objects, one for each hemisphere, allowing researchers to:
-#' 
+#'
 #' \itemize{
 #'   \item Analyze bilateral symmetric or asymmetric patterns in brain data
 #'   \item Compare corresponding regions across hemispheres
 #'   \item Represent whole-brain surface data with proper hemisphere separation
 #'   \item Apply operations to both hemispheres while maintaining their distinct identities
 #' }
-#' 
-#' This class is particularly useful for studies examining interhemispheric differences, 
+#'
+#' This class is particularly useful for studies examining interhemispheric differences,
 #' bilateral effects, or any analysis that requires maintaining separate representations
 #' of the two hemispheres while treating them as parts of a unified whole.
 #'
@@ -1362,18 +1362,18 @@ setClass("NeuroSurfaceVector",
 #'   0, 1, 0,
 #'   0, 0, 1
 #' )
-#' 
+#'
 #' triangles <- c(
 #'   1, 2, 3,
 #'   1, 2, 4,
 #'   1, 3, 4,
 #'   2, 3, 4
 #' )
-#' 
+#'
 #' # Create mesh3d objects
 #' lh_mesh <- rgl::mesh3d(vertices = lh_vertices, triangles = triangles)
 #' rh_mesh <- rgl::mesh3d(vertices = rh_vertices, triangles = triangles)
-#' 
+#'
 #' # Create graph representations
 #' edges <- rbind(
 #'   c(1,2), c(1,3), c(1,4),
@@ -1382,53 +1382,53 @@ setClass("NeuroSurfaceVector",
 #' )
 #' lh_graph <- igraph::graph_from_edgelist(edges)
 #' rh_graph <- igraph::graph_from_edgelist(edges)
-#' 
+#'
 #' # Create SurfaceGeometry objects
-#' lh_geometry <- new("SurfaceGeometry", 
-#'                   mesh = lh_mesh, 
+#' lh_geometry <- new("SurfaceGeometry",
+#'                   mesh = lh_mesh,
 #'                   graph = lh_graph,
 #'                   hemi = "left")
-#' rh_geometry <- new("SurfaceGeometry", 
-#'                   mesh = rh_mesh, 
+#' rh_geometry <- new("SurfaceGeometry",
+#'                   mesh = rh_mesh,
 #'                   graph = rh_graph,
 #'                   hemi = "right")
-#'                   
+#'
 #' # Define indices for all vertices
 #' indices <- 1:4
-#' 
+#'
 #' # Create Matrix data for each hemisphere
 #' # Each has 4 vertices and 2 measures
 #' require(Matrix)
 #' lh_data <- Matrix(
-#'   c(0.5, 1.2, 0.8, 0.6,   # Measure 1 values 
+#'   c(0.5, 1.2, 0.8, 0.6,   # Measure 1 values
 #'     0.7, 0.3, 1.5, 0.9),  # Measure 2 values
 #'   nrow = 4, ncol = 2,
 #'   byrow = FALSE
 #' )
-#' 
+#'
 #' rh_data <- Matrix(
 #'   c(0.4, 1.1, 0.7, 0.5,   # Measure 1 values (slightly different from left)
 #'     0.8, 0.4, 1.6, 1.0),  # Measure 2 values (slightly different from left)
 #'   nrow = 4, ncol = 2,
 #'   byrow = FALSE
 #' )
-#' 
+#'
 #' # Create NeuroSurfaceVector objects for each hemisphere
 #' lh_nsv <- new("NeuroSurfaceVector",
 #'              geometry = lh_geometry,
 #'              indices = indices,
 #'              data = lh_data)
-#'              
+#'
 #' rh_nsv <- new("NeuroSurfaceVector",
 #'              geometry = rh_geometry,
 #'              indices = indices,
 #'              data = rh_data)
-#'              
+#'
 #' # Create the BilatNeuroSurfaceVector object
 #' bilat_nsv <- new("BilatNeuroSurfaceVector",
 #'                 left = lh_nsv,
 #'                 right = rh_nsv)
-#'                 
+#'
 #' # Now you can access each hemisphere separately:
 #' # bilat_nsv@left@data  # Left hemisphere data
 #' # bilat_nsv@right@data # Right hemisphere data

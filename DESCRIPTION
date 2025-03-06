@@ -52,6 +52,7 @@ Collate:
     'surfwidget.R'
     'view_surface.R'
     'vol_to_surf.R'
+    'zzz.R'
 Suggests: 
     testthat,
     covr,

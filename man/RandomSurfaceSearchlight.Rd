@@ -4,7 +4,12 @@
 \alias{RandomSurfaceSearchlight}
 \title{Create a Random Searchlight iterator for surface mesh}
 \usage{
-RandomSurfaceSearchlight(surfgeom, radius = 8, nodeset = NULL)
+RandomSurfaceSearchlight(
+  surfgeom,
+  radius = 8,
+  nodeset = NULL,
+  as_deflist = FALSE
+)
 }
 \arguments{
 \item{surfgeom}{A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.}
@@ -12,6 +17,8 @@ RandomSurfaceSearchlight(surfgeom, radius = 8, nodeset = NULL)
 \item{radius}{Numeric, radius of the searchlight as a geodesic distance in mm.}
 
 \item{nodeset}{Integer vector, optional subset of surface node indices to use.}
+
+\item{as_deflist}{Logical, whether to return a deflist object.}
 }
 \value{
 An iterator object of class "RandomSurfaceSearchlight".

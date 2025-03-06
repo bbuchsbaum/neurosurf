@@ -25,12 +25,33 @@ hemisphere the surface represents.
 }}
 
 \examples{
-\dontrun{
-# Create a simple SurfaceGeometry object
-vertices <- matrix(rnorm(30), ncol = 3)
-faces <- matrix(sample(1:10, 30, replace = TRUE), ncol = 3)
-mesh <- rgl::tmesh3d(vertices = vertices, indices = faces)
-graph <- igraph::make_graph(edges = t(faces), n = nrow(vertices))
+\donttest{
+# Create a simple tetrahedron mesh
+vertices <- c(
+  0, 0, 0,
+  1, 0, 0,
+  0, 1, 0,
+  0, 0, 1
+)
+triangles <- c(
+  1, 2, 3,
+  1, 2, 4,
+  1, 3, 4,
+  2, 3, 4
+)
+
+# Create mesh3d object
+mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
+
+# Create a graph representation
+edges <- rbind(
+  c(1,2), c(1,3), c(1,4),
+  c(2,3), c(2,4),
+  c(3,4)
+)
+graph <- igraph::graph_from_edgelist(edges)
+
+# Create a SurfaceGeometry object
 surface <- new("SurfaceGeometry",
                mesh = mesh,
                graph = graph,

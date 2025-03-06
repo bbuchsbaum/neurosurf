@@ -2,7 +2,7 @@
 % Please edit documentation in R/IO.R
 \name{read_freesurfer_annot}
 \alias{read_freesurfer_annot}
-\title{Read FreeSurfer Annotation File}
+\title{Read Freesurfer Annotation File}
 \usage{
 read_freesurfer_annot(file_name, geometry)
 }
@@ -19,7 +19,7 @@ A LabeledNeuroSurface object containing:
   \item{cols}{Character vector of label colors in hex format}
 }
 \description{
-Reads a FreeSurfer annotation file and creates a LabeledNeuroSurface object.
+Reads a Freesurfer annotation file and creates a LabeledNeuroSurface object.
 }
 \details{
 This function reads binary data from a FreeSurfer annotation file,
@@ -28,7 +28,7 @@ It then constructs a LabeledNeuroSurface object using this information
 along with the provided surface geometry.
 }
 \examples{
-\dontrun{
+\donttest{
 geom <- readSurfaceGeometry("path/to/surface.gii")
 labeled_surface <- read_freesurfer_annot("path/to/labels.annot", geom)
 }

@@ -8,7 +8,8 @@ SurfaceSearchlight(
   surfgeom,
   radius = 8,
   nodeset = NULL,
-  distance_type = c("euclidean", "geodesic", "spherical")
+  distance_type = c("euclidean", "geodesic", "spherical"),
+  as_deflist = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ SurfaceSearchlight(
 \item{nodeset}{Integer vector, optional subset of surface node indices to use.}
 
 \item{distance_type}{Character, the distance metric to use: "euclidean", "geodesic", or "spherical".}
+
+\item{as_deflist}{Logical, whether to return a deflist object.}
 }
 \value{
 An iterator object of class "Searchlight".

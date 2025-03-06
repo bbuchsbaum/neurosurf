@@ -26,12 +26,28 @@ This function creates a new SurfaceGeometry object from vertex coordinates and f
 This function constructs a SurfaceGeometry object by creating a mesh and a graph
 representation of the surface. It uses the rgl package for 3D visualization and
 the igraph package for graph operations.
+
+The vertex indices in the faces matrix should be 0-based (starting from 0),
+as they get incremented by 1 when passed to the rgl mesh function.
 }
 \examples{
-\dontrun{
-vertices <- matrix(rnorm(300), ncol=3)
-faces <- matrix(sample(1:100, 300, replace=TRUE), ncol=3)
+\donttest{
+# Create a simple icosahedron-like mesh with 12 vertices
+set.seed(123)
+vertices <- matrix(rnorm(36), ncol=3)
+
+# Create faces with 0-based indices (0 to 11)
+# Each face connects three vertices
+faces <- matrix(sample(0:11, 60, replace=TRUE), ncol=3)
+
+# Create the SurfaceGeometry object
 surf_geom <- SurfaceGeometry(vertices, faces, "lh")
+
+# Visualize the mesh if rgl is available
+if(requireNamespace("rgl", quietly = TRUE)) {
+  rgl::open3d()
+  rgl::shade3d(surf_geom@mesh, col="lightblue")
+}
 }
 
 }

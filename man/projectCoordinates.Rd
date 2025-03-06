@@ -28,11 +28,24 @@ The values at these projected points are then smoothed using a kernel density sm
 The result is a \code{NeuroSurface} object containing the smoothed values, suitable for further analysis or visualization.
 }
 \examples{
-\dontrun{
-  # Example surface geometry and coordinates
-  coords <- matrix(runif(300, min=-30, max=30), ncol=3)  # 100 random 3D points
-  smooth_surface <- projectCoordinates(surfgeom, coords, sigma=3)
-  plot(smooth_surface)
-}
+# Load a sample surface from the package
+surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
+surfgeom <- readAsc(surf_file)
+
+# Get the surface coordinates
+surf_coords <- coords(surfgeom)
+
+# Create some sample 3D coordinates to project
+# We'll use a subset of the surface vertices with small random offsets
+set.seed(123)
+sample_indices <- sample(1:nrow(surf_coords), 50)
+sample_coords <- surf_coords[sample_indices, ] + matrix(rnorm(150, 0, 0.5), ncol = 3)
+
+# Project these coordinates onto the surface
+projected_surface <- projectCoordinates(surfgeom, sample_coords, sigma = 3)
+
+# Check the result
+max(series(projected_surface))  # Maximum density value
+sum(series(projected_surface) > 0)  # Number of vertices with non-zero values
 
 }

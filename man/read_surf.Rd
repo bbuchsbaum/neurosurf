@@ -2,7 +2,7 @@
 % Please edit documentation in R/IO.R
 \name{read_surf}
 \alias{read_surf}
-\title{read a surface data set}
+\title{Read Surface Data from a File}
 \usage{
 read_surf(
   surface_name,
@@ -27,5 +27,67 @@ an instance of the class:
  or \code{\linkS4class{NeuroSurfaceVector}}
 }
 \description{
+This function reads surface data from a file in one of the supported formats.
+}
+\details{
+The function supports reading surface data from various formats including:
+\itemize{
+  \item Freesurfer ASCII (.asc)
+  \item Freesurfer binary
+  \item GIFTI (.gii)
+  \item NIML Surface Dataset (.niml.dset)
+}
+
+The format is determined automatically from the file extension.
+}
+\examples{
+\donttest{
+# Find the path to the example surface file in the package
+surf_file <- system.file("extdata", "std.8.lh.white.asc", package = "neurosurfr")
+
+# Check if the file exists
+if (file.exists(surf_file)) {
+  # Read the surface data
+  surf <- read_surf(surf_file)
+
+  # Display basic information about the surface
+  print(surf)
+
+  # Get summary statistics of the surface data
+  summary(surf@data)
+
+  # Visualize the surface if rgl is available
+  if (requireNamespace("rgl", quietly = TRUE)) {
+    # Plot the surface mesh
+    rgl::open3d()
+    rgl::shade3d(surf@geometry@mesh, col = "lightblue")
+    rgl::title3d(main = "Example Surface")
+
+    # If the surface has data values, color the mesh by these values
+    if (length(surf@data) > 0) {
+      # Normalize data to [0,1] for coloring
+      norm_data <- (surf@data - min(surf@data)) / (max(surf@data) - min(surf@data))
+
+      # Create a color palette
+      colors <- grDevices::colorRampPalette(c("blue", "cyan", "green",
+                                             "yellow", "red"))(100)
+
+      # Map data values to colors
+      col_idx <- ceiling(norm_data * 99) + 1
+      vertex_colors <- colors[col_idx]
+
+      # Plot colored mesh
+      rgl::open3d()
+      rgl::shade3d(surf@geometry@mesh, col = vertex_colors)
+      rgl::title3d(main = "Surface Colored by Data Values")
+    }
+  }
+} else {
+  message("Example surface file not found. This may occur if the package ",
+          "was installed without the example data.")
+}
+}
+
 load a surface from a surface geometry file with optional mapped surface data
+
 }

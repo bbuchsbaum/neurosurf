@@ -1,10 +1,15 @@
-#' @importMethodsFrom neuroim2 data_reader
-NULL
 
 
 if (!isGeneric("plot"))
   setGeneric("plot", function(x, y, ...) standardGeneric("plot"))
 
+# load_data <- neuroim2::load_data
+# data_reader <- neuroim2::data_reader
+# values <- neuroim2::values
+# indices <- neuroim2::indices
+# coords<- neuroim2::coords
+# conn_comp <- neuroim2::conn_comp
+# series <- neuroim2::series
 
 
 #' Construct Neighborhood Graph from Surface Mesh
@@ -29,7 +34,7 @@ if (!isGeneric("plot"))
 #' @examples
 #' \dontrun{
 #' # Assuming 'surface_mesh' is a pre-defined surface mesh object
-#' graph <- neighbor_graph(surface_mesh, radius = 5, 
+#' graph <- neighbor_graph(surface_mesh, radius = 5,
 #'                         edgeWeights = runif(nrow(surface_mesh$vertices)),
 #'                         nodes = 1:1000)
 #' }
@@ -37,8 +42,8 @@ if (!isGeneric("plot"))
 #' @seealso \code{\link{graph}}, \code{\link{vertices}}
 #'
 #' @export
-setGeneric(name = "neighbor_graph", 
-           def = function(x, radius, edgeWeights, nodes, ...) 
+setGeneric(name = "neighbor_graph",
+           def = function(x, radius, edgeWeights, nodes, ...)
              standardGeneric("neighbor_graph"))
 
 
@@ -46,7 +51,7 @@ setGeneric(name = "neighbor_graph",
 #' Extract Vertices from a Surface Object
 #'
 #' @description
-#' Extracts the vertices from a surface object, providing a standardized 
+#' Extracts the vertices from a surface object, providing a standardized
 #' interface across different surface representations.
 #'
 #' @param x An object representing a surface.
@@ -205,7 +210,7 @@ setGeneric(name="plot_js", def=function(x, width = NULL, height = NULL, ...) sta
 # @param file_name file name contianing meta information
 # @export
 # @rdname read_meta_info-methods
-#setGeneric(name="read_meta_info", def=function(x, file_name) standardGeneric("read_meta_info"))
+setGeneric(name="read_meta_info", def=function(x, file_name) standardGeneric("read_meta_info"))
 
 
 
@@ -215,7 +220,7 @@ setGeneric(name="plot_js", def=function(x, width = NULL, height = NULL, ...) sta
 #' Create a Surface Widget
 #'
 #' @description
-#' This generic function creates a widget for visualizing surface data, 
+#' This generic function creates a widget for visualizing surface data,
 #' allowing for different implementations based on the type of surface object.
 #'
 #' @param x An object representing a surface (e.g., SurfaceGeometry, NeuroSurface).
@@ -226,42 +231,42 @@ setGeneric(name="plot_js", def=function(x, width = NULL, height = NULL, ...) sta
 #' @return An HTMLWidget object representing the surface visualization.
 #'
 #' @details
-#' The surfwidget function creates an interactive widget for visualizing 
-#' surface data, such as brain surfaces. The specific implementation depends 
-#' on the class of the object provided, allowing for customized behavior 
+#' The surfwidget function creates an interactive widget for visualizing
+#' surface data, such as brain surfaces. The specific implementation depends
+#' on the class of the object provided, allowing for customized behavior
 #' for different types of surface representations.
 #'
 #' @seealso \code{\link{plot_js}}, \code{\link{SurfaceGeometry}}, \code{\link{NeuroSurface}}
 #'
 #' @export
-setGeneric(name = "surfwidget", 
-           def = function(x, width = NULL, height = NULL, ...) 
+setGeneric(name = "surfwidget",
+           def = function(x, width = NULL, height = NULL, ...)
              standardGeneric("surfwidget"))
 
 
 #' Find Boundaries Between Regions on a Surface
 #'
 #' @description
-#' This generic function identifies boundaries between different regions or parcellations 
+#' This generic function identifies boundaries between different regions or parcellations
 #' on a surface. The implementation depends on the class of the input object.
 #'
 #' @param x An object representing a surface with region information.
 #' @param method A character string specifying the boundary detection method.
 #' @param ... Additional arguments passed to methods.
 #'
-#' @return An object containing boundary information. The specific structure depends 
+#' @return An object containing boundary information. The specific structure depends
 #' on the method implementation.
 #'
 #' @details
-#' This function provides a high-level interface for finding boundaries between 
-#' different regions on a surface mesh. It typically returns coordinates and metadata 
+#' This function provides a high-level interface for finding boundaries between
+#' different regions on a surface mesh. It typically returns coordinates and metadata
 #' describing the boundaries between regions.
 #'
 #' @seealso \code{\link{find_roi_boundaries}}
 #'
 #' @export
-setGeneric(name = "findBoundaries", 
-           def = function(x, method = "midpoint", ...) 
+setGeneric(name = "findBoundaries",
+           def = function(x, method = "midpoint", ...)
              standardGeneric("findBoundaries"))
 
 
