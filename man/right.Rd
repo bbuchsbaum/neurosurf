@@ -3,15 +3,18 @@
 \name{right}
 \alias{right}
 \alias{right,BilatNeuroSurfaceVector-method}
-\title{get right hemisphere}
+\title{Get Right Hemisphere}
 \usage{
 right(x)
 
 \S4method{right}{BilatNeuroSurfaceVector}(x)
 }
 \arguments{
-\item{x}{the surface}
+\item{x}{Surface object}
+}
+\value{
+Right hemisphere of the surface
 }
 \description{
-get right hemisphere
+Get Right Hemisphere
 }

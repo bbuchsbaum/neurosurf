@@ -4,7 +4,7 @@
 \alias{laplacian}
 \alias{laplacian,SurfaceGeometry,missing,missing-method}
 \alias{laplacian,SurfaceGeometry,missing,numeric-method}
-\title{compute graph laplacian}
+\title{Compute Graph Laplacian}
 \usage{
 laplacian(x, normalized, weights, ...)
 
@@ -13,14 +13,14 @@ laplacian(x, normalized, weights, ...)
 \S4method{laplacian}{SurfaceGeometry,missing,numeric}(x, weights)
 }
 \arguments{
-\item{x}{the object to get Laplacian from}
+\item{x}{Object to compute Laplacian from}
 
-\item{normalized}{logical indicating whether laplcian is normalized}
+\item{normalized}{Logical; whether to normalize the Laplacian}
 
-\item{weights}{edge weights for weighted Laplacian matrix}
+\item{weights}{Edge weights for weighted Laplacian matrix}
 
-\item{...}{extra args}
+\item{...}{Additional arguments}
 }
 \description{
-compute graph laplacian
+Compute Graph Laplacian
 }

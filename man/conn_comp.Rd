@@ -10,12 +10,39 @@
 \S4method{conn_comp}{NeuroSurface}(x, threshold)
 }
 \arguments{
-\item{x}{the object}
+\item{x}{A \code{NeuroSurface} object representing the surface data.}
 
-\item{threshold}{the two-element threshold range to use to define connected components}
+\item{threshold}{A numeric vector of length 2 specifying the lower and upper thresholds for including vertices in the components.}
 
 \item{index}{of the data vector to find connected components on}
 }
+\value{
+A list containing two \code{NeuroSurface} objects:
+  \item{index}{A \code{NeuroSurface} object where each vertex is labeled with its component index.}
+  \item{size}{A \code{NeuroSurface} object where each vertex is labeled with the size of its component.}
+}
 \description{
-connected components on a surface
+This method identifies connected components on a NeuroSurface object based on a given threshold.
+}
+\details{
+This method computes connected components on the surface by:
+\enumerate{
+  \item Thresholding the surface data using the provided threshold values.
+  \item Creating a subgraph of the surface mesh containing only the vertices that pass the threshold.
+  \item Identifying connected components in this subgraph.
+  \item Assigning component indices and sizes to the original vertices.
+}
+Vertices that do not pass the threshold are assigned a value of 0 in both output surfaces.
+}
+\examples{
+\dontrun{
+# Assuming 'surface' is a NeuroSurface object
+components <- conn_comp(surface, c(-2, 2))
+plot(components$index)  # Visualize component indices
+plot(components$size)   # Visualize component sizes
+}
+
+}
+\seealso{
+\code{\link{NeuroSurface}}, \code{\link[igraph]{components}}
 }

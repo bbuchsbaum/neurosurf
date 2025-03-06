@@ -12,14 +12,35 @@ SurfaceSearchlight(
 )
 }
 \arguments{
-\item{surfgeom}{a surface mesh: instance of class \code{SurfaceGeometry}}
+\item{surfgeom}{A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.}
 
-\item{radius}{radius of the searchlight as a geodesic distance in mm}
+\item{radius}{Numeric, radius of the searchlight as a geodesic distance in mm.}
 
-\item{nodeset}{the subset of surface nodes to use}
+\item{nodeset}{Integer vector, optional subset of surface node indices to use.}
 
-\item{distance_type}{the distance metric to use}
+\item{distance_type}{Character, the distance metric to use: "euclidean", "geodesic", or "spherical".}
+}
+\value{
+An iterator object of class "Searchlight".
 }
 \description{
+Creates an iterator that systematically samples searchlight regions on a surface mesh
+using geodesic distance to define regions.
+}
+\details{
 Create a Searchlight iterator for surface mesh using geodesic distance to define regions.
+
+
+This function creates a systematic searchlight iterator, which visits each node
+of the surface mesh in order. The searchlight region for each node is defined
+by the specified radius and distance metric.
+}
+\examples{
+\dontrun{
+file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+geom <- read_surf(file)
+searchlight <- SurfaceSearchlight(geom, 12, distance_type = "geodesic")
+nodes <- searchlight$nextElem()
+}
+
 }

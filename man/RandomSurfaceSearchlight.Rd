@@ -2,29 +2,35 @@
 % Please edit documentation in R/Searchlight.R
 \name{RandomSurfaceSearchlight}
 \alias{RandomSurfaceSearchlight}
-\title{Create a Random Searchlight iterator for surface mesh using geodesic distance to define regions.}
+\title{Create a Random Searchlight iterator for surface mesh}
 \usage{
 RandomSurfaceSearchlight(surfgeom, radius = 8, nodeset = NULL)
 }
 \arguments{
-\item{surfgeom}{a surface mesh: instance of class \code{\linkS4class{SurfaceGeometry}}}
+\item{surfgeom}{A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.}
 
-\item{radius}{radius of the searchlight as a geodesic distance in mm}
+\item{radius}{Numeric, radius of the searchlight as a geodesic distance in mm.}
 
-\item{nodeset}{the subset of surface node indices to use}
+\item{nodeset}{Integer vector, optional subset of surface node indices to use.}
+}
+\value{
+An iterator object of class "RandomSurfaceSearchlight".
 }
 \description{
-Create a Random Searchlight iterator for surface mesh using geodesic distance to define regions.
+Creates an iterator that randomly samples searchlight regions on a surface mesh
+using geodesic distance to define regions.
 }
 \details{
-On every call to \code{nextElem} a set of surface nodes are returned.
-  These nodes index into the vertices of the \code{igraph} instance.
+On each call to \code{nextElem}, a set of surface nodes is returned.
+These nodes index into the vertices of the \code{igraph} instance.
 }
 \examples{
+\dontrun{
 file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 geom <- read_surf(file)
 searchlight <- RandomSurfaceSearchlight(geom, 12)
 nodes <- searchlight$nextElem()
 length(nodes) > 1
+}
 
 }

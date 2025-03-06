@@ -5,7 +5,7 @@
 \alias{adjacency,SurfaceGeometry,numeric-method}
 \alias{adjacency,SurfaceGeometry,character-method}
 \alias{adjacency,SurfaceGeometry,missing-method}
-\title{get adjacency graph}
+\title{Get Adjacency Graph}
 \usage{
 adjacency(x, attr, ...)
 
@@ -16,12 +16,12 @@ adjacency(x, attr, ...)
 \S4method{adjacency}{SurfaceGeometry,missing}(x)
 }
 \arguments{
-\item{x}{graph structure}
+\item{x}{Graph structure}
 
-\item{attr}{a \code{character} string indicating the edge attribute in the \code{igraph} object for the weights. If absent, weights are 0, 1.}
+\item{attr}{Character; edge attribute for weights in igraph object. If absent, weights are 0 or 1.}
 
-\item{...}{extra args}
+\item{...}{Additional arguments}
 }
 \description{
-get adjacency graph
+Get Adjacency Graph
 }

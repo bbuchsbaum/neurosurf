@@ -3,27 +3,51 @@
 \docType{class}
 \name{SurfaceGeometryMetaInfo-class}
 \alias{SurfaceGeometryMetaInfo-class}
-\title{SurfaceGeometryMetaInfo}
+\title{SurfaceGeometryMetaInfo Class}
 \description{
-This class contains meta information for brain surface geometry
+The `SurfaceGeometryMetaInfo` class encapsulates meta information for brain surface geometry.
+It stores details about the file locations, surface properties, and spatial characteristics.
+}
+\details{
+This class is crucial for maintaining metadata about brain surface geometries.
+It provides a structured way to store information about file locations,
+surface properties, and spatial characteristics, which is essential for
+proper handling and processing of brain surface data in neuroimaging analyses.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{header_file}}{name of the file containing meta information}
+\item{\code{header_file}}{A character string specifying the name of the file containing meta information.}
 
-\item{\code{data_file}}{name of the file containing data}
+\item{\code{data_file}}{A character string specifying the name of the file containing the actual surface data.}
 
-\item{\code{file_descriptor}}{descriptor of image file format}
+\item{\code{file_descriptor}}{An object of class `FileFormat` describing the image file format.}
 
-\item{\code{vertices}}{the number of surface vertices}
+\item{\code{vertices}}{An integer indicating the number of surface vertices.}
 
-\item{\code{faces}}{the number of faces}
+\item{\code{faces}}{An integer indicating the number of faces in the surface mesh.}
 
-\item{\code{embed_dimension}}{the dimensionality of the embedding}
+\item{\code{embed_dimension}}{An integer specifying the dimensionality of the embedding (typically 3 for 3D surfaces).}
 
-\item{\code{label}}{a label indicating the type of surface (e.g. white, pial, inflated, flat, spherical)}
+\item{\code{label}}{A character string indicating the type of surface (e.g., "white", "pial", "inflated", "flat", "spherical").}
 
-\item{\code{hemi}}{a label indicating the hemisphere, one of ('lh', 'rh', or 'unknown')}
+\item{\code{hemi}}{A character string indicating the hemisphere ("lh" for left, "rh" for right, or "unknown").}
 }}
 
+\examples{
+\dontrun{
+meta_info <- new("SurfaceGeometryMetaInfo",
+                 header_file = "surface_meta.txt",
+                 data_file = "surface_data.gii",
+                 file_descriptor = new("FileFormat"),
+                 vertices = 40000L,
+                 faces = 79998L,
+                 embed_dimension = 3L,
+                 label = "white",
+                 hemi = "lh")
+}
+
+}
+\seealso{
+\code{\link{FileFormat}}
+}

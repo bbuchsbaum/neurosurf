@@ -1,25 +1,35 @@
+#' @noRd
 .resample <- function(x, ...) x[sample.int(length(x), ...)]
 
-
-#' Create a Random Searchlight iterator for surface mesh using geodesic distance to define regions.
+#' Create a Random Searchlight iterator for surface mesh
 #'
-#' @param surfgeom a surface mesh: instance of class \code{\linkS4class{SurfaceGeometry}}
-#' @param radius radius of the searchlight as a geodesic distance in mm
-#' @param nodeset the subset of surface node indices to use
-#' @importFrom igraph neighborhood induced_subgraph
-#' @export
+#' @description
+#' Creates an iterator that randomly samples searchlight regions on a surface mesh
+#' using geodesic distance to define regions.
+#'
+#' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.
+#' @param radius Numeric, radius of the searchlight as a geodesic distance in mm.
+#' @param nodeset Integer vector, optional subset of surface node indices to use.
+#' @param as_deflist Logical, whether to return a deflist object.
+#'
+#' @return An iterator object of class "RandomSurfaceSearchlight".
+#'
 #' @details
-#'   On every call to \code{nextElem} a set of surface nodes are returned.
-#'   These nodes index into the vertices of the \code{igraph} instance.
+#' On each call to \code{nextElem}, a set of surface nodes is returned.
+#' These nodes index into the vertices of the \code{igraph} instance.
 #'
 #' @examples
+#' \dontrun{
 #' file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 #' geom <- read_surf(file)
 #' searchlight <- RandomSurfaceSearchlight(geom, 12)
 #' nodes <- searchlight$nextElem()
 #' length(nodes) > 1
+#' }
 #'
-RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL) {
+#' @importFrom igraph neighborhood induced_subgraph
+#' @export
+RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflist=FALSE) {
   subgraph <- FALSE
   if (is.null(nodeset)) {
     ## use all surface nodes
@@ -41,7 +51,30 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL) {
 
   prog <- function() { sum(done)/length(done) }
 
-
+  if (as_deflist) {
+    # Create function to get nth element
+    fun <- function(n) {
+      if (n > length(nds)) stop("Index out of bounds")
+      center <- which(!done)[n]
+      indices <- as.vector(igraph::neighborhood(bg, 1, nds[center])[[1]])
+      indices <- indices[!done[indices]]
+      
+      if (subgraph) {
+        vout <- nodeset[indices]
+        attr(vout, "center") <- nodeset[center]
+        attr(vout, "center.index") <- nodeset[center]
+        attr(vout, "length") <- length(vout)
+        vout
+      } else {
+        attr(indices, "center") <- center
+        attr(indices, "center.index") <- center
+        attr(indices, "length") <- length(indices)
+        indices
+      }
+    }
+    
+    return(deflist(fun, len=sum(!done)))
+  }
 
   nextEl <- function() {
     if (!all(done)) {
@@ -81,13 +114,34 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL) {
 #'
 #' Create a Searchlight iterator for surface mesh using geodesic distance to define regions.
 #'
-#' @param surfgeom a surface mesh: instance of class \code{SurfaceGeometry}
-#' @param radius radius of the searchlight as a geodesic distance in mm
-#' @param nodeset the subset of surface nodes to use
-#' @param distance_type the distance metric to use
+#' @description
+#' Creates an iterator that systematically samples searchlight regions on a surface mesh
+#' using geodesic distance to define regions.
+#'
+#' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.
+#' @param radius Numeric, radius of the searchlight as a geodesic distance in mm.
+#' @param nodeset Integer vector, optional subset of surface node indices to use.
+#' @param distance_type Character, the distance metric to use: "euclidean", "geodesic", or "spherical".
+#' @param as_deflist Logical, whether to return a deflist object.
+#'
+#' @return An iterator object of class "Searchlight".
+#'
+#' @details
+#' This function creates a systematic searchlight iterator, which visits each node
+#' of the surface mesh in order. The searchlight region for each node is defined
+#' by the specified radius and distance metric.
+#'
+#' @examples
+#' \dontrun{
+#' file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+#' geom <- read_surf(file)
+#' searchlight <- SurfaceSearchlight(geom, 12, distance_type = "geodesic")
+#' nodes <- searchlight$nextElem()
+#' }
+#'
 #' @importFrom igraph neighborhood induced_subgraph
 #' @export
-SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type=c("euclidean", "geodesic", "spherical")) {
+SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type=c("euclidean", "geodesic", "spherical"), as_deflist=FALSE) {
   assertthat::assert_that(length(radius) == 1)
   distance_type <- match.arg(distance_type)
   g <- if (is.null(nodeset)) {
@@ -110,6 +164,29 @@ SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type=c
   prog <- function() { index/length(nds) }
 
   getIndex <- function() { index }
+
+  if (as_deflist) {
+    # Create function to get nth element
+    fun <- function(n) {
+      if (n > length(nds)) stop("Index out of bounds")
+      indices <- as.vector(igraph::neighborhood(bg, 1, nds[n])[[1]])
+      
+      if (subgraph) {
+        indices <- nodeset[indices]
+        attr(indices, "center") <- nodeset[n]
+        attr(indices, "center.index") <- nodeset[n]
+        attr(indices, "length") <- length(indices)
+        indices
+      } else {
+        attr(indices, "center") <- n
+        attr(indices, "center.index") <- n
+        attr(indices, "length") <- length(indices)
+        indices
+      }
+    }
+    
+    return(deflist(fun, len=length(nds)))
+  }
 
   nextEl <- function() {
     if (index < length(nds)) {

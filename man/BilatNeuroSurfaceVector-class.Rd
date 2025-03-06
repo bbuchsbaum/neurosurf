@@ -3,15 +3,18 @@
 \docType{class}
 \name{BilatNeuroSurfaceVector-class}
 \alias{BilatNeuroSurfaceVector-class}
-\title{BilatNeuroSurfaceVector}
+\title{Bilateral NeuroSurface Vector Class}
 \description{
-BilatNeuroSurfaceVector
+Represents surface data for both left and right hemispheres.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{left}}{the surface data for left hemisphere, an instance of \code{NeuroSurfaceVector}}
+\item{\code{left}}{NeuroSurfaceVector instance for the left hemisphere}
 
-\item{\code{right}}{the surface data for right hemisphere, an instance of \code{NeuroSurfaceVector}}
+\item{\code{right}}{NeuroSurfaceVector instance for the right hemisphere}
 }}
 
+\seealso{
+\code{\link{NeuroSurfaceVector}}
+}

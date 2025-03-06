@@ -2,7 +2,7 @@
 % Please edit documentation in R/neighborhood.R
 \name{find_all_neighbors}
 \alias{find_all_neighbors}
-\title{find node neighbors}
+\title{Find Node Neighbors in a Surface Mesh}
 \usage{
 find_all_neighbors(
   surf,
@@ -13,16 +13,34 @@ find_all_neighbors(
 )
 }
 \arguments{
-\item{surf}{the \code{SurfaceGeometry} object}
+\item{surf}{A SurfaceGeometry object or igraph object representing the mesh}
 
-\item{radius}{the spatial radius to search within}
+\item{radius}{Numeric; the spatial radius within which to search for neighbors}
 
-\item{edgeWeights}{the set of edgeWeights used to compute distances}
+\item{edgeWeights}{Numeric vector; weights for edges used in distance computation}
 
-\item{nodes}{the subset of nodes to find neighbors of. If `NULL` use all nodes.}
+\item{nodes}{Integer vector; subset of nodes to find neighbors for. If NULL, uses all nodes}
 
-\item{distance_type}{the distance metric to use}
+\item{distance_type}{Character; type of distance metric to use: "euclidean", "geodesic", or "spherical"}
+}
+\value{
+A list of matrices, each containing neighbor information:
+  \item{i}{Source node index}
+  \item{j}{Neighbor node index}
+  \item{d}{Distance between nodes}
 }
 \description{
-find all neighbors in a surface mesh within a radius
+Identifies all neighboring nodes within a specified radius for a given surface mesh.
+}
+\details{
+The function supports three distance metrics: Euclidean, geodesic, and spherical.
+For spherical distances, the surface is assumed to be a sphere.
+}
+\examples{
+\dontrun{
+surf <- readSurfaceGeometry("path/to/surface.gii")
+edge_weights <- rep(1, length(E(graph(surf))))
+neighbors <- find_all_neighbors(surf, radius = 10, edgeWeights = edge_weights)
+}
+
 }

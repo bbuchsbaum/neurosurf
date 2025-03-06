@@ -3,18 +3,23 @@
 \docType{class}
 \name{NeuroSurfaceVector-class}
 \alias{NeuroSurfaceVector-class}
-\title{NeuroSurfaceVector}
+\title{NeuroSurfaceVector Class}
 \description{
-a three-dimensional surface consisting of a set of triangle vertices with multiple values per vertex.
+Represents a 3D surface with multiple values per vertex.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{geometry}}{the surface geometry, an instance of \code{SurfaceGeometry}}
+\item{\code{geometry}}{SurfaceGeometry instance representing the surface structure}
 
-\item{\code{indices}}{an \code{integer} vector specifying the subset of valid surface nodes from in the \code{geometry} object.}
+\item{\code{indices}}{Integer vector of valid surface node indices}
 
-\item{\code{data}}{a \code{Matrix} of values where each column contains a vector of values
-over all the surface nodes. The number of rows of this \code{Matrix} must equal the number of nodes in the \code{geometry} object.}
+\item{\code{data}}{Matrix of values, where columns represent different measures and rows correspond to surface nodes}
 }}
 
+\note{
+The number of rows in 'data' must match the number of nodes in 'geometry'.
+}
+\seealso{
+\code{\link{SurfaceGeometry}}
+}

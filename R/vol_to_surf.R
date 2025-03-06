@@ -1,33 +1,56 @@
-
+#' @noRd
+#' @keywords internal
 hk <- function(x, sigma=1) {
   exp((-x^2)/(2*sigma^2))
 }
 
-
+#' @noRd
+#' @keywords internal
 get_mode <- function(v) {
   uniqv <- unique(v)
   uniqv[which.max(tabulate(match(v, uniqv)))]
 }
 
-#' map values from a 3d volume to a surface in the same coordinate space
+#' Map values from a 3D volume to a surface in the same coordinate space
 #'
-#' @param surf_wm the white matter (inner) surface
-#' @param surf_pial the pial (outer) surface
-#' @param vol an image volume of type \code{NeuroVol} that is to be mapped to surface
-#' @param mask a mask defining the valid voxel in the image volume
-#' @param fun the mapping function, which can be "avg" or "nn"
-#' @param knn the number of nearest neighbors to consider (for "avg" mapping function)
-#' @param sigma the bandwidth of the smoothing kernel (for the "avg" mapping function)
-#' @param dthresh a valid mapping voxel only if it is less than \code{dthresh} units away from vertex.
+#' This function maps values from a 3D volume to a surface representation,
+#' allowing for different mapping strategies.
 #'
+#' @param surf_wm The white matter (inner) surface, typically of class \code{NeuroSurface}.
+#' @param surf_pial The pial (outer) surface, typically of class \code{NeuroSurface}.
+#' @param vol An image volume of type \code{NeuroVol} that is to be mapped to the surface.
+#' @param mask A mask defining the valid voxels in the image volume. If NULL, all non-zero voxels are considered valid.
+#' @param fun The mapping function to use. Options are:
+#'   \itemize{
+#'     \item "avg": Average of nearby voxels (default)
+#'     \item "nn": Nearest neighbor
+#'     \item "mode": Most frequent value among nearby voxels
+#'   }
+#' @param knn The number of nearest neighbors to consider for mapping (default: 6).
+#' @param sigma The bandwidth of the smoothing kernel for the "avg" mapping function (default: 8).
+#' @param dthresh The maximum distance threshold for valid mapping. A voxel is only considered if it is less than \code{dthresh} units away from the vertex (default: 2 * sigma).
+#'
+#' @return A \code{NeuroSurface} object containing the mapped values.
 #'
 #' @examples
+#' \dontrun{
+#' # Load example data (not included in package)
+#' vol <- neuroim2::read_vol("path/to/volume.nii")
+#' surf_wm <- read_surface("path/to/white_matter_surface.gii")
+#' surf_pial <- read_surface("path/to/pial_surface.gii")
 #'
-#' #volname <- system.file("inst/testdata/Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii",
-#' #package="neurosurf")
-#' #vol <- neuroim2::read_vol(volname)
+#' # Map volume to surface using average mapping
+#' mapped_surf <- vol_to_surf(surf_wm, surf_pial, vol, fun = "avg")
+#'
+#' # Map volume to surface using nearest neighbor mapping
+#' mapped_surf_nn <- vol_to_surf(surf_wm, surf_pial, vol, fun = "nn")
+#' }
+#'
 #' @export
-vol_to_surf <- function(surf_wm, surf_pial, vol, mask=NULL, fun=c("avg", "nn", "mode"), knn=6, sigma=8, dthresh=sigma*2) {
+#' @importFrom FNN get.knnx
+#' @importFrom neuroim2 index_to_coord
+vol_to_surf <- function(surf_wm, surf_pial, vol, mask = NULL, 
+                        fun = c("avg", "nn", "mode"), knn = 6, sigma = 8, dthresh = sigma * 2) {
   fun <- match.arg(fun)
   va <- vertices(surf_wm)
   vb <- vertices(surf_pial)

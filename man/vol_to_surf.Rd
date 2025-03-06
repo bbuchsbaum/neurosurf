@@ -2,7 +2,7 @@
 % Please edit documentation in R/vol_to_surf.R
 \name{vol_to_surf}
 \alias{vol_to_surf}
-\title{map values from a 3d volume to a surface in the same coordinate space}
+\title{Map values from a 3D volume to a surface in the same coordinate space}
 \usage{
 vol_to_surf(
   surf_wm,
@@ -16,28 +16,46 @@ vol_to_surf(
 )
 }
 \arguments{
-\item{surf_wm}{the white matter (inner) surface}
+\item{surf_wm}{The white matter (inner) surface, typically of class \code{NeuroSurface}.}
 
-\item{surf_pial}{the pial (outer) surface}
+\item{surf_pial}{The pial (outer) surface, typically of class \code{NeuroSurface}.}
 
-\item{vol}{an image volume of type \code{NeuroVol} that is to be mapped to surface}
+\item{vol}{An image volume of type \code{NeuroVol} that is to be mapped to the surface.}
 
-\item{mask}{a mask defining the valid voxel in the image volume}
+\item{mask}{A mask defining the valid voxels in the image volume. If NULL, all non-zero voxels are considered valid.}
 
-\item{fun}{the mapping function, which can be "avg" or "nn"}
+\item{fun}{The mapping function to use. Options are:
+\itemize{
+  \item "avg": Average of nearby voxels (default)
+  \item "nn": Nearest neighbor
+  \item "mode": Most frequent value among nearby voxels
+}}
 
-\item{knn}{the number of nearest neighbors to consider (for "avg" mapping function)}
+\item{knn}{The number of nearest neighbors to consider for mapping (default: 6).}
 
-\item{sigma}{the bandwidth of the smoothing kernel (for the "avg" mapping function)}
+\item{sigma}{The bandwidth of the smoothing kernel for the "avg" mapping function (default: 8).}
 
-\item{dthresh}{a valid mapping voxel only if it is less than \code{dthresh} units away from vertex.}
+\item{dthresh}{The maximum distance threshold for valid mapping. A voxel is only considered if it is less than \code{dthresh} units away from the vertex (default: 2 * sigma).}
+}
+\value{
+A \code{NeuroSurface} object containing the mapped values.
 }
 \description{
-map values from a 3d volume to a surface in the same coordinate space
+This function maps values from a 3D volume to a surface representation,
+allowing for different mapping strategies.
 }
 \examples{
+\dontrun{
+# Load example data (not included in package)
+vol <- neuroim2::read_vol("path/to/volume.nii")
+surf_wm <- read_surface("path/to/white_matter_surface.gii")
+surf_pial <- read_surface("path/to/pial_surface.gii")
 
-#volname <- system.file("inst/testdata/Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii",
-#package="neurosurf")
-#vol <- neuroim2::read_vol(volname)
+# Map volume to surface using average mapping
+mapped_surf <- vol_to_surf(surf_wm, surf_pial, vol, fun = "avg")
+
+# Map volume to surface using nearest neighbor mapping
+mapped_surf_nn <- vol_to_surf(surf_wm, surf_pial, vol, fun = "nn")
+}
+
 }

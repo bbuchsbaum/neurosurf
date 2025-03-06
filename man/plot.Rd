@@ -4,6 +4,8 @@
 \alias{plot,SurfaceGeometry,missing-method}
 \alias{plot,NeuroSurface,missing-method}
 \alias{plot,LabeledNeuroSurface,missing-method}
+\alias{plot,ColorMappedNeuroSurface,missing-method}
+\alias{plot,VertexColoredNeuroSurface,missing-method}
 \title{plot a surface}
 \usage{
 \S4method{plot}{SurfaceGeometry,missing}(
@@ -42,6 +44,17 @@
   bgcol = "lightgray",
   ...
 )
+
+\S4method{plot}{ColorMappedNeuroSurface,missing}(
+  x,
+  vert_clrs = NULL,
+  alpha = 1,
+  specular = "black",
+  bgcol = "lightgray",
+  ...
+)
+
+\S4method{plot}{VertexColoredNeuroSurface,missing}(x, alpha = 1, specular = "black", bgcol = "lightgray", ...)
 }
 \arguments{
 \item{x}{the surface to plot}

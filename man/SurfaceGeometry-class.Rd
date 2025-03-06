@@ -3,17 +3,41 @@
 \docType{class}
 \name{SurfaceGeometry-class}
 \alias{SurfaceGeometry-class}
-\title{SurfaceGeometry}
+\title{SurfaceGeometry Class}
 \description{
-a three-dimensional surface consisting of a set of triangle vertices
+The `SurfaceGeometry` class represents a three-dimensional surface consisting of a set of triangle vertices.
+It encapsulates the mesh structure, graph representation, and hemisphere information of a brain surface.
+}
+\details{
+This class is fundamental for representing brain surface geometries in neuroimaging analyses.
+The mesh slot contains the vertex and face information, while the graph slot provides
+a network representation of the surface topology. The hemi slot specifies which
+hemisphere the surface represents.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{mesh}}{the underlying \code{mesh3d} object}
+\item{\code{mesh}}{An object of class \code{mesh3d} representing the underlying 3D mesh structure.}
 
-\item{\code{graph}}{underlying graph structure}
+\item{\code{graph}}{An object of class \code{igraph} representing the underlying graph structure of the surface.}
 
-\item{\code{hemi}}{the surface hemisphere}
+\item{\code{hemi}}{A character string indicating the hemisphere of the surface ("left", "right", or "both").}
 }}
 
+\examples{
+\dontrun{
+# Create a simple SurfaceGeometry object
+vertices <- matrix(rnorm(30), ncol = 3)
+faces <- matrix(sample(1:10, 30, replace = TRUE), ncol = 3)
+mesh <- rgl::tmesh3d(vertices = vertices, indices = faces)
+graph <- igraph::make_graph(edges = t(faces), n = nrow(vertices))
+surface <- new("SurfaceGeometry",
+               mesh = mesh,
+               graph = graph,
+               hemi = "left")
+}
+
+}
+\seealso{
+\code{\link[rgl]{mesh3d}}, \code{\link[igraph]{igraph}}
+}

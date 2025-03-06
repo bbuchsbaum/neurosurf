@@ -30,7 +30,7 @@ The smoothing is particularly useful when working with noisy data or when a smoo
   smoothed_data_surface <- smooth(neuro_surf, sigma=3)
 
   # The original geometry is preserved, but the data is smoothed
-  plot_surface(smoothed_data_surface)
+  plot(smoothed_data_surface)
 }
 
 }

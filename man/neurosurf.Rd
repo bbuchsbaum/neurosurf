@@ -2,11 +2,10 @@
 % Please edit documentation in R/neurosurf.R
 \docType{package}
 \name{neurosurf}
-\alias{neurosurf-package}
 \alias{neurosurf}
-\title{neurosurf}
+\title{neurosurf: Data structures and IO for surface-based neuroimaging data}
 \description{
-Data structures and IO for surface-based neuroimaging data.
+Basic utilties for reading, writing and manipulating neuroimaging organized as a trinagle mesh.
 }
 \details{
 none

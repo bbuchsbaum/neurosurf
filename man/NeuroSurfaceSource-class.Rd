@@ -4,7 +4,7 @@
 \name{NeuroSurfaceSource-class}
 \alias{NeuroSurfaceSource-class}
 \alias{NeuroSurfaceSource}
-\title{NeuroSurfaceSource}
+\title{NeuroSurfaceSource Class}
 \usage{
 NeuroSurfaceSource(
   surface_geom,
@@ -23,17 +23,52 @@ NeuroSurfaceSource(
 \item{nodeind}{the subset of node indices to load from surface data matrix (if provided)}
 }
 \description{
-A class that is used to produce a \code{\linkS4class{NeuroSurface}} instance
+The `NeuroSurfaceSource` class serves as a factory for creating 
+\code{\linkS4class{NeuroSurface}} instances. It encapsulates all necessary 
+information to construct a neuroimaging surface, including geometry, 
+metadata, and indexing information.
+}
+\details{
+This class is designed to facilitate the creation of \code{\linkS4class{NeuroSurface}} 
+objects by providing a standardized way to store and access all required components. 
+It combines geometric information, metadata, and indexing details necessary for 
+constructing a complete neuroimaging surface representation.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{geometry}}{a \code{\linkS4class{SurfaceGeometry}} instance}
+\item{\code{geometry}}{An object of class \code{\linkS4class{SurfaceGeometry}} 
+representing the underlying surface structure.}
 
-\item{\code{data_meta_info}}{a \code{\linkS4class{SurfaceDataMetaInfo}} instance}
+\item{\code{data_meta_info}}{An object of class \code{\linkS4class{SurfaceDataMetaInfo}} 
+containing metadata about the surface data.}
 
-\item{\code{colind}}{the column index of the surface map to be loaded.}
+\item{\code{colind}}{An integer specifying the column index of the surface map to be loaded.}
 
-\item{\code{nodeind}}{the node indices of the surface map to be loaded.}
+\item{\code{nodeind}}{An integer vector specifying the node indices of the surface map to be loaded.}
 }}
 
+\examples{
+\dontrun{
+# Create a SurfaceGeometry object
+geometry <- new("SurfaceGeometry", ...)
+
+# Create a SurfaceDataMetaInfo object
+data_meta_info <- new("SurfaceDataMetaInfo", ...)
+
+# Create a NeuroSurfaceSource object
+neuro_source <- new("NeuroSurfaceSource",
+                    geometry = geometry,
+                    data_meta_info = data_meta_info,
+                    colind = 1L,
+                    nodeind = 1:1000)
+
+# Use neuro_source to create a NeuroSurface object (hypothetical function)
+# neuro_surface <- createNeuroSurface(neuro_source)
+}
+
+}
+\seealso{
+\code{\linkS4class{NeuroSurface}}, \code{\linkS4class{SurfaceGeometry}}, 
+\code{\linkS4class{SurfaceDataMetaInfo}}
+}

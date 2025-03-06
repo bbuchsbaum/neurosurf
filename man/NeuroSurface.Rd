@@ -2,17 +2,44 @@
 % Please edit documentation in R/neuro_surface.R
 \name{NeuroSurface}
 \alias{NeuroSurface}
-\title{NeuroSurface}
+\title{Construct a NeuroSurface Object}
 \usage{
 NeuroSurface(geometry, indices, data)
 }
 \arguments{
-\item{geometry}{a \code{SurfaceGeometry} instance}
+\item{geometry}{A \code{SurfaceGeometry} object representing the underlying surface structure.}
 
-\item{indices}{an integer vector specifying the valid surface nodes.}
+\item{indices}{An integer vector specifying the indices of valid surface nodes.}
 
-\item{data}{a \code{vector} of data values.}
+\item{data}{A numeric vector of data values corresponding to the surface nodes.}
+}
+\value{
+A new object of class \code{NeuroSurface} containing:
+  \item{geometry}{The input \code{SurfaceGeometry} object.}
+  \item{indices}{The input integer vector of valid node indices.}
+  \item{data}{The input numeric vector of data values.}
 }
 \description{
-construct a new NeuroSurface object
+This function creates a new NeuroSurface object, which represents a single set of data values
+associated with nodes on a surface geometry.
+}
+\details{
+The NeuroSurface object is designed to store and manipulate a single set of data values
+associated with nodes on a surface. This can represent various neuroimaging measures
+such as cortical thickness, functional activation, or any other node-wise metric.
+
+The length of the \code{data} vector should match the length of the \code{indices} vector.
+Nodes not included in the \code{indices} vector are considered to have no data or to be invalid.
+}
+\examples{
+\dontrun{
+# Assuming 'surf_geom' is a pre-existing SurfaceGeometry object
+indices <- 1:1000  # Example indices
+data_values <- rnorm(1000)  # Example data
+neuro_surf <- NeuroSurface(surf_geom, indices, data_values)
+}
+
+}
+\seealso{
+\code{\link{SurfaceGeometry}}, \code{\link{NeuroSurfaceVector}}
 }

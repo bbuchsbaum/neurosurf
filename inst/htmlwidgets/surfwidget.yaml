@@ -1,0 +1,15 @@
+dependencies:
+  - name: neurosurface
+    version: 0.1.0
+    src: htmlwidgets/lib/neurosurface
+    script:
+      - neurosurface.min.js
+  - name: three
+    version: 0.132.2
+    src: htmlwidgets/lib/three
+    script:
+      - three.min.js
+      - OrbitControls.js
+
+
+

@@ -2,6 +2,27 @@
 #' @include all_generic.R
 NULL
 
+#' Find Neighboring Nodes Within a Specified Radius
+#'
+#' @description
+#' Internal function that identifies all nodes within a specified radius from a given node in a graph.
+#'
+#' @param graph An igraph object representing the mesh connectivity
+#' @param node Integer; the index of the node for which to find neighbors
+#' @param radius Numeric; the maximum distance within which to consider nodes as neighbors
+#' @param edgeWeights Numeric vector; weights for edges used in distance computation
+#' @param max_order Integer; maximum order of neighborhood to consider. If NULL, it's calculated
+#'                 based on radius and average edge weight
+#'
+#' @details
+#' The function first identifies candidate neighbors using igraph's ego function up to max_order,
+#' then filters these candidates based on the actual distance computed using Dijkstra's algorithm.
+#' The max_order parameter is automatically calculated if not provided, using the formula:
+#' radius/avg_weight + (2*avg_weight), which provides a reasonable upper bound.
+#'
+#' @return Integer vector of node indices that are within the specified radius of the input node
+#'
+#' @noRd
 findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
   if (is.null(max_order)) {
     avg_weight <- mean(edgeWeights)
@@ -14,17 +35,52 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
   cand[keep]
 }
 
-#' find node neighbors
+#' Find Node Neighbors in a Surface Mesh
 #'
-#' find all neighbors in a surface mesh within a radius
+#' @description
+#' Identifies all neighboring nodes within a specified radius for a given surface mesh.
 #'
-#' @param surf the \code{SurfaceGeometry} object
-#' @param radius the spatial radius to search within
-#' @param edgeWeights the set of edgeWeights used to compute distances
-#' @param nodes the subset of nodes to find neighbors of. If `NULL` use all nodes.
-#' @param distance_type the distance metric to use
-#' @export
+#' @param surf A SurfaceGeometry object or igraph object representing the mesh
+#' @param radius Numeric; the spatial radius within which to search for neighbors
+#' @param edgeWeights Numeric vector; weights for edges used in distance computation
+#' @param nodes Integer vector; subset of nodes to find neighbors for. If NULL, uses all nodes
+#' @param distance_type Character; type of distance metric to use: "euclidean", "geodesic", or "spherical"
+#'
+#' @return A list of matrices, each containing neighbor information:
+#'   \item{i}{Source node index}
+#'   \item{j}{Neighbor node index}
+#'   \item{d}{Distance between nodes}
+#'
+#' @details
+#' The function supports three distance metrics: Euclidean, geodesic, and spherical.
+#' For spherical distances, the surface is assumed to be a sphere.
+#'
 #' @importFrom FNN get.knn
+#' @importFrom stats quantile
+#' @importFrom igraph V distances
+#'
+#' @examples
+#' # Load a sample inflated surface from the package
+#' surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
+#' surf <- readAsc(surf_file)
+#' 
+#' # Create edge weights (using uniform weights for simplicity)
+#' g <- graph(surf)
+#' edge_weights <- rep(1, length(E(g)))
+#' 
+#' # Find neighbors within a 10mm radius for the first 5 vertices
+#' neighbors <- find_all_neighbors(surf, radius = 10, 
+#'                                edgeWeights = edge_weights,
+#'                                nodes = 1:5,
+#'                                distance_type = "geodesic")
+#' 
+#' # Check the number of neighbors found for the first vertex
+#' nrow(neighbors[[1]])
+#' 
+#' # Look at the first few neighbors of the first vertex
+#' head(neighbors[[1]])
+#'
+#' @export
 find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
                                distance_type=c("euclidean", "geodesic", "spherical")) {
   ## check out geosphere package
@@ -74,12 +130,11 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
   })
 
   nabeinfo
-
-
 }
 
 # convert an edge list to an 'igraph' instance
 #' @importFrom plyr rbind.fill.matrix
+#' @noRd
 .neighbors_to_graph <- function(nabelist) {
   mat <- plyr::rbind.fill.matrix(nabelist)
   g <- igraph::graph.edgelist(mat[,1:2])
@@ -87,10 +142,33 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
   g
 }
 
-#' @rdname neighbor_graph
-#' @importFrom grDevices rainbow
-#' @param distance_type the distance function
-#' @export
+#' Create Neighbor Graph from igraph Object
+#'
+#' @description
+#' Constructs a neighbor graph from an igraph object based on a specified radius.
+#'
+#' @param x An igraph object representing the original graph
+#' @param radius Numeric; the spatial radius within which to consider nodes as neighbors
+#' @param distance_type Character; type of distance metric to use: "geodesic", "euclidean", or "spherical"
+#'
+#' @return An igraph object representing the neighbor graph
+#'
+#' @details
+#' This method creates a neighbor graph by finding all nodes within the specified radius
+#' for each node in the input graph. Edge weights are taken from the 'dist' attribute
+#' of the input graph's edges.
+#'
+#' @seealso \code{\link{find_all_neighbors}}, \code{\link{.neighbors_to_graph}}
+#'
+#' @examples
+#' \donttest{
+#' g <- make_graph("Zachary")
+#' E(g)$dist <- runif(ecount(g))
+#' neighbor_g <- neighbor_graph(g, radius = 0.5, distance_type = "geodesic")
+#' }
+#'
+#' @importFrom igraph E
+#' @exportMethod neighbor_graph
 #' @aliases neighbor_graph,igraph,numeric,missing,missing
 setMethod(f="neighbor_graph", signature=c(x="igraph", radius="numeric", edgeWeights="missing", nodes="missing"),
           def=function(x, radius, distance_type=c("geodesic", "euclidean", "spherical")) {
@@ -105,14 +183,14 @@ setMethod(f="neighbor_graph", signature=c(x="igraph", radius="numeric", edgeWeig
 
 
 #' @rdname neighbor_graph
-#' @importFrom grDevices rainbow
 #' @export
 #' @aliases neighbor_graph,igraph,numeric,missing,missing
 setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric", edgeWeights="missing", nodes="missing"),
           def=function(x, radius, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
             edgeWeights=igraph::E(graph(x))$dist
-            nabeinfo <- find_all_neighbors(x, radius, as.vector(edgeWeights), distance_type=distance_type)
+            nabeinfo <- find_all_neighbors(x, radius, as.vector(edgeWeights),
+                                           distance_type=distance_type)
             .neighbors_to_graph(nabeinfo)
           })
 
@@ -219,13 +297,15 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
 #' @return The function returns the smoothed \code{SurfaceGeometry} object with the updated mesh.
 #'
 #' @examples
-#' \dontrun{
-#'   # Example of applying Taubin smoothing to a brain surface
-#'   smoothed_surface <- smooth(white_surf, type="taubin", lambda=0.5, mu=-0.5, iteration=10)
-#'
-#'   # Example of using surface-preserving Laplacian smoothing
-#'   smoothed_surface <- smooth(white_surf, type="surfPreserveLaplace", iteration=5)
-#' }
+#' # Load a surface file from the extdata directory
+#' surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
+#' surface <- readAsc(surf_file)
+#' 
+#' # Apply Taubin smoothing to the brain surface
+#' smoothed_surface1 <- smooth(surface, type = "taubin", lambda = 0.5, mu = -0.5, iteration = 10)
+#' 
+#' # Apply surface-preserving Laplacian smoothing
+#' smoothed_surface2 <- smooth(surface, type = "surfPreserveLaplace", iteration = 5)
 #'
 #' @importFrom Rvcg vcgSmooth
 #' @seealso \code{\link[Rvcg]{vcgSmooth}} for more details on the underlying smoothing algorithms.
@@ -254,13 +334,26 @@ setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
 #' The smoothing is particularly useful when working with noisy data or when a smoother representation of the underlying signal is desired. It is commonly applied in neuroimaging to enhance visualization or prepare data for further analysis.
 #'
 #' @examples
-#' \dontrun{
-#'   # Example of smoothing data on a NeuroSurface object
-#'   smoothed_data_surface <- smooth(neuro_surf, sigma=3)
-#'
-#'   # The original geometry is preserved, but the data is smoothed
-#'   plot_surface(smoothed_data_surface)
-#' }
+#' # Load a surface file from the extdata directory
+#' surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
+#' surface <- readAsc(surf_file)
+#' 
+#' # Create some random data for the surface vertices
+#' n_vertices <- nrow(coords(surface))
+#' random_data <- rnorm(n_vertices)
+#' 
+#' # Create a NeuroSurface object with the surface and data
+#' neuro_surf <- NeuroSurface(geometry = surface, 
+#'                           indices = 1:n_vertices,
+#'                           data = random_data)
+#' 
+#' # Apply smoothing to the data
+#' smoothed_data_surface <- smooth(neuro_surf, sigma = 3)
+#' 
+#' # The original geometry is preserved, but the data is smoothed
+#' # Compare a small section of data before and after smoothing
+#' head(random_data)
+#' head(series(smoothed_data_surface))
 #'
 #' @seealso \code{\link{smooth,SurfaceGeometry-method}} for smoothing the geometry of a surface.
 #' @export
@@ -300,43 +393,94 @@ setMethod(f="smooth", signature=c(x="NeuroSurface"),
 #' The result is a \code{NeuroSurface} object containing the smoothed values, suitable for further analysis or visualization.
 #'
 #' @examples
-#' \dontrun{
-#'   # Example surface geometry and coordinates
-#'   coords <- matrix(runif(300, min=-30, max=30), ncol=3)  # 100 random 3D points
-#'   smooth_surface <- projectCoordinates(surfgeom, coords, sigma=3)
-#'   plot(smooth_surface)
-#' }
+#' # Load a sample surface from the package
+#' surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
+#' surfgeom <- readAsc(surf_file)
+#' 
+#' # Get the surface coordinates
+#' surf_coords <- coords(surfgeom)
+#' 
+#' # Create some sample 3D coordinates to project
+#' # We'll use a subset of the surface vertices with small random offsets
+#' set.seed(123)
+#' sample_indices <- sample(1:nrow(surf_coords), 50)
+#' sample_coords <- surf_coords[sample_indices, ] + matrix(rnorm(150, 0, 0.5), ncol = 3)
+#' 
+#' # Project these coordinates onto the surface
+#' projected_surface <- projectCoordinates(surfgeom, sample_coords, sigma = 3)
+#' 
+#' # Check the result
+#' max(series(projected_surface))  # Maximum density value
+#' sum(series(projected_surface) > 0)  # Number of vertices with non-zero values
 #'
 #' @export
 projectCoordinates <- function(surfgeom, coords, sigma=5, ...) {
-
-  # Ensure coordinates are a matrix with three columns
-  stopifnot(is.matrix(coords) && ncol(coords) == 3)
-
+  # Input validation
+  if (!inherits(surfgeom, "SurfaceGeometry")) {
+    stop("surfgeom must be a SurfaceGeometry object")
+  }
+  
+  if (!is.matrix(coords)) {
+    stop("coords must be a matrix")
+  }
+  
+  if (ncol(coords) != 3) {
+    stop("coords must have exactly 3 columns (x, y, z)")
+  }
+  
+  if (!is.numeric(sigma) || sigma <= 0) {
+    stop("sigma must be a positive number")
+  }
+  
   # Get the surface vertices
   surf_coords <- coords(surfgeom)
-
-  # Find the closest vertex on the surface for each coordinate
-  nearest_vertices <- apply(coords, 1, function(coord) {
-    dists <- rowSums((surf_coords - coord)^2)
-    which.min(dists)
+  
+  # Check if we have any vertices
+  if (nrow(surf_coords) == 0) {
+    stop("Surface has no vertices")
+  }
+  
+  # Find the closest vertex on the surface for each coordinate using FNN
+  tryCatch({
+    nearest_vertices <- FNN::get.knnx(surf_coords, coords, k=1)$nn.index[,1]
+  }, error = function(e) {
+    stop("Error finding nearest vertices: ", e$message)
   })
-
-  nearest_vertices <- FNN::get.knnx(surf_coords, coords, k=1)$nn.index[,1]
-
+  
   # Create initial data vector for the NeuroSurface with counts of nearest points
-  data_vec <- numeric(ncol(surfgeom@mesh$vb))
+  n_vertices <- nrow(surf_coords)
+  data_vec <- numeric(n_vertices)
+  
+  # Count occurrences of each vertex
   tabulated_vertices <- table(nearest_vertices)
-  data_vec[as.numeric(names(tabulated_vertices))] <- as.numeric(tabulated_vertices)
-
-  # Define valid surface node indices
-  valid_indices <- 1:nrow(surf_coords)
-
+  vertex_indices <- as.numeric(names(tabulated_vertices))
+  
+  # Validate indices before assignment
+  if (any(vertex_indices > n_vertices) || any(vertex_indices < 1)) {
+    stop("Invalid vertex indices found")
+  }
+  
+  # Assign counts to data vector
+  data_vec[vertex_indices] <- as.numeric(tabulated_vertices)
+  
+  # Define valid surface node indices (all vertices)
+  valid_indices <- 1:n_vertices
+  
   # Create a NeuroSurface object with these values
-  neuro_surface <- NeuroSurface(geometry = surfgeom, indices = valid_indices, data = data_vec[valid_indices])
-
+  tryCatch({
+    neuro_surface <- NeuroSurface(geometry = surfgeom, 
+                                 indices = valid_indices, 
+                                 data = data_vec)
+  }, error = function(e) {
+    stop("Error creating NeuroSurface object: ", e$message)
+  })
+  
   # Smooth the values on the NeuroSurface
-  smooth_surface <- smooth(neuro_surface, sigma = sigma, ...)
-
+  tryCatch({
+    smooth_surface <- smooth(neuro_surface, sigma = sigma, ...)
+  }, error = function(e) {
+    stop("Error smoothing surface: ", e$message)
+  })
+  
   return(smooth_surface)
 }

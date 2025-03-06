@@ -4,7 +4,7 @@
 \alias{geometry}
 \alias{geometry,NeuroSurface-method}
 \alias{geometry,NeuroSurfaceVector-method}
-\title{extract geometry object}
+\title{Extract Geometry from Surface Object}
 \usage{
 geometry(x)
 
@@ -13,8 +13,14 @@ geometry(x)
 \S4method{geometry}{NeuroSurfaceVector}(x)
 }
 \arguments{
-\item{x}{the surface object}
+\item{x}{A surface object}
+}
+\value{
+A geometry object representing the surface structure
 }
 \description{
-extract geometry object
+Extracts the geometric representation from a surface object.
+}
+\seealso{
+\code{\link{vertices}}, \code{\link{nodes}}
 }

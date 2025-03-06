@@ -1,0 +1,26 @@
+{
+  "name": "neurosurface",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "gulp"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "gulp": "^4.0.2",
+    "rollup": "^2.79.1",
+    "rollup-plugin-terser": "^7.0.2"
+  },
+  "dependencies": {
+    "@tweakpane/plugin-essentials": "^0.2.1",
+    "@tweakpane/plugin-interval": "^0.3.0",
+    "colormap": "^2.3.2",
+    "three": "^0.132.2",
+    "tweakpane": "^4.0.4"
+  }
+}

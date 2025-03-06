@@ -4,7 +4,7 @@
 \alias{cluster_threshold}
 \alias{cluster_threshold,NeuroSurfaceVector-method}
 \alias{cluster_threshold,NeuroSurface-method}
-\title{apply a cluster-extent threshold to surface data}
+\title{Apply Cluster-Extent Threshold to Surface Data}
 \usage{
 cluster_threshold(x, threshold, size, ...)
 
@@ -13,19 +13,19 @@ cluster_threshold(x, threshold, size, ...)
 \S4method{cluster_threshold}{NeuroSurface}(x, threshold, size = 10)
 }
 \arguments{
-\item{x}{the object to threshold}
+\item{x}{Object to threshold}
 
-\item{threshold}{the numeric threshold range}
+\item{threshold}{Numeric threshold range}
 
-\item{size}{the minimum cluster size in nodes}
+\item{size}{Minimum cluster size in nodes}
 
-\item{...}{extra args}
+\item{...}{Additional arguments}
 
 \item{index}{the index/column of the underlying data matrix to cluster}
 }
 \description{
-apply a cluster-extent threshold to surface data
+Apply Cluster-Extent Threshold to Surface Data
 }
 \seealso{
-conn_comp
+\code{\link{conn_comp}}
 }

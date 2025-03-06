@@ -2,15 +2,38 @@
 % Please edit documentation in R/IO.R
 \name{read_freesurfer_annot}
 \alias{read_freesurfer_annot}
-\title{read a freesurfer annotation file as a \code{LabeledNeuroSurface}}
+\title{Read FreeSurfer Annotation File}
 \usage{
 read_freesurfer_annot(file_name, geometry)
 }
 \arguments{
-\item{file_name}{name of the '.annot' file}
+\item{file_name}{Character string; path to the '.annot' file}
 
-\item{geometry}{an appropriate \code{SurfaceGeometry} instance}
+\item{geometry}{A SurfaceGeometry object representing the surface structure}
+}
+\value{
+A LabeledNeuroSurface object containing:
+  \item{indices}{Integer vector of vertex indices}
+  \item{data}{Numeric vector of label codes}
+  \item{labels}{Character vector of label names}
+  \item{cols}{Character vector of label colors in hex format}
 }
 \description{
-read a freesurfer annotation file as a \code{LabeledNeuroSurface}
+Reads a FreeSurfer annotation file and creates a LabeledNeuroSurface object.
+}
+\details{
+This function reads binary data from a FreeSurfer annotation file,
+which includes vertex labels, color information, and label names.
+It then constructs a LabeledNeuroSurface object using this information
+along with the provided surface geometry.
+}
+\examples{
+\dontrun{
+geom <- readSurfaceGeometry("path/to/surface.gii")
+labeled_surface <- read_freesurfer_annot("path/to/labels.annot", geom)
+}
+
+}
+\seealso{
+\code{\link{LabeledNeuroSurface}}, \code{\link{SurfaceGeometry}}
 }

@@ -1,4 +1,19 @@
 Package: neurosurf
+Type: Package
+Title: Data structures and visualization for surface-based neuroimaging data
+Version: 0.1.0
+Authors@R: c(
+    person(c("Bradley", "R"), "Buchsbaum", role = c("aut", "cre"), email = "brad.buchsbaum@gmail.com"))
+Maintainer: Bradley Buchsbaum <brad.buchsbaum@gmail.com>
+Description: A comprehensive toolkit for working with surface-based neuroimaging data
+    represented as triangle meshes. The package provides classes and methods for 
+    creating, manipulating, and visualizing 3D surface geometries (e.g., cortical 
+    surfaces), with support for various file formats including FreeSurfer and GIFTI. 
+    Key features include: surface smoothing, curvature computation, neighborhood graph 
+    construction, geodesic distance calculations, searchlight analysis for surface-based 
+    machine learning, and interactive 3D visualization via HTMLWidgets. The package 
+    facilitates advanced surface-based analyses through specialized data structures 
+    for representing surface geometry and associated functional data.
 Imports:
     Matrix,
     igraph,
@@ -13,18 +28,11 @@ Imports:
     Rvcg,
     methods,
     gplots,
-    gifti
-Type: Package
-Title: Data structures and IO for surface-based neuroimaging data
-Version: 0.1.0
-Authors@R: c(
-    person(c("Bradley", "R"), "Buchsbaum", role = c("aut", "cre"), email = "brad.buchsbaum@gmail.com"))
-Maintainer: Bradley Buchsbaum <brad.buchsbaum@gmail.com>
-Description: Basic utilties for reading, writing and manipulating neuroimaging
-    organized as a trinagle mesh.
+    gifti,
+    htmlwidgets
 License: GPL (>= 2)
 LazyData: TRUE
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2.9000
 Remotes:
   bbuchsbaum/neuroim2,
   bbuchsbaum/colorplane
@@ -36,9 +44,12 @@ Collate:
     'ROI.R'
     'Searchlight.R'
     'boundaries.R'
+    'geometry.R'
     'neighborhood.R'
     'neuro_surface.R'
     'neurosurf.R'
+    'spec.R'
+    'surfwidget.R'
     'view_surface.R'
     'vol_to_surf.R'
 Suggests: 

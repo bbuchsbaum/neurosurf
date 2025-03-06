@@ -3,15 +3,18 @@
 \docType{class}
 \name{LabeledNeuroSurface-class}
 \alias{LabeledNeuroSurface-class}
-\title{LabeledNeuroSurface}
+\title{LabeledNeuroSurface Class}
 \description{
-a three-dimensional surface consisting of a set of triangle vertices with one value per vertex and associated labels and colors.
+Represents a 3D surface with labeled vertices, extending NeuroSurface.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{labels}}{the list of label annotations}
+\item{\code{labels}}{Character vector of label annotations}
 
-\item{\code{cols}}{the vector of colors specified as a hex character vector}
+\item{\code{cols}}{Character vector of hex color codes for labels}
 }}
 
+\seealso{
+\code{\link{NeuroSurface}}
+}

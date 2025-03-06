@@ -269,6 +269,61 @@ setMethod("plot", signature=signature(x="LabeledNeuroSurface", y="missing"),
 
           })
 
+
+#' @export
+#' @rdname plot
+setMethod("plot", signature=signature(x="ColorMappedNeuroSurface", y="missing"),
+          def=function(x,
+                       vert_clrs=NULL,
+                       alpha=1,
+                       specular="black",
+                       bgcol="lightgray", ...) {
+
+            ind <- x@indices
+            vals <- rep(NA, length(nodes(x)))
+            vals[ind] <- x@data
+
+            view_surface(x@geometry,
+                         vals,
+                         cmap=x@cmap,
+                         vert_clrs=vert_clrs,
+                         irange=x@irange,
+                         thresh=x@thresh,
+                         alpha=alpha,
+                         bgcol=bgcol,
+                         specular=specular,
+                         ...)
+
+          })
+
+
+#' @export
+#' @rdname plot
+setMethod("plot", signature=signature(x="VertexColoredNeuroSurface", y="missing"),
+          def=function(x,
+                       alpha=1,
+                       specular="black",
+                       bgcol="lightgray", ...) {
+
+            ind <- x@indices
+            colors <- rep(NA, length(nodes(x@geometry)))
+            colors[ind] <- x@colors
+
+            view_surface(x@geometry,
+                         vals=NULL,
+                         cmap=NULL,
+                         vert_clrs=colors,
+                         irange=NULL,
+                         thresh=NULL,
+                         alpha=alpha,
+                         bgcol=bgcol,
+                         specular=specular,
+                         ...)
+
+          })
+
+
+
 #' viewShiny <- function(surfgeom, vals=1:length(nodes(surfgeom)), col=rainbow(255, alpha = 1)) {
 #'   options(rgl.useNULL = TRUE)
 #'
