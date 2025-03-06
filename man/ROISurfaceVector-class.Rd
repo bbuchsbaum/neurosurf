@@ -7,6 +7,25 @@
 \description{
 A class that respresents a surface-based region of interest
 }
+\details{
+The ROISurfaceVector class extends the concept of ROISurface to handle multiple measurements
+for each vertex in the region of interest. While ROISurface stores a single value per vertex,
+ROISurfaceVector stores a matrix of values where each row represents a different measure and
+each column corresponds to a vertex.
+
+This structure is particularly useful for multivariate analyses of specific brain regions,
+allowing researchers to:
+\itemize{
+  \item Store time series data for each vertex in an ROI
+  \item Maintain multiple modalities of data for the same surface region
+  \item Perform multivariate statistical analyses on regional surface data
+  \item Compare different metrics within the same anatomical region
+}
+
+The data matrix is organized with rows representing different measures and columns
+representing different vertices, which facilitates efficient access to all measurements
+for a particular vertex or all vertices for a particular measurement.
+}
 \section{Slots}{
 
 \describe{
@@ -19,3 +38,64 @@ A class that respresents a surface-based region of interest
 \item{\code{indices}}{the nodes of the parent surface stored in the \code{geometry} field.}
 }}
 
+\examples{
+\donttest{
+# Create a simple tetrahedron mesh for the example
+vertices <- c(
+  0, 0, 0,
+  1, 0, 0,
+  0, 1, 0,
+  0, 0, 1
+)
+triangles <- c(
+  1, 2, 3,
+  1, 2, 4,
+  1, 3, 4,
+  2, 3, 4
+)
+
+# Create mesh3d object
+mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
+
+# Create a graph representation
+edges <- rbind(
+  c(1,2), c(1,3), c(1,4),
+  c(2,3), c(2,4),
+  c(3,4)
+)
+graph <- igraph::graph_from_edgelist(edges)
+
+# Create a SurfaceGeometry object
+geometry <- new("SurfaceGeometry",
+               mesh = mesh,
+               graph = graph,
+               hemi = "left")
+
+# Define the ROI - just using vertices 1 and 2 as an example
+roi_indices <- c(1L, 2L)
+
+# Extract coordinates for these vertices
+roi_coords <- matrix(
+  c(0, 0, 0,  # coordinates for vertex 1
+    1, 0, 0), # coordinates for vertex 2
+  ncol = 3, byrow = TRUE
+)
+
+# Create data matrix for the ROI vertices - 3 different measures
+# Each row represents a different measure, each column a different vertex
+roi_data <- matrix(
+  c(0.75, 1.25,  # values for measure 1
+    0.50, 0.80,  # values for measure 2
+    0.30, 0.60), # values for measure 3
+  nrow = 3, ncol = 2
+)
+
+# Create the ROISurfaceVector object
+roi_vector <- new("ROISurfaceVector",
+                 geometry = geometry,
+                 data = roi_data,
+                 coords = roi_coords,
+                 indices = roi_indices)
+}
+
+}
