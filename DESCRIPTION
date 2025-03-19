@@ -29,7 +29,8 @@ Imports:
     methods,
     gplots,
     gifti,
-    htmlwidgets
+    htmlwidgets,
+    deflist
 License: GPL (>= 2)
 LazyData: TRUE
 RoxygenNote: 7.3.2.9000

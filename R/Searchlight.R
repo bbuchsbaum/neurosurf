@@ -28,6 +28,7 @@
 #' }
 #'
 #' @importFrom igraph neighborhood induced_subgraph
+#' @importFrom deflist deflist
 #' @export
 RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflist=FALSE) {
   subgraph <- FALSE
@@ -58,7 +59,7 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
       center <- which(!done)[n]
       indices <- as.vector(igraph::neighborhood(bg, 1, nds[center])[[1]])
       indices <- indices[!done[indices]]
-      
+
       if (subgraph) {
         vout <- nodeset[indices]
         attr(vout, "center") <- nodeset[center]
@@ -72,8 +73,8 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
         indices
       }
     }
-    
-    return(deflist(fun, len=sum(!done)))
+
+    return(deflist::deflist(fun, len=sum(!done)))
   }
 
   nextEl <- function() {
@@ -170,7 +171,7 @@ SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type=c
     fun <- function(n) {
       if (n > length(nds)) stop("Index out of bounds")
       indices <- as.vector(igraph::neighborhood(bg, 1, nds[n])[[1]])
-      
+
       if (subgraph) {
         indices <- nodeset[indices]
         attr(indices, "center") <- nodeset[n]
@@ -184,8 +185,8 @@ SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type=c
         indices
       }
     }
-    
-    return(deflist(fun, len=length(nds)))
+
+    return(deflist::deflist(fun, len=length(nds)))
   }
 
   nextEl <- function() {
