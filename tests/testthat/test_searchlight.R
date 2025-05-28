@@ -85,6 +85,22 @@ test_that("RandomSurfaceSearchlight deflist works correctly", {
 })
 
 
+test_that("SurfaceSearchlight deflist rejects invalid indices", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+  sl <- SurfaceSearchlight(surf, radius=12, as_deflist=TRUE)
+  expect_error(sl[[0]])
+  expect_error(sl[[-1]])
+})
+
+test_that("RandomSurfaceSearchlight deflist rejects invalid indices", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+  sl <- RandomSurfaceSearchlight(surf, radius=12, as_deflist=TRUE)
+  expect_error(sl[[0]])
+  expect_error(sl[[-1]])
+})
+
 test_that("RandomSurfaceSearchlight validates inputs", {
   surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
   surf <- read_surf(surf_file)
@@ -107,5 +123,6 @@ test_that("RandomSurfaceSearchlight deflist uses random ordering", {
   first2 <- attr(sl2[[1]], "center")
 
   expect_false(identical(first1, first2))
+
 
 })
