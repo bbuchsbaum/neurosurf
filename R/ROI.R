@@ -70,18 +70,6 @@ SurfaceDisk <- function(surf, index, radius, max_order=NULL) {
 
 }
 
-
-roi_surface_matrix <- function(mat, refspace, indices, coords) {
-  structure(mat,
-            refspace=refspace,
-            indices=indices,
-            coords=coords,
-            class=c("roi_surface_matrix", "matrix"))
-
-}
-
-
-
 #' values
 #'
 #' @param x the object to extract values from
