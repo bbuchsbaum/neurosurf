@@ -15,4 +15,5 @@ updateSurfwidgetConfig(session, id, config)
 }
 \description{
 Update the configuration of an existing surfwidget.
+This sends a \code{"neurosurf-surfwidget-config"} custom message to the client.
 }

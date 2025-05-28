@@ -178,11 +178,12 @@ renderSurfwidget <- function(expr, env = parent.frame(), quoted = FALSE) {
 #' @param session The \code{session} object passed to function given to \code{shinyServer}.
 #' @param id The ID of the surfwidget output.
 #' @param config A list of configuration options to update. See \code{\link{surfwidget}} for details on available options.
+#' @details Sends a custom message of type \code{"neurosurf-surfwidget-config"} to update the widget configuration on the client.
 #'
 #' @export
 updateSurfwidgetConfig <- function(session, id, config) {
-  message <- list(config = config)
-  session$sendCustomMessage(type = 'surfwidget-config', message)
+  message <- list(id = id, config = config)
+  session$sendCustomMessage(type = 'neurosurf-surfwidget-config', message)
 }
 
 #' @export

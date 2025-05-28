@@ -99,3 +99,12 @@ HTMLWidgets.widget({
     };
   }
 });
+
+if (HTMLWidgets.shinyMode) {
+  Shiny.addCustomMessageHandler('neurosurf-surfwidget-config', function(message) {
+    var widget = HTMLWidgets.find('#' + message.id);
+    if (widget && widget.updateConfig) {
+      widget.updateConfig(message.config);
+    }
+  });
+}
