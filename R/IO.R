@@ -153,9 +153,9 @@ readFreesurferAsciiGeometry <- function(file_name) {
 readFreesurferBinaryHeader <- function(file_name) {
   has_hemi <- grep("^[lr]h\\..*", basename(file_name))
   hemi <- if (length(has_hemi) > 0) {
-    if (length(grep("^lh.*", basename(file_name))>0)) {
+    if (length(grep("^lh.*", basename(file_name))) > 0) {
       "lh"
-    } else if (length(grep("^rh.*", basename(file_name))>0)) {
+    } else if (length(grep("^rh.*", basename(file_name))) > 0) {
       "rh"
     } else {
       "unknown"
