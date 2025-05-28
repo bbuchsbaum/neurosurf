@@ -12,12 +12,16 @@ test_that("SurfaceSearchlight iterator works correctly", {
   
   # Get first region
   nodes <- sl$nextElem()
-  
+
   # Test returned nodes
   expect_true(is.numeric(nodes))
   expect_true(length(nodes) > 1)
   expect_false(is.null(attr(nodes, "center")))
   expect_false(is.null(attr(nodes, "length")))
+
+  # Progress should reflect number of centers visited
+  num_nodes <- length(nodes(surf))
+  expect_equal(sl$progress(), 1 / num_nodes)
 })
 
 test_that("SurfaceSearchlight deflist works correctly", {
@@ -55,12 +59,16 @@ test_that("RandomSurfaceSearchlight iterator works correctly", {
   
   # Get first region
   nodes <- sl$nextElem()
-  
+
   # Test returned nodes
   expect_true(is.numeric(nodes))
   expect_true(length(nodes) > 1)
   expect_false(is.null(attr(nodes, "center")))
   expect_false(is.null(attr(nodes, "length")))
+
+  # Progress should reflect proportion of nodes covered
+  num_nodes <- length(nodes(surf))
+  expect_equal(sl$progress(), attr(nodes, "length") / num_nodes)
 })
 
 test_that("RandomSurfaceSearchlight deflist works correctly", {
