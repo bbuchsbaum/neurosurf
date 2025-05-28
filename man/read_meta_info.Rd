@@ -21,7 +21,7 @@
 \arguments{
 \item{x}{the file descriptor object}
 
-\item{file_name}{the name of the file containing meta infromation.}
+\item{file_name}{the name of the file containing meta information.}
 }
 \description{
 read_meta_info
