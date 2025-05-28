@@ -20,13 +20,13 @@ A new \code{NeuroSurface} object with the smoothed data values. The geometry rem
 This method applies smoothing to the data values associated with a \code{\linkS4class{NeuroSurface}} object. Unlike the geometric smoothing applied to \code{\linkS4class{SurfaceGeometry}}, this function smooths the scalar values (e.g., intensity or activation) associated with each vertex on the surface.
 }
 \details{
-The smoothing process involves averaging the data values within the neighborhood of each vertex. For each vertex on the surface, the function calculates the mean of its own value and the values of its adjacent vertices within the graph structure of the surface. The result is a smoother representation of the data, which can be useful for reducing noise or visualizing broader trends on the surface.
+The smoothing process involves averaging the data values within a geodesic neighbourhood of each vertex.  For every vertex the function uses \code{find_all_neighbors} to locate all vertices within the radius specified by \code{sigma}.  The smoothed value is the mean of the vertex's own value and those of its neighbours.  Increasing \code{sigma} results in broader smoothing because more neighbours are included in the average.
 
 The smoothing is particularly useful when working with noisy data or when a smoother representation of the underlying signal is desired. It is commonly applied in neuroimaging to enhance visualization or prepare data for further analysis.
 }
 \examples{
 # Load a surface file from the extdata directory
-surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
+surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 surface <- readAsc(surf_file)
 
 # Create some random data for the surface vertices
@@ -38,13 +38,14 @@ neuro_surf <- NeuroSurface(geometry = surface,
                           indices = 1:n_vertices,
                           data = random_data)
 
-# Apply smoothing to the data
-smoothed_data_surface <- smooth(neuro_surf, sigma = 3)
+# Apply smoothing with different radii
+smoothed_small <- smooth(neuro_surf, sigma = 2)
+smoothed_large <- smooth(neuro_surf, sigma = 6)
 
 # The original geometry is preserved, but the data is smoothed
 # Compare a small section of data before and after smoothing
 head(random_data)
-head(series(smoothed_data_surface))
+head(series(smoothed_large))
 
 }
 \seealso{
