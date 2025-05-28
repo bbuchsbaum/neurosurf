@@ -50,9 +50,11 @@ read_freesurfer_annot <- function(file_name, geometry) {
   vertices <- vertex_dat[seq(1,length(vertex_dat), by=2)]
   clabs <- vertex_dat[seq(2,length(vertex_dat), by=2)]
   tags <- readBin(fp, integer(),n=4, size=4, endian="big")
-  maxstruc <- tags[3]
-  slen <- tags[4]
-  fn <- readChar(fp, slen, useBytes=TRUE)
+  ## the third and fourth elements of `tags` contain the maximum
+  ## structure index and the length of the following filename.  These
+  ## values are not currently used, so we simply skip over the filename
+  ## string.
+  readChar(fp, tags[4], useBytes=TRUE)
   nlut <- readBin(fp, integer(),n=1, size=4, endian="big")
   labs <- vector(nlut, mode="list")
   for (i in 1:nlut) {
