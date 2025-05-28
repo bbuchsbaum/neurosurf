@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import ColorMap from './ColorMap.js';
+import { debugLog } from './debug.js';
 
 export class SurfaceGeometry {
   constructor(vertices, faces, hemi) {
@@ -8,10 +9,10 @@ export class SurfaceGeometry {
     this.hemi = hemi;
     this.mesh = null;
 
-    console.log("SurfaceGeometry constructor called");
-    console.log("Vertices:", this.vertices.length);
-    console.log("Faces:", this.faces.length);
-    console.log("Hemi:", this.hemi);
+    debugLog('SurfaceGeometry constructor called');
+    debugLog('Vertices:', this.vertices.length);
+    debugLog('Faces:', this.faces.length);
+    debugLog('Hemi:', this.hemi);
 
     this.createMesh();
   }
@@ -28,8 +29,8 @@ export class SurfaceGeometry {
     });
 
     this.mesh = new THREE.Mesh(geometry, material);
-    console.log("SurfaceGeometry construction complete");
-    console.log("Mesh:", this.mesh);
+    debugLog('SurfaceGeometry construction complete');
+    debugLog('Mesh:', this.mesh);
   }
 }
 
@@ -207,17 +208,17 @@ export class ColorMappedNeuroSurface extends NeuroSurface {
 
     // Set up new listeners
     this.rangeListener = this.colorMap.on('rangeChanged', (range) => {
-      console.log('ColorMappedNeuroSurface: Received rangeChanged event', range);
+      debugLog('ColorMappedNeuroSurface: Received rangeChanged event', range);
       this.irange = range;
       this.updateColors();
     });
     this.thresholdListener = this.colorMap.on('thresholdChanged', (threshold) => {
-      console.log('ColorMappedNeuroSurface: Received thresholdChanged event', threshold);
+      debugLog('ColorMappedNeuroSurface: Received thresholdChanged event', threshold);
       this.threshold = threshold;
       this.updateColors();
     });
     this.alphaListener = this.colorMap.on('alphaChanged', (alpha) => {
-      console.log('ColorMappedNeuroSurface: Received alphaChanged event', alpha);
+      debugLog('ColorMappedNeuroSurface: Received alphaChanged event', alpha);
       this.config.alpha = alpha;
       this.updateColors();
     });
@@ -251,11 +252,11 @@ export class ColorMappedNeuroSurface extends NeuroSurface {
   }
 
   updateColors() {
-    console.log('Updating colors. Mesh:', !!this.mesh, 'ColorMap:', !!this.colorMap);
+    debugLog('Updating colors. Mesh:', !!this.mesh, 'ColorMap:', !!this.colorMap);
     if (!this.mesh || !this.colorMap) {
       console.warn('Mesh or ColorMap not initialized in updateColors');
-      console.log('Mesh:', this.mesh);
-      console.log('ColorMap:', this.colorMap);
+      debugLog('Mesh:', this.mesh);
+      debugLog('ColorMap:', this.colorMap);
       return;
     }
 
@@ -263,10 +264,10 @@ export class ColorMappedNeuroSurface extends NeuroSurface {
     const componentsPerColor = 4; // Always use RGBA
     const colors = new Float32Array(vertexCount * componentsPerColor);
 
-    console.log("threshold", this.threshold);
-    console.log("irange", this.irange);
-    console.log("alpha", this.config.alpha);
-    console.log("data", this.data);
+    debugLog('threshold', this.threshold);
+    debugLog('irange', this.irange);
+    debugLog('alpha', this.config.alpha);
+    debugLog('data', this.data);
 
     const baseSurfaceColor = new THREE.Color(this.config.color);
 
