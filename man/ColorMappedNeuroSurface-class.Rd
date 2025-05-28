@@ -11,6 +11,7 @@ mapped to colors using a specified colormap and range.
 \details{
 This class extends \code{NeuroSurface} by adding color mapping functionality.
 The \code{cmap} slot contains a vector of hex color codes that define the colormap.
+Alternatively, it can be a matrix of RGB(A) rows with numeric components between 0 and 1.
 The \code{irange} slot specifies the range of data values to be mapped to the colormap.
 The \code{thresh} slot defines the visibility thresholds: data values below \code{thresh[1]}
 or above \code{thresh[2]} are visible, while values in between are not visible.
