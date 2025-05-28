@@ -26,6 +26,33 @@ HTMLWidgets.widget({
         }
 
         try {
+          // Validate input arrays before constructing geometry
+          const validateNumericArray = function(arr, name, multipleOf, expectedLength) {
+            if (!Array.isArray(arr) || !arr.every(v => typeof v === 'number')) {
+              throw new Error(`${name} must be an array of numbers`);
+            }
+            if (arr.length === 0) {
+              throw new Error(`${name} cannot be empty`);
+            }
+            if (multipleOf && arr.length % multipleOf !== 0) {
+              throw new Error(`${name} length must be a multiple of ${multipleOf}`);
+            }
+            if (expectedLength !== undefined && arr.length !== expectedLength) {
+              throw new Error(`${name} length must be ${expectedLength}`);
+            }
+          };
+
+          validateNumericArray(x.vertices, 'x.vertices', 3);
+          validateNumericArray(x.faces, 'x.faces', 3);
+          validateNumericArray(x.indices, 'x.indices');
+
+          if (x.cmap) {
+            validateNumericArray(x.data, 'x.data', undefined, x.indices.length);
+          }
+          if (x.vertexColors) {
+            validateNumericArray(x.vertexColors, 'x.vertexColors', undefined, x.indices.length);
+          }
+
           neurosurface.debugLog('Creating SurfaceGeometry');
           var geometry = new neurosurface.SurfaceGeometry(x.vertices, x.faces, x.hemi);
           neurosurface.debugLog('SurfaceGeometry created:', geometry);
