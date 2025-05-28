@@ -23,3 +23,10 @@ See examples of use of `neurosurf` in the
 
 [vignettes](https://bbuchsbaum.github.io/neurosurf/articles/index.html).
 
+## Curvature shading
+
+`surfwidget()` includes an optional `curvature` argument supplying per vertex
+curvature values. When omitted and the input is a `SurfaceGeometry` object the
+values are computed via `curvature(x)` and forwarded to the viewer for
+curvature based coloring.
+

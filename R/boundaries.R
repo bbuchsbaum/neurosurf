@@ -22,6 +22,13 @@
 #' @details
 #' This function identifies the boundaries between different regions of interest (ROIs) on a surface mesh.
 #' The algorithm works by analyzing the connectivity between vertices and faces with different ROI assignments.
+#'
+#' The input must satisfy the following conditions:
+#' \itemize{
+#'   \item `vertices` is a non-empty numeric matrix with three columns.
+#'   \item `faces` contains vertex indices between `1` and `nrow(vertices)`.
+#'   \item `vertex_id` has length equal to `nrow(vertices)`.
+#' }
 #' 
 #' The boundary detection process follows these general steps:
 #' \enumerate{
@@ -47,6 +54,45 @@
 #' The function relies on graph theory algorithms to find and trace boundary paths,
 #' using adjacency matrices and shortest path algorithms to ensure boundaries form
 #' complete cycles around each ROI component.
+#'
+#' The structure of the returned list varies with \code{boundary_method}:
+#' \describe{
+#'   \item{\code{"faces"}}{\code{boundary} is a logical vector the length of the
+#'     face matrix indicating which faces lie on an ROI boundary. The remaining
+#'     elements of the list are \code{NULL}.}
+#'   \item{\code{"midpoint"}}{\code{boundary} is a list of coordinate matrices
+#'     (each \code{n \times 3}) representing boundary polygons traced through
+#'     edge midpoints. \code{boundary_verts} contains the vertex pairs used to
+#'     compute those midpoints.}
+#'   \item{\code{"centroid"}}{\code{boundary} is a list of coordinate matrices
+#'     defined by face centroids. \code{boundary_verts} is \code{NULL}.}
+#'   \item{\code{"edge_vertices"}}{\code{boundary} stores boundary polygons as
+#'     vertex coordinates and \code{boundary_verts} records the vertex indices of
+#'     each polygon.}
+#'   \item{\code{"edge_faces"}}{Similar to \code{"edge_vertices"} but uses face
+#'     relationships to trace the path. Both \code{boundary} and
+#'     \code{boundary_verts} are lists.}
+#' }
+#'
+#' Example return structure for the \code{"faces"} method:
+#' \preformatted{
+#' list(
+#'   boundary = logical(n_faces),
+#'   boundary_roi_id = NULL,
+#'   roi_components = NULL,
+#'   boundary_verts = NULL
+#' )
+#' }
+#'
+#' Example return structure for path-based methods (e.g. \code{"midpoint"}):
+#' \preformatted{
+#' list(
+#'   boundary = list(matrix(nrow, 3), ...),
+#'   boundary_roi_id = integer(),
+#'   roi_components = integer(),
+#'   boundary_verts = list(matrix(nrow, 2), ...)
+#' )
+#' }
 #'
 #' @examples
 #' \donttest{
@@ -132,6 +178,18 @@
 find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "midpoint") {
   boundary_method <- match.arg(boundary_method, c("faces", "midpoint", "centroid", "edge_vertices", "edge_faces"))
 
+  if (!is.matrix(vertices) || !is.numeric(vertices) || ncol(vertices) != 3 || nrow(vertices) == 0) {
+    stop("vertices must be a non-empty numeric matrix with three columns")
+  }
+
+  if (length(vertex_id) != nrow(vertices)) {
+    stop("length of vertex_id must equal number of vertices")
+  }
+
+  if (!is.matrix(faces) || any(faces < 1) || any(faces > nrow(vertices))) {
+    stop("faces must reference vertex indices between 1 and nrow(vertices)")
+  }
+
   if (boundary_method %in% c("centroid", "faces", "edge_faces")) {
     boundary_verts <- NULL
   }
@@ -211,7 +269,10 @@ find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "m
       boundary_face <- max(group$boundary_face)
     } else {
       # Edge appears in one face
-      diff_color <- 1  # Different colors by default
+      diff_color <- as.integer(
+        group$boundary_face[1] ||
+        vertex_id[group$v1[1]] != vertex_id[group$v2[1]]
+      )
       faceID1 <- group$edge_faceID[1]
       faceID2 <- NA
       boundary_face <- group$boundary_face[1]
@@ -306,7 +367,20 @@ find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "m
 
         # Find shortest path
         G <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected", weighted = TRUE)
-        sp <- igraph::shortest_paths(G, from = N1, to = N2, output = "epath")$epath[[1]]
+        sp <- tryCatch(
+          igraph::shortest_paths(G, from = N1, to = N2, output = "epath")$epath[[1]],
+          error = function(e) {
+            warning(sprintf(
+              "Failed to compute shortest path for ROI %d component %d: %s",
+              roi, j, e$message
+            ))
+            return(integer(0))
+          }
+        )
+        if (length(sp) == 0) {
+          warning(sprintf("No path found for ROI %d component %d; skipping", roi, j))
+          next
+        }
 
         edgesINDS <- c(igraph::E(G)[sp]$weight, final_connection)
 
@@ -398,7 +472,20 @@ find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "m
         adj[N2, N1] <- 0
 
         G <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected")
-        sp <- igraph::shortest_paths(G, from = N1, to = N2, output = "vpath")$vpath[[1]]
+        sp <- tryCatch(
+          igraph::shortest_paths(G, from = N1, to = N2, output = "vpath")$vpath[[1]],
+          error = function(e) {
+            warning(sprintf(
+              "Failed to compute shortest path for ROI %d component %d: %s",
+              roi, j, e$message
+            ))
+            return(integer(0))
+          }
+        )
+        if (length(sp) == 0) {
+          warning(sprintf("No path found for ROI %d component %d; skipping", roi, j))
+          next
+        }
 
         cycle <- c(sp, sp[1])
 
@@ -477,15 +564,55 @@ find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "m
         adj[N2, N1] <- 0
 
         G <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected")
-        sp <- igraph::shortest_paths(G, from = N1, to = N2, output = "vpath")$vpath[[1]]
+        sp <- tryCatch(
+          igraph::shortest_paths(G, from = N1, to = N2, output = "vpath")$vpath[[1]],
+          error = function(e) {
+            warning(sprintf(
+              "Failed to compute shortest path for ROI %d component %d: %s",
+              roiID, j, e$message
+            ))
+            return(integer(0))
+          }
+        )
+        if (length(sp) == 0) {
+          warning(sprintf("No path found for ROI %d component %d; skipping", roiID, j))
+          next
+        }
 
         attempts <- 0
-        while (any(!(component_nodes %in% sp)) && attempts < 10) {
-          # Handle cycles and disconnected nodes
-          # Implement complex logic to adjust adjacency matrix
-          # For brevity, we simplify the process
+        repeat {
+          missing_nodes <- setdiff(component_nodes, sp)
+          cycle_closed <- length(sp) > 1 && adj[sp[length(sp)], sp[1]] > 0
+
+          if (length(missing_nodes) == 0 && cycle_closed) {
+            break
+          }
+
+          if (attempts >= 10) {
+            break
+          }
+
           attempts <- attempts + 1
-          break
+
+          if (length(missing_nodes) > 0) {
+            cand <- missing_nodes[1]
+          } else {
+            cand <- sp[length(sp)]
+          }
+
+          neigh <- which(adj[cand, ] > 0)
+          if (length(neigh) == 0) {
+            break
+          }
+
+          adj[cand, neigh[1]] <- 0
+          adj[neigh[1], cand] <- 0
+
+          G <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected")
+          sp <- igraph::shortest_paths(G, from = N1, to = N2, output = "vpath")$vpath[[1]]
+          if (length(sp) == 0) {
+            break
+          }
         }
 
         if (attempts >= 10) {

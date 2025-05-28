@@ -15,9 +15,9 @@ find_all_neighbors(
 \arguments{
 \item{surf}{A SurfaceGeometry object or igraph object representing the mesh}
 
-\item{radius}{Numeric; the spatial radius within which to search for neighbors}
+\item{radius}{Numeric; the spatial radius within which to search for neighbors. Must be positive}
 
-\item{edgeWeights}{Numeric vector; weights for edges used in distance computation}
+\item{edgeWeights}{Numeric vector; weights for edges used in distance computation. Length must equal the number of edges}
 
 \item{nodes}{Integer vector; subset of nodes to find neighbors for. If NULL, uses all nodes}
 
@@ -35,6 +35,8 @@ Identifies all neighboring nodes within a specified radius for a given surface m
 \details{
 The function supports three distance metrics: Euclidean, geodesic, and spherical.
 For spherical distances, the surface is assumed to be a sphere.
+The internal k-nearest-neighbor search is capped at \code{vcount(g) - 1} to avoid
+requesting more neighbors than exist in the graph.
 }
 \examples{
 # Load a sample inflated surface from the package

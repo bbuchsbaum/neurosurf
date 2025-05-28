@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { ColorMappedNeuroSurface, VertexColoredNeuroSurface } from './classes.js';
 import { Pane } from 'tweakpane';
@@ -17,8 +20,12 @@ export class NeuroSurfaceViewer {
       directionalLightIntensity: 0.5,
       rotationSpeed: 2,
       initialZoom: 4,
+      ssaoRadius: 4,
+      ssaoKernelSize: 32,
+      rimStrength: 0,
       metalness: 0.1,
       roughness: 0.6,
+      useShaders: true,
       ...config
     };
     this.viewpoint = viewpoint;
@@ -34,8 +41,10 @@ export class NeuroSurfaceViewer {
     this.setupEnvironment();
     this.setupControls();
     this.setupPicking();
+    this.setupPostProcessing();
 
     this.surfaces = new Map(); // Store multiple surfaces
+    this.rimStrengthUniforms = [];
 
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
@@ -156,6 +165,17 @@ export class NeuroSurfaceViewer {
     this.controls.dynamicDampingFactor = 0.3;
   }
 
+  setupPostProcessing() {
+    this.composer = new EffectComposer(this.renderer);
+    this.renderPass = new RenderPass(this.scene, this.camera);
+    this.composer.addPass(this.renderPass);
+
+    this.ssaoPass = new SSAOPass(this.scene, this.camera, this.width, this.height);
+    this.ssaoPass.kernelRadius = this.config.ssaoRadius;
+    this.ssaoPass.kernelSize = this.config.ssaoKernelSize;
+    this.composer.addPass(this.ssaoPass);
+  }
+
   setupTweakPane() {
     // Create a container for Tweakpane
     const paneContainer = document.createElement('div');
@@ -208,6 +228,15 @@ export class NeuroSurfaceViewer {
       this.updateDirectionalLightIntensity(ev.value);
     });
 
+    lightingFolder.addBinding(this.config, 'rimStrength', {
+      label: 'Rim Strength',
+      min: 0,
+      max: 1,
+      step: 0.01,
+    }).on('change', (ev) => {
+      this.updateRimStrength(ev.value);
+    });
+
     // Camera folder
     const cameraFolder = this.pane.addFolder({
       title: 'Camera',
@@ -241,6 +270,39 @@ export class NeuroSurfaceViewer {
       max: this.dataRange.max,
       step: 0.01,
     }).on('change', this.updateThresholdRange.bind(this));
+
+
+    // SSAO folder
+    const ssaoFolder = this.pane.addFolder({
+      title: 'SSAO',
+      expanded: false,
+    });
+
+    ssaoFolder.addBinding(this.config, 'ssaoRadius', {
+      label: 'Radius',
+      min: 0,
+      max: 32,
+      step: 0.1,
+    }).on('change', (ev) => {
+      if (this.ssaoPass) {
+        this.ssaoPass.kernelRadius = ev.value;
+        this.render();
+      }
+    });
+
+    ssaoFolder.addBinding(this.config, 'ssaoKernelSize', {
+      label: 'Kernel Size',
+      min: 8,
+      max: 64,
+      step: 1,
+    }).on('change', (ev) => {
+      if (this.ssaoPass) {
+        this.ssaoPass.kernelSize = ev.value;
+        if (typeof this.ssaoPass.generateSampleKernel === 'function') {
+          this.ssaoPass.generateSampleKernel();
+        }
+        this.render();
+      }
 
     // Material folder
     const materialFolder = this.pane.addFolder({
@@ -430,6 +492,10 @@ export class NeuroSurfaceViewer {
       console.warn('Surface mesh not created. Creating now.');
       surface.createMesh();
     }
+    if (surface.mesh && surface.mesh.material) {
+      this.applyRimLighting(surface.mesh.material);
+      this.applyCurvatureShading(surface.mesh);
+    }
     this.scene.add(surface.mesh);
     this.updateMaterials();
     
@@ -493,6 +559,10 @@ export class NeuroSurfaceViewer {
     this.camera.aspect = this.width / this.height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.width, this.height);
+    if (this.composer && this.ssaoPass) {
+      this.composer.setSize(this.width, this.height);
+      this.ssaoPass.setSize(this.width, this.height);
+    }
   }
 
   animate() {
@@ -502,7 +572,9 @@ export class NeuroSurfaceViewer {
   }
 
   render() {
-    if (this.renderer && this.scene && this.camera) {
+    if (this.composer) {
+      this.composer.render();
+    } else if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);
     }
   }
@@ -578,6 +650,71 @@ export class NeuroSurfaceViewer {
       this.camera.updateProjectionMatrix();
       this.controls.update();
     }
+  }
+
+  applyRimLighting(material) {
+    material.onBeforeCompile = (shader) => {
+      shader.uniforms.rimStrength = { value: this.config.rimStrength };
+      shader.uniforms.rimColor = { value: new THREE.Color(0xffffff) };
+      shader.fragmentShader = shader.fragmentShader.replace(
+        'void main() {',
+        'uniform vec3 rimColor;\nuniform float rimStrength;\nvoid main() {'
+      );
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <output_fragment>',
+        '#include <output_fragment>\nfloat f = pow(1.0 - dot(normalize(vNormal), normalize(vViewPosition)), 2.0);\ngl_FragColor.rgb += rimColor * f * rimStrength;'
+      );
+      this.rimStrengthUniforms.push(shader.uniforms.rimStrength);
+    };
+    material.needsUpdate = true;
+  }
+
+  applyCurvatureShading(mesh) {
+    const curvAttr = mesh.geometry.getAttribute('curv');
+    if (!curvAttr) return;
+
+    if (this.config.useShaders && mesh.material && mesh.material.onBeforeCompile) {
+      mesh.material.onBeforeCompile = (shader) => {
+        shader.uniforms.warmColor = { value: new THREE.Color(0xff5533) };
+        shader.uniforms.coolColor = { value: new THREE.Color(0x3366ff) };
+        shader.vertexShader = shader.vertexShader.replace(
+          'void main()',
+          'attribute float curv;\nvarying float vCurv;\nvoid main()'
+        );
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <begin_vertex>',
+          '#include <begin_vertex>\nvCurv = curv;'
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+          'void main() {',
+          'varying float vCurv;\nuniform vec3 warmColor;\nuniform vec3 coolColor;\nvoid main() {'
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <dithering_fragment>',
+          '#include <dithering_fragment>\nfloat c = smoothstep(-0.5,0.5,vCurv);\nvec3 tint = mix(coolColor,warmColor,c);\n gl_FragColor.rgb = mix(gl_FragColor.rgb, tint, 0.4);'
+        );
+      };
+      mesh.material.needsUpdate = true;
+    } else {
+      const colors = mesh.geometry.getAttribute('color');
+      if (!colors) return;
+      const arr = colors.array;
+      const curv = curvAttr.array;
+      for (let i = 0; i < curv.length; i++) {
+        const t = curv[i] > 0 ? [1, 0.7, 0.7] : [0.7, 0.7, 1];
+        const idx = i * 3;
+        arr[idx] *= t[0];
+        arr[idx + 1] *= t[1];
+        arr[idx + 2] *= t[2];
+      }
+      colors.needsUpdate = true;
+    }
+  }
+
+  updateRimStrength(strength) {
+    this.config.rimStrength = strength;
+    this.rimStrengthUniforms.forEach(u => { u.value = strength; });
+    this.render();
   }
 
   setupPicking() {
@@ -656,6 +793,11 @@ export class NeuroSurfaceViewer {
     if (this.paneContainer && this.paneContainer.parentNode) {
       this.paneContainer.parentNode.removeChild(this.paneContainer);
       this.paneContainer = null;
+    }
+    if (this.composer) {
+      this.composer = null;
+      this.renderPass = null;
+      this.ssaoPass = null;
     }
   }
 }

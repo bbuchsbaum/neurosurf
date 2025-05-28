@@ -13,6 +13,7 @@ NULL
 #' @param edgeWeights Numeric vector; weights for edges used in distance computation
 #' @param max_order Integer; maximum order of neighborhood to consider. If NULL, it's calculated
 #'                 based on radius and average edge weight
+#' @importFrom assertthat assert_that
 #'
 #' @details
 #' The function first identifies candidate neighbors using igraph's ego function up to max_order,
@@ -24,6 +25,18 @@ NULL
 #'
 #' @noRd
 findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
+  assertthat::assert_that(is.numeric(edgeWeights),
+                          msg="edgeWeights must be numeric")
+  assertthat::assert_that(!any(is.na(edgeWeights)),
+                          msg="edgeWeights cannot contain NA values")
+  assertthat::assert_that(is.numeric(radius), length(radius) == 1, radius > 0,
+                          msg="radius must be a single positive number")
+  assertthat::assert_that(is.numeric(node), length(node) == 1,
+                          node %% 1 == 0,
+                          msg="node must be a single integer index")
+  assertthat::assert_that(node >= 1, node <= igraph::vcount(graph),
+                          msg="node index out of range")
+
   if (is.null(max_order)) {
     avg_weight <- mean(edgeWeights)
     max_order <- radius/avg_weight + (2*avg_weight)
@@ -41,8 +54,8 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 #' Identifies all neighboring nodes within a specified radius for a given surface mesh.
 #'
 #' @param surf A SurfaceGeometry object or igraph object representing the mesh
-#' @param radius Numeric; the spatial radius within which to search for neighbors
-#' @param edgeWeights Numeric vector; weights for edges used in distance computation
+#' @param radius Numeric; the spatial radius within which to search for neighbors. Must be positive.
+#' @param edgeWeights Numeric vector; weights for edges used in distance computation. Length must equal the number of edges.
 #' @param nodes Integer vector; subset of nodes to find neighbors for. If NULL, uses all nodes
 #' @param distance_type Character; type of distance metric to use: "euclidean", "geodesic", or "spherical"
 #'
@@ -54,10 +67,13 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 #' @details
 #' The function supports three distance metrics: Euclidean, geodesic, and spherical.
 #' For spherical distances, the surface is assumed to be a sphere.
+#' The internal k-nearest-neighbor search is capped at \code{vcount(g) - 1} to avoid
+#' requesting more neighbors than exist in the graph.
 #'
 #' @importFrom FNN get.knn
 #' @importFrom stats quantile
 #' @importFrom igraph V distances
+#' @importFrom assertthat assert_that
 #'
 #' @examples
 #' # Load a sample inflated surface from the package
@@ -90,7 +106,33 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
     g <- graph(surf)
   }
 
+  assertthat::assert_that(is.numeric(edgeWeights),
+                          msg="edgeWeights must be numeric")
+  assertthat::assert_that(!any(is.na(edgeWeights)),
+                          msg="edgeWeights cannot contain NA values")
+  assertthat::assert_that(is.numeric(radius), length(radius) == 1, radius > 0,
+                          msg="radius must be a single positive number")
+
+  if (!is.null(nodes)) {
+    assertthat::assert_that(is.numeric(nodes),
+                            msg="nodes must be numeric indices")
+    assertthat::assert_that(!any(is.na(nodes)),
+                            msg="nodes cannot contain NA values")
+    assertthat::assert_that(all(nodes %% 1 == 0),
+                            msg="nodes must be integer indices")
+    assertthat::assert_that(all(nodes >= 1), all(nodes <= igraph::vcount(g)),
+                            msg="nodes indices out of range")
+  }
+
   distance_type <- match.arg(distance_type)
+
+  if (!is.numeric(radius) || length(radius) != 1 || radius <= 0) {
+    stop("radius must be a positive numeric value")
+  }
+
+  if (!is.numeric(edgeWeights) || length(edgeWeights) != igraph::ecount(g)) {
+    stop("edgeWeights must be a numeric vector with one value per edge")
+  }
 
   avg_weight <- stats::quantile(edgeWeights, .25)
 
@@ -98,7 +140,9 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
     nodes <- igraph::V(g)
   }
 
-  all_can <- FNN::get.knn(coords(surf), k=ceiling((radius+2)/avg_weight)^3)
+  k_est <- ceiling((radius + 2) / avg_weight)^3
+  k <- min(k_est, igraph::vcount(g) - 1)
+  all_can <- FNN::get.knn(coords(surf), k = k)
 
   cds <- coords(g)
 
@@ -116,7 +160,9 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
       D <- c(0, all_can$nn.dist[v,])
     } else if (distance_type == "spherical") {
       ind <- all_can$nn.index[v,]
-      ang <- acos(sin(lat[v]) * sin(lat[ind]) + cos(lat[v]) * cos(lat[ind]) * cos(abs(lon[v] - lon[ind])))
+      cos_val <- sin(lat[v]) * sin(lat[ind]) + cos(lat[v]) * cos(lat[ind]) * cos(abs(lon[v] - lon[ind]))
+      cos_val <- pmin(pmax(cos_val, -1), 1)
+      ang <- acos(cos_val)
       D <- c(0, R * ang)
     }
 
@@ -298,7 +344,7 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
 #'
 #' @examples
 #' # Load a surface file from the extdata directory
-#' surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
+#' surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 #' surface <- readAsc(surf_file)
 #' 
 #' # Apply Taubin smoothing to the brain surface
@@ -329,7 +375,12 @@ setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
 #' @return A new \code{NeuroSurface} object with the smoothed data values. The geometry remains unchanged.
 #'
 #' @details
-#' The smoothing process involves averaging the data values within the neighborhood of each vertex. For each vertex on the surface, the function calculates the mean of its own value and the values of its adjacent vertices within the graph structure of the surface. The result is a smoother representation of the data, which can be useful for reducing noise or visualizing broader trends on the surface.
+#' The smoothing process involves averaging the data values within a geodesic
+#' neighbourhood of each vertex.  For every vertex the function uses
+#' \code{\link{find_all_neighbors}} to locate all vertices within the radius
+#' specified by \code{sigma}.  The smoothed value is the mean of the vertex's own
+#' value and those of its neighbours.  Increasing \code{sigma} results in
+#' broader smoothing because more neighbours are included in the average.
 #'
 #' The smoothing is particularly useful when working with noisy data or when a smoother representation of the underlying signal is desired. It is commonly applied in neuroimaging to enhance visualization or prepare data for further analysis.
 #'
@@ -347,31 +398,36 @@ setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
 #'                           indices = 1:n_vertices,
 #'                           data = random_data)
 #' 
-#' # Apply smoothing to the data
-#' smoothed_data_surface <- smooth(neuro_surf, sigma = 3)
+#' # Apply smoothing with different radii
+#' smoothed_small <- smooth(neuro_surf, sigma = 2)
+#' smoothed_large <- smooth(neuro_surf, sigma = 6)
 #' 
 #' # The original geometry is preserved, but the data is smoothed
 #' # Compare a small section of data before and after smoothing
 #' head(random_data)
-#' head(series(smoothed_data_surface))
+#' head(series(smoothed_large))
 #'
 #' @seealso \code{\link{smooth,SurfaceGeometry-method}} for smoothing the geometry of a surface.
 #' @export
-setMethod(f="smooth", signature=c(x="NeuroSurface"),
-           def=function(x, sigma=5, ...) {
-             g <- graph(geometry(x))
+setMethod(f="smooth", signature = c(x = "NeuroSurface"),
+          def = function(x, sigma = 5, ...) {
+            g <- graph(geometry(x))
 
-             ind <- x@indices
-             vlist <- igraph::adjacent_vertices(g, ind)
-             cds <- coords(x)
+            ind <- x@indices
+            edgeWeights <- igraph::E(g)$dist
 
-             svals <- purrr::map_dbl(1:length(vlist), function(i) {
-               m <- series(x, c(ind[i], vlist[[i]]))
-               mean(m)
-             })
+            nlist <- find_all_neighbors(geometry(x), radius = sigma,
+                                         edgeWeights = edgeWeights,
+                                         nodes = ind, distance_type = "geodesic")
 
-             NeuroSurface(x@geometry, indices=ind, data=unlist(svals))
-           })
+            svals <- purrr::map_dbl(seq_along(nlist), function(i) {
+              nbs <- nlist[[i]][, "j"]
+              m <- series(x, nbs)
+              mean(m)
+            })
+
+            NeuroSurface(x@geometry, indices = ind, data = unlist(svals))
+          })
 
 
 
@@ -381,7 +437,8 @@ setMethod(f="smooth", signature=c(x="NeuroSurface"),
 #' The projection is performed by finding the closest points on the surface, and then a kernel density smoother is applied locally to produce the final values.
 #'
 #' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the surface onto which the coordinates will be projected.
-#' @param coords A numeric matrix with three columns (x, y, z) representing the 3D coordinates to be projected onto the surface.
+#' @param points A numeric matrix with three columns (x, y, z) representing the 3D
+#'   coordinates to be projected onto the surface.
 #' @param sigma A numeric value specifying the smoothing radius for the kernel density smoother. Default is 5.
 #' @param ... Additional arguments passed to the smoothing function.
 #'
@@ -414,18 +471,18 @@ setMethod(f="smooth", signature=c(x="NeuroSurface"),
 #' sum(series(projected_surface) > 0)  # Number of vertices with non-zero values
 #'
 #' @export
-projectCoordinates <- function(surfgeom, coords, sigma=5, ...) {
+projectCoordinates <- function(surfgeom, points, sigma=5, ...) {
   # Input validation
   if (!inherits(surfgeom, "SurfaceGeometry")) {
     stop("surfgeom must be a SurfaceGeometry object")
   }
   
-  if (!is.matrix(coords)) {
-    stop("coords must be a matrix")
+  if (!is.matrix(points)) {
+    stop("points must be a matrix")
   }
-  
-  if (ncol(coords) != 3) {
-    stop("coords must have exactly 3 columns (x, y, z)")
+
+  if (ncol(points) != 3) {
+    stop("points must have exactly 3 columns (x, y, z)")
   }
   
   if (!is.numeric(sigma) || sigma <= 0) {
@@ -442,7 +499,7 @@ projectCoordinates <- function(surfgeom, coords, sigma=5, ...) {
   
   # Find the closest vertex on the surface for each coordinate using FNN
   tryCatch({
-    nearest_vertices <- FNN::get.knnx(surf_coords, coords, k=1)$nn.index[,1]
+    nearest_vertices <- FNN::get.knnx(surf_coords, points, k=1)$nn.index[,1]
   }, error = function(e) {
     stop("Error finding nearest vertices: ", e$message)
   })
