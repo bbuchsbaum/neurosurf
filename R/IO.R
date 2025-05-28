@@ -44,6 +44,7 @@ NULL
 #' @export
 read_freesurfer_annot <- function(file_name, geometry) {
   fp <- file(file_name, "rb")
+  on.exit(close(fp))
   nvertex <- readBin(fp, integer(),n = 1, size=4, endian="big")
   vertex_dat <- readBin(fp, integer(),n = nvertex*2, size=4, endian="big")
   vertices <- vertex_dat[seq(1,length(vertex_dat), by=2)]
@@ -75,7 +76,6 @@ read_freesurfer_annot <- function(file_name, geometry) {
   labels <- sapply(labs, "[[", "label")
   cols <- sapply(labs, "[[", "col")
 
-  close(fp)
   new("LabeledNeuroSurface", geometry=geometry,
       indices=as.integer(vertices+1),
       data=as.numeric(codes),
@@ -163,12 +163,11 @@ readFreesurferBinaryHeader <- function(file_name) {
   }
 
   fp <- file(file_name, "rb")
+  on.exit(close(fp))
   magic <- readBin(fp, what="raw", n=3)
   created_by <- readLines(fp, 2)
   vcount <- readBin(fp, what="integer", n=1, endian="big")
   fcount <- readBin(fp, what="integer", n=1, endian="big")
-
-  close(fp)
 
   list(vertices=vcount, faces=fcount, label=basename(file_name),
        embed_dimension=3, header_file=file_name, data_file=file_name, hemi=hemi)
@@ -186,6 +185,7 @@ readFreesurferBinaryGeometry <- function(file_name) {
   }
 
   fp <- file(file_name, "rb")
+  on.exit(close(fp))
   magic <- readBin(fp, what="raw", n=3)
   created_by <- readLines(fp, 2)
   vcount <- readBin(fp, what="integer", n=1, endian="big")
@@ -196,8 +196,6 @@ readFreesurferBinaryGeometry <- function(file_name) {
 
   faces <- readBin(fp, what="integer", n=fcount*3, size=4, endian="big")
   faces <- matrix(faces, fcount, 3, byrow=TRUE)
-
-  close(fp)
 
   list(coords=coords, faces=faces, header_file=file_name, data_file=file_name)
 
