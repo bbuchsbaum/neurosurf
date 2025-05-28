@@ -11,7 +11,7 @@ SurfaceDisk(surf, index, radius, max_order = NULL)
 
 \item{index}{the index of the central surface node. Must be an integer within\code{1:length(V(surf@graph))}.}
 
-\item{radius}{the size in mm of the geodesic radius. Must be non-negative.}
+\item{radius}{the size in mm of the geodesic radius. Must be a single positive numeric value.}
 
 \item{max_order}{maximum number of edges to traverse.
 default is computed based on average edge length.}
