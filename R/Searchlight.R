@@ -17,12 +17,18 @@
 #' @details
 #' On each call to \code{nextElem}, a set of surface nodes is returned.
 #' These nodes index into the vertices of the \code{igraph} instance.
+#' When \code{as_deflist=TRUE}, the random ordering of centers is fixed when the
+#' object is created. Use \code{set.seed} before construction for reproducible
+#' sequences.
 #'
 #' @examples
 #' \dontrun{
 #' file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 #' geom <- read_surf(file)
 #' searchlight <- RandomSurfaceSearchlight(geom, 12)
+#' set.seed(42)
+#' dl <- RandomSurfaceSearchlight(geom, 12, as_deflist=TRUE)
+#' attr(dl[[1]], "center")
 #' nodes <- searchlight$nextElem()
 #' length(nodes) > 1
 #' }
@@ -53,10 +59,13 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
   prog <- function() { sum(done)/length(done) }
 
   if (as_deflist) {
+    # precompute random order of remaining nodes
+    order <- sample(which(!done))
+
     # Create function to get nth element
     fun <- function(n) {
-      if (n > length(nds)) stop("Index out of bounds")
-      center <- which(!done)[n]
+      if (n > length(order)) stop("Index out of bounds")
+      center <- order[n]
       indices <- as.vector(igraph::neighborhood(bg, 1, nds[center])[[1]])
       indices <- indices[!done[indices]]
 
@@ -74,7 +83,7 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
       }
     }
 
-    return(deflist::deflist(fun, len=sum(!done)))
+    return(deflist::deflist(fun, len=length(order)))
   }
 
   nextEl <- function() {
