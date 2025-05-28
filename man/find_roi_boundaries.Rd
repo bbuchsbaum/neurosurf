@@ -35,6 +35,13 @@ centroids of faces, edge vertices, and edge faces.
 This function identifies the boundaries between different regions of interest (ROIs) on a surface mesh.
 The algorithm works by analyzing the connectivity between vertices and faces with different ROI assignments.
 
+The input must satisfy the following conditions:
+\itemize{
+  \item `vertices` is a non-empty numeric matrix with three columns.
+  \item `faces` contains vertex indices between `1` and `nrow(vertices)`.
+  \item `vertex_id` has length equal to `nrow(vertices)`.
+}
+
 The boundary detection process follows these general steps:
 \enumerate{
   \item Identify all edges in the mesh from the face definitions
@@ -59,6 +66,39 @@ The different \code{boundary_method} options produce different boundary represen
 The function relies on graph theory algorithms to find and trace boundary paths,
 using adjacency matrices and shortest path algorithms to ensure boundaries form
 complete cycles around each ROI component.
+The structure of the return value depends on \code{boundary_method}:
+\describe{
+  \item{\code{"faces"}}{\code{boundary} is a logical vector marking boundary
+    faces. Other entries in the list are \code{NULL}.}
+  \item{\code{"midpoint"}}{\code{boundary} contains coordinate matrices traced
+    through edge midpoints and \code{boundary_verts} gives the vertex pairs used.}
+  \item{\code{"centroid"}}{Boundaries are matrices of face centroid coordinates;
+    \code{boundary_verts} is \code{NULL}.}
+  \item{\code{"edge_vertices"}}{Boundaries follow original vertices and the
+    indices are stored in \code{boundary_verts}.}
+  \item{\code{"edge_faces"}}{Similar to \code{"edge_vertices"} but based on
+    face relationships; both \code{boundary} and \code{boundary_verts} are lists.}
+}
+
+Example structure returned by the \code{"faces"} method:
+\preformatted{
+list(
+  boundary = logical(n_faces),
+  boundary_roi_id = NULL,
+  roi_components = NULL,
+  boundary_verts = NULL
+)
+}
+
+Example for path-based methods:
+\preformatted{
+list(
+  boundary = list(matrix(nrow, 3), ...),
+  boundary_roi_id = integer(),
+  roi_components = integer(),
+  boundary_verts = list(matrix(nrow, 2), ...)
+)
+}
 }
 \examples{
 \donttest{
