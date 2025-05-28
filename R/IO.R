@@ -650,36 +650,29 @@ loadFSSurface <- function(meta_info) {
 #' @rdname data_reader
 #' @importClassesFrom neuroim2 ColumnReader
 #' @noRd
-setMethod(f="data_reader", signature=signature("SurfaceGeometryMetaInfo"),
+setMethod(f="data_reader", signature=signature("SurfaceDataMetaInfo"),
           def=function(x) {
+            if (!all(c("data", "node_indices") %in% slotNames(x))) {
+              stop("data_reader requires 'data' and 'node_indices' slots",
+                   call. = FALSE)
+            }
             reader <- function(i) {
               if (length(i) == 1 && i == 0) {
                 x@node_indices
               } else {
-                x@data[,i,drop=FALSE]
+                x@data[, i, drop = FALSE]
               }
             }
 
-            neuroim2::ColumnReader(nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
+            neuroim2::ColumnReader(nrow = as.integer(nrow(x@data)),
+                                   ncol = as.integer(ncol(x@data)),
+                                   reader = reader)
           })
 
 
 
 #' @rdname data_reader
 #' @noRd
-setMethod(f="data_reader", signature=signature("NIMLSurfaceDataMetaInfo"),
-          def=function(x) {
-            reader <- function(i) {
-              if (length(i) == 1 && i == 0) {
-                x@node_indices
-              } else {
-                x@data[,i,drop=FALSE]
-              }
-            }
-
-            neuroim2::ColumnReader(nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
-            #new("ColumnReader", nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
-          })
 
 
 
