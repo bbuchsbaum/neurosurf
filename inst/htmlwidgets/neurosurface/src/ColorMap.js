@@ -1,5 +1,6 @@
 import colormap from 'colormap';
 import { EventEmitter } from './EventEmitter.js';
+import { debugLog } from './debug.js';
 
 class ColorMap extends EventEmitter {
   constructor(colors, options = {}) {
@@ -18,7 +19,7 @@ class ColorMap extends EventEmitter {
   setRange(range) {
     if (Array.isArray(range) && range.length === 2 && range.every(v => typeof v === 'number')) {
       this.range = range;
-      console.log('ColorMap: Emitting rangeChanged event', this.range);
+      debugLog('ColorMap: Emitting rangeChanged event', this.range);
       this.emit('rangeChanged', this.range);
     } else {
       this.range = [0, 1];
@@ -28,7 +29,7 @@ class ColorMap extends EventEmitter {
   setThreshold(threshold) {
     if (Array.isArray(threshold) && threshold.length === 2 && threshold.every(v => typeof v === 'number')) {
       this.threshold = threshold;
-      console.log('ColorMap: Emitting thresholdChanged event', this.threshold);
+      debugLog('ColorMap: Emitting thresholdChanged event', this.threshold);
       this.emit('thresholdChanged', this.threshold);
     } else {
       this.threshold = [0, 0];
