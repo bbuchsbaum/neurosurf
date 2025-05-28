@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { ColorMappedNeuroSurface, VertexColoredNeuroSurface } from './classes.js';
 import { Pane } from 'tweakpane';
 import * as EssentialsPlugin from '@tweakpane/plugin-essentials';
@@ -17,17 +18,21 @@ export class NeuroSurfaceViewer {
       rotationSpeed: 2,
       initialZoom: 4,
       rimStrength: 0,
+      metalness: 0.1,
+      roughness: 0.6,
       ...config
     };
     this.viewpoint = viewpoint;
 
     this.scene = new THREE.Scene();
+    this.environmentMap = null;
     this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 1000);
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
 
     this.setupRenderer();
     this.setupCamera();
     this.setupLighting();
+    this.setupEnvironment();
     this.setupControls();
     this.setupPicking();
 
@@ -131,6 +136,15 @@ export class NeuroSurfaceViewer {
     this.light = new THREE.PointLight(0xFFFFFF);
     this.light.position.set(0, 0, 500);
     this.scene.add(this.light);
+  }
+
+  setupEnvironment() {
+    new RGBELoader().load('assets/studio_small_09_2k.hdr', (tex) => {
+      tex.mapping = THREE.EquirectangularReflectionMapping;
+      this.environmentMap = tex;
+      this.scene.environment = tex;
+      this.updateMaterials();
+    });
   }
 
   setupControls() {
@@ -239,6 +253,30 @@ export class NeuroSurfaceViewer {
       step: 0.01,
     }).on('change', this.updateThresholdRange.bind(this));
 
+    // Material folder
+    const materialFolder = this.pane.addFolder({
+      title: 'Material',
+      expanded: false,
+    });
+
+    materialFolder.addBinding(this.config, 'metalness', {
+      label: 'Metalness',
+      min: 0,
+      max: 1,
+      step: 0.01,
+    }).on('change', () => {
+      this.updateMaterials();
+    });
+
+    materialFolder.addBinding(this.config, 'roughness', {
+      label: 'Roughness',
+      min: 0,
+      max: 1,
+      step: 0.01,
+    }).on('change', () => {
+      this.updateMaterials();
+    });
+
     // Viewpoint folder
     const viewpointFolder = this.pane.addFolder({
       title: 'Viewpoint',
@@ -346,6 +384,29 @@ export class NeuroSurfaceViewer {
     }
   }
 
+  updateMaterials() {
+    this.surfaces.forEach(surface => {
+      if (!surface.mesh) return;
+      if (!surface.mesh.material || !surface.mesh.material.isMeshPhysicalMaterial) {
+        surface.mesh.material = new THREE.MeshPhysicalMaterial({
+          metalness: this.config.metalness,
+          roughness: this.config.roughness,
+          clearcoat: 0.2,
+          reflectivity: 0.45,
+          vertexColors: true,
+          envMapIntensity: 0.8,
+          dithering: true,
+          side: THREE.DoubleSide
+        });
+      }
+      surface.mesh.material.metalness = this.config.metalness;
+      surface.mesh.material.roughness = this.config.roughness;
+      surface.mesh.geometry.computeVertexNormals();
+      surface.mesh.material.needsUpdate = true;
+    });
+    this.render();
+  }
+
   updateIntensityRange() {
     debugLog('NeuroSurfaceViewer: Updating intensity range', [this.intensityRange.range.min, this.intensityRange.range.max]);
     this.surfaces.forEach(surface => {
@@ -384,6 +445,7 @@ export class NeuroSurfaceViewer {
       this.applyRimLighting(surface.mesh.material);
     }
     this.scene.add(surface.mesh);
+    this.updateMaterials();
     
     if (surface instanceof ColorMappedNeuroSurface) {
       debugLog('Updating data range for ColorMappedNeuroSurface');
