@@ -53,28 +53,29 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
   prog <- function() { sum(done)/length(done) }
 
   if (as_deflist) {
+    order <- sample.int(length(nds))
     # Create function to get nth element
     fun <- function(n) {
-      if (n > length(nds)) stop("Index out of bounds")
-      center <- which(!done)[n]
-      indices <- as.vector(igraph::neighborhood(bg, 1, nds[center])[[1]])
+      if (n > length(order)) stop("Index out of bounds")
+      idx <- order[n]
+      indices <- as.vector(igraph::neighborhood(bg, 1, nds[idx])[[1]])
       indices <- indices[!done[indices]]
 
       if (subgraph) {
         vout <- nodeset[indices]
-        attr(vout, "center") <- nodeset[center]
-        attr(vout, "center.index") <- nodeset[center]
+        attr(vout, "center") <- nodeset[idx]
+        attr(vout, "center.index") <- nodeset[idx]
         attr(vout, "length") <- length(vout)
         vout
       } else {
-        attr(indices, "center") <- center
-        attr(indices, "center.index") <- center
+        attr(indices, "center") <- idx
+        attr(indices, "center.index") <- idx
         attr(indices, "length") <- length(indices)
         indices
       }
     }
 
-    return(deflist::deflist(fun, len=sum(!done)))
+    return(deflist::deflist(fun, len=length(order)))
   }
 
   nextEl <- function() {
