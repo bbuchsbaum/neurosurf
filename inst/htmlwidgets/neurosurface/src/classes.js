@@ -172,9 +172,18 @@ export class ColorMappedNeuroSurface extends NeuroSurface {
   setColorMap(colorMap) {
     if (this.colorMap) {
       // Remove old listeners
-      this.rangeListener();
-      this.thresholdListener();
-      this.alphaListener();
+      if (typeof this.rangeListener === 'function') {
+        this.rangeListener();
+        this.rangeListener = null;
+      }
+      if (typeof this.thresholdListener === 'function') {
+        this.thresholdListener();
+        this.thresholdListener = null;
+      }
+      if (typeof this.alphaListener === 'function') {
+        this.alphaListener();
+        this.alphaListener = null;
+      }
     }
 
     if (!(colorMap instanceof ColorMap)) {
