@@ -36,26 +36,46 @@ class ColorMap extends EventEmitter {
     }
   }
 
+  /**
+   * Normalize and validate a color specification.
+   * Colors may be provided as a hex string (with or without leading '#') or as
+   * an array of numeric components in the range [0, 1].
+   *
+   * @param {string|number[]} color The color to parse.
+   * @returns {number[]} Array of normalized RGB or RGBA components.
+   */
   parseColor(color) {
     if (typeof color === 'string' && color.startsWith('#')) {
       return this.hexToRgb(color);
     }
-    if (Array.isArray(color) && (color.length === 3 || color.length === 4) && color.every(v => typeof v === 'number')) {
+    if (
+      Array.isArray(color) &&
+      (color.length === 3 || color.length === 4) &&
+      color.every(v => Number.isFinite(v) && v >= 0 && v <= 1)
+    ) {
       return color;
     }
     throw new TypeError('Invalid color format');
   }
 
+  /**
+   * Convert a hex color string to normalized RGB(A) components.
+   *
+   * @param {string} hex Hexadecimal color string starting with '#'. May include
+   *                     an optional alpha channel.
+   * @returns {number[]} Array of RGB or RGBA components in the range [0, 1].
+   */
   hexToRgb(hex) {
-    // Remove the hash at the start if it's there
     hex = hex.replace(/^#/, '');
 
-    // Parse the r, g, b values
+    if (!/^[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(hex)) {
+      throw new Error('Invalid hex color');
+    }
+
     const r = parseInt(hex.slice(0, 2), 16) / 255;
     const g = parseInt(hex.slice(2, 4), 16) / 255;
     const b = parseInt(hex.slice(4, 6), 16) / 255;
 
-    // Check if there's an alpha channel
     if (hex.length === 8) {
       const a = parseInt(hex.slice(6, 8), 16) / 255;
       return [r, g, b, a];
