@@ -437,7 +437,8 @@ setMethod(f="smooth", signature = c(x = "NeuroSurface"),
 #' The projection is performed by finding the closest points on the surface, and then a kernel density smoother is applied locally to produce the final values.
 #'
 #' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the surface onto which the coordinates will be projected.
-#' @param coords A numeric matrix with three columns (x, y, z) representing the 3D coordinates to be projected onto the surface.
+#' @param points A numeric matrix with three columns (x, y, z) representing the 3D
+#'   coordinates to be projected onto the surface.
 #' @param sigma A numeric value specifying the smoothing radius for the kernel density smoother. Default is 5.
 #' @param ... Additional arguments passed to the smoothing function.
 #'
@@ -470,18 +471,18 @@ setMethod(f="smooth", signature = c(x = "NeuroSurface"),
 #' sum(series(projected_surface) > 0)  # Number of vertices with non-zero values
 #'
 #' @export
-projectCoordinates <- function(surfgeom, coords, sigma=5, ...) {
+projectCoordinates <- function(surfgeom, points, sigma=5, ...) {
   # Input validation
   if (!inherits(surfgeom, "SurfaceGeometry")) {
     stop("surfgeom must be a SurfaceGeometry object")
   }
   
-  if (!is.matrix(coords)) {
-    stop("coords must be a matrix")
+  if (!is.matrix(points)) {
+    stop("points must be a matrix")
   }
-  
-  if (ncol(coords) != 3) {
-    stop("coords must have exactly 3 columns (x, y, z)")
+
+  if (ncol(points) != 3) {
+    stop("points must have exactly 3 columns (x, y, z)")
   }
   
   if (!is.numeric(sigma) || sigma <= 0) {
@@ -498,7 +499,7 @@ projectCoordinates <- function(surfgeom, coords, sigma=5, ...) {
   
   # Find the closest vertex on the surface for each coordinate using FNN
   tryCatch({
-    nearest_vertices <- FNN::get.knnx(surf_coords, coords, k=1)$nn.index[,1]
+    nearest_vertices <- FNN::get.knnx(surf_coords, points, k=1)$nn.index[,1]
   }, error = function(e) {
     stop("Error finding nearest vertices: ", e$message)
   })
