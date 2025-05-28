@@ -34,6 +34,9 @@ export class NeuroSurfaceViewer {
     this.mouse = new THREE.Vector2();
     this.intersectionPoint = new THREE.Vector3();
 
+    this.animationId = null; // Store animation frame id for cleanup
+    this.paneContainer = null; // Reference to tweakpane container
+
     this.dataRange = { min: 0, max: 500 }; // Initialize to default values
     this.intensityRange = { range: { min: 0, max: 500 } };
     this.thresholdRange = { range: { min: 0, max: 0 } }; // Set default threshold to [0, 0]
@@ -146,6 +149,7 @@ export class NeuroSurfaceViewer {
     paneContainer.style.width = '250px';
     paneContainer.style.zIndex = '1000';
     this.container.appendChild(paneContainer);
+    this.paneContainer = paneContainer;
 
     this.pane = new Pane({
       container: paneContainer,
@@ -428,7 +432,7 @@ export class NeuroSurfaceViewer {
   }
 
   animate() {
-    requestAnimationFrame(this.animate);
+    this.animationId = requestAnimationFrame(this.animate);
     this.controls.update();
     this.render();
   }
@@ -509,6 +513,24 @@ export class NeuroSurfaceViewer {
       this.camera.position.copy(this.controls.target.clone().add(direction.multiplyScalar(distance / zoom)));
       this.camera.updateProjectionMatrix();
       this.controls.update();
+    }
+  }
+
+  dispose() {
+    if (this.animationId !== null) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
+    if (this.controls) {
+      this.controls.dispose();
+      this.controls = null;
+    }
+    if (this.pane && typeof this.pane.dispose === 'function') {
+      this.pane.dispose();
+    }
+    if (this.paneContainer && this.paneContainer.parentNode) {
+      this.paneContainer.parentNode.removeChild(this.paneContainer);
+      this.paneContainer = null;
     }
   }
 }
