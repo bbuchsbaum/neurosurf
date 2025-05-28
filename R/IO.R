@@ -467,7 +467,7 @@ read_surf_data_seq <- function(leftGeometry, rightGeometry, leftDataNames, right
 #' @importMethodsFrom neuroim2 read_meta_info
 setMethod(f="read_meta_info",signature=signature(x= "AFNISurfaceFileDescriptor"),
           def=function(x, file_name) {
-            .read_meta_info(x, file_name, readAFNISurfaceHeader, AFNISurfaceDataMetaInfo)
+            .read_meta_info(x, file_name, readAFNISurfaceHeader, NIMLSurfaceDataMetaInfoFromAFNI)
           })
 
 #' @rdname read_meta_info
@@ -798,11 +798,12 @@ NIMLSurfaceDataMetaInfo <- function(descriptor, header) {
       node_indices=as.integer(header$nodes))
 }
 
-#' Constructor for \code{AFNISurfaceDataMetaInfo} class
+#' Create a \code{NIMLSurfaceDataMetaInfo} instance from an AFNI header
+#'
 #' @param descriptor the file descriptor
 #' @param header a \code{list} containing header information
 #' @noRd
-AFNISurfaceDataMetaInfo <- function(descriptor, header) {
+NIMLSurfaceDataMetaInfoFromAFNI <- function(descriptor, header) {
   stopifnot(is.numeric(header$nodes))
 
   new("NIMLSurfaceDataMetaInfo",
