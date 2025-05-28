@@ -14,9 +14,11 @@ RandomSurfaceSearchlight(
 \arguments{
 \item{surfgeom}{A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.}
 
-\item{radius}{Numeric, radius of the searchlight as a geodesic distance in mm.}
+\item{radius}{Numeric, radius of the searchlight as a geodesic distance in mm.
+Must be a positive, length-one value.}
 
-\item{nodeset}{Integer vector, optional subset of surface node indices to use.}
+\item{nodeset}{Integer vector, optional subset of surface node indices to use.
+If provided, the vector must contain at least one node index.}
 
 \item{as_deflist}{Logical, whether to return a deflist object.}
 }

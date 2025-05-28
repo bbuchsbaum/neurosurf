@@ -9,7 +9,9 @@
 #'
 #' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.
 #' @param radius Numeric, radius of the searchlight as a geodesic distance in mm.
+#'   Must be a positive, length-one value.
 #' @param nodeset Integer vector, optional subset of surface node indices to use.
+#'   If provided, the vector must contain at least one node index.
 #' @param as_deflist Logical, whether to return a deflist object.
 #'
 #' @return An iterator object of class "RandomSurfaceSearchlight".
@@ -31,12 +33,14 @@
 #' @importFrom deflist deflist
 #' @export
 RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflist=FALSE) {
+  assertthat::assert_that(length(radius) == 1, radius > 0)
   subgraph <- FALSE
   if (is.null(nodeset)) {
     ## use all surface nodes
     nodeset <- nodes(surfgeom)
     g <- surfgeom@graph
   } else {
+    assertthat::assert_that(length(nodeset) > 0)
     ## use supplied subset
     g <- igraph::induced_subgraph(graph(surfgeom), nodeset)
     subgraph <- TRUE
@@ -121,7 +125,9 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
 #'
 #' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.
 #' @param radius Numeric, radius of the searchlight as a geodesic distance in mm.
+#'   Must be a positive, length-one value.
 #' @param nodeset Integer vector, optional subset of surface node indices to use.
+#'   If provided, the vector must contain at least one node index.
 #' @param distance_type Character, the distance metric to use: "euclidean", "geodesic", or "spherical".
 #' @param as_deflist Logical, whether to return a deflist object.
 #'

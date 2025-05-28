@@ -83,3 +83,12 @@ test_that("RandomSurfaceSearchlight deflist works correctly", {
   expect_false(is.null(attr(nodes, "center")))
   expect_false(is.null(attr(nodes, "length")))
 })
+
+test_that("RandomSurfaceSearchlight validates inputs", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+
+  expect_error(RandomSurfaceSearchlight(surf, radius=c(1,2)))
+  expect_error(RandomSurfaceSearchlight(surf, radius=-1))
+  expect_error(RandomSurfaceSearchlight(surf, radius=8, nodeset=integer()))
+})
