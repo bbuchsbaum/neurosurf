@@ -211,7 +211,10 @@ find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "m
       boundary_face <- max(group$boundary_face)
     } else {
       # Edge appears in one face
-      diff_color <- 1  # Different colors by default
+      diff_color <- as.integer(
+        group$boundary_face[1] ||
+        vertex_id[group$v1[1]] != vertex_id[group$v2[1]]
+      )
       faceID1 <- group$edge_faceID[1]
       faceID2 <- NA
       boundary_face <- group$boundary_face[1]
