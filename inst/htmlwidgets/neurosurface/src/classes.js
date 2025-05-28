@@ -153,6 +153,18 @@ export class NeuroSurface {
     this.mesh.material.transparent = this.colorMap.hasAlpha;
     this.mesh.material.needsUpdate = true;
   }
+
+  /**
+   * Dispose of the mesh resources associated with this surface.
+   * Geometry and material are released and the mesh reference cleared.
+   */
+  dispose() {
+    if (this.mesh) {
+      this.mesh.geometry.dispose();
+      this.mesh.material.dispose();
+      this.mesh = null;
+    }
+  }
 }
 
 export class ColorMappedNeuroSurface extends NeuroSurface {
@@ -322,6 +334,16 @@ export class ColorMappedNeuroSurface extends NeuroSurface {
     this.data = newData;
     this.updateColors();
   }
+
+  /**
+   * Remove listeners and dispose of resources.
+   */
+  dispose() {
+    if (this.rangeListener) this.rangeListener();
+    if (this.thresholdListener) this.thresholdListener();
+    if (this.alphaListener) this.alphaListener();
+    super.dispose();
+  }
 }
 
 export class VertexColoredNeuroSurface extends NeuroSurface {
@@ -363,6 +385,13 @@ export class VertexColoredNeuroSurface extends NeuroSurface {
     mesh.material.vertexColors = true;
     this.updateColors();
     return mesh;
+  }
+
+  /**
+   * Dispose of this surface's resources.
+   */
+  dispose() {
+    super.dispose();
   }
 }
 
