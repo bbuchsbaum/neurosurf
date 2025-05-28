@@ -502,12 +502,39 @@ find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "m
         sp <- igraph::shortest_paths(G, from = N1, to = N2, output = "vpath")$vpath[[1]]
 
         attempts <- 0
-        while (any(!(component_nodes %in% sp)) && attempts < 10) {
-          # Handle cycles and disconnected nodes
-          # Implement complex logic to adjust adjacency matrix
-          # For brevity, we simplify the process
+        repeat {
+          missing_nodes <- setdiff(component_nodes, sp)
+          cycle_closed <- length(sp) > 1 && adj[sp[length(sp)], sp[1]] > 0
+
+          if (length(missing_nodes) == 0 && cycle_closed) {
+            break
+          }
+
+          if (attempts >= 10) {
+            break
+          }
+
           attempts <- attempts + 1
-          break
+
+          if (length(missing_nodes) > 0) {
+            cand <- missing_nodes[1]
+          } else {
+            cand <- sp[length(sp)]
+          }
+
+          neigh <- which(adj[cand, ] > 0)
+          if (length(neigh) == 0) {
+            break
+          }
+
+          adj[cand, neigh[1]] <- 0
+          adj[neigh[1], cand] <- 0
+
+          G <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected")
+          sp <- igraph::shortest_paths(G, from = N1, to = N2, output = "vpath")$vpath[[1]]
+          if (length(sp) == 0) {
+            break
+          }
         }
 
         if (attempts >= 10) {
