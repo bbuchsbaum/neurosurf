@@ -55,7 +55,9 @@ HTMLWidgets.widget({
           neurosurface.debugLog('Surface created:', surface);
           neurosurface.debugLog('Adding surface to viewer');
           viewer.addSurface(surface, surfaceId);
-          viewer.animate();
+          if (viewer.animationId === null) {
+            viewer.animate();
+          }
           
         } catch (error) {
           console.error("Error in renderValue:", error);
