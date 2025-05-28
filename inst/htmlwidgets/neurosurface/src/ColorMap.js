@@ -78,8 +78,8 @@ class ColorMap extends EventEmitter {
   }
 
   getColor(value) {
-    if (typeof value !== 'number') {
-      throw new TypeError('Value must be a number');
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+      throw new TypeError('Value must be a finite number');
     }
     const [min, max] = this.range;
     const [low, high] = this.threshold;
@@ -89,6 +89,11 @@ class ColorMap extends EventEmitter {
       return [0, 0, 0, 0]; // Fully transparent
     }
     
+    if (max === min) {
+      const color = this.colors[0];
+      return color.length === 3 ? [...color, 1] : color;
+    }
+
     const normalizedValue = (value - min) / (max - min);
     const index = Math.min(Math.max(Math.floor(normalizedValue * (this.colors.length - 1)), 0), this.colors.length - 1);
     const color = this.colors[index];
@@ -104,7 +109,11 @@ class ColorMap extends EventEmitter {
     const colorArray = new Float32Array(values.length * componentsPerColor);
     
     for (let i = 0; i < values.length; i++) {
-      const color = this.getColor(values[i]);
+      const value = values[i];
+      if (!Number.isFinite(value)) {
+        throw new TypeError(`Value at index ${i} must be a finite number`);
+      }
+      const color = this.getColor(value);
       const offset = i * componentsPerColor;
       colorArray[offset] = color[0];
       colorArray[offset + 1] = color[1];
