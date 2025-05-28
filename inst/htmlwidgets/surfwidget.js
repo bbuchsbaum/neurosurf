@@ -14,11 +14,17 @@ HTMLWidgets.widget({
         if (!viewer) {
           console.log("Creating NeuroSurfaceViewer");
           viewer = new neurosurface.NeuroSurfaceViewer(el, width, height, {
-            ...x.config, 
+            enablePointLight: false,
+            ...x.config,
             cmap: x.cmap,
             rotationSpeed: 2.5, // Increase rotation speed
             initialZoom: 2.5 // Increase initial zoom
           }, x.viewpoint);
+
+          if (!viewer.config.enablePointLight && viewer.pointLight) {
+            viewer.scene.remove(viewer.pointLight);
+            viewer.pointLight = null;
+          }
 
           // Use the new methods to set rotation speed and initial zoom
           //viewer.setRotationSpeed(2.5);

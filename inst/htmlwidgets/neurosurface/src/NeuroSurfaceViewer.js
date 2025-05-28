@@ -13,6 +13,7 @@ export class NeuroSurfaceViewer {
       ambientLightColor: 0x404040,
       directionalLightColor: 0xffffff,
       directionalLightIntensity: 0.5,
+      enablePointLight: false,
       rotationSpeed: 2,
       initialZoom: 4,
       ...config
@@ -121,9 +122,11 @@ export class NeuroSurfaceViewer {
     this.directionalLight.position.set(1, 1, 1).normalize();
     this.scene.add(this.directionalLight);
 
-    this.light = new THREE.PointLight(0xFFFFFF);
-    this.light.position.set(0, 0, 500);
-    this.scene.add(this.light);
+    if (this.config.enablePointLight) {
+      this.pointLight = new THREE.PointLight(0xFFFFFF);
+      this.pointLight.position.set(0, 0, 500);
+      this.scene.add(this.pointLight);
+    }
   }
 
   setupControls() {
@@ -186,6 +189,12 @@ export class NeuroSurfaceViewer {
       step: 0.01,
     }).on('change', (ev) => {
       this.updateDirectionalLightIntensity(ev.value);
+    });
+
+    lightingFolder.addBinding(this.config, 'enablePointLight', {
+      label: 'Point Light'
+    }).on('change', (ev) => {
+      this.updatePointLightEnabled(ev.value);
     });
 
     // Camera folder
@@ -327,6 +336,21 @@ export class NeuroSurfaceViewer {
       this.directionalLight.intensity = intensity;
       this.render();
     }
+  }
+
+  updatePointLightEnabled(enabled) {
+    this.config.enablePointLight = enabled;
+    if (enabled) {
+      if (!this.pointLight) {
+        this.pointLight = new THREE.PointLight(0xFFFFFF);
+        this.pointLight.position.set(0, 0, 500);
+        this.scene.add(this.pointLight);
+      }
+    } else if (this.pointLight) {
+      this.scene.remove(this.pointLight);
+      this.pointLight = null;
+    }
+    this.render();
   }
 
   updateIntensityRange() {

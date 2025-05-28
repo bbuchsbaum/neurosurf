@@ -45,6 +45,7 @@
   \item{\code{ambientLightColor}}{Character. Hex color code for the ambient light. Default is "#404040".}
   \item{\code{directionalLightColor}}{Character. Hex color code for the directional light. Default is "#ffffff".}
   \item{\code{directionalLightIntensity}}{Numeric. Intensity of the directional light. Default is 0.5.}
+  \item{\code{enablePointLight}}{Logical. If TRUE, adds a point light to the scene. Default is FALSE.}
 }}
 }
 \value{
