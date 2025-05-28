@@ -48,6 +48,3 @@ meta_info <- new("SurfaceGeometryMetaInfo",
 }
 
 }
-\seealso{
-\code{\link{FileFormat}}
-}

@@ -4,11 +4,9 @@ NULL
 
 #' Comparison Operations for NeuroSurface Objects
 #'
-#' @param e1 NeuroSurface object
-#' @param e2 Numeric value
+#' @param e1 the left operand
+#' @param e2 the right operand
 #' @return NeuroSurface object with comparison results
-#' @exportMethod Compare
-#' @rdname Compare-NeuroSurface-method
 setMethod(f="Compare", signature=signature(e1="NeuroSurface", e2="numeric"),
           def=function(e1, e2) {
             ret <- callGeneric(e1@data,e2)
@@ -18,8 +16,8 @@ setMethod(f="Compare", signature=signature(e1="NeuroSurface", e2="numeric"),
 
 #' Arithmetic Operations for NeuroSurface Objects
 #'
-#' @param e1 NeuroSurface object or numeric value
-#' @param e2 NeuroSurface object or numeric value
+#' @param e1 the left operand
+#' @param e2 the right operand
 #' @return NeuroSurface object with arithmetic operation results
 #' @importFrom assertthat assert_that
 #' @exportMethod Arith
@@ -34,7 +32,8 @@ setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="NeuroSurface"),
 
           })
 
-#' @rdname Arith-NeuroSurface-method
+#' @rdname Arith-methods
+#' @export
 setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="numeric"),
           def=function(e1, e2) {
             ind <- e1@indices
@@ -43,7 +42,8 @@ setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="numeric"),
 
           })
 
-#' @rdname Arith-NeuroSurface-method
+#' @rdname Arith-methods
+#' @export
 setMethod(f="Arith", signature=signature(e1="numeric", e2="NeuroSurface"),
           def=function(e1, e2) {
             ind <- e2@indices
@@ -51,6 +51,7 @@ setMethod(f="Arith", signature=signature(e1="numeric", e2="NeuroSurface"),
             NeuroSurface(geometry=e2@geometry, indices=ind, data=res)
 
           })
+
 
 #' Arithmetic Operations for NeuroSurfaceVector Objects
 #'
@@ -71,7 +72,8 @@ setMethod(f="Arith", signature=signature(e1="NeuroSurfaceVector", e2="NeuroSurfa
 
           })
 
-#' @rdname Arith-NeuroSurfaceVector-method
+#' @rdname Arith-methods
+#' @export
 setMethod(f="Arith", signature=signature(e1="NeuroSurfaceVector", e2="numeric"),
           def=function(e1, e2) {
             res <- callGeneric(e1@data,e2)
@@ -80,13 +82,15 @@ setMethod(f="Arith", signature=signature(e1="NeuroSurfaceVector", e2="numeric"),
           })
 
 
-#' @rdname Arith-NeuroSurfaceVector-method
+#' @rdname Arith-methods
+#' @export
 setMethod(f="Arith", signature=signature(e1="numeric", e2="NeuroSurfaceVector"),
           def=function(e1, e2) {
             res <- callGeneric(e1,e2@data)
             ind <- e2@indices
             NeuroSurfaceVector(geometry=e2@geometry, indices=ind, mat=res)
           })
+
 
 #' Comparison Operations for NeuroSurfaceVector Objects
 #'
@@ -105,19 +109,22 @@ setMethod(f="Compare", signature=signature(e1="NeuroSurfaceVector", e2="NeuroSur
             NeuroSurfaceVector(geometry=e1@geometry, indices=ind, mat=res)
           })
 
-#' @rdname Compare-NeuroSurfaceVector-method
+#' @rdname Compare-methods
+#' @export
 setMethod(f="Compare", signature=signature(e1="NeuroSurfaceVector", e2="numeric"),
           def=function(e1, e2) {
             res <- callGeneric(e1@data, e2)
             NeuroSurfaceVector(geometry=e1@geometry, indices=e1@indices, mat=res)
           })
 
-#' @rdname Compare-NeuroSurfaceVector-method
+#' @rdname Compare-methods
+#' @export
 setMethod(f="Compare", signature=signature(e1="numeric", e2="NeuroSurfaceVector"),
           def=function(e1, e2) {
             res <- callGeneric(e1, e2@data)
             NeuroSurfaceVector(geometry=e2@geometry, indices=e2@indices, mat=res)
           })
+
 
 #' Comparison Operations for NeuroSurface Objects
 #'
@@ -135,13 +142,9 @@ setMethod(f="Compare", signature=signature(e1="NeuroSurface", e2="NeuroSurface")
             NeuroSurface(geometry=e1@geometry, indices=ind, data=as.numeric(res))
           })
 
-#' Arithmetic Operations between NeuroSurface and NeuroSurfaceVector
-#'
-#' @param e1 NeuroSurface or NeuroSurfaceVector object
-#' @param e2 NeuroSurface or NeuroSurfaceVector object
-#' @return NeuroSurfaceVector object with arithmetic operation results
-#' @importFrom assertthat assert_that
-#' @exportMethod Arith
+
+#' @rdname Arith-methods
+#' @export
 setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="NeuroSurfaceVector"),
           def=function(e1, e2) {
             assert_that(length(nodes(e1)) == length(nodes(e2)))
@@ -150,7 +153,8 @@ setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="NeuroSurfaceVect
             NeuroSurfaceVector(geometry=e1@geometry, indices=ind, mat=res)
           })
 
-#' @rdname Arith-NeuroSurface-NeuroSurfaceVector-method
+#' @rdname Arith-methods
+#' @export
 setMethod(f="Arith", signature=signature(e1="NeuroSurfaceVector", e2="NeuroSurface"),
           def=function(e1, e2) {
             assert_that(length(nodes(e1)) == length(nodes(e2)))

@@ -32,7 +32,7 @@ The length of the \code{data} vector should match the length of the \code{indice
 Nodes not included in the \code{indices} vector are considered to have no data or to be invalid.
 }
 \examples{
-\dontrun{
+\donttest{
 # Assuming 'surf_geom' is a pre-existing SurfaceGeometry object
 indices <- 1:1000  # Example indices
 data_values <- rnorm(1000)  # Example data

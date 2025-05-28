@@ -46,16 +46,60 @@
 #
 #
 
-#' convert curvature vector to a set of binary colors
+#' Convert Curvature Values to Binary Colors for Visualization
 #'
-#' @param vals the curvature values
-#' @param incol the hex color for the sulci (inward)
-#' @param outcol the hex color for the gyri (outward)
+#' @description
+#' This function maps a vector of surface curvature values (e.g., mean curvature)
+#' to a binary color scheme, typically used to distinguish gyri (outward folds)
+#' from sulci (inward folds) on a brain surface visualization.
+#'
+#' @param vals A numeric vector containing curvature values for each vertex
+#'   on the surface.
+#' @param incol A character string specifying the hex color code to represent
+#'   vertices with curvature values *greater than* the median curvature.
+#'   Default is "#B3B3B3" (light gray).
+#' @param outcol A character string specifying the hex color code to represent
+#'   vertices with curvature values *less than or equal to* the median curvature.
+#'   Default is "#404040" (dark gray).
+#'
+#' @return A character vector of the same length as `vals`, containing hex color
+#'   codes based on the binary classification of curvature values relative to the median.
+#'
+#' @details
+#' Surface curvature provides information about the local shape of the surface.
+#' Mean curvature is often used, where positive values typically indicate outward
+#' curvature (gyri) and negative values indicate inward curvature (sulci).
+#' This function simplifies the curvature map into two colors based on whether
+#' the value is above or below the median curvature, providing a quick visual
+#' distinction between these features. Note the default coloring assigns `incol`
+#' to values *above* the median and `outcol` to values *at or below* the median.
+#' You might need to adjust `incol` and `outcol` depending on the specific
+#' interpretation of curvature values in your data (e.g., if positive values
+#' represent sulci).
+#'
+#' @examples
+#' # Generate some example curvature values
+#' set.seed(123)
+#' curvature_values <- rnorm(100, mean = 0, sd = 0.1)
+#'
+#' # Get binary colors using default light/dark gray
+#' gray_colors <- curv_cols(curvature_values)
+#' table(gray_colors)
+#'
+#' # Use different colors (e.g., red for above median, blue for below)
+#' red_blue_colors <- curv_cols(curvature_values, incol = "#FF0000", outcol = "#0000FF")
+#' table(red_blue_colors)
+#'
+#' @seealso \code{\link{curvature}}, \code{\link{view_surface}}
+#'
 #' @export
 curv_cols <- function(vals, incol="#B3B3B3", outcol="#404040") {
   ifelse(vals > stats::median(vals), incol, outcol)
 }
 
+
+#' @noRd
+#' @keywords internal
 surface_views <- list(
   left_lateral=rbind(c(0,-1,0,0), c(0,0,1,0),c(-1,0,0,0), c(0,0,0,1)),
   left_medial=rbind(c(0,1,0,0), c(0,0,1,0),c(1,0,0,0), c(0,0,0,1)),
@@ -69,51 +113,134 @@ surface_views <- list(
 )
 
 
-#' Display a Brain Surface with RGL
+#' Display a 3D Brain Surface using RGL
 #'
-#' This function visualizes a 3D brain surface using the \code{rgl} package. It allows for the rendering of a surface with optional vertex colors, transparency, and lighting effects. Additionally, the function supports the display of spheres at specified coordinates on the surface, making it versatile for highlighting specific regions or points of interest.
+#' @description
+#' Renders a 3D brain surface mesh using the `rgl` package. This function provides
+#' flexible options for coloring the surface based on data values or predefined
+#' colors, adjusting transparency, controlling lighting, setting viewpoints, and
+#' overlaying spherical markers.
 #'
-#' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the 3D brain surface geometry to be displayed.
-#' @param vals A numeric vector of values corresponding to each surface node. These values will be mapped to colors using the provided color map (\code{cmap}).
-#' @param cmap A color map consisting of a vector of colors in hex format. Default is \code{rainbow(256, alpha = 1)}. This color map is used to color the surface based on the \code{vals} vector.
-#' @param vert_clrs Optional vertex colors in hex format. If provided, these colors will override the colors generated from \code{vals} and \code{cmap}.
-#' @param irange A numeric vector of length 2 indicating the lower and upper bounds of the intensity range for the color scale. Default is the range of \code{vals}.
-#' @param thresh A numeric vector of length 2 indicating the lower and upper transparency thresholds. Nodes with values outside this range will be made transparent.
-#' @param alpha A numeric value indicating the transparency level of the surface. The default is 1 (fully opaque). Values should be between 0 (fully transparent) and 1 (fully opaque).
-#' @param add_normals Logical, indicating whether to add normals to the surface mesh. This is useful for improving the lighting effects. Default is \code{TRUE}.
-#' @param viewpoint A character string specifying the initial viewpoint of the surface. Options are \code{"lateral"}, \code{"medial"}, \code{"ventral"}, or \code{"posterior"}.
-#' @param specular A color in hex format or a numeric value indicating the specular reflection color used for lighting. Default is \code{"white"}.
-#' @param bgcol A color or vector of colors in hex format used to shade the surface background. Default is \code{"lightgray"}.
-#' @param offset A numeric vector of length 3 specifying the translation offset of the surface in the x, y, and z directions. Default is \code{c(0, 0, 0)}.
-#' @param zoom A numeric value specifying the zoom factor. Default is 1 (no zoom).
-#' @param new_window Logical, indicating whether to open a new RGL window for the surface display. Default is \code{TRUE}. If \code{FALSE}, the current RGL window will be cleared and reused.
-#' @param spheres Optional. A data frame containing the coordinates (\code{x}, \code{y}, \code{z}), radii (\code{radius}), and optional colors (\code{color}) for spheres to be displayed on the surface. Each row represents a sphere.
-#' @param ... Additional arguments passed to \code{rgl::shade3d}.
+#' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the
+#'   3D brain surface mesh to be displayed.
+#' @param vals An optional numeric vector containing data values for each vertex
+#'   on the surface. If provided and `vert_clrs` is NULL, these values are mapped
+#'   to colors using `cmap` and `irange`.
+#' @param cmap A vector of colors (e.g., hex codes) defining the color map used
+#'   when `vals` is provided and `vert_clrs` is NULL. Defaults to `rainbow(256)`.
+#' @param vert_clrs An optional character vector of hex color codes for each vertex.
+#'   If provided, these colors directly override any coloring derived from `vals` and `cmap`.
+#'   The length should match the number of vertices in `surfgeom`.
+#' @param bgcol A single hex color code or a vector of hex color codes used as the
+#'   base color for the surface. If `vals` or `vert_clrs` are provided, this color
+#'   is blended with the data/vertex colors. Defaults to "lightgray".
+#' @param alpha A numeric value between 0 (fully transparent) and 1 (fully opaque)
+#'   controlling the overall transparency of the surface. Defaults to 1.
+#' @param add_normals Logical. If TRUE (default), surface normals are calculated
+#'   and added to the mesh, which improves the appearance of lighting effects.
+#' @param thresh An optional numeric vector of length 2, `c(lower, upper)`.
+#'   Vertices with `vals` *outside* this range (i.e., `< lower` or `> upper`)
+#'   are made fully transparent. This is applied *after* the general `alpha`.
+#'   Defaults to NULL (no thresholding).
+#' @param irange An optional numeric vector of length 2, `c(min, max)`. Specifies
+#'   the range of `vals` to map onto the `cmap`. Values outside this range will be
+#'   clamped to the min/max colors. Defaults to the full range of `vals`.
+#' @param specular The color of specular highlights on the surface, affecting its
+#'   shininess. Can be a color name (e.g., "white") or hex code. Defaults to "white".
+#'   Set to "black" or NULL for a matte appearance.
+#' @param viewpoint A character string specifying a predefined view (e.g., "lateral",
+#'   "medial", "ventral", "posterior"). The actual view depends on the hemisphere
+#'   (`surfgeom@hemi`, e.g., "left_lateral"). Alternatively, a 4x4 transformation
+#'   matrix defining a custom view. Defaults to "lateral".
+#' @param new_window Logical. If TRUE (default), opens a new `rgl` window for the plot.
+#'   If FALSE, attempts to plot in the currently active `rgl` window (useful for
+#'   updates or within Shiny apps).
+#' @param offset A numeric vector of length 3 specifying a translation offset
+#'   `c(x, y, z)` applied to the surface coordinates before rendering. Defaults to `c(0, 0, 0)`.
+#' @param zoom A numeric value controlling the camera zoom level. Defaults to 1 (no zoom).
+#'   Values > 1 zoom in, < 1 zoom out.
+#' @param spheres An optional data frame to draw spheres at specific locations on
+#'   or near the surface. Must contain columns `x`, `y`, `z` (coordinates), and
+#'   `radius`. Can optionally include a `color` column (hex codes or color names)
+#'   for individual sphere colors (defaults to black).
+#' @param ... Additional arguments passed directly to `rgl::shade3d` for fine-grained
+#'   control over rendering (e.g., `lit`, `smooth`).
 #'
-#' @return An object returned by \code{rgl::shade3d} representing the rendered surface. This can be used for further manipulation of the rendered object.
+#' @return Invisibly returns the object ID(s) of the shape(s) added to the RGL scene
+#'   by `rgl::shade3d`. This can be useful for modifying the scene later.
+#'
+#' @details
+#' **Coloring:** Surface vertex colors are determined by the following priority:
+#'   1. `vert_clrs`: If provided, these specific hex colors are used.
+#'   2. `vals` & `cmap`: If `vals` is provided and `vert_clrs` is NULL, `vals` are mapped to `cmap` based on `irange`.
+#'   3. `bgcol`: If neither `vert_clrs` nor `vals` are used for coloring, `bgcol` is applied uniformly.
+#'   If `bgcol` is specified alongside `vert_clrs` or `vals`, the colors are blended based on the `alpha` parameter.
+#'
+#' **Transparency:** Overall transparency is set by `alpha`. Additional threshold-based
+#'   transparency can be applied using `thresh` when `vals` are provided. Vertices
+#'   with values outside the `thresh` range become fully transparent.
+#'
+#' **Lighting:** `add_normals=TRUE` is recommended for realistic lighting. The `specular`
+#'   parameter controls the shininess.
+#'
+#' **Viewpoint:** Predefined viewpoints (`"lateral"`, `"medial"`, etc.) are automatically
+#'   adjusted based on the hemisphere specified in `surfgeom@hemi` (e.g., "lh" results
+#'   in "left_lateral"). If `hemi` is unknown, the current `rgl` view is used unless
+#'   a custom 4x4 matrix is provided.
+#'
+#' **Performance:** Rendering very large surfaces or surfaces with complex coloring/transparency
+#'   can be computationally intensive.
 #'
 #' @importFrom gplots col2hex
-#' @importFrom rgl open3d clear3d shade3d spheres3d view3d par3d addNormals
+#' @importFrom rgl open3d clear3d shade3d spheres3d view3d par3d addNormals rgl.useNULL
+#' @importFrom colorplane IntensityColorPlane HexColorPlane map_colors blend_colors as_hexcol
+#' @importFrom stats median
+#' @importFrom grDevices rainbow
 #'
 #' @examples
-#' \dontrun{
-#'   # Example surface geometry object (assuming `white_surf` is preloaded)
-#'   sphere_data <- data.frame(
-#'     x = c(10, 20, 30),
-#'     y = c(10, 20, 30),
-#'     z = c(10, 20, 30),
-#'     radius = c(2, 3, 4),
-#'     color = c("#FF0000", "#00FF00", "#0000FF")
-#'   )
+#' \donttest{
+#' # Assume 'surf_geom' is a SurfaceGeometry object loaded previously
+#' # e.g., surf_geom <- read_surf_geometry("path/to/surface.gii")
 #'
-#'   # Display the surface with spheres
-#'   view_surface(white_surf, viewpoint = "lateral", spheres = sphere_data)
+#' # Simple display with default background color
+#' view_surface(surf_geom, viewpoint = "lateral")
+#'
+#' # Display with curvature coloring (assuming you have curvature data)
+#' # curv_vals <- curvature(surf_geom) # Calculate curvature if needed
+#' # view_surface(surf_geom, vals = curv_vals, cmap = gray.colors(256), viewpoint = "medial")
+#'
+#' # Display with specific vertex colors (e.g., based on labels)
+#' # num_verts <- length(nodes(surf_geom))
+#' # colors_for_verts <- sample(c("red", "blue", "green"), num_verts, replace = TRUE)
+#' # view_surface(surf_geom, vert_clrs = colors_for_verts, viewpoint = "ventral")
+#'
+#' # Display with thresholding and custom color map
+#' # random_data <- rnorm(length(nodes(surf_geom)))
+#' # view_surface(surf_geom, vals = random_data,
+#' #              cmap = colorRampPalette(c("blue", "white", "red"))(256),
+#' #              thresh = c(-1.5, 1.5), # Make values between -1.5 and 1.5 transparent
+#' #              irange = c(-3, 3),     # Map values from -3 to 3 onto the cmap
+#' #              viewpoint = "posterior")
+#'
+#' # Display with spheres marking specific coordinates
+#' sphere_coords <- data.frame(
+#'   x = c(10, -15, 5),
+#'   y = c(20, 0, -10),
+#'   z = c(-5, 25, 15),
+#'   radius = c(3, 4, 2.5),
+#'   color = c("yellow", "cyan", "magenta")
+#' )
+#' view_surface(surf_geom, viewpoint = "lateral", spheres = sphere_coords)
+#'
+#' # Plot in the current rgl window without opening a new one
+#' # rgl::open3d() # Open window first
+#' # view_surface(surf_geom, new_window = FALSE)
 #' }
 #'
-#' @seealso \code{\link[rgl]{shade3d}}, \code{\link[rgl]{spheres3d}}, \code{\link[rgl]{view3d}}
+#' @seealso \code{\link[rgl]{shade3d}}, \code{\link[rgl]{spheres3d}}, \code{\link[rgl]{view3d}}, \code{\link{SurfaceGeometry}}
 #' @export
 view_surface <- function(surfgeom, vals=NA,
-                         cmap=rainbow(256, alpha = 1),
+                         cmap=grDevices::rainbow(256, alpha = 1),
                          vert_clrs=NULL,
                          bgcol = "lightgray",
                          alpha=1,
@@ -209,7 +336,7 @@ view_surface <- function(surfgeom, vals=NA,
 }
 #' plot a surface
 #'
-#' @rdname plot
+#' @rdname plot-methods
 #' @param x the surface to plot
 #' @param ... extra args to send to \code{view_surface}
 #' @export
@@ -231,7 +358,7 @@ setMethod("plot", signature=signature(x="SurfaceGeometry", y="missing"),
 
 
 #' @export
-#' @rdname plot
+#' @rdname plot-methods
 setMethod("plot", signature=signature(x="NeuroSurface", y="missing"),
           def=function(x,cmap=grDevices::gray(seq(0,1,length.out=255)),
                        vert_clrs=NULL,
@@ -251,7 +378,7 @@ setMethod("plot", signature=signature(x="NeuroSurface", y="missing"),
 
 #' @export
 #' @importFrom graphics plot
-#' @rdname plot
+#' @rdname plot-methods
 setMethod("plot", signature=signature(x="LabeledNeuroSurface", y="missing"),
           def=function(x,cmap=x@cols,
                        vert_clrs=NULL,
@@ -271,7 +398,7 @@ setMethod("plot", signature=signature(x="LabeledNeuroSurface", y="missing"),
 
 
 #' @export
-#' @rdname plot
+#' @rdname plot-methods
 setMethod("plot", signature=signature(x="ColorMappedNeuroSurface", y="missing"),
           def=function(x,
                        vert_clrs=NULL,
@@ -298,7 +425,7 @@ setMethod("plot", signature=signature(x="ColorMappedNeuroSurface", y="missing"),
 
 
 #' @export
-#' @rdname plot
+#' @rdname plot-methods
 setMethod("plot", signature=signature(x="VertexColoredNeuroSurface", y="missing"),
           def=function(x,
                        alpha=1,

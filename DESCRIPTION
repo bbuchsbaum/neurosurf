@@ -30,7 +30,8 @@ Imports:
     gplots,
     gifti,
     htmlwidgets,
-    deflist
+    deflist,
+    crayon
 License: GPL (>= 2)
 LazyData: TRUE
 RoxygenNote: 7.3.2.9000
@@ -49,11 +50,9 @@ Collate:
     'neighborhood.R'
     'neuro_surface.R'
     'neurosurf.R'
-    'spec.R'
     'surfwidget.R'
     'view_surface.R'
     'vol_to_surf.R'
-    'zzz.R'
 Suggests: 
     testthat,
     covr,
@@ -62,3 +61,4 @@ Suggests:
 URL: https://github.com/bbuchsbaum/neurosurf
 BugReports: https://github.com/bbuchsbaum/neurosurf/issues
 VignetteBuilder: knitr
+Encoding: UTF-8

@@ -2,7 +2,7 @@
 % Please edit documentation in R/neuro_surface.R
 \name{as}
 \alias{as}
-\title{convert from \code{NeuroSurface} to \code{vector}}
+\title{as}
 \description{
-convert from \code{NeuroSurface} to \code{vector}
+as
 }

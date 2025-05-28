@@ -13,13 +13,59 @@ ColorMappedNeuroSurface(geometry, indices, data, cmap, irange, thresh)
 
 \item{data}{A numeric vector of data values corresponding to the surface nodes.}
 
-\item{cmap}{A character string specifying the colormap to use for mapping the data values.}
+\item{cmap}{A character vector defining the sequence of colors (e.g., hex codes) for the colormap.}
 
-\item{irange}{A numeric vector of length 2 specifying the range of values to map.}
+\item{irange}{A numeric vector of length 2 specifying the minimum and maximum data values that map to the start and end of the 'cmap'.}
 
-\item{thresh}{A numeric value specifying the threshold for the colormap.}
+\item{thresh}{A numeric vector of length 2 specifying the lower and upper thresholds. Values outside this range might be rendered differently (e.g., transparently, depending on the plotting function).}
+}
+\value{
+A new object of class \code{ColorMappedNeuroSurface}.
 }
 \description{
 This function creates a ColorMappedNeuroSurface object, which represents a single set of data values
-associated with nodes on a surface geometry, with color mapping applied.
+associated with nodes on a surface geometry, with pre-defined color mapping parameters.
+}
+\details{
+This object bundles the surface geometry, data, and specific color mapping
+  parameters ('cmap', 'irange', 'thresh'). This is useful for ensuring consistent
+  visualization across different plots or for saving a predefined view. The actual
+  application of the color map happens during rendering (e.g., when using 'plot()'').
+}
+\examples{
+# Load a sample surface geometry
+surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
+surf_geom <- read_surf_geometry(surf_file)
+
+# Get vertex count and generate some random data
+n_verts <- nrow(coords(surf_geom))
+set.seed(123)
+vertex_data <- rnorm(n_verts)
+
+# Define indices (all vertices in this case)
+vertex_indices <- 1:n_verts
+
+# Define color mapping parameters
+my_cmap <- colorRampPalette(c("blue", "white", "red"))(256) # Blue-white-red colormap
+my_irange <- c(-2, 2) # Map data values from -2 to 2 onto the colormap
+my_thresh <- c(-1, 1) # Define thresholds (e.g., for transparency later)
+
+# Create the ColorMappedNeuroSurface object
+mapped_surf <- ColorMappedNeuroSurface(geometry = surf_geom,
+                                       indices = vertex_indices,
+                                       data = vertex_data,
+                                       cmap = my_cmap,
+                                       irange = my_irange,
+                                       thresh = my_thresh)
+
+# Print the object summary
+print(mapped_surf)
+
+# The object can now be plotted, and the plotting function will use
+# the stored cmap, irange, and thresh parameters by default.
+# plot(mapped_surf) # Requires rgl package
+
+}
+\seealso{
+\code{\link{SurfaceGeometry}}, \code{\link{NeuroSurface}}
 }

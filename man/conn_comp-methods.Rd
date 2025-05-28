@@ -3,7 +3,7 @@
 \name{conn_comp,NeuroSurfaceVector-method}
 \alias{conn_comp,NeuroSurfaceVector-method}
 \alias{conn_comp,NeuroSurface-method}
-\title{connected components on a surface}
+\title{Compute Connected Components on a Surface}
 \usage{
 \S4method{conn_comp}{NeuroSurfaceVector}(x, threshold, index = 1)
 
@@ -14,7 +14,7 @@
 
 \item{threshold}{A numeric vector of length 2 specifying the lower and upper thresholds for including vertices in the components.}
 
-\item{index}{of the data vector to find connected components on}
+\item{index}{the index/column of the underlying data matrix to cluster}
 }
 \value{
 A list containing two \code{NeuroSurface} objects:

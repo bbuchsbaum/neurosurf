@@ -91,7 +91,6 @@ setClass("SurfaceGeometry",
 #' surface properties, and spatial characteristics, which is essential for
 #' proper handling and processing of brain surface data in neuroimaging analyses.
 #'
-#' @seealso \code{\link{FileFormat}}
 #'
 #' @examples
 #' \donttest{
@@ -132,7 +131,6 @@ setClass("SurfaceGeometryMetaInfo",
 #' the same structure but is used specifically when the surface data originates from Freesurfer
 #' processing pipelines.
 #'
-#' @seealso \code{\link{SurfaceGeometryMetaInfo}}
 #'
 #' @examples
 #' \donttest{
@@ -941,7 +939,7 @@ setClass("NeuroSurface",
 #' where researchers are often interested in highlighting values above or below certain
 #' significance thresholds.
 #'
-#' @seealso \code{\link{view_surface}}
+#' @seealso \code{\link{view_surface}}, \code{\link{plot-methods}}
 #'
 #' @examples
 #' \donttest{

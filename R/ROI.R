@@ -80,17 +80,15 @@ ROISurfaceVector <- function(geometry, indices, data) {
   new("ROISurfaceVector", geometry=geometry, data=data, coords=vert, indices=indices)
 }
 
-#' convert a \code{ROISurfaceVector} to an augmented matrix
-#'
-#' @rdname as.matrix
-#' @param x the object
+
+#' @rdname as.matrix-methods
 #' @export
 setMethod(f="as.matrix", signature=signature(x = "ROISurfaceVector"), def=function(x) {
   as(x, "matrix")
 })
 
 
-#' @title Create a Region on Surface
+#' Create a Region on Surface
 #'
 #' @description Creates a Region on a Surface from a radius and surface
 #'
@@ -134,12 +132,29 @@ SurfaceDisk <- function(surf, index, radius, max_order=NULL) {
 
 }
 
+
 #' values
 #'
 #' @param x the object to extract values from
 #' @param ... extra args
 #' @rdname values
 #' @importMethodsFrom neuroim2 values
+#' @keywords internal
+#' @noRd
+roi_surface_matrix <- function(mat, refspace, indices, coords) {
+  structure(mat,
+            refspace=refspace,
+            indices=indices,
+            coords=coords,
+            class=c("roi_surface_matrix", "matrix"))
+
+}
+
+
+
+#' @rdname values-methods
+#' @param x the object to extract the values from
+#' @param ... additional arguments
 #' @export
 setMethod("values", signature(x="ROISurface"),
           function(x, ...) {
@@ -147,8 +162,9 @@ setMethod("values", signature(x="ROISurface"),
           })
 
 
-
-#' @rdname values
+#' values
+#'
+#' @rdname values-methods
 #' @export
 setMethod("values", signature(x="ROISurfaceVector"),
           function(x, ...) {
@@ -156,8 +172,7 @@ setMethod("values", signature(x="ROISurfaceVector"),
           })
 
 
-#
-#' @rdname values
+#' @rdname values-methods
 #' @export
 setMethod("values", signature(x="NeuroSurface"),
           function(x, ...) {
@@ -167,9 +182,7 @@ setMethod("values", signature(x="NeuroSurface"),
 
 
 
-#' indices
-#'
-#' @rdname indices
+#' @rdname indices-methods
 #' @export
 setMethod("indices", signature(x="ROISurface"),
           function(x) {
@@ -182,20 +195,16 @@ setMethod("indices", signature(x="ROISurface"),
 #'
 #' @param x the object to extract indices from
 #'
-#' @rdname indices
+#' @rdname indices-methods
 #' @export
 setMethod("indices", signature(x="ROISurfaceVector"),
           function(x) {
             x@indices
           })
 
-#' coords
-#'
-#' extract coordinates
-#'
-#' @param x the object to extract cooords from
+
 #' @export
-#' @rdname coords
+#' @rdname coords-methods
 setMethod(f="coords", signature=signature(x="ROISurface"),
           function(x) {
             x@coords
@@ -203,38 +212,54 @@ setMethod(f="coords", signature=signature(x="ROISurface"),
 
 
 #' length
-#'
-#' get number of elements in object
-#'
-#' @param x the object
+#' @rdname length-methods
+#' @param x the object to extract the length from
 #' @export
-#' @rdname length
 setMethod(f="length", signature=signature(x="ROISurface"),
           function(x) {
             length(x@indices)
           })
 
 
-#' subset an \code{ROISurface}
+#' Subset an ROISurface Object
 #'
+#' @description
+#' Subsets an `ROISurface` object by selecting specific vertex indices.
+#'
+#' @param x The \code{ROISurface} object to subset.
+#' @param i A numeric vector specifying the indices within the ROI to select.
+#' @param j Missing (not used for this signature).
+#' @param drop Missing or ANY (ignored, always returns an \code{ROISurface}).
+#'
+#' @return A new \code{ROISurface} object containing only the selected vertices
+#'   and their associated data from the original ROI.
+#'
+#' @rdname sub-ROISurface
 #' @export
-#' @param x the object
-#' @param i first index
-#' @param j second index
-#' @param drop drop dimension
-#' @rdname surf_subset-methods
 #' @aliases [,ROISurface,numeric,missing,ANY-method
 setMethod("[", signature=signature(x = "ROISurface", i = "numeric", j = "missing", drop = "ANY"),
           function (x, i, j, drop) {
-            ROISurface(x@geometry, x@indices[i], x@data[i])
+            # Ensure indices are valid within the current ROI indices
+            valid_internal_indices <- i[i > 0 & i <= length(x@indices)]
+            if (length(valid_internal_indices) != length(i)) {
+              warning("Some requested indices are out of bounds for this ROI.")
+            }
+            if (length(valid_internal_indices) == 0) {
+              # Return an empty ROI if no valid indices selected
+              return(ROISurface(x@geometry, integer(0), numeric(0)))
+            }
+
+            # Subset the original indices and data using the valid internal indices
+            new_indices <- x@indices[valid_internal_indices]
+            new_data <- x@data[valid_internal_indices]
+
+            ROISurface(x@geometry, new_indices, new_data)
           })
 
 
-#' show an object
-#'
-#' @param object the object
+
 #' @export
-#' @rdname show
+#' @rdname show-methods
 setMethod("show", signature=signature(object = "ROISurface"),
           function (object) {
             cat("\n\n\tROISurface", "\n")

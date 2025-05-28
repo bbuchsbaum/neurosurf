@@ -28,6 +28,3 @@ fs_meta <- new("FreesurferSurfaceGeometryMetaInfo",
 }
 
 }
-\seealso{
-\code{\link{SurfaceGeometryMetaInfo}}
-}

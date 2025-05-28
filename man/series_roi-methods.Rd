@@ -10,12 +10,9 @@
 \S4method{series_roi}{NeuroSurfaceVector,ROISurface}(x, i)
 }
 \arguments{
-\item{x}{the object o extract series from}
+\item{x}{the object to extract the series from}
 
-\item{i}{the set of indices to extract}
-}
-\value{
-a class of type \code{ROISurfaceVector}
+\item{i}{the indices of the series to extract}
 }
 \description{
 series_roi

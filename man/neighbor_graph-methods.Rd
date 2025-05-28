@@ -2,21 +2,28 @@
 % Please edit documentation in R/all_generic.R, R/neighborhood.R
 \name{neighbor_graph}
 \alias{neighbor_graph}
+\alias{neighbor_graph,igraph,numeric,missing,missing-method}
 \alias{neighbor_graph,SurfaceGeometry,numeric,missing,missing-method}
-\alias{neighbor_graph,igraph,numeric,missing,missing}
 \alias{neighbor_graph,SurfaceGeometry,numeric,numeric,missing-method}
-\alias{neighbor_graph,igraph,numeric,numeric,missing}
 \alias{neighbor_graph,SurfaceGeometry,numeric,numeric,integer-method}
-\alias{neighbor_graph,igraph,numeric,numeric,integer}
 \alias{neighbor_graph,SurfaceGeometry,numeric,missing,integer-method}
-\alias{neighbor_graph,igraph,numeric,missing,integer}
 \title{Construct Neighborhood Graph from Surface Mesh}
 \usage{
-neighbor_graph(x, radius, edgeWeights, nodes, ...)
+neighbor_graph(x, radius, edgeWeights = missing(), nodes = missing(), ...)
+
+\S4method{neighbor_graph}{igraph,numeric,missing,missing}(
+  x,
+  radius,
+  edgeWeights = NULL,
+  nodes = NULL,
+  distance_type = c("geodesic", "euclidean", "spherical")
+)
 
 \S4method{neighbor_graph}{SurfaceGeometry,numeric,missing,missing}(
   x,
   radius,
+  edgeWeights = NULL,
+  nodes = NULL,
   distance_type = c("geodesic", "euclidean", "spherical")
 )
 
@@ -52,6 +59,8 @@ neighbor_graph(x, radius, edgeWeights, nodes, ...)
 \item{nodes}{Integer vector. The subset of nodes to use in graph construction. If NULL, all nodes are used.}
 
 \item{...}{Additional arguments passed to methods.}
+
+\item{distance_type}{the type of distance metric to use}
 }
 \value{
 An object representing the constructed neighborhood graph. The specific class depends on the method implementation.
@@ -66,11 +75,17 @@ and applying the provided edge weights. This function is particularly useful in
 neuroimaging analyses for defining local connectivity on brain surfaces.
 }
 \examples{
-\dontrun{
+\donttest{
 # Assuming 'surface_mesh' is a pre-defined surface mesh object
 graph <- neighbor_graph(surface_mesh, radius = 5,
                         edgeWeights = runif(nrow(surface_mesh$vertices)),
                         nodes = 1:1000)
+}
+
+\donttest{
+g <- make_graph("Zachary")
+E(g)$dist <- runif(ecount(g))
+neighbor_g <- neighbor_graph(g, radius = 0.5, distance_type = "geodesic")
 }
 
 }

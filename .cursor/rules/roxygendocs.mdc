@@ -1,0 +1,25 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Rules for Documenting S4 Generics and Methods in R using roxygen2:
+
+Centralize Documentation in Generic: The primary documentation (@description, @details, @param for generic parameters, @return, @examples, etc.) MUST reside in the roxygen block of the S4 generic function.
+
+Use Consistent @rdname: The generic function and ALL its associated S4 methods MUST use the exact same @rdname tag value. This ensures they all contribute to a single help file.
+
+Minimize Method Documentation: Roxygen blocks for S4 methods should be minimal. Typically, they only require:
+
+@rdname [value] (Matching the generic's @rdname).
+
+@export (Only if the method itself needs exporting, which is less common than exporting the generic).
+
+Document ONLY New Method Parameters: If an S4 method signature includes additional parameters not present in the generic, document only these new parameters using @param tags within that method's roxygen block. Do not re-document parameters inherited from the generic.
+
+Avoid Redundant Core Tags in Methods: Do NOT add tags like @description, @return, or @param (for generic parameters) to method documentation, as the shared @rdname links to the generic's definition. This prevents conflicting or duplicate information in the final help file.
+
+Use @details or @note for Method Specifics: If a particular method has unique behavior or implementation details critical for the user to know, add this information to the method's roxygen block using tags like @details or @note. This information should supplement, not replace or conflict with, the generic's 
+documentation.
+
+Never use "dontrun", use "donttest" instead if it's a long-running task. All examples should in theory be runnable.

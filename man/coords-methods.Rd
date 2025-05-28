@@ -19,8 +19,8 @@
 \S4method{coords}{NeuroSurface}(x)
 }
 \arguments{
-\item{x}{the object to extract cooords from}
+\item{x}{the object to extract coordinates from}
 }
 \description{
-extract coordinates
+coords
 }

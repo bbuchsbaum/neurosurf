@@ -5,7 +5,7 @@
 \alias{load_data,NeuroSurfaceSource-method}
 \alias{load_data,FreesurferSurfaceGeometryMetaInfo-method}
 \alias{load_data,SurfaceGeometrySource-method}
-\title{load a NeuroSurfaceVector}
+\title{load_data}
 \usage{
 \S4method{load_data}{NeuroSurfaceVectorSource}(x)
 
@@ -16,8 +16,10 @@
 \S4method{load_data}{SurfaceGeometrySource}(x)
 }
 \arguments{
-\item{x}{the data source to load}
+\item{x}{the object to load data from}
 }
 \description{
-load a NeuroSurfaceVector
+load_data
+
+load_data
 }

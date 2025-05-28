@@ -16,8 +16,8 @@ get_mode <- function(v) {
 #' This function maps values from a 3D volume to a surface representation,
 #' allowing for different mapping strategies.
 #'
-#' @param surf_wm The white matter (inner) surface, typically of class \code{NeuroSurface}.
-#' @param surf_pial The pial (outer) surface, typically of class \code{NeuroSurface}.
+#' @param surf_wm The white matter (inner) surface, typically of class \code{SurfaceGeometry}.
+#' @param surf_pial The pial (outer) surface, typically of class \code{SurfaceGeometry}.
 #' @param vol An image volume of type \code{NeuroVol} that is to be mapped to the surface.
 #' @param mask A mask defining the valid voxels in the image volume. If NULL, all non-zero voxels are considered valid.
 #' @param fun The mapping function to use. Options are:
@@ -33,22 +33,41 @@ get_mode <- function(v) {
 #' @return A \code{NeuroSurface} object containing the mapped values.
 #'
 #' @examples
-#' \dontrun{
-#' # Load example data (not included in package)
-#' vol <- neuroim2::read_vol("path/to/volume.nii")
-#' surf_wm <- read_surface("path/to/white_matter_surface.gii")
-#' surf_pial <- read_surface("path/to/pial_surface.gii")
-#'
+#' \donttest{
+#' # Load standard white and pial surfaces from the package
+#' wm_surf_file <- system.file("extdata", "std.8.lh.white.asc", package = "neurosurf")
+#' pial_surf_file <- system.file("extdata", "std.8.lh.pial.asc", package = "neurosurf")
+#' 
+#' surf_wm <- read_surf_geometry(wm_surf_file)
+#' surf_pial <- read_surf_geometry(pial_surf_file)
+#' 
+#' # Load an example volume (replace with actual loading code later)
+#' # vol <- neuroim2::read_vol("path/to/volume.nii")
+#' 
+#' # Example: Create a dummy volume for demonstration purposes
+#' # This should be replaced with real volume data
+#' library(neuroim2)
+#' # Assume the surfaces are in a space roughly covered by this bounding box
+#' # Adjust dimensions and origin based on your actual data alignment
+#' bb <- matrix(c(-80, 80, -120, 80, -60, 90), 3, 2, byrow = TRUE)
+#' spacing <- c(1, 1, 1)
+#' dims <- ceiling(abs(bb[,2] - bb[,1]) / spacing)
+#' origin <- bb[,1]
+#' sp <- NeuroSpace(dims, spacing, origin)
+#' vol <- NeuroVol(rnorm(prod(dims)), sp)
+#' 
 #' # Map volume to surface using average mapping
 #' mapped_surf <- vol_to_surf(surf_wm, surf_pial, vol, fun = "avg")
-#'
+#' print(summary(series(mapped_surf)))
+#' 
 #' # Map volume to surface using nearest neighbor mapping
 #' mapped_surf_nn <- vol_to_surf(surf_wm, surf_pial, vol, fun = "nn")
+#' print(summary(series(mapped_surf_nn)))
 #' }
 #'
 #' @export
 #' @importFrom FNN get.knnx
-#' @importFrom neuroim2 index_to_coord
+#' @importFrom neuroim2 index_to_coord NeuroSpace NeuroVol
 vol_to_surf <- function(surf_wm, surf_pial, vol, mask = NULL, 
                         fun = c("avg", "nn", "mode"), knn = 6, sigma = 8, dthresh = sigma * 2) {
   fun <- match.arg(fun)

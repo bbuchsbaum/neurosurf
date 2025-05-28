@@ -15,9 +15,9 @@ cluster_threshold(x, threshold, size, ...)
 \arguments{
 \item{x}{Object to threshold}
 
-\item{threshold}{Numeric threshold range}
+\item{threshold}{the two-element threshold range to use to define connected components}
 
-\item{size}{Minimum cluster size in nodes}
+\item{size}{the minimum size of the connected components to keep}
 
 \item{...}{Additional arguments}
 

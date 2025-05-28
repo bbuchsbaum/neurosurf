@@ -1,4 +1,5 @@
 #' @noRd
+#' @keywords internal
 .resample <- function(x, ...) x[sample.int(length(x), ...)]
 
 #' Create a Random Searchlight iterator for surface mesh
@@ -24,7 +25,7 @@
 #' sequences.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 #' geom <- read_surf(file)
 #' searchlight <- RandomSurfaceSearchlight(geom, 12)
@@ -146,7 +147,7 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
 #' by the specified radius and distance metric.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 #' geom <- read_surf(file)
 #' searchlight <- SurfaceSearchlight(geom, 12, distance_type = "geodesic")
@@ -230,4 +231,49 @@ SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type=c
   class(obj) <- c("Searchlight", 'abstractiter', 'iter')
   obj
 
+}
+
+#' Print Method for Searchlight Iterator
+#'
+#' @param x An object of class "Searchlight"
+#' @param ... Additional arguments (not used)
+#' @method print Searchlight
+#' @export
+#' @importFrom crayon bold blue green red yellow style silver bgBlue white
+print.Searchlight <- function(x, ...) {
+  # Check if crayon is available
+  has_crayon <- requireNamespace("crayon", quietly = TRUE)
+
+  # Define styling functions
+  header <- if(has_crayon) function(txt) crayon::bgBlue(crayon::white(crayon::bold(txt))) else function(txt) txt
+  title <- if(has_crayon) function(txt) crayon::blue(crayon::bold(txt)) else function(txt) txt
+  subtitle <- if(has_crayon) function(txt) crayon::green(txt) else function(txt) txt
+  highlight <- if(has_crayon) function(txt) crayon::yellow(txt) else function(txt) txt
+  normal <- if(has_crayon) function(txt) crayon::silver(txt) else function(txt) txt
+
+  # Get available info
+  progress_val <- tryCatch(x$progress(), error = function(e) NA)
+  current_index <- tryCatch(x$index(), error = function(e) NA) # Renamed from getIndex for clarity if needed
+
+  cat("\n")
+  cat(header(" Surface Searchlight Iterator "), "\n\n")
+
+  cat(title("  Iterator Status:"), "\n")
+  if (!is.na(progress_val)) {
+      # Attempt to get total number of steps if possible (might require modification)
+      # total_nodes <- tryCatch(x$getTotal(), error = function(e) NA) # Hypothetical function
+      # if (!is.na(total_nodes) && !is.na(current_index)) {
+      #    cat("  ", subtitle("Current Step:"), "", highlight(format(current_index, big.mark=",")), " / ", highlight(format(total_nodes, big.mark=",")), "\n", sep="")
+      # } else {
+      #    cat("  ", subtitle("Current Step:"), "", highlight(format(current_index, big.mark=",")), " (Total unknown)", "\n", sep="")
+      # }
+      cat("  ", subtitle("Progress:"), "   ", highlight(paste0(round(progress_val * 100, 1), "%")), "\n", sep="")
+  } else {
+      cat("  ", normal("(Progress information not available)"), "\n")
+  }
+  cat("\n")
+  cat(normal("  (Note: Radius, distance type, and geometry details are not shown in this view)"), "\n")
+  cat("\n")
+
+  invisible(x)
 }

@@ -79,20 +79,20 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 #' # Load a sample inflated surface from the package
 #' surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
 #' surf <- readAsc(surf_file)
-#' 
+#'
 #' # Create edge weights (using uniform weights for simplicity)
 #' g <- graph(surf)
 #' edge_weights <- rep(1, length(E(g)))
-#' 
+#'
 #' # Find neighbors within a 10mm radius for the first 5 vertices
-#' neighbors <- find_all_neighbors(surf, radius = 10, 
+#' neighbors <- find_all_neighbors(surf, radius = 10,
 #'                                edgeWeights = edge_weights,
 #'                                nodes = 1:5,
 #'                                distance_type = "geodesic")
-#' 
+#'
 #' # Check the number of neighbors found for the first vertex
 #' nrow(neighbors[[1]])
-#' 
+#'
 #' # Look at the first few neighbors of the first vertex
 #' head(neighbors[[1]])
 #'
@@ -188,24 +188,8 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
   g
 }
 
-#' Create Neighbor Graph from igraph Object
-#'
-#' @description
-#' Constructs a neighbor graph from an igraph object based on a specified radius.
-#'
-#' @param x An igraph object representing the original graph
-#' @param radius Numeric; the spatial radius within which to consider nodes as neighbors
-#' @param distance_type Character; type of distance metric to use: "geodesic", "euclidean", or "spherical"
-#'
-#' @return An igraph object representing the neighbor graph
-#'
-#' @details
-#' This method creates a neighbor graph by finding all nodes within the specified radius
-#' for each node in the input graph. Edge weights are taken from the 'dist' attribute
-#' of the input graph's edges.
-#'
-#' @seealso \code{\link{find_all_neighbors}}, \code{\link{.neighbors_to_graph}}
-#'
+
+#' @param distance_type the type of distance metric to use
 #' @examples
 #' \donttest{
 #' g <- make_graph("Zachary")
@@ -214,12 +198,16 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
 #' }
 #'
 #' @importFrom igraph E
-#' @exportMethod neighbor_graph
-#' @aliases neighbor_graph,igraph,numeric,missing,missing
+#' @export
+#' @rdname neighbor_graph-methods
 setMethod(f="neighbor_graph", signature=c(x="igraph", radius="numeric", edgeWeights="missing", nodes="missing"),
-          def=function(x, radius, distance_type=c("geodesic", "euclidean", "spherical")) {
+          def=function(x, radius, edgeWeights=NULL, nodes=NULL,
+                      distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
-            edgeWeights=igraph::E(x)$dist
+            # Use default edge weights if missing
+            if (is.null(edgeWeights)) {
+              edgeWeights=igraph::E(x)$dist
+            }
             nabeinfo <- find_all_neighbors(x, radius, as.vector(edgeWeights),
                                            distance_type=distance_type)
             .neighbors_to_graph(nabeinfo)
@@ -228,13 +216,15 @@ setMethod(f="neighbor_graph", signature=c(x="igraph", radius="numeric", edgeWeig
 
 
 
-#' @rdname neighbor_graph
+#' @rdname neighbor_graph-methods
 #' @export
-#' @aliases neighbor_graph,igraph,numeric,missing,missing
 setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric", edgeWeights="missing", nodes="missing"),
-          def=function(x, radius, distance_type=c("geodesic", "euclidean", "spherical")) {
+          def=function(x, radius, edgeWeights=NULL, nodes=NULL, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
-            edgeWeights=igraph::E(graph(x))$dist
+            # Use default edge weights if missing
+            if (is.null(edgeWeights)) {
+              edgeWeights=igraph::E(graph(x))$dist
+            }
             nabeinfo <- find_all_neighbors(x, radius, as.vector(edgeWeights),
                                            distance_type=distance_type)
             .neighbors_to_graph(nabeinfo)
@@ -242,9 +232,8 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
 
 
 
-#' @rdname neighbor_graph
+#' @rdname neighbor_graph-methods
 #' @export
-#' @aliases neighbor_graph,igraph,numeric,numeric,missing
 setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric", edgeWeights="numeric", nodes="missing"),
           def=function(x, radius, edgeWeights, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
@@ -255,9 +244,8 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
 
 
 
-#' @rdname neighbor_graph
+#' @rdname neighbor_graph-methods
 #' @export
-#' @aliases neighbor_graph,igraph,numeric,numeric,integer
 setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric", edgeWeights="numeric", nodes="integer"),
 
           def=function(x,radius, edgeWeights, nodes, distance_type=c("geodesic", "euclidean", "spherical")) {
@@ -267,9 +255,8 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
             .neighbors_to_graph(nabeinfo)
           })
 
-#' @rdname neighbor_graph
+#' @rdname neighbor_graph-methods
 #' @export
-#' @aliases neighbor_graph,igraph,numeric,missing,integer
 setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric", edgeWeights="missing", nodes="integer"),
           def=function(x,radius, nodes, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
@@ -280,7 +267,7 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
 
 
 #' @export
-#' @rdname laplacian
+#' @rdname laplacian-methods
 setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", weights="missing"),
           def=function(x) {
             igraph::laplacian_matrix(graph(x))
@@ -288,7 +275,7 @@ setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", 
 
 
 #' @export
-#' @rdname laplacian
+#' @rdname laplacian-methods
 setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", weights="numeric"),
           def=function(x, weights) {
             igraph::laplacian_matrix(neurosurf::graph(x), weights=weights)
@@ -296,7 +283,7 @@ setMethod(f="laplacian", signature=c(x="SurfaceGeometry", normalized="missing", 
 
 
 #' @export
-#' @rdname adjacency
+#' @rdname adjacency-methods
 setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="numeric"),
           def=function(x, attr) {
             g <- graph(x)
@@ -306,7 +293,7 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="numeric"),
 
 
 #' @export
-#' @rdname adjacency
+#' @rdname adjacency-methods
 setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="character"),
           def=function(x, attr) {
             igraph::as_adjacency_matrix(graph(x), attr=attr)
@@ -314,7 +301,7 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="character"),
 
 
 #' @export
-#' @rdname adjacency
+#' @rdname adjacency-methods
 setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
           def=function(x) {
             igraph::as_adjacency_matrix(graph(x))
@@ -346,16 +333,17 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
 #' # Load a surface file from the extdata directory
 #' surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 #' surface <- readAsc(surf_file)
-#' 
+#'
 #' # Apply Taubin smoothing to the brain surface
 #' smoothed_surface1 <- smooth(surface, type = "taubin", lambda = 0.5, mu = -0.5, iteration = 10)
-#' 
+#'
 #' # Apply surface-preserving Laplacian smoothing
 #' smoothed_surface2 <- smooth(surface, type = "surfPreserveLaplace", iteration = 5)
 #'
 #' @importFrom Rvcg vcgSmooth
 #' @seealso \code{\link[Rvcg]{vcgSmooth}} for more details on the underlying smoothing algorithms.
 #' @export
+#' @rdname smooth-methods
 setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
           def=function(x, type=c("taubin","laplace","HClaplace","fujiLaplace","angWeight","surfPreserveLaplace"),
                        lambda=.7, mu=-.53, delta=.1, iteration=5) {
@@ -388,20 +376,20 @@ setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
 #' # Load a surface file from the extdata directory
 #' surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
 #' surface <- readAsc(surf_file)
-#' 
+#'
 #' # Create some random data for the surface vertices
 #' n_vertices <- nrow(coords(surface))
 #' random_data <- rnorm(n_vertices)
-#' 
+#'
 #' # Create a NeuroSurface object with the surface and data
-#' neuro_surf <- NeuroSurface(geometry = surface, 
+#' neuro_surf <- NeuroSurface(geometry = surface,
 #'                           indices = 1:n_vertices,
 #'                           data = random_data)
-#' 
+#'
 #' # Apply smoothing with different radii
 #' smoothed_small <- smooth(neuro_surf, sigma = 2)
 #' smoothed_large <- smooth(neuro_surf, sigma = 6)
-#' 
+#'
 #' # The original geometry is preserved, but the data is smoothed
 #' # Compare a small section of data before and after smoothing
 #' head(random_data)
@@ -411,7 +399,6 @@ setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
 #' @export
 setMethod(f="smooth", signature = c(x = "NeuroSurface"),
           def = function(x, sigma = 5, ...) {
-            g <- graph(geometry(x))
 
             ind <- x@indices
             edgeWeights <- igraph::E(g)$dist
@@ -453,19 +440,19 @@ setMethod(f="smooth", signature = c(x = "NeuroSurface"),
 #' # Load a sample surface from the package
 #' surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
 #' surfgeom <- readAsc(surf_file)
-#' 
+#'
 #' # Get the surface coordinates
 #' surf_coords <- coords(surfgeom)
-#' 
+#'
 #' # Create some sample 3D coordinates to project
 #' # We'll use a subset of the surface vertices with small random offsets
 #' set.seed(123)
 #' sample_indices <- sample(1:nrow(surf_coords), 50)
 #' sample_coords <- surf_coords[sample_indices, ] + matrix(rnorm(150, 0, 0.5), ncol = 3)
-#' 
+#'
 #' # Project these coordinates onto the surface
 #' projected_surface <- projectCoordinates(surfgeom, sample_coords, sigma = 3)
-#' 
+#'
 #' # Check the result
 #' max(series(projected_surface))  # Maximum density value
 #' sum(series(projected_surface) > 0)  # Number of vertices with non-zero values
@@ -476,7 +463,7 @@ projectCoordinates <- function(surfgeom, points, sigma=5, ...) {
   if (!inherits(surfgeom, "SurfaceGeometry")) {
     stop("surfgeom must be a SurfaceGeometry object")
   }
-  
+
   if (!is.matrix(points)) {
     stop("points must be a matrix")
   }
@@ -484,60 +471,60 @@ projectCoordinates <- function(surfgeom, points, sigma=5, ...) {
   if (ncol(points) != 3) {
     stop("points must have exactly 3 columns (x, y, z)")
   }
-  
+
   if (!is.numeric(sigma) || sigma <= 0) {
     stop("sigma must be a positive number")
   }
-  
+
   # Get the surface vertices
   surf_coords <- coords(surfgeom)
-  
+
   # Check if we have any vertices
   if (nrow(surf_coords) == 0) {
     stop("Surface has no vertices")
   }
-  
+
   # Find the closest vertex on the surface for each coordinate using FNN
   tryCatch({
     nearest_vertices <- FNN::get.knnx(surf_coords, points, k=1)$nn.index[,1]
   }, error = function(e) {
     stop("Error finding nearest vertices: ", e$message)
   })
-  
+
   # Create initial data vector for the NeuroSurface with counts of nearest points
   n_vertices <- nrow(surf_coords)
   data_vec <- numeric(n_vertices)
-  
+
   # Count occurrences of each vertex
   tabulated_vertices <- table(nearest_vertices)
   vertex_indices <- as.numeric(names(tabulated_vertices))
-  
+
   # Validate indices before assignment
   if (any(vertex_indices > n_vertices) || any(vertex_indices < 1)) {
     stop("Invalid vertex indices found")
   }
-  
+
   # Assign counts to data vector
   data_vec[vertex_indices] <- as.numeric(tabulated_vertices)
-  
+
   # Define valid surface node indices (all vertices)
   valid_indices <- 1:n_vertices
-  
+
   # Create a NeuroSurface object with these values
   tryCatch({
-    neuro_surface <- NeuroSurface(geometry = surfgeom, 
-                                 indices = valid_indices, 
+    neuro_surface <- NeuroSurface(geometry = surfgeom,
+                                 indices = valid_indices,
                                  data = data_vec)
   }, error = function(e) {
     stop("Error creating NeuroSurface object: ", e$message)
   })
-  
+
   # Smooth the values on the NeuroSurface
   tryCatch({
     smooth_surface <- smooth(neuro_surface, sigma = sigma, ...)
   }, error = function(e) {
     stop("Error smoothing surface: ", e$message)
   })
-  
+
   return(smooth_surface)
 }

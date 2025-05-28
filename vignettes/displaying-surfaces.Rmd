@@ -1,75 +1,202 @@
 ---
-title: "Displaying Surfaces"
+title: "Displaying Surfaces with RGL"
 author: "Bradley Buchsbaum"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Displaying Surfaces}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  %\\VignetteIndexEntry{Displaying Surfaces with RGL}
+  %\\VignetteEngine{knitr::rmarkdown}
+  %\\VignetteEncoding{UTF-8}
 ---
 
-## Load example low desnity brain surface meshes
+This vignette demonstrates how to display 3D brain surface meshes using the `rgl` plotting tools provided by the `neurosurf` package, primarily through the `plot()` method which utilizes the `view_surface()` function internally.
 
-The `neurosurf` package includes some low density surfaces that are useful for testing and demonstrating package features. We first load left and right "inflated" and "smoothwm" surfaces that are included in the `extdata` package folder.
+## Setup and Loading Data
 
+First, we set up `knitr` options to embed `rgl` plots directly into the HTML output using WebGL and prevent standalone `rgl` windows from popping up during knitting. We then load example left and right hemisphere white matter surfaces included with the package and prepare some data (smoothed geometry, curvature, random values) for the examples.
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,        # Default figure width
+  fig.height = 5,       # Default figure height
+  rgl.newwindow = FALSE, # Prevent new RGL windows for chunks
+  webgl = TRUE          # Use WebGL for embedding
 )
+rgl::setupKnitr()       # Setup rgl hook for knitr
 
 library(rgl)
 library(neuroim2)
 library(neurosurf)
 
-inflated_lh_asc <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
-inflated_rh_asc <- system.file("extdata", "std.8_rh.inflated.asc", package="neurosurf")
-
+# Load example surfaces
 white_lh_asc <- system.file("extdata", "std.8_lh.smoothwm.asc", package="neurosurf")
 white_rh_asc <- system.file("extdata", "std.8_rh.smoothwm.asc", package="neurosurf")
+white_lh <- read_surf(white_lh_asc)
+white_rh <- read_surf(white_rh_asc)
 
+# Prepare data for examples
+white_lh_smooth <- smooth(white_lh, type="HCLaplace", delta=.2, iteration=5)
+curv_lh <- curvature(white_lh_smooth)
+set.seed(123) # for reproducibility
+random_vals <- rnorm(length(nodes(white_lh_smooth)))
 ```
 
+## Basic Surface Plotting
 
-## Smoothing surface geometry
+The simplest way to display a `SurfaceGeometry` object is using the `plot()` method. By default, it renders the surface with a light gray background. We can specify a `viewpoint`.
 
-It is is often useful to smooth a surface mesh for visualization and other purposes. `neurosurf` uses the `Rvcg` package to smooth surface meshes using various smoothing approaches. Below we show smoothed surfaces using the Taubin and HCLaplace methods.
-
-
-```{r, fig.width=8, fig.height=5} 
-
-white_surf <- read_surf(white_lh_asc)
-white_rh_surf <- read_surf(white_rh_asc)
-
-open3d()
-layout3d(matrix(1:4, 2,2), heights=c(1,3))
-t1 <- text3d(0,0,0,"Taubin smooth, lambda=.5"); next3d()
-white_surf1 <- smooth(white_surf, type="taubin", lambda=.8)
-p1 <- plot(white_surf1); next3d()
-
-t2 <- text3d(0,0,0,"HCLaplace smooth, delta=.2, iteration=5"); next3d()
-white_surf2 <- smooth(white_surf, type="HCLaplace", delta=.2, iteration=5)
-p2 <- plot(white_surf2)
+```{r basic-plot}
+# Plot the smoothed left hemisphere from a lateral viewpoint
+plot(white_lh_smooth, viewpoint="lateral")
 rglwidget()
 ```
 
+## Coloring Based on Curvature
 
-## Adding a color layer to a surface mesh
+Surface curvature helps distinguish gyri (outward folds) from sulci (inward folds). The `curvature()` function calculates this, and `curv_cols()` provides a simple binary color mapping (default: light gray for positive/gyri, dark gray for negative/sulci). We can pass these colors to the `bgcol` argument of `plot()` to color the surface background.
 
-Here we add a colors to the surface that are a function of each surface node's `x` coordinate. When then map these values to a `rainbow` color map.
+```{r curvature-plot}
+# Calculate curvature colors
+curv_colors <- curv_cols(curv_lh)
 
-```{r, fig.width=7, fig.height=5} 
+# Plot with curvature background from a medial viewpoint
+plot(white_lh_smooth, bgcol = curv_colors, viewpoint="medial")
+rglwidget()
+```
 
-mfrow3d(1, 2, byrow = TRUE)
-xvals <- white_surf1@mesh$vb[1,]
-p <- plot(white_surf2, vals=xvals, cmap=rainbow(255))
-next3d()
-p2 <- plot(white_surf2, vals=xvals, cmap=heat.colors(255))
+## Overlaying Data Values
+
+Often, we want to visualize data mapped onto the surface vertices (e.g., activation values, thickness). We can pass a vector of values to the `vals` argument. The `cmap` argument specifies the color map, and `irange` defines the data range to map onto the colormap. Values outside `irange` are clamped to the minimum or maximum color.
+
+```{r data-overlay}
+# Overlay random data using a rainbow colormap
+# Map data range from -2 to 2 onto the colormap
+plot(white_lh_smooth, vals = random_vals, cmap = rainbow(256),
+     irange = c(-2, 2), viewpoint="lateral")
+rglwidget()
+```
+
+## Thresholding Data Visualization
+
+The `thresh` argument (a vector of two values, `c(lower, upper)`) can be used with `vals` to make parts of the surface transparent. Vertices where the corresponding value in `vals` is *outside* this range (i.e., less than `lower` or greater than `upper`) are rendered transparently. This is useful for focusing on specific value ranges.
+
+```{r threshold-plot}
+# Same data overlay as above, but make values between -1 and 1 transparent
+plot(white_lh_smooth, vals = random_vals, cmap = rainbow(256),
+     irange = c(-2, 2), thresh = c(-1, 1), viewpoint="lateral")
+rglwidget()
+```
+*Note: Thresholding makes values *outside* the specified `thresh` range transparent. This might seem counter-intuitive if you expect it to show only values *within* the range. Be mindful of this behavior.*
+
+
+## Direct Vertex Coloring
+
+Instead of mapping data values to a colormap, you can provide a vector of specific hex color codes directly to the `vert_clrs` argument. This overrides `vals` and `cmap`. The vector length must match the number of vertices.
+
+```{r vertex-color-plot}
+# Color vertices based on their x-coordinate (e.g., red for positive x, blue for negative)
+x_coords <- coords(white_lh_smooth)[, 1]
+vertex_colors <- ifelse(x_coords > median(x_coords), "#FF0000", "#0000FF") # Red/Blue
+
+plot(white_lh_smooth, vert_clrs = vertex_colors, viewpoint="ventral")
+rglwidget()
+```
+
+## Controlling Transparency
+
+The `alpha` argument controls the overall transparency of the surface, ranging from 0 (fully transparent) to 1 (fully opaque).
+
+```{r alpha-plot}
+# Plot the surface with 60% opacity (40% transparent)
+plot(white_lh_smooth, vals = random_vals, cmap = heat.colors(256),
+     irange = c(-2, 2), alpha = 0.6, viewpoint="posterior")
+rglwidget()
+```
+
+## Adjusting Lighting and Material
+
+The appearance of the surface is affected by lighting. The `specular` argument controls the color of specular highlights (shininess). Setting it to `"black"` creates a matte appearance.
+
+```{r lighting-plot}
+# Plot with a matte finish (no specular highlights)
+plot(white_lh_smooth, vals = random_vals, cmap = topo.colors(256),
+     irange = c(-2, 2), specular = "black", viewpoint="lateral")
+rglwidget()
+```
+
+## Changing Viewpoints
+
+The `viewpoint` argument can be set to common anatomical views like `"lateral"`, `"medial"`, `"ventral"`, or `"posterior"`. The function automatically selects the correct left/right version based on the surface's hemisphere information (`surf@hemi`).
+
+```{r viewpoints-plot, fig.height=8}
+# Display multiple viewpoints using rgl's layout functions
+mfrow3d(2, 2, sharedMouse = TRUE)
+plot(white_lh_smooth, viewpoint="lateral")
+plot(white_lh_smooth, viewpoint="medial")
+plot(white_lh_smooth, viewpoint="ventral")
+plot(white_lh_smooth, viewpoint="posterior")
+rglwidget()
+```
+
+## Displaying Two Hemispheres
+
+You can plot multiple surfaces in the same `rgl` scene. When plotting the second surface, use `new_window = FALSE` to add it to the existing window. You might need to use the `offset` argument to position the second hemisphere correctly relative to the first.
+
+```{r two-hemispheres-plot}
+# Smooth the right hemisphere and get its curvature
+white_rh_smooth <- smooth(white_rh, type="HCLaplace", delta=.2, iteration=5)
+curv_rh <- curvature(white_rh_smooth)
+
+# Plot LH with curvature background (opens the scene)
+plot(white_lh_smooth, bgcol = curv_cols(curv_lh), viewpoint="lateral")
+
+# Plot RH in the same scene, slightly offset along the x-axis
+# Use new_window=FALSE to add to the current plot
+plot(white_rh_smooth, bgcol = curv_cols(curv_rh), viewpoint="lateral",
+     new_window = FALSE, offset = c(5, 0, 0))
+
+# Adjust the overall view if needed (optional)
+# view3d(theta = 0, phi = 0, zoom = 0.8)
+
+rglwidget()
+```
+
+## Adding Spheres to the Surface
+
+The `spheres` argument allows you to draw spherical markers at specified coordinates. It requires a data frame with columns `x`, `y`, `z`, and `radius`. An optional `color` column can specify colors for each sphere.
+
+```{r spheres-plot}
+# Define coordinates for some spherical markers
+peak_coords <- data.frame(
+  x = coords(white_lh_smooth)[c(100, 500, 1000), 1], # Example vertex coordinates
+  y = coords(white_lh_smooth)[c(100, 500, 1000), 2],
+  z = coords(white_lh_smooth)[c(100, 500, 1000), 3],
+  radius = c(3, 4, 2.5),
+  color = c("yellow", "cyan", "magenta")
+)
+
+# Plot the surface and add the spheres
+plot(white_lh_smooth, viewpoint = "lateral", spheres = peak_coords)
+rglwidget()
+```
+
+## Plotting Other NeuroSurface Objects
+
+The `plot()` method also works for other classes like `NeuroSurface`, `LabeledNeuroSurface`, and `ColorMappedNeuroSurface`. These objects already contain data and potentially color mapping information. The `plot` method extracts this information and passes the appropriate arguments (like `vals`, `cmap`, `irange`, `thresh`, `vert_clrs`) to the underlying `view_surface` function.
+
+```{r neurosurface-plot}
+# Create a NeuroSurface object with the random data
+nsurf <- NeuroSurface(white_lh_smooth, indices=1:length(random_vals), data=random_vals)
+
+# Plot the NeuroSurface - uses data stored within the object
+# We can still override or add parameters like cmap, irange, thresh, alpha etc.
+plot(nsurf, cmap=heat.colors(128), irange=c(-2.5, 2.5), viewpoint="lateral")
 rglwidget()
 
 ```
+
 
 ## Showing an activation map overlaid on a surface mesh
 
@@ -128,6 +255,8 @@ derived from the geometry when `white_surf1` is a `SurfaceGeometry` object:
 ```{r, eval=FALSE}
 surfwidget(white_surf1, curvature = curv_lh)
 ```
+
+=======
 
 
 

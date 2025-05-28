@@ -5,7 +5,7 @@
 \alias{series,NeuroSurfaceVector,integer-method}
 \alias{series,NeuroSurfaceVector,ROISurface-method}
 \alias{series,NeuroSurface,numeric-method}
-\title{extract a series of values for a surface vector}
+\title{series}
 \usage{
 \S4method{series}{NeuroSurfaceVector,numeric}(x, i)
 
@@ -16,13 +16,10 @@
 \S4method{series}{NeuroSurface,numeric}(x, i)
 }
 \arguments{
-\item{x}{the object to extract series from}
+\item{x}{the object to extract the series from}
 
-\item{i}{the indices of the series set}
-}
-\value{
-a class of type \code{Matrix}
+\item{i}{the indices of the series to extract}
 }
 \description{
-extract a series of values for a surface vector
+series
 }
