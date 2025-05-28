@@ -28,6 +28,7 @@ export class NeuroSurfaceViewer {
     this.setupCamera();
     this.setupLighting();
     this.setupControls();
+    this.setupPicking();
 
     this.surfaces = new Map(); // Store multiple surfaces
 
@@ -514,6 +515,67 @@ export class NeuroSurfaceViewer {
       this.camera.position.copy(this.controls.target.clone().add(direction.multiplyScalar(distance / zoom)));
       this.camera.updateProjectionMatrix();
       this.controls.update();
+    }
+  }
+
+  setupPicking() {
+    this.renderer.domElement.addEventListener('click', this.onMouseClick.bind(this));
+  }
+
+  onMouseClick(event) {
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const meshes = [];
+    this.surfaces.forEach(surface => {
+      if (surface.mesh) meshes.push(surface.mesh);
+    });
+    const intersects = this.raycaster.intersectObjects(meshes, true);
+    if (intersects.length === 0) return;
+
+    const intersect = intersects[0];
+    const mesh = intersect.object;
+    let surfId = null;
+    let surface = null;
+    for (const [id, surf] of this.surfaces.entries()) {
+      if (surf.mesh === mesh) {
+        surfId = id;
+        surface = surf;
+        break;
+      }
+    }
+    if (!surface || !intersect.face) return;
+
+    const face = intersect.face;
+    const posAttr = surface.mesh.geometry.attributes.position;
+    const verts = [face.a, face.b, face.c];
+    let closestIdx = verts[0];
+    let closestPos = new THREE.Vector3().fromBufferAttribute(posAttr, verts[0]);
+    let minDist = closestPos.distanceTo(intersect.point);
+    for (let i = 1; i < verts.length; i++) {
+      const v = new THREE.Vector3().fromBufferAttribute(posAttr, verts[i]);
+      const d = v.distanceTo(intersect.point);
+      if (d < minDist) {
+        minDist = d;
+        closestIdx = verts[i];
+        closestPos = v;
+      }
+    }
+
+    let value = null;
+    if (surface.data && surface.indices) {
+      const arrayIdx = Array.from(surface.indices).indexOf(closestIdx);
+      if (arrayIdx !== -1) value = surface.data[arrayIdx];
+    }
+
+    if (window.Shiny && typeof window.Shiny.setInputValue === 'function') {
+      window.Shiny.setInputValue(
+        'ns_vertex_click',
+        { id: surfId, vertex: closestIdx, coord: [closestPos.x, closestPos.y, closestPos.z], value: value },
+        { priority: 'event' }
+      );
     }
   }
 
