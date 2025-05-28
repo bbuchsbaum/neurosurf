@@ -12,7 +12,7 @@ HTMLWidgets.widget({
 
       renderValue: function(x) {
         if (!viewer) {
-          console.log("Creating NeuroSurfaceViewer");
+          neurosurface.debugLog('Creating NeuroSurfaceViewer');
           viewer = new neurosurface.NeuroSurfaceViewer(el, width, height, {
             ...x.config, 
             cmap: x.cmap,
@@ -26,13 +26,13 @@ HTMLWidgets.widget({
         }
 
         try {
-          console.log("Creating SurfaceGeometry");
+          neurosurface.debugLog('Creating SurfaceGeometry');
           var geometry = new neurosurface.SurfaceGeometry(x.vertices, x.faces, x.hemi);
-          console.log("SurfaceGeometry created:", geometry);
+          neurosurface.debugLog('SurfaceGeometry created:', geometry);
 
           var surface;
           if (x.cmap) {
-            console.log("Creating ColorMappedNeuroSurface");
+            neurosurface.debugLog('Creating ColorMappedNeuroSurface');
             surface = new neurosurface.ColorMappedNeuroSurface(
               geometry, 
               x.indices,
@@ -41,7 +41,7 @@ HTMLWidgets.widget({
               { irange: x.irange, thresh: x.thresh, alpha: x.alpha, ...x.config }
             );
           } else if (x.vertexColors) {
-            console.log("Creating VertexColoredNeuroSurface");
+            neurosurface.debugLog('Creating VertexColoredNeuroSurface');
             surface = new neurosurface.VertexColoredNeuroSurface(
               geometry, 
               x.indices,
@@ -52,8 +52,8 @@ HTMLWidgets.widget({
             throw new Error("Neither color map nor vertex colors provided");
           }
 
-          console.log("Surface created:", surface);
-          console.log("Adding surface to viewer");
+          neurosurface.debugLog('Surface created:', surface);
+          neurosurface.debugLog('Adding surface to viewer');
           viewer.addSurface(surface, surfaceId);
           viewer.animate();
           

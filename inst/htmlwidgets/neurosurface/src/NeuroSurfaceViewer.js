@@ -3,6 +3,7 @@ import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls
 import { ColorMappedNeuroSurface, VertexColoredNeuroSurface } from './classes.js';
 import { Pane } from 'tweakpane';
 import * as EssentialsPlugin from '@tweakpane/plugin-essentials';
+import { debugLog } from './debug.js';
 
 export class NeuroSurfaceViewer {
   constructor(container, width, height, config = {}, viewpoint = 'lateral') {
@@ -261,9 +262,9 @@ export class NeuroSurfaceViewer {
       umat = new THREE.Matrix4().identity();
     }
 
-    console.log('Setting viewpoint to:', viewpoint);
-    console.log('Current viewpoint state:', this.viewpointState);
-    console.log("umat", umat);
+    debugLog('Setting viewpoint to:', viewpoint);
+    debugLog('Current viewpoint state:', this.viewpointState);
+    debugLog('umat', umat);
 
     // Calculate the bounding box of all surfaces
     const box = new THREE.Box3();
@@ -330,7 +331,7 @@ export class NeuroSurfaceViewer {
   }
 
   updateIntensityRange() {
-    console.log('NeuroSurfaceViewer: Updating intensity range', [this.intensityRange.range.min, this.intensityRange.range.max]);
+    debugLog('NeuroSurfaceViewer: Updating intensity range', [this.intensityRange.range.min, this.intensityRange.range.max]);
     this.surfaces.forEach(surface => {
       if (surface instanceof ColorMappedNeuroSurface) {
         surface.colorMap.setRange([this.intensityRange.range.min, this.intensityRange.range.max]);
@@ -340,7 +341,7 @@ export class NeuroSurfaceViewer {
   }
 
   updateThresholdRange() {
-    console.log('NeuroSurfaceViewer: Updating threshold range', [this.thresholdRange.range.min, this.thresholdRange.range.max]);
+    debugLog('NeuroSurfaceViewer: Updating threshold range', [this.thresholdRange.range.min, this.thresholdRange.range.max]);
     this.surfaces.forEach(surface => {
       if (surface instanceof ColorMappedNeuroSurface) {
         surface.colorMap.setThreshold([this.thresholdRange.range.min, this.thresholdRange.range.max]);
@@ -357,7 +358,7 @@ export class NeuroSurfaceViewer {
   }
 
   addSurface(surface, id) {
-    console.log('Adding surface:', surface, 'with id:', id);
+    debugLog('Adding surface:', surface, 'with id:', id);
     this.surfaces.set(id, surface);
     if (!surface.mesh) {
       console.warn('Surface mesh not created. Creating now.');
@@ -366,7 +367,7 @@ export class NeuroSurfaceViewer {
     this.scene.add(surface.mesh);
     
     if (surface instanceof ColorMappedNeuroSurface) {
-      console.log('Updating data range for ColorMappedNeuroSurface');
+      debugLog('Updating data range for ColorMappedNeuroSurface');
       this.updateDataRange(surface.data);
       this.updateRangeControls();
     }
@@ -477,7 +478,7 @@ export class NeuroSurfaceViewer {
       this.updateRangeControls();
       surface.updateColors();
       this.render();
-      console.log(`Updated data for surface with id: ${id}`);
+      debugLog(`Updated data for surface with id: ${id}`);
     } else {
       console.warn(`No ColorMappedNeuroSurface found with id: ${id}`);
     }
@@ -488,7 +489,7 @@ export class NeuroSurfaceViewer {
     if (surface && surface instanceof VertexColoredNeuroSurface) {
       surface.setColors(colors);
       this.render();
-      console.log(`Updated colors for surface with id: ${id}`);
+      debugLog(`Updated colors for surface with id: ${id}`);
     } else {
       console.warn(`No VertexColoredNeuroSurface found with id: ${id}`);
     }

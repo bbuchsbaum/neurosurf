@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { NeuroSurfaceViewer } from './NeuroSurfaceViewer';
 import { SurfaceGeometry, NeuroSurface, ColorMappedNeuroSurface, VertexColoredNeuroSurface } from './classes';
+import { debugLog, setDebug } from './debug.js';
 
 // Export the classes so they're available to the widget
 export {
@@ -9,7 +10,9 @@ export {
   NeuroSurface,
   ColorMappedNeuroSurface,
   VertexColoredNeuroSurface,
-  THREE
+  THREE,
+  debugLog,
+  setDebug
 };
 
 // Optionally, you can also attach these to the global window object
@@ -21,8 +24,9 @@ if (typeof window !== 'undefined') {
     NeuroSurface,
     ColorMappedNeuroSurface,
     VertexColoredNeuroSurface,
-    THREE
+    THREE,
+    debugLog,
+    setDebug
   };
 }
-
-console.log('Neurosurface module initialized');
+debugLog('Neurosurface module initialized');
