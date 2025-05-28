@@ -9,7 +9,9 @@
 #'
 #' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.
 #' @param radius Numeric, radius of the searchlight as a geodesic distance in mm.
+#'   Must be a positive, length-one value.
 #' @param nodeset Integer vector, optional subset of surface node indices to use.
+#'   If provided, the vector must contain at least one node index.
 #' @param as_deflist Logical, whether to return a deflist object.
 #'
 #' @return An iterator object of class "RandomSurfaceSearchlight".
@@ -17,12 +19,18 @@
 #' @details
 #' On each call to \code{nextElem}, a set of surface nodes is returned.
 #' These nodes index into the vertices of the \code{igraph} instance.
+#' When \code{as_deflist=TRUE}, the random ordering of centers is fixed when the
+#' object is created. Use \code{set.seed} before construction for reproducible
+#' sequences.
 #'
 #' @examples
 #' \dontrun{
 #' file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 #' geom <- read_surf(file)
 #' searchlight <- RandomSurfaceSearchlight(geom, 12)
+#' set.seed(42)
+#' dl <- RandomSurfaceSearchlight(geom, 12, as_deflist=TRUE)
+#' attr(dl[[1]], "center")
 #' nodes <- searchlight$nextElem()
 #' length(nodes) > 1
 #' }
@@ -31,12 +39,14 @@
 #' @importFrom deflist deflist
 #' @export
 RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflist=FALSE) {
+  assertthat::assert_that(length(radius) == 1, radius > 0)
   subgraph <- FALSE
   if (is.null(nodeset)) {
     ## use all surface nodes
     nodeset <- nodes(surfgeom)
     g <- surfgeom@graph
   } else {
+    assertthat::assert_that(length(nodeset) > 0)
     ## use supplied subset
     g <- igraph::induced_subgraph(graph(surfgeom), nodeset)
     subgraph <- TRUE
@@ -45,20 +55,34 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
 
   bg <- neighbor_graph(g, radius=radius)
 
-  index <- 0
-
   nds <- as.vector(igraph::V(bg))
   done <- logical(length(nds))
 
   prog <- function() { sum(done)/length(done) }
 
   if (as_deflist) {
+###<<<<<<< codex/update-randomsurfacesearchlight-with-random-permutation
     order <- sample.int(length(nds))
     # Create function to get nth element
     fun <- function(n) {
       if (n > length(order)) stop("Index out of bounds")
       idx <- order[n]
       indices <- as.vector(igraph::neighborhood(bg, 1, nds[idx])[[1]])
+#### =======
+    # precompute random order of remaining nodes
+    order <- sample(which(!done))
+
+    # Create function to get nth element
+    fun <- function(n) {
+#### === codex/modify-fun-functions-to-check-n->=-1
+      if (n < 1 || n > length(nds)) stop("Index out of bounds")
+      center <- which(!done)[n]
+##### =======
+      if (n > length(order)) stop("Index out of bounds")
+      center <- order[n]
+#### >>>>>>> master
+      indices <- as.vector(igraph::neighborhood(bg, 1, nds[center])[[1]])
+###>>>>>>> master
       indices <- indices[!done[indices]]
 
       if (subgraph) {
@@ -122,7 +146,9 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
 #'
 #' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.
 #' @param radius Numeric, radius of the searchlight as a geodesic distance in mm.
+#'   Must be a positive, length-one value.
 #' @param nodeset Integer vector, optional subset of surface node indices to use.
+#'   If provided, the vector must contain at least one node index.
 #' @param distance_type Character, the distance metric to use: "euclidean", "geodesic", or "spherical".
 #' @param as_deflist Logical, whether to return a deflist object.
 #'
@@ -170,7 +196,7 @@ SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type=c
   if (as_deflist) {
     # Create function to get nth element
     fun <- function(n) {
-      if (n > length(nds)) stop("Index out of bounds")
+      if (n < 1 || n > length(nds)) stop("Index out of bounds")
       indices <- as.vector(igraph::neighborhood(bg, 1, nds[n])[[1]])
 
       if (subgraph) {
