@@ -298,7 +298,7 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
 #'
 #' @examples
 #' # Load a surface file from the extdata directory
-#' surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
+#' surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 #' surface <- readAsc(surf_file)
 #' 
 #' # Apply Taubin smoothing to the brain surface
@@ -329,7 +329,12 @@ setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
 #' @return A new \code{NeuroSurface} object with the smoothed data values. The geometry remains unchanged.
 #'
 #' @details
-#' The smoothing process involves averaging the data values within the neighborhood of each vertex. For each vertex on the surface, the function calculates the mean of its own value and the values of its adjacent vertices within the graph structure of the surface. The result is a smoother representation of the data, which can be useful for reducing noise or visualizing broader trends on the surface.
+#' The smoothing process involves averaging the data values within a geodesic
+#' neighbourhood of each vertex.  For every vertex the function uses
+#' \code{\link{find_all_neighbors}} to locate all vertices within the radius
+#' specified by \code{sigma}.  The smoothed value is the mean of the vertex's own
+#' value and those of its neighbours.  Increasing \code{sigma} results in
+#' broader smoothing because more neighbours are included in the average.
 #'
 #' The smoothing is particularly useful when working with noisy data or when a smoother representation of the underlying signal is desired. It is commonly applied in neuroimaging to enhance visualization or prepare data for further analysis.
 #'
@@ -347,31 +352,36 @@ setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
 #'                           indices = 1:n_vertices,
 #'                           data = random_data)
 #' 
-#' # Apply smoothing to the data
-#' smoothed_data_surface <- smooth(neuro_surf, sigma = 3)
+#' # Apply smoothing with different radii
+#' smoothed_small <- smooth(neuro_surf, sigma = 2)
+#' smoothed_large <- smooth(neuro_surf, sigma = 6)
 #' 
 #' # The original geometry is preserved, but the data is smoothed
 #' # Compare a small section of data before and after smoothing
 #' head(random_data)
-#' head(series(smoothed_data_surface))
+#' head(series(smoothed_large))
 #'
 #' @seealso \code{\link{smooth,SurfaceGeometry-method}} for smoothing the geometry of a surface.
 #' @export
-setMethod(f="smooth", signature=c(x="NeuroSurface"),
-           def=function(x, sigma=5, ...) {
-             g <- graph(geometry(x))
+setMethod(f="smooth", signature = c(x = "NeuroSurface"),
+          def = function(x, sigma = 5, ...) {
+            g <- graph(geometry(x))
 
-             ind <- x@indices
-             vlist <- igraph::adjacent_vertices(g, ind)
-             cds <- coords(x)
+            ind <- x@indices
+            edgeWeights <- igraph::E(g)$dist
 
-             svals <- purrr::map_dbl(1:length(vlist), function(i) {
-               m <- series(x, c(ind[i], vlist[[i]]))
-               mean(m)
-             })
+            nlist <- find_all_neighbors(geometry(x), radius = sigma,
+                                         edgeWeights = edgeWeights,
+                                         nodes = ind, distance_type = "geodesic")
 
-             NeuroSurface(x@geometry, indices=ind, data=unlist(svals))
-           })
+            svals <- purrr::map_dbl(seq_along(nlist), function(i) {
+              nbs <- nlist[[i]][, "j"]
+              m <- series(x, nbs)
+              mean(m)
+            })
+
+            NeuroSurface(x@geometry, indices = ind, data = unlist(svals))
+          })
 
 
 
