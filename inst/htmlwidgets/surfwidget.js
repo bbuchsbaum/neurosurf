@@ -1,3 +1,5 @@
+'use strict';
+
 HTMLWidgets.widget({
 
   name: 'surfwidget',
@@ -5,8 +7,8 @@ HTMLWidgets.widget({
   type: 'output',
 
   factory: function(el, width, height) {
-    var viewer;
-    var surfaceId = 'main'; // Default ID for single surface
+    let viewer;
+    const surfaceId = 'main'; // Default ID for single surface
 
     return {
 
