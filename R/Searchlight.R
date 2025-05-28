@@ -45,8 +45,6 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
 
   bg <- neighbor_graph(g, radius=radius)
 
-  index <- 0
-
   nds <- as.vector(igraph::V(bg))
   done <- logical(length(nds))
 
