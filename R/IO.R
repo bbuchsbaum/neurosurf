@@ -44,14 +44,17 @@ NULL
 #' @export
 read_freesurfer_annot <- function(file_name, geometry) {
   fp <- file(file_name, "rb")
+  on.exit(close(fp))
   nvertex <- readBin(fp, integer(),n = 1, size=4, endian="big")
   vertex_dat <- readBin(fp, integer(),n = nvertex*2, size=4, endian="big")
   vertices <- vertex_dat[seq(1,length(vertex_dat), by=2)]
   clabs <- vertex_dat[seq(2,length(vertex_dat), by=2)]
   tags <- readBin(fp, integer(),n=4, size=4, endian="big")
-  maxstruc <- tags[3]
-  slen <- tags[4]
-  fn <- readChar(fp, slen, useBytes=TRUE)
+  ## the third and fourth elements of `tags` contain the maximum
+  ## structure index and the length of the following filename.  These
+  ## values are not currently used, so we simply skip over the filename
+  ## string.
+  readChar(fp, tags[4], useBytes=TRUE)
   nlut <- readBin(fp, integer(),n=1, size=4, endian="big")
   labs <- vector(nlut, mode="list")
   for (i in 1:nlut) {
@@ -75,7 +78,6 @@ read_freesurfer_annot <- function(file_name, geometry) {
   labels <- sapply(labs, "[[", "label")
   cols <- sapply(labs, "[[", "col")
 
-  close(fp)
   new("LabeledNeuroSurface", geometry=geometry,
       indices=as.integer(vertices+1),
       data=as.numeric(codes),
@@ -151,9 +153,9 @@ readFreesurferAsciiGeometry <- function(file_name) {
 readFreesurferBinaryHeader <- function(file_name) {
   has_hemi <- grep("^[lr]h\\..*", basename(file_name))
   hemi <- if (length(has_hemi) > 0) {
-    if (length(grep("^lh.*", basename(file_name))>0)) {
+    if (length(grep("^lh.*", basename(file_name))) > 0) {
       "lh"
-    } else if (length(grep("^rh.*", basename(file_name))>0)) {
+    } else if (length(grep("^rh.*", basename(file_name))) > 0) {
       "rh"
     } else {
       "unknown"
@@ -163,12 +165,11 @@ readFreesurferBinaryHeader <- function(file_name) {
   }
 
   fp <- file(file_name, "rb")
+  on.exit(close(fp))
   magic <- readBin(fp, what="raw", n=3)
   created_by <- readLines(fp, 2)
   vcount <- readBin(fp, what="integer", n=1, endian="big")
   fcount <- readBin(fp, what="integer", n=1, endian="big")
-
-  close(fp)
 
   list(vertices=vcount, faces=fcount, label=basename(file_name),
        embed_dimension=3, header_file=file_name, data_file=file_name, hemi=hemi)
@@ -186,6 +187,7 @@ readFreesurferBinaryGeometry <- function(file_name) {
   }
 
   fp <- file(file_name, "rb")
+  on.exit(close(fp))
   magic <- readBin(fp, what="raw", n=3)
   created_by <- readLines(fp, 2)
   vcount <- readBin(fp, what="integer", n=1, endian="big")
@@ -196,8 +198,6 @@ readFreesurferBinaryGeometry <- function(file_name) {
 
   faces <- readBin(fp, what="integer", n=fcount*3, size=4, endian="big")
   faces <- matrix(faces, fcount, 3, byrow=TRUE)
-
-  close(fp)
 
   list(coords=coords, faces=faces, header_file=file_name, data_file=file_name)
 
@@ -462,12 +462,12 @@ read_surf_data_seq <- function(leftGeometry, rightGeometry, leftDataNames, right
 #' read_meta_info
 #'
 #' @param x the file descriptor object
-#' @param file_name the name of the file containing meta infromation.
+#' @param file_name the name of the file containing meta information.
 #' @rdname read_meta_info
 #' @importMethodsFrom neuroim2 read_meta_info
 setMethod(f="read_meta_info",signature=signature(x= "AFNISurfaceFileDescriptor"),
           def=function(x, file_name) {
-            .read_meta_info(x, file_name, readAFNISurfaceHeader, AFNISurfaceDataMetaInfo)
+            .read_meta_info(x, file_name, readAFNISurfaceHeader, NIMLSurfaceDataMetaInfoFromAFNI)
           })
 
 #' @rdname read_meta_info
@@ -650,36 +650,29 @@ loadFSSurface <- function(meta_info) {
 #' @rdname data_reader
 #' @importClassesFrom neuroim2 ColumnReader
 #' @noRd
-setMethod(f="data_reader", signature=signature("SurfaceGeometryMetaInfo"),
+setMethod(f="data_reader", signature=signature("SurfaceDataMetaInfo"),
           def=function(x) {
+            if (!all(c("data", "node_indices") %in% slotNames(x))) {
+              stop("data_reader requires 'data' and 'node_indices' slots",
+                   call. = FALSE)
+            }
             reader <- function(i) {
               if (length(i) == 1 && i == 0) {
                 x@node_indices
               } else {
-                x@data[,i,drop=FALSE]
+                x@data[, i, drop = FALSE]
               }
             }
 
-            neuroim2::ColumnReader(nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
+            neuroim2::ColumnReader(nrow = as.integer(nrow(x@data)),
+                                   ncol = as.integer(ncol(x@data)),
+                                   reader = reader)
           })
 
 
 
 #' @rdname data_reader
 #' @noRd
-setMethod(f="data_reader", signature=signature("NIMLSurfaceDataMetaInfo"),
-          def=function(x) {
-            reader <- function(i) {
-              if (length(i) == 1 && i == 0) {
-                x@node_indices
-              } else {
-                x@data[,i,drop=FALSE]
-              }
-            }
-
-            neuroim2::ColumnReader(nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
-            #new("ColumnReader", nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
-          })
 
 
 
@@ -798,11 +791,12 @@ NIMLSurfaceDataMetaInfo <- function(descriptor, header) {
       node_indices=as.integer(header$nodes))
 }
 
-#' Constructor for \code{AFNISurfaceDataMetaInfo} class
+#' Create a \code{NIMLSurfaceDataMetaInfo} instance from an AFNI header
+#'
 #' @param descriptor the file descriptor
 #' @param header a \code{list} containing header information
 #' @noRd
-AFNISurfaceDataMetaInfo <- function(descriptor, header) {
+NIMLSurfaceDataMetaInfoFromAFNI <- function(descriptor, header) {
   stopifnot(is.numeric(header$nodes))
 
   new("NIMLSurfaceDataMetaInfo",

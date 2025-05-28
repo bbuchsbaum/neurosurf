@@ -4,9 +4,36 @@
 #' @param indices the parent surface indices
 #' @param data the data values, numeric \code{vector}
 #' @return an instance of class \code{ROISurface}
+#' @examples
+#' \donttest{
+#' verts <- matrix(c(0,0,0,
+#'                   1,0,0,
+#'                   0,1,0), ncol=3, byrow=TRUE)
+#' faces <- matrix(c(1,2,3), ncol=3, byrow=TRUE)
+#' geom <- SurfaceGeometry(verts, faces, "lh")
+#'
+#' ROISurface(geom, 1L, 1)
+#'
+#' try(ROISurface(geom, 4L, 1))      # out of range
+#' try(ROISurface(geom, 1.5, 1))     # non-integer
+#' }
 #' @rdname ROISurface
 #' @export
 ROISurface <- function(geometry, indices, data) {
+  all_nodes <- nodes(geometry)
+
+  if (!is.integer(indices)) {
+    if (is.numeric(indices) && all(indices == as.integer(indices))) {
+      indices <- as.integer(indices)
+    } else {
+      stop("'indices' must be integer")
+    }
+  }
+
+  if (any(indices < 1L) || any(indices > length(all_nodes))) {
+    stop("'indices' are out of bounds for provided 'geometry'")
+  }
+
   vert <- vertices(geometry, indices)
   new("ROISurface", geometry=geometry, data=data, coords=vert, indices=indices)
 }
@@ -18,9 +45,37 @@ ROISurface <- function(geometry, indices, data) {
 #' @param indices the parent surface indices
 #' @param data the data values, a \code{matrix}
 #' @return an instance of class \code{ROISurfaceVector}
+#' @examples
+#' \donttest{
+#' verts <- matrix(c(0,0,0,
+#'                   1,0,0,
+#'                   0,1,0), ncol=3, byrow=TRUE)
+#' faces <- matrix(c(1,2,3), ncol=3, byrow=TRUE)
+#' geom <- SurfaceGeometry(verts, faces, "lh")
+#'
+#' vec <- matrix(c(0.5, 1.5), nrow=1)
+#' ROISurfaceVector(geom, c(1L,2L), vec)
+#'
+#' try(ROISurfaceVector(geom, c(1L,4L), vec))   # out of range
+#' try(ROISurfaceVector(geom, c(1,2.5), vec))   # non-integer
+#' }
 #' @rdname ROISurfaceVector
 #' @export
 ROISurfaceVector <- function(geometry, indices, data) {
+  all_nodes <- nodes(geometry)
+
+  if (!is.integer(indices)) {
+    if (is.numeric(indices) && all(indices == as.integer(indices))) {
+      indices <- as.integer(indices)
+    } else {
+      stop("'indices' must be integer")
+    }
+  }
+
+  if (any(indices < 1L) || any(indices > length(all_nodes))) {
+    stop("'indices' are out of bounds for provided 'geometry'")
+  }
+
   vert <- vertices(geometry, indices)
   new("ROISurfaceVector", geometry=geometry, data=data, coords=vert, indices=indices)
 }
@@ -40,18 +95,26 @@ setMethod(f="as.matrix", signature=signature(x = "ROISurfaceVector"), def=functi
 #' @description Creates a Region on a Surface from a radius and surface
 #'
 #' @param surf a \code{SurfaceGeometry} or \code{BrainSurface} or \code{BrainSurfaceVector}
-#' @param index the index of the central surface node
-#' @param radius the size in mm of the geodesic radius
+#' @param index the index of the central surface node. Must be a numeric
+#'   integer value within \code{1:length(V(surf@graph))}.
+#' @param radius the size in mm of the geodesic radius. Must be non-negative.
 #' @param max_order maximum number of edges to traverse.
 #'   default is computed based on average edge length.
+#' @details The igraph associated with \code{surf} must have an edge
+#'   attribute named \code{dist} containing numeric weights with no
+#'   \code{NA} values.
 #' @importFrom assertthat assert_that
 #' @importFrom igraph E V ego distances induced_subgraph V neighborhood
 #' @rdname SurfaceDisk
 #' @export
 SurfaceDisk <- function(surf, index, radius, max_order=NULL) {
   assertthat::assert_that(length(index) == 1)
+  assertthat::assert_that(is.numeric(index), index %% 1 == 0)
+  assertthat::assert_that(index >= 1, index <= length(igraph::V(surf@graph)))
+  assertthat::assert_that(is.numeric(radius), radius >= 0)
 
-  edgeWeights=igraph::E(surf@graph)$dist
+  edgeWeights <- igraph::E(surf@graph)$dist
+  assertthat::assert_that(!is.null(edgeWeights), !any(is.na(edgeWeights)))
 
   if (is.null(max_order)) {
     avg_weight <- mean(edgeWeights)
@@ -69,18 +132,6 @@ SurfaceDisk <- function(surf, index, radius, max_order=NULL) {
   }
 
 }
-
-
-roi_surface_matrix <- function(mat, refspace, indices, coords) {
-  structure(mat,
-            refspace=refspace,
-            indices=indices,
-            coords=coords,
-            class=c("roi_surface_matrix", "matrix"))
-
-}
-
-
 
 #' values
 #'
