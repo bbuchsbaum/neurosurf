@@ -17,6 +17,7 @@ export class NeuroSurfaceViewer {
       directionalLightIntensity: 0.5,
       rotationSpeed: 2,
       initialZoom: 4,
+      rimStrength: 0,
       metalness: 0.1,
       roughness: 0.6,
       ...config
@@ -36,6 +37,7 @@ export class NeuroSurfaceViewer {
     this.setupPicking();
 
     this.surfaces = new Map(); // Store multiple surfaces
+    this.rimStrengthUniforms = [];
 
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
@@ -206,6 +208,15 @@ export class NeuroSurfaceViewer {
       step: 0.01,
     }).on('change', (ev) => {
       this.updateDirectionalLightIntensity(ev.value);
+    });
+
+    lightingFolder.addBinding(this.config, 'rimStrength', {
+      label: 'Rim Strength',
+      min: 0,
+      max: 1,
+      step: 0.01,
+    }).on('change', (ev) => {
+      this.updateRimStrength(ev.value);
     });
 
     // Camera folder
@@ -430,6 +441,9 @@ export class NeuroSurfaceViewer {
       console.warn('Surface mesh not created. Creating now.');
       surface.createMesh();
     }
+    if (surface.mesh && surface.mesh.material) {
+      this.applyRimLighting(surface.mesh.material);
+    }
     this.scene.add(surface.mesh);
     this.updateMaterials();
     
@@ -578,6 +592,29 @@ export class NeuroSurfaceViewer {
       this.camera.updateProjectionMatrix();
       this.controls.update();
     }
+  }
+
+  applyRimLighting(material) {
+    material.onBeforeCompile = (shader) => {
+      shader.uniforms.rimStrength = { value: this.config.rimStrength };
+      shader.uniforms.rimColor = { value: new THREE.Color(0xffffff) };
+      shader.fragmentShader = shader.fragmentShader.replace(
+        'void main() {',
+        'uniform vec3 rimColor;\nuniform float rimStrength;\nvoid main() {'
+      );
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <output_fragment>',
+        '#include <output_fragment>\nfloat f = pow(1.0 - dot(normalize(vNormal), normalize(vViewPosition)), 2.0);\ngl_FragColor.rgb += rimColor * f * rimStrength;'
+      );
+      this.rimStrengthUniforms.push(shader.uniforms.rimStrength);
+    };
+    material.needsUpdate = true;
+  }
+
+  updateRimStrength(strength) {
+    this.config.rimStrength = strength;
+    this.rimStrengthUniforms.forEach(u => { u.value = strength; });
+    this.render();
   }
 
   setupPicking() {
