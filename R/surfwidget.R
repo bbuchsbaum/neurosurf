@@ -11,6 +11,9 @@
 #' @param thresh Optional. Threshold range for data visualization.
 #' @param vertexColors Optional. Vector of colors for each vertex.
 #' @param alpha Opacity of the surface (0 to 1).
+#' @param curvature Optional numeric vector of curvature values for each vertex.
+#'   If not supplied for a \code{SurfaceGeometry} object, it is computed via
+#'   \code{curvature(x)}.
 #' @param config A list of configuration options for the surface rendering:
 #'   \itemize{
 #'     \item{\code{shininess}}{Numeric between 0 and 100. Controls the shininess of the material. Higher values create a more polished appearance. Default is 30.}
@@ -30,9 +33,14 @@
 setMethod("surfwidget", signature(x = "SurfaceGeometry"),
   function(x, width = NULL, height = NULL, data = NULL, cmap = rainbow(256),
            irange = NULL, thresh = c(0,0), vertexColors = NULL, alpha = 1,
-           config = list(), ...) {
+           curvature = NULL, config = list(), ...) {
 
-    # Extract curvature values if data is not provided
+    curv_vals <- curvature
+    if (is.null(curv_vals)) {
+      curv_vals <- curvature(x)
+    }
+
+    # Extract data values if not provided
     if (is.null(data)) {
       data <- curvature(x)
     }
@@ -41,7 +49,7 @@ setMethod("surfwidget", signature(x = "SurfaceGeometry"),
     neuro_surface <- NeuroSurface(x, indices=nodes(x), data)
     surfwidget(neuro_surface, width, height, cmap = cmap, irange = irange,
                thresh = thresh, vertexColors = vertexColors, alpha = alpha,
-               config = config, ...)
+               curvature = curv_vals, config = config, ...)
   }
 )
 
@@ -50,16 +58,21 @@ setMethod("surfwidget", signature(x = "SurfaceGeometry"),
 setMethod("surfwidget", signature(x = "NeuroSurface"),
   function(x, width = NULL, height = NULL, cmap = rainbow(256),
            irange = range(x@data), thresh = c(0,0), vertexColors = NULL,
-           alpha = 1, config = list(), ...) {
+           alpha = 1, curvature = NULL, config = list(), ...) {
 
     if (is.null(irange)) {
       irange <- range(x@data)
+    }
+    curv_vals <- curvature
+    if (is.null(curv_vals)) {
+      curv_vals <- curvature(x@geometry)
     }
     # Create a ColorMappedNeuroSurface and call its method
     color_mapped_surface <- ColorMappedNeuroSurface(x@geometry, x@indices, x@data, cmap = cmap,
                                 irange = irange, thresh=thresh)
     surfwidget(color_mapped_surface, width, height, thresh = thresh,
-               vertexColors = vertexColors, alpha = alpha, config = config, ...)
+               vertexColors = vertexColors, alpha = alpha, curvature = curv_vals,
+               config = config, ...)
   }
 )
 
@@ -67,9 +80,15 @@ setMethod("surfwidget", signature(x = "NeuroSurface"),
 #' @export
 setMethod("surfwidget", signature(x = "ColorMappedNeuroSurface"),
   function(x, width = NULL, height = NULL, thresh = c(0,0), vertexColors = NULL,
-           alpha = 1, config = list(), ...) {
+           alpha = 1, curvature = NULL, config = list(), ...) {
 
-    surface_data <- prepare_surface_data(x, thresh, vertexColors, alpha, config)
+    curv_vals <- curvature
+    if (is.null(curv_vals)) {
+      curv_vals <- curvature(x@geometry)
+    }
+
+    surface_data <- prepare_surface_data(x, thresh, vertexColors, alpha, config,
+                                         curv_vals)
     create_widget(surface_data, width, height)
   }
 )
@@ -77,16 +96,23 @@ setMethod("surfwidget", signature(x = "ColorMappedNeuroSurface"),
 #' @rdname surfwidget
 #' @export
 setMethod("surfwidget", signature(x = "VertexColoredNeuroSurface"),
-  function(x, width = NULL, height = NULL, alpha = 1, config = list(), ...) {
+  function(x, width = NULL, height = NULL, alpha = 1, curvature = NULL,
+           config = list(), ...) {
 
-    surface_data <- prepare_surface_data(x, c(0,0), x@colors, alpha, config)
+    curv_vals <- curvature
+    if (is.null(curv_vals)) {
+      curv_vals <- curvature(x@geometry)
+    }
+
+    surface_data <- prepare_surface_data(x, c(0,0), x@colors, alpha, config,
+                                         curv_vals)
     create_widget(surface_data, width, height)
   }
 )
 
 # Helper function to prepare surface data
 #' @noRd
-prepare_surface_data <- function(x, thresh, vertexColors, alpha, config) {
+prepare_surface_data <- function(x, thresh, vertexColors, alpha, config, curvature = NULL) {
   surface_data <- list(
     vertices = as.vector(x@geometry@mesh$vb[1:3,]),
     faces = as.vector(x@geometry@mesh$it - 1),
@@ -101,6 +127,12 @@ prepare_surface_data <- function(x, thresh, vertexColors, alpha, config) {
     surface_data$cmap <- x@cmap
     surface_data$irange <- x@irange
   }
+
+  curv_vals <- curvature
+  if (is.null(curv_vals)) {
+    curv_vals <- curvature(x@geometry)
+  }
+  surface_data$curv <- curv_vals
 
   if (!is.null(vertexColors)) {
     surface_data$vertexColors <- sapply(vertexColors, color_to_hex)

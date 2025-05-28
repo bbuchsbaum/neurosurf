@@ -25,6 +25,7 @@ export class NeuroSurfaceViewer {
       rimStrength: 0,
       metalness: 0.1,
       roughness: 0.6,
+      useShaders: true,
       ...config
     };
     this.viewpoint = viewpoint;
@@ -493,6 +494,7 @@ export class NeuroSurfaceViewer {
     }
     if (surface.mesh && surface.mesh.material) {
       this.applyRimLighting(surface.mesh.material);
+      this.applyCurvatureShading(surface.mesh);
     }
     this.scene.add(surface.mesh);
     this.updateMaterials();
@@ -665,6 +667,48 @@ export class NeuroSurfaceViewer {
       this.rimStrengthUniforms.push(shader.uniforms.rimStrength);
     };
     material.needsUpdate = true;
+  }
+
+  applyCurvatureShading(mesh) {
+    const curvAttr = mesh.geometry.getAttribute('curv');
+    if (!curvAttr) return;
+
+    if (this.config.useShaders && mesh.material && mesh.material.onBeforeCompile) {
+      mesh.material.onBeforeCompile = (shader) => {
+        shader.uniforms.warmColor = { value: new THREE.Color(0xff5533) };
+        shader.uniforms.coolColor = { value: new THREE.Color(0x3366ff) };
+        shader.vertexShader = shader.vertexShader.replace(
+          'void main()',
+          'attribute float curv;\nvarying float vCurv;\nvoid main()'
+        );
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <begin_vertex>',
+          '#include <begin_vertex>\nvCurv = curv;'
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+          'void main() {',
+          'varying float vCurv;\nuniform vec3 warmColor;\nuniform vec3 coolColor;\nvoid main() {'
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <dithering_fragment>',
+          '#include <dithering_fragment>\nfloat c = smoothstep(-0.5,0.5,vCurv);\nvec3 tint = mix(coolColor,warmColor,c);\n gl_FragColor.rgb = mix(gl_FragColor.rgb, tint, 0.4);'
+        );
+      };
+      mesh.material.needsUpdate = true;
+    } else {
+      const colors = mesh.geometry.getAttribute('color');
+      if (!colors) return;
+      const arr = colors.array;
+      const curv = curvAttr.array;
+      for (let i = 0; i < curv.length; i++) {
+        const t = curv[i] > 0 ? [1, 0.7, 0.7] : [0.7, 0.7, 1];
+        const idx = i * 3;
+        arr[idx] *= t[0];
+        arr[idx + 1] *= t[1];
+        arr[idx + 2] *= t[2];
+      }
+      colors.needsUpdate = true;
+    }
   }
 
   updateRimStrength(strength) {

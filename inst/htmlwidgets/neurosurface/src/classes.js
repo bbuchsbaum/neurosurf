@@ -3,10 +3,11 @@ import ColorMap from './ColorMap.js';
 import { debugLog } from './debug.js';
 
 export class SurfaceGeometry {
-  constructor(vertices, faces, hemi) {
+  constructor(vertices, faces, hemi, vertexCurv = null) {
     this.vertices = new Float32Array(vertices);
     this.faces = new Uint32Array(faces);
     this.hemi = hemi;
+    this.vertexCurv = vertexCurv ? new Float32Array(vertexCurv) : null;
     this.mesh = null;
 
     debugLog('SurfaceGeometry constructor called');
@@ -21,6 +22,9 @@ export class SurfaceGeometry {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(this.vertices, 3));
     geometry.setIndex(new THREE.Uint32BufferAttribute(this.faces, 1));
+    if (this.vertexCurv) {
+      geometry.setAttribute('curv', new THREE.Float32BufferAttribute(this.vertexCurv, 1));
+    }
     
     const material = new THREE.MeshPhongMaterial({
       color: 0xA9A9A9, // Set default color to dark gray
@@ -39,6 +43,7 @@ export class NeuroSurface {
     this.geometry = geometry;
     this.indices = new Uint32Array(indices);
     this.data = new Float32Array(data);
+    this.vertexCurv = geometry.vertexCurv || null;
     this.mesh = null;
     this.threshold = config.thresh || [0, 0];
     this.irange = config.irange || [Math.min(...data), Math.max(...data)];
@@ -91,6 +96,12 @@ export class NeuroSurface {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(this.geometry.vertices, 3));
     geometry.setIndex(new THREE.Uint32BufferAttribute(this.geometry.faces, 1));
+    if (this.vertexCurv) {
+      geometry.setAttribute('curv', new THREE.Float32BufferAttribute(this.vertexCurv, 1));
+    }
+    if (this.vertexCurv) {
+      geometry.setAttribute('curv', new THREE.Float32BufferAttribute(this.vertexCurv, 1));
+    }
     
     const material = new THREE.MeshBasicMaterial({
       vertexColors: true // Will be set to true for colored surfaces
