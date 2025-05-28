@@ -15,12 +15,21 @@ HTMLWidgets.widget({
       renderValue: function(x) {
         if (!viewer) {
           neurosurface.debugLog('Creating NeuroSurfaceViewer');
-          viewer = new neurosurface.NeuroSurfaceViewer(el, width, height, {
-            ...x.config, 
-            cmap: x.cmap,
-            rotationSpeed: 2.5, // Increase rotation speed
-            initialZoom: 2.5 // Increase initial zoom
-          }, x.viewpoint);
+
+          // Start with any config values provided from R
+          var config = Object.assign({}, x.config);
+          // Only fill in defaults when the user did not specify them
+          if (!('cmap' in config)) config.cmap = x.cmap;
+          if (!('rotationSpeed' in config)) config.rotationSpeed = 2.5; // default rotation
+          if (!('initialZoom' in config)) config.initialZoom = 2.5;    // default zoom level
+
+          viewer = new neurosurface.NeuroSurfaceViewer(
+            el,
+            width,
+            height,
+            config,
+            x.viewpoint
+          );
 
           // Use the new methods to set rotation speed and initial zoom
           //viewer.setRotationSpeed(2.5);
