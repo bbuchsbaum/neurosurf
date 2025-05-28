@@ -97,7 +97,8 @@ setMethod(f="as.matrix", signature=signature(x = "ROISurfaceVector"), def=functi
 #' @param surf a \code{SurfaceGeometry} or \code{BrainSurface} or \code{BrainSurfaceVector}
 #' @param index the index of the central surface node. Must be a numeric
 #'   integer value within \code{1:length(V(surf@graph))}.
-#' @param radius the size in mm of the geodesic radius. Must be non-negative.
+#' @param radius the size in mm of the geodesic radius. Must be a single
+#'   positive numeric value.
 #' @param max_order maximum number of edges to traverse.
 #'   default is computed based on average edge length.
 #' @details The igraph associated with \code{surf} must have an edge
@@ -111,7 +112,7 @@ SurfaceDisk <- function(surf, index, radius, max_order=NULL) {
   assertthat::assert_that(length(index) == 1)
   assertthat::assert_that(is.numeric(index), index %% 1 == 0)
   assertthat::assert_that(index >= 1, index <= length(igraph::V(surf@graph)))
-  assertthat::assert_that(is.numeric(radius), radius >= 0)
+  assertthat::assert_that(is.numeric(radius), radius > 0, length(radius) == 1)
 
   edgeWeights <- igraph::E(surf@graph)$dist
   assertthat::assert_that(!is.null(edgeWeights), !any(is.na(edgeWeights)))
