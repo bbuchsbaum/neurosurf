@@ -306,7 +306,20 @@ find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "m
 
         # Find shortest path
         G <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected", weighted = TRUE)
-        sp <- igraph::shortest_paths(G, from = N1, to = N2, output = "epath")$epath[[1]]
+        sp <- tryCatch(
+          igraph::shortest_paths(G, from = N1, to = N2, output = "epath")$epath[[1]],
+          error = function(e) {
+            warning(sprintf(
+              "Failed to compute shortest path for ROI %d component %d: %s",
+              roi, j, e$message
+            ))
+            return(integer(0))
+          }
+        )
+        if (length(sp) == 0) {
+          warning(sprintf("No path found for ROI %d component %d; skipping", roi, j))
+          next
+        }
 
         edgesINDS <- c(igraph::E(G)[sp]$weight, final_connection)
 
@@ -398,7 +411,20 @@ find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "m
         adj[N2, N1] <- 0
 
         G <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected")
-        sp <- igraph::shortest_paths(G, from = N1, to = N2, output = "vpath")$vpath[[1]]
+        sp <- tryCatch(
+          igraph::shortest_paths(G, from = N1, to = N2, output = "vpath")$vpath[[1]],
+          error = function(e) {
+            warning(sprintf(
+              "Failed to compute shortest path for ROI %d component %d: %s",
+              roi, j, e$message
+            ))
+            return(integer(0))
+          }
+        )
+        if (length(sp) == 0) {
+          warning(sprintf("No path found for ROI %d component %d; skipping", roi, j))
+          next
+        }
 
         cycle <- c(sp, sp[1])
 
@@ -477,7 +503,20 @@ find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "m
         adj[N2, N1] <- 0
 
         G <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected")
-        sp <- igraph::shortest_paths(G, from = N1, to = N2, output = "vpath")$vpath[[1]]
+        sp <- tryCatch(
+          igraph::shortest_paths(G, from = N1, to = N2, output = "vpath")$vpath[[1]],
+          error = function(e) {
+            warning(sprintf(
+              "Failed to compute shortest path for ROI %d component %d: %s",
+              roiID, j, e$message
+            ))
+            return(integer(0))
+          }
+        )
+        if (length(sp) == 0) {
+          warning(sprintf("No path found for ROI %d component %d; skipping", roiID, j))
+          next
+        }
 
         attempts <- 0
         while (any(!(component_nodes %in% sp)) && attempts < 10) {
