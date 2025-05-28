@@ -40,18 +40,26 @@ setMethod(f="as.matrix", signature=signature(x = "ROISurfaceVector"), def=functi
 #' @description Creates a Region on a Surface from a radius and surface
 #'
 #' @param surf a \code{SurfaceGeometry} or \code{BrainSurface} or \code{BrainSurfaceVector}
-#' @param index the index of the central surface node
-#' @param radius the size in mm of the geodesic radius
+#' @param index the index of the central surface node. Must be a numeric
+#'   integer value within \code{1:length(V(surf@graph))}.
+#' @param radius the size in mm of the geodesic radius. Must be non-negative.
 #' @param max_order maximum number of edges to traverse.
 #'   default is computed based on average edge length.
+#' @details The igraph associated with \code{surf} must have an edge
+#'   attribute named \code{dist} containing numeric weights with no
+#'   \code{NA} values.
 #' @importFrom assertthat assert_that
 #' @importFrom igraph E V ego distances induced_subgraph V neighborhood
 #' @rdname SurfaceDisk
 #' @export
 SurfaceDisk <- function(surf, index, radius, max_order=NULL) {
   assertthat::assert_that(length(index) == 1)
+  assertthat::assert_that(is.numeric(index), index %% 1 == 0)
+  assertthat::assert_that(index >= 1, index <= length(igraph::V(surf@graph)))
+  assertthat::assert_that(is.numeric(radius), radius >= 0)
 
-  edgeWeights=igraph::E(surf@graph)$dist
+  edgeWeights <- igraph::E(surf@graph)$dist
+  assertthat::assert_that(!is.null(edgeWeights), !any(is.na(edgeWeights)))
 
   if (is.null(max_order)) {
     avg_weight <- mean(edgeWeights)
