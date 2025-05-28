@@ -16,7 +16,6 @@ load_spec <- function(spec) {
   }))
 
   keyval <- lapply(newsurf_lines, function(ns) {
-    print(ns)
     lnum <- ns
     vars <- list()
     keys <- list()
@@ -88,7 +87,6 @@ load_spec <- function(spec) {
   }))
 
   keyval <- lapply(newsurf_lines, function(ns) {
-    print(ns)
     lnum <- ns
     vars <- list()
     keys <- list()
