@@ -185,26 +185,63 @@ updateSurfwidgetConfig <- function(session, id, config) {
   session$sendCustomMessage(type = 'surfwidget-config', message)
 }
 
+#' Update Surface Color Map
+#'
+#' Change the color map used by an existing surfwidget.
+#'
+#' @param widget A surfwidget object as returned by \code{\link{surfwidget}}.
+#' @param colorMap A vector of colors defining the new color map.
+#'
 #' @export
 updateColorMap <- function(widget, colorMap) {
   htmlwidgets::invokeMethod(widget, "setColorMap", colorMap)
 }
 
+#' Update Data Intensity Range
+#'
+#' Modify the minimum and maximum values used for data mapping.
+#'
+#' @param widget A surfwidget object as returned by \code{\link{surfwidget}}.
+#' @param min Numeric minimum value for the intensity range.
+#' @param max Numeric maximum value for the intensity range.
+#'
 #' @export
 updateIRange <- function(widget, min, max) {
   htmlwidgets::invokeMethod(widget, "setIRange", min, max)
 }
 
+#' Update Display Threshold
+#'
+#' Set the threshold limits for showing surface data.
+#'
+#' @param widget A surfwidget object as returned by \code{\link{surfwidget}}.
+#' @param min Numeric lower bound of the threshold.
+#' @param max Numeric upper bound of the threshold.
+#'
 #' @export
 updateThreshold <- function(widget, min, max) {
   htmlwidgets::invokeMethod(widget, "setThreshold", min, max)
 }
 
+#' Update Vertex Colors
+#'
+#' Replace the per-vertex colors of an existing surfwidget.
+#'
+#' @param widget A surfwidget object as returned by \code{\link{surfwidget}}.
+#' @param colors A vector of colors to apply to each vertex.
+#'
 #' @export
 updateVertexColors <- function(widget, colors) {
   htmlwidgets::invokeMethod(widget, "setVertexColors", colors)
 }
 
+#' Update Surface Opacity
+#'
+#' Adjust the overall opacity of an existing surfwidget.
+#'
+#' @param widget A surfwidget object as returned by \code{\link{surfwidget}}.
+#' @param alpha Numeric opacity value between 0 (transparent) and 1 (opaque).
+#'
 #' @export
 updateAlpha <- function(widget, alpha) {
   htmlwidgets::invokeMethod(widget, "setAlpha", alpha)
