@@ -462,7 +462,7 @@ read_surf_data_seq <- function(leftGeometry, rightGeometry, leftDataNames, right
 #' read_meta_info
 #'
 #' @param x the file descriptor object
-#' @param file_name the name of the file containing meta infromation.
+#' @param file_name the name of the file containing meta information.
 #' @rdname read_meta_info
 #' @importMethodsFrom neuroim2 read_meta_info
 setMethod(f="read_meta_info",signature=signature(x= "AFNISurfaceFileDescriptor"),
