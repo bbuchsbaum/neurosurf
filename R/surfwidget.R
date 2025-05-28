@@ -13,13 +13,14 @@
 #' @param alpha Opacity of the surface (0 to 1).
 #' @param config A list of configuration options for the surface rendering:
 #'   \itemize{
-#'     \item{\code{shininess}}{Numeric. Controls the shininess of the material. Higher values create a more polished appearance. Default is 30.}
+#'     \item{\code{shininess}}{Numeric between 0 and 100. Controls the shininess of the material. Higher values create a more polished appearance. Default is 30.}
 #'     \item{\code{specularColor}}{Character. Hex color code for the specular highlights. Default is "#111111".}
-#'     \item{\code{flatShading}}{Logical. If TRUE, uses flat shading; if FALSE, uses smooth shading. Default is FALSE.}
+#'     \item{\code{flatShading}}{Logical scalar. If \code{TRUE}, uses flat shading; if \code{FALSE}, uses smooth shading. Default is \code{FALSE}.}
 #'     \item{\code{ambientLightColor}}{Character. Hex color code for the ambient light. Default is "#404040".}
 #'     \item{\code{directionalLightColor}}{Character. Hex color code for the directional light. Default is "#ffffff".}
-#'     \item{\code{directionalLightIntensity}}{Numeric. Intensity of the directional light. Default is 0.5.}
+#'     \item{\code{directionalLightIntensity}}{Numeric between 0 and 1. Intensity of the directional light. Default is 0.5.}
 #'   }
+#'   Unknown elements in \code{config} are ignored with a warning.
 #'
 #' @import htmlwidgets
 #' @importFrom grDevices col2rgb rgb
@@ -126,12 +127,53 @@ create_widget <- function(surface_data, width, height) {
 # Helper function to process config options
 #' @noRd
 process_config <- function(config) {
+  if (length(config) == 0) return(config)
+
+  known_keys <- c(
+    "shininess", "specularColor", "flatShading",
+    "ambientLightColor", "directionalLightColor",
+    "directionalLightIntensity", "color"
+  )
+
+  unknown <- setdiff(names(config), known_keys)
+  if (length(unknown) > 0) {
+    warning("Ignoring unknown config key(s): ", paste(unknown, collapse = ", "))
+    config[unknown] <- NULL
+  }
+
+  # convert colors
   color_config_keys <- c("color", "ambientLightColor", "directionalLightColor", "specularColor")
   for (key in color_config_keys) {
     if (key %in% names(config) && is.character(config[[key]])) {
       config[[key]] <- color_to_hex(config[[key]])
     }
   }
+
+  # validate numeric and logical options
+  if ("shininess" %in% names(config)) {
+    val <- config$shininess
+    if (!is.numeric(val) || length(val) != 1 || val < 0 || val > 100) {
+      warning("Invalid 'shininess' value; expected numeric in [0,100].")
+      config$shininess <- NULL
+    }
+  }
+
+  if ("directionalLightIntensity" %in% names(config)) {
+    val <- config$directionalLightIntensity
+    if (!is.numeric(val) || length(val) != 1 || val < 0 || val > 1) {
+      warning("Invalid 'directionalLightIntensity' value; expected numeric in [0,1].")
+      config$directionalLightIntensity <- NULL
+    }
+  }
+
+  if ("flatShading" %in% names(config)) {
+    val <- config$flatShading
+    if (!is.logical(val) || length(val) != 1) {
+      warning("Invalid 'flatShading' value; expected logical scalar.")
+      config$flatShading <- NULL
+    }
+  }
+
   config
 }
 
