@@ -14,5 +14,15 @@ test_that("can read a niml 4D data file", {
   expect_true(TRUE)
 })
 
+test_that("readFreesurferBinaryHeader hemisphere detection works", {
+  lh_file <- system.file("extdata", "std.8_lh.pial.asc", package = "neurosurf")
+  lh_hdr <- neurosurf:::readFreesurferBinaryHeader(lh_file)
+  expect_equal(lh_hdr$hemi, "lh")
+
+  rh_file <- system.file("extdata", "std.8_rh.pial.asc", package = "neurosurf")
+  rh_hdr <- neurosurf:::readFreesurferBinaryHeader(rh_file)
+  expect_equal(rh_hdr$hemi, "rh")
+})
+
 
 
