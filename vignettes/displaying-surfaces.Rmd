@@ -116,10 +116,17 @@ rglwidget()
 
 We can use the `plot_js` function to create an interactive 3D visualization of our surface using HTMLWidgets. This allows for a more dynamic viewing experience directly in the HTML output.
 
-```{r, fig.width=7, fig.height=5} 
+```{r, fig.width=7, fig.height=5}
 
 # Create an interactive 3D visualization of white_surf1
 surfwidget(white_surf1, width = "100%", height = "400px")
+```
+
+The widget accepts an optional `curvature` argument. If omitted it will be
+derived from the geometry when `white_surf1` is a `SurfaceGeometry` object:
+
+```{r, eval=FALSE}
+surfwidget(white_surf1, curvature = curv_lh)
 ```
 
 

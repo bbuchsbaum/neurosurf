@@ -56,6 +56,9 @@ HTMLWidgets.widget({
           validateNumericArray(x.vertices, 'x.vertices', 3);
           validateNumericArray(x.faces, 'x.faces', 3);
           validateNumericArray(x.indices, 'x.indices');
+          if (x.curv) {
+            validateNumericArray(x.curv, 'x.curv', undefined, x.vertices.length / 3);
+          }
 
           if (x.cmap) {
             validateNumericArray(x.data, 'x.data', undefined, x.indices.length);
@@ -65,7 +68,7 @@ HTMLWidgets.widget({
           }
 
           neurosurface.debugLog('Creating SurfaceGeometry');
-          var geometry = new neurosurface.SurfaceGeometry(x.vertices, x.faces, x.hemi);
+          var geometry = new neurosurface.SurfaceGeometry(x.vertices, x.faces, x.hemi, x.curv);
           neurosurface.debugLog('SurfaceGeometry created:', geometry);
 
           var surface;
