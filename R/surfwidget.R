@@ -209,3 +209,25 @@ updateVertexColors <- function(widget, colors) {
 updateAlpha <- function(widget, alpha) {
   htmlwidgets::invokeMethod(widget, "setAlpha", alpha)
 }
+
+#' Update Zoom Level
+#'
+#' Adjust the zoom level of a surfwidget widget.
+#'
+#' @param widget A surfwidget htmlwidget object.
+#' @param zoom   Numeric zoom factor.
+#' @export
+updateZoom <- function(widget, zoom) {
+  htmlwidgets::invokeMethod(widget, "setZoom", zoom)
+}
+
+#' Update Rotation Speed
+#'
+#' Change the automatic rotation speed of a surfwidget widget.
+#'
+#' @param widget A surfwidget htmlwidget object.
+#' @param speed  Numeric rotation speed.
+#' @export
+updateRotationSpeed <- function(widget, speed) {
+  htmlwidgets::invokeMethod(widget, "setRotationSpeed", speed)
+}
