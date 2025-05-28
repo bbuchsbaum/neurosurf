@@ -41,8 +41,8 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 #' Identifies all neighboring nodes within a specified radius for a given surface mesh.
 #'
 #' @param surf A SurfaceGeometry object or igraph object representing the mesh
-#' @param radius Numeric; the spatial radius within which to search for neighbors
-#' @param edgeWeights Numeric vector; weights for edges used in distance computation
+#' @param radius Numeric; the spatial radius within which to search for neighbors. Must be positive.
+#' @param edgeWeights Numeric vector; weights for edges used in distance computation. Length must equal the number of edges.
 #' @param nodes Integer vector; subset of nodes to find neighbors for. If NULL, uses all nodes
 #' @param distance_type Character; type of distance metric to use: "euclidean", "geodesic", or "spherical"
 #'
@@ -54,6 +54,8 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 #' @details
 #' The function supports three distance metrics: Euclidean, geodesic, and spherical.
 #' For spherical distances, the surface is assumed to be a sphere.
+#' The internal k-nearest-neighbor search is capped at \code{vcount(g) - 1} to avoid
+#' requesting more neighbors than exist in the graph.
 #'
 #' @importFrom FNN get.knn
 #' @importFrom stats quantile
@@ -92,13 +94,23 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
 
   distance_type <- match.arg(distance_type)
 
+  if (!is.numeric(radius) || length(radius) != 1 || radius <= 0) {
+    stop("radius must be a positive numeric value")
+  }
+
+  if (!is.numeric(edgeWeights) || length(edgeWeights) != igraph::ecount(g)) {
+    stop("edgeWeights must be a numeric vector with one value per edge")
+  }
+
   avg_weight <- stats::quantile(edgeWeights, .25)
 
   if (is.null(nodes)) {
     nodes <- igraph::V(g)
   }
 
-  all_can <- FNN::get.knn(coords(surf), k=ceiling((radius+2)/avg_weight)^3)
+  k_est <- ceiling((radius + 2) / avg_weight)^3
+  k <- min(k_est, igraph::vcount(g) - 1)
+  all_can <- FNN::get.knn(coords(surf), k = k)
 
   cds <- coords(g)
 
