@@ -22,6 +22,13 @@
 #' @details
 #' This function identifies the boundaries between different regions of interest (ROIs) on a surface mesh.
 #' The algorithm works by analyzing the connectivity between vertices and faces with different ROI assignments.
+#'
+#' The input must satisfy the following conditions:
+#' \itemize{
+#'   \item `vertices` is a non-empty numeric matrix with three columns.
+#'   \item `faces` contains vertex indices between `1` and `nrow(vertices)`.
+#'   \item `vertex_id` has length equal to `nrow(vertices)`.
+#' }
 #' 
 #' The boundary detection process follows these general steps:
 #' \enumerate{
@@ -131,6 +138,18 @@
 #' @export
 find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "midpoint") {
   boundary_method <- match.arg(boundary_method, c("faces", "midpoint", "centroid", "edge_vertices", "edge_faces"))
+
+  if (!is.matrix(vertices) || !is.numeric(vertices) || ncol(vertices) != 3 || nrow(vertices) == 0) {
+    stop("vertices must be a non-empty numeric matrix with three columns")
+  }
+
+  if (length(vertex_id) != nrow(vertices)) {
+    stop("length of vertex_id must equal number of vertices")
+  }
+
+  if (!is.matrix(faces) || any(faces < 1) || any(faces > nrow(vertices))) {
+    stop("faces must reference vertex indices between 1 and nrow(vertices)")
+  }
 
   if (boundary_method %in% c("centroid", "faces", "edge_faces")) {
     boundary_verts <- NULL
