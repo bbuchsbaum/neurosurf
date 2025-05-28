@@ -161,7 +161,7 @@ setMethod(f="cluster_threshold", signature=c(x="NeuroSurfaceVector"),
             vals <- x@data[,index]
             surf <- NeuroSurface(x@geometry, indices=x@indices, vals)
             ret <- conn_comp(surf, threshold)
-            surf@vals[ret@size < size] <- 0
+            surf@data[ret$size@data < size] <- 0
             surf
           })
 
@@ -174,7 +174,7 @@ setMethod(f="cluster_threshold", signature=c(x="NeuroSurfaceVector"),
 setMethod(f="cluster_threshold", signature=c(x="NeuroSurface"),
           def=function(x, threshold, size=10) {
             ret <- conn_comp(x, threshold)
-            x@data[ret$size < size] <- 0
+            x@data[ret$size@data < size] <- 0
             x
           })
 
@@ -467,7 +467,8 @@ NeuroSurface <- function(geometry, indices, data) {
 #' @param data A numeric vector of data values corresponding to the surface nodes.
 #' @param cmap A character string specifying the colormap to use for mapping the data values.
 #' @param irange A numeric vector of length 2 specifying the range of values to map.
-#' @param thresh A numeric value specifying the threshold for the colormap. 
+#' @param thresh A numeric value specifying the threshold for the colormap.
+#' @export
 ColorMappedNeuroSurface <- function(geometry, indices, data, cmap, irange, thresh) {
   new("ColorMappedNeuroSurface", geometry=geometry, indices=as.integer(indices),
       data=data, cmap=cmap, irange=irange, thresh=thresh)
@@ -517,7 +518,14 @@ setMethod(f="right", signature=c(x="BilatNeuroSurfaceVector"),
 
 
 #' @keywords internal
-normalize <- function(vals) (vals - min(vals))/(max(vals)-min(vals))
+normalize <- function(vals) {
+  rng <- range(vals)
+  denom <- diff(rng)
+  if (denom == 0) {
+    return(rep(0, length(vals)))
+  }
+  (vals - rng[1]) / denom
+}
 
 
 
