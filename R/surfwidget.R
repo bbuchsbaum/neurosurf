@@ -55,7 +55,6 @@ setMethod("surfwidget", signature(x = "NeuroSurface"),
     if (is.null(irange)) {
       irange <- range(x@data)
     }
-    print(irange)
     # Create a ColorMappedNeuroSurface and call its method
     color_mapped_surface <- ColorMappedNeuroSurface(x@geometry, x@indices, x@data, cmap = cmap,
                                 irange = irange, thresh=thresh)
