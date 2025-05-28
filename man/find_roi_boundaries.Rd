@@ -35,6 +35,13 @@ centroids of faces, edge vertices, and edge faces.
 This function identifies the boundaries between different regions of interest (ROIs) on a surface mesh.
 The algorithm works by analyzing the connectivity between vertices and faces with different ROI assignments.
 
+The input must satisfy the following conditions:
+\itemize{
+  \item `vertices` is a non-empty numeric matrix with three columns.
+  \item `faces` contains vertex indices between `1` and `nrow(vertices)`.
+  \item `vertex_id` has length equal to `nrow(vertices)`.
+}
+
 The boundary detection process follows these general steps:
 \enumerate{
   \item Identify all edges in the mesh from the face definitions
