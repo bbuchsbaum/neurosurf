@@ -1,0 +1,244 @@
+---
+title: "Introduction to NeuroSurf Data Structures"
+author: "Bradley Buchsbaum"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to NeuroSurf}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This vignette introduces the fundamental data structures used in the `neurosurf` package for representing and working with brain surface geometries and associated data.
+
+## Setup
+
+First, let's load the necessary libraries and set up the environment.
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7, 
+  fig.height = 5,
+  rgl.newwindow = FALSE, # Prevent new RGL windows for chunks
+  webgl = TRUE          # Use WebGL for embedding rgl plots (if any)
+)
+rgl::setupKnitr()       # Setup rgl hook for knitr (if needed)
+
+library(neurosurf)
+library(rgl) # For potential visualization examples
+library(igraph) # For graph operations
+library(Matrix) # For sparse matrices used in NeuroSurfaceVector
+
+# Prepare paths to example data included in the package
+white_lh_asc <- system.file("extdata", "std.8_lh.smoothwm.asc", package="neurosurf")
+white_rh_asc <- system.file("extdata", "std.8_rh.smoothwm.asc", package="neurosurf")
+```
+
+## `SurfaceGeometry`: Representing the Mesh
+
+The core building block for any surface analysis is the geometry itself. In `neurosurf`, this is represented by the `SurfaceGeometry` class.
+
+An object of this class encapsulates:
+
+1.  **`mesh`**: An `rgl::mesh3d` object containing the raw vertex coordinates and the triangular faces that define the surface shape.
+2.  **`graph`**: An `igraph` object representing the connectivity of the mesh vertices. Edges connect adjacent vertices along the surface.
+3.  **`hemi`**: A character string indicating the hemisphere, typically "lh" (left) or "rh" (right).
+
+### Loading a `SurfaceGeometry`
+
+You can load a surface geometry from various file formats (Freesurfer binary, Freesurfer ASCII `.asc`, GIFTI `.gii`) using the `read_surf_geometry()` function.
+
+```{r load-geometry}
+# Load the example left hemisphere white matter surface (.asc format)
+lh_geom <- read_surf_geometry(white_lh_asc)
+
+# Display summary information about the loaded geometry
+show(lh_geom)
+```
+
+### Accessing Geometry Properties
+
+Several methods allow you to access information within the `SurfaceGeometry` object:
+
+```{r access-geometry}
+# Get the total number of vertices (nodes) in the geometry
+num_nodes <- length(nodes(lh_geom))
+cat("Number of vertices:", num_nodes, "\n")
+
+# Get the coordinates of all vertices as a matrix (N x 3)
+vertex_coords <- coords(lh_geom)
+cat("Dimensions of coordinate matrix:", dim(vertex_coords), "\n")
+cat("Coordinates of the first 3 vertices:\n")
+print(head(vertex_coords, 3))
+
+# Access the underlying igraph object
+g <- neurosurf::graph(lh_geom)
+cat("Graph summary:", "\n")
+g
+
+# Access the underlying mesh3d object
+mesh <- lh_geom@mesh
+cat("Mesh object class:", class(mesh), "\n")
+
+# Access the hemisphere label
+hemi_label <- lh_geom@hemi
+cat("Hemisphere:", hemi_label, "\n")
+```
+
+## `NeuroSurface`: Mapping Data to Geometry
+
+Often, we want to associate data values (like cortical thickness, fMRI activation, etc.) with each vertex on the surface. The `NeuroSurface` class links a *single vector* of data to a `SurfaceGeometry`.
+
+It contains:
+
+1.  **`geometry`**: The associated `SurfaceGeometry` object.
+2.  **`indices`**: An integer vector specifying *which* vertices in the geometry have corresponding data values. This allows for representing data defined only on a subset of the surface.
+3.  **`data`**: A numeric vector containing the data values. Its length must match the length of `indices`.
+
+### Creating a `NeuroSurface`
+
+You typically create a `NeuroSurface` using its constructor, providing the geometry, indices, and data.
+
+```{r create-neurosurface}
+# Generate some example data (e.g., based on x-coordinate)
+# Use all vertices from lh_geom
+vertex_indices <- nodes(lh_geom)
+example_data <- coords(lh_geom)[, 1] # Use x-coordinate as data
+
+# Create the NeuroSurface object
+lh_surf_data <- NeuroSurface(geometry = lh_geom, 
+                               indices = vertex_indices, 
+                               data = example_data)
+
+# Display summary
+show(lh_surf_data)
+```
+
+### Loading Data with `read_surf` (Optional Data File)
+
+If your data is stored in a separate file (e.g., AFNI `.1D.dset`, NIML `.niml.dset`), you can load both the geometry and the data using `read_surf`. Here we create a temporary `.1D.dset` file for demonstration.
+
+``` {r load-surf-with-data, eval=TRUE}
+# 1. Prepare sample data for a subset of nodes
+sample_nodes_indices_R <- sample(nodes(lh_geom), size = 500) # R indices (1-based)
+sample_nodes_indices_0based <- sample_nodes_indices_R - 1     # 0-based for .1D file
+sample_data <- rnorm(500) 
+
+# 2. Create a temporary file
+temp_dset_file <- tempfile(fileext = ".1D.dset")
+
+# 3. Write data in AFNI .1D format (node_index value)
+write.table(cbind(sample_nodes_indices_0based, sample_data), 
+            file = temp_dset_file, 
+            row.names = FALSE, 
+            col.names = FALSE, 
+            sep = " ")
+
+# 4. Load geometry and the data from the temporary file
+#    read_surf will match nodes in the file to the geometry
+lh_surf_loaded <- read_surf(surface_name = white_lh_asc, 
+                                surface_data_name = temp_dset_file)
+
+# Display summary of the loaded NeuroSurface
+show(lh_surf_loaded)
+
+# Verify the number of loaded data points
+cat("Number of data points loaded:", length(lh_surf_loaded@data), "\n")
+cat("Number of non-zero data points:", sum(lh_surf_loaded@data != 0), "\n") # Should match size=500
+
+# Clean up the temporary file (optional, R usually handles temp files)
+# file.remove(temp_dset_file) 
+```
+
+### Accessing `NeuroSurface` Properties
+
+```{r access-neurosurface}
+# Access the geometry
+geom_from_ns <- geometry(lh_surf_data)
+cat("Is geometry the same?", identical(geom_from_ns, lh_geom), "\n")
+
+# Access the data vector
+data_vec <- lh_surf_data@data # Direct slot access
+# Alternatively, convert to a simple vector
+data_vec_as <- as.vector(lh_surf_data)
+cat("Length of data vector:", length(data_vec), "\n")
+cat("First 5 data values:", head(data_vec, 5), "\n")
+
+# Access the associated indices
+index_vec <- indices(lh_surf_data)
+cat("Length of index vector:", length(index_vec), "\n")
+cat("First 5 indices:", head(index_vec, 5), "\n")
+```
+
+## `NeuroSurfaceVector`: Mapping Multiple Data Vectors
+
+When you have multiple measurements per vertex (e.g., time series data, multiple features), the `NeuroSurfaceVector` class is used. It links a *matrix* of data to a `SurfaceGeometry`.
+
+It contains:
+
+1.  **`geometry`**: The associated `SurfaceGeometry` object.
+2.  **`indices`**: An integer vector specifying *which* vertices have data (same as `NeuroSurface`).
+3.  **`data`**: A `Matrix` (from the `Matrix` package, often sparse) where *rows* correspond to vertices (matching `indices`) and *columns* represent different measurements or time points.
+
+### Creating a `NeuroSurfaceVector`
+
+```{r create-neurosurfacevector}
+# Create example matrix data (e.g., x, y, z coordinates as 3 'features')
+# Use all vertices
+num_vertices <- length(nodes(lh_geom))
+vertex_indices_vec <- nodes(lh_geom)
+
+# Create a dense matrix first
+example_matrix_data <- coords(lh_geom) 
+
+# Convert to a Matrix object (can be sparse or dense)
+example_matrix <- Matrix(example_matrix_data)
+
+# Create the NeuroSurfaceVector
+lh_surf_vec <- NeuroSurfaceVector(geometry = lh_geom,
+                                    indices = vertex_indices_vec,
+                                    mat = example_matrix)
+
+# Display summary
+show(lh_surf_vec)
+```
+
+### Accessing `NeuroSurfaceVector` Properties
+
+```{r access-neurosurfacevector}
+# Access the geometry
+geom_from_nsv <- geometry(lh_surf_vec)
+cat("Is geometry the same?", identical(geom_from_nsv, lh_geom), "\n")
+
+# Access the data matrix
+data_mat <- lh_surf_vec@data # Direct slot access
+# Or convert to a standard matrix
+data_mat_std <- as.matrix(lh_surf_vec)
+cat("Dimensions of data matrix:", dim(data_mat), "\n")
+
+# Access data for specific vertices/columns using standard matrix indexing
+cat("Data for vertex 10 (all columns):\n")
+print(data_mat[10, ])
+cat("Data for column 2 (all vertices):\n")
+print(head(data_mat[, 2]))
+
+# Access the associated indices
+index_vec_nsv <- indices(lh_surf_vec)
+cat("Length of index vector:", length(index_vec_nsv), "\n")
+```
+
+## Specialized NeuroSurface Classes
+
+`neurosurf` also provides specialized classes that inherit from `NeuroSurface` and add features primarily for visualization:
+
+*   **`LabeledNeuroSurface`**: Associates categorical labels and corresponding colors with vertices (useful for atlases or parcellations). Contains `labels` and `cols` slots.
+*   **`ColorMappedNeuroSurface`**: Stores data along with a specific colormap (`cmap`), data range (`irange`), and thresholds (`thresh`) to pre-define how the data should be visualized.
+*   **`VertexColoredNeuroSurface`**: Stores specific hex color codes directly for each vertex (`colors` slot), bypassing data mapping.
+
+These classes facilitate plotting with pre-set visual parameters using the `plot()` method discussed in the `displaying-surfaces` vignette.
+
+## Conclusion
+
+Understanding `SurfaceGeometry`, `NeuroSurface`, and `NeuroSurfaceVector` is key to using the `neurosurf` package effectively. `SurfaceGeometry` holds the mesh structure, while `NeuroSurface` and `NeuroSurfaceVector` link single or multiple data vectors to this geometry, respectively. These structures provide the foundation for various surface-based analyses and visualizations. 

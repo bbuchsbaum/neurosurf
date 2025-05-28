@@ -1,3 +1,6 @@
+library(testthat)
+library(neurosurf)
+
 test_that("SurfaceSearchlight iterator works correctly", {
   # Load test surface
   surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")

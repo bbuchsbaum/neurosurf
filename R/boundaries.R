@@ -174,6 +174,9 @@
 #' }
 #' }
 #'
+#' @importFrom stats aggregate setNames
+#' @importFrom Matrix sparseMatrix
+#' @importFrom igraph clusters graph_from_adjacency_matrix shortest_paths E V
 #' @export
 find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "midpoint") {
   boundary_method <- match.arg(boundary_method, c("faces", "midpoint", "centroid", "edge_vertices", "edge_faces"))

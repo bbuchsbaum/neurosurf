@@ -1,13 +1,18 @@
+#' @importMethodsFrom neuroim2 indices conn_comp map_values series_roi data_reader load_data values series
+NULL
+
+# Explicitly define generics from neuroim2 to ensure they're available during package loading
+if (!isGeneric("data_reader"))
+  setGeneric("data_reader", function(x, offset=NULL) standardGeneric("data_reader"))
+
+if (!isGeneric("load_data"))
+  setGeneric("load_data", function(x, ...) standardGeneric("load_data"))
+
+
 if (!isGeneric("plot"))
   setGeneric("plot", function(x, y, ...) standardGeneric("plot"))
 
-# load_data <- neuroim2::load_data
-# data_reader <- neuroim2::data_reader
-# values <- neuroim2::values
-# indices <- neuroim2::indices
-# coords<- neuroim2::coords
-# conn_comp <- neuroim2::conn_comp
-# series <- neuroim2::series
+
 
 
 #' Construct Neighborhood Graph from Surface Mesh
@@ -30,7 +35,7 @@ if (!isGeneric("plot"))
 #' neuroimaging analyses for defining local connectivity on brain surfaces.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Assuming 'surface_mesh' is a pre-defined surface mesh object
 #' graph <- neighbor_graph(surface_mesh, radius = 5,
 #'                         edgeWeights = runif(nrow(surface_mesh$vertices)),
@@ -40,8 +45,9 @@ if (!isGeneric("plot"))
 #' @seealso \code{\link{graph}}, \code{\link{vertices}}
 #'
 #' @export
+#' @rdname neighbor_graph-methods
 setGeneric(name = "neighbor_graph",
-           def = function(x, radius, edgeWeights, nodes, ...)
+           def = function(x, radius, edgeWeights=missing(), nodes=missing(), ...)
              standardGeneric("neighbor_graph"))
 
 
@@ -66,6 +72,7 @@ setGeneric(name = "neighbor_graph",
 #' @seealso \code{\link{nodes}}
 #'
 #' @export
+#' @rdname vertices-methods
 setGeneric(name = "vertices", def = function(x, ...) standardGeneric("vertices"))
 
 #' Extract Surface Node Numbers
@@ -80,6 +87,7 @@ setGeneric(name = "vertices", def = function(x, ...) standardGeneric("vertices")
 #' @seealso \code{\link{vertices}}
 #'
 #' @export
+#' @rdname nodes-methods
 setGeneric(name = "nodes", def = function(x) standardGeneric("nodes"))
 
 #' Extract Geometry from Surface Object
@@ -92,8 +100,8 @@ setGeneric(name = "nodes", def = function(x) standardGeneric("nodes"))
 #'
 #' @seealso \code{\link{vertices}}, \code{\link{nodes}}
 #'
-#' @rdname geometry
 #' @export
+#' @rdname geometry-methods
 setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
 
 
@@ -102,6 +110,7 @@ setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
 #' @param x the object to extract the graph from
 #' @param ... extra args
 #' @export
+#' @rdname graph-methods
 setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
 
 #' Generic Function for Smoothing a Surface or Associated Data
@@ -130,7 +139,7 @@ setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
 #' }
 #'
 #' @seealso \code{\link{smooth,SurfaceGeometry-method}}, \code{\link{smooth,NeuroSurface-method}}
-#' @rdname smooth
+#' @rdname smooth-methods
 #' @export
 setGeneric(name="smooth", def=function(x, ...) standardGeneric("smooth"))
 
@@ -143,6 +152,7 @@ setGeneric(name="smooth", def=function(x, ...) standardGeneric("smooth"))
 #' @param weights Edge weights for weighted Laplacian matrix
 #' @param ... Additional arguments
 #' @export
+#' @rdname laplacian-methods
 setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardGeneric("laplacian"))
 
 
@@ -152,6 +162,7 @@ setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardG
 #' @param attr Character; edge attribute for weights in igraph object. If absent, weights are 0 or 1.
 #' @param ... Additional arguments
 #' @export
+#' @rdname adjacency-methods
 setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacency"))
 
 
@@ -161,6 +172,7 @@ setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacen
 #' @param x Object to compute curvature from
 #' @param ... Additional arguments
 #' @export
+#' @rdname curvature-methods
 setGeneric(name="curvature", def=function(x, ...) standardGeneric("curvature"))
 
 
@@ -169,6 +181,7 @@ setGeneric(name="curvature", def=function(x, ...) standardGeneric("curvature"))
 #' @param x Surface object
 #' @return Left hemisphere of the surface
 #' @export
+#' @rdname left-methods
 setGeneric(name="left", def=function(x) standardGeneric("left"))
 
 
@@ -178,6 +191,7 @@ setGeneric(name="left", def=function(x) standardGeneric("left"))
 #' @param x Surface object
 #' @return Right hemisphere of the surface
 #' @export
+#' @rdname right-methods
 setGeneric(name="right", def=function(x) standardGeneric("right"))
 
 #' Apply Cluster-Extent Threshold to Surface Data
@@ -188,6 +202,7 @@ setGeneric(name="right", def=function(x) standardGeneric("right"))
 #' @param ... Additional arguments
 #' @seealso \code{\link{conn_comp}}
 #' @export
+#' @rdname cluster_threshold-methods
 setGeneric(name="cluster_threshold", def=function(x, threshold, size, ...) standardGeneric("cluster_threshold"))
 
 
@@ -199,6 +214,7 @@ setGeneric(name="cluster_threshold", def=function(x, threshold, size, ...) stand
 #' @param ... Additional arguments passed to the plotting function
 #' @return An HTMLWidget object
 #' @export
+#' @rdname plot_js-methods
 setGeneric(name="plot_js", def=function(x, width = NULL, height = NULL, ...) standardGeneric("plot_js"))
 
 
@@ -215,7 +231,11 @@ if (!isGeneric("read_meta_info")) {
              def = function(x, file_name) standardGeneric("read_meta_info"))
 }
 
-
+#' @param x file format
+#' @param file_name file name contianing meta information
+#' @export
+#' @rdname read_meta_info-methods
+setGeneric(name="read_meta_info", def=function(x, file_name) standardGeneric("read_meta_info"))
 
 
 
@@ -242,6 +262,7 @@ if (!isGeneric("read_meta_info")) {
 #' @seealso \code{\link{plot_js}}, \code{\link{SurfaceGeometry}}, \code{\link{NeuroSurface}}
 #'
 #' @export
+#' @rdname surfwidget-methods
 setGeneric(name = "surfwidget",
            def = function(x, width = NULL, height = NULL, ...)
              standardGeneric("surfwidget"))
@@ -268,6 +289,7 @@ setGeneric(name = "surfwidget",
 #' @seealso \code{\link{find_roi_boundaries}}
 #'
 #' @export
+#' @rdname findBoundaries-methods
 setGeneric(name = "findBoundaries",
            def = function(x, method = "midpoint", ...)
              standardGeneric("findBoundaries"))

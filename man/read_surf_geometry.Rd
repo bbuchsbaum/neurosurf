@@ -33,7 +33,5 @@ lh_surface <- read_surf_geometry("lh.pial")
 rh_surface <- read_surf_geometry("rh.white.gii")
 }
 
-}
-\seealso{
-\code{\link{SurfaceGeometrySource}}, \code{\link{load_data}}
+
 }

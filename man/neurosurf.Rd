@@ -2,13 +2,11 @@
 % Please edit documentation in R/neurosurf.R
 \docType{package}
 \name{neurosurf}
+\alias{neurosurf-package}
 \alias{neurosurf}
-\title{neurosurf: Data structures and visualization for surface-based neuroimaging data}
+\title{neurosurf: Data structures and IO for surface-based neuroimaging data.}
 \description{
-A comprehensive toolkit for working with surface-based neuroimaging data represented as triangle meshes. The package provides classes and methods for creating, manipulating, and visualizing 3D surface geometries (e.g., cortical surfaces), with support for various file formats including FreeSurfer and GIFTI. Key features include: surface smoothing, curvature computation, neighborhood graph construction, geodesic distance calculations, searchlight analysis for surface-based machine learning, and interactive 3D visualization via HTMLWidgets. The package facilitates advanced surface-based analyses through specialized data structures for representing surface geometry and associated functional data.
-}
-\details{
-none
+Data structures and IO for surface-based neuroimaging data.
 }
 \seealso{
 Useful links:

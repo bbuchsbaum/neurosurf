@@ -1,4 +1,6 @@
 
+library(testthat)
+library(neurosurf)
 inflated_asc <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
 niml_data_lh <- system.file("extdata", "rscan01_lh.niml.dset", package="neurosurf")
 curv_lh <- system.file("extdata", "std.8_lh.curv.niml.dset", package="neurosurf")

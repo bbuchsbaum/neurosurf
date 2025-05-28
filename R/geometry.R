@@ -89,7 +89,6 @@ SurfaceGeometry <- function(vert, faces, hemi) {
 #' rh_surface <- read_surf_geometry("rh.white.gii")
 #' }
 #'
-#' @seealso \code{\link{SurfaceGeometrySource}}, \code{\link{load_data}}
 #'
 #' @export
 read_surf_geometry <- function(surface_name) {
@@ -99,7 +98,7 @@ read_surf_geometry <- function(surface_name) {
 
 
 
-#' @rdname curvature
+#' @rdname curvature-methods
 #' @export
 setMethod(f="curvature", signature=c(x="SurfaceGeometry"),
           def=function(x) {
@@ -373,7 +372,7 @@ meshToGraph <- function(vertices, nodes) {
 
 
 
-#' @rdname show
+#' @rdname show-methods
 #' @importFrom crayon bold blue green red yellow style silver
 #' @importFrom crayon bgBlue white
 setMethod(f="show", signature=signature("SurfaceGeometry"),
@@ -488,8 +487,9 @@ setMethod(f="show", signature=signature("SurfaceGeometry"),
 
 
 
-
-#' @rdname coords
+#' coords
+#' @rdname coords-methods
+#' @param x the object to extract coordinates from
 #' @export
 setMethod(f="coords", signature=c("SurfaceGeometry"),
           def=function(x) {
@@ -498,7 +498,7 @@ setMethod(f="coords", signature=c("SurfaceGeometry"),
 
 
 #' @export
-#' @rdname vertices
+#' @rdname vertices-methods
 setMethod(f="vertices", signature=c("SurfaceGeometry"),
           def=function(x, indices) {
             t(x@mesh$vb[1:3,indices, drop=FALSE])
@@ -506,14 +506,14 @@ setMethod(f="vertices", signature=c("SurfaceGeometry"),
 
 
 #' @export
-#' @rdname nodes
+#' @rdname nodes-methods
 setMethod(f="nodes", signature=c("SurfaceGeometry"),
           def=function(x) {
             seq(1, ncol(x@mesh$vb))
           })
 
 
-#' @rdname coords
+#' @rdname coords-methods
 #' @importMethodsFrom neuroim2 coords
 #' @export
 setMethod(f="coords", signature=c("igraph"),
@@ -526,15 +526,17 @@ setMethod(f="coords", signature=c("igraph"),
 
 
 #' @export
-#' @rdname graph
+#' @rdname graph-methods
 setMethod("graph", signature(x="SurfaceGeometry"),
           def=function(x) {
             x@graph
           })
 
 
+#' load_data
 #' @export
-#' @rdname load_data
+#' @param x the object to load data from
+#' @rdname load_data-methods
 setMethod(f="load_data", signature=c("SurfaceGeometrySource"),
           def=function(x) {
             geometry <- load_data(x@meta_info)

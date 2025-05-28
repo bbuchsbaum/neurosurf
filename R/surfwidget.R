@@ -26,12 +26,13 @@
 #'   Unknown elements in \code{config} are ignored with a warning.
 #'
 #' @import htmlwidgets
-#' @importFrom grDevices col2rgb rgb
+#' @importFrom grDevices col2rgb rgb rainbow
 #'
 #' @return An HTMLWidget object
+#' @rdname surfwidget-methods
 #' @export
 setMethod("surfwidget", signature(x = "SurfaceGeometry"),
-  function(x, width = NULL, height = NULL, data = NULL, cmap = rainbow(256),
+  function(x, width = NULL, height = NULL, data = NULL, cmap = grDevices::rainbow(256),
            irange = NULL, thresh = c(0,0), vertexColors = NULL, alpha = 1,
            curvature = NULL, config = list(), ...) {
 
@@ -53,10 +54,10 @@ setMethod("surfwidget", signature(x = "SurfaceGeometry"),
   }
 )
 
-#' @rdname surfwidget
+#' @rdname surfwidget-methods
 #' @export
 setMethod("surfwidget", signature(x = "NeuroSurface"),
-  function(x, width = NULL, height = NULL, cmap = rainbow(256),
+  function(x, width = NULL, height = NULL, cmap = grDevices::rainbow(256),
            irange = range(x@data), thresh = c(0,0), vertexColors = NULL,
            alpha = 1, curvature = NULL, config = list(), ...) {
 
@@ -76,7 +77,7 @@ setMethod("surfwidget", signature(x = "NeuroSurface"),
   }
 )
 
-#' @rdname surfwidget
+#' @rdname surfwidget-methods
 #' @export
 setMethod("surfwidget", signature(x = "ColorMappedNeuroSurface"),
   function(x, width = NULL, height = NULL, thresh = c(0,0), vertexColors = NULL,
@@ -93,7 +94,7 @@ setMethod("surfwidget", signature(x = "ColorMappedNeuroSurface"),
   }
 )
 
-#' @rdname surfwidget
+#' @rdname surfwidget-methods
 #' @export
 setMethod("surfwidget", signature(x = "VertexColoredNeuroSurface"),
   function(x, width = NULL, height = NULL, alpha = 1, curvature = NULL,
@@ -145,6 +146,7 @@ prepare_surface_data <- function(x, thresh, vertexColors, alpha, config, curvatu
 
 # Helper function to create the widget
 #' @noRd
+#' @keywords internal
 create_widget <- function(surface_data, width, height) {
   htmlwidgets::createWidget(
     name = 'surfwidget',
@@ -157,6 +159,7 @@ create_widget <- function(surface_data, width, height) {
 
 # Helper function to process config options
 #' @noRd
+#' @keywords internal
 process_config <- function(config) {
   if (length(config) == 0) return(config)
 
@@ -210,6 +213,7 @@ process_config <- function(config) {
 
 # Helper function to convert R color to hex
 #' @noRd
+#' @keywords internal
 color_to_hex <- function(color) {
   rgb_values <- col2rgb(color)
   sprintf("#%02X%02X%02X", rgb_values[1], rgb_values[2], rgb_values[3])
@@ -230,7 +234,7 @@ color_to_hex <- function(color) {
 #' @param quoted Is \code{expr} a quoted expression (with \code{quote()})? This
 #'   is useful if you want to save an expression in a variable.
 #'
-#' @name surfwidget-shiny
+#' @rdname surfwidget-shiny
 #'
 #' @export
 surfwidgetOutput <- function(outputId, width = '100%', height = '400px'){
@@ -253,11 +257,13 @@ renderSurfwidget <- function(expr, env = parent.frame(), quoted = FALSE) {
 #' @param config A list of configuration options to update. See \code{\link{surfwidget}} for details on available options.
 #' @details Sends a custom message of type \code{"neurosurf-surfwidget-config"} to update the widget configuration on the client.
 #'
-#' @export
+#' @rdname surfwidget-shiny
+#' @keywords internal
 updateSurfwidgetConfig <- function(session, id, config) {
   message <- list(id = id, config = config)
   session$sendCustomMessage(type = 'neurosurf-surfwidget-config', message)
 }
+
 
 #' Update Surface Color Map
 #'
@@ -271,6 +277,7 @@ updateColorMap <- function(widget, colorMap) {
   htmlwidgets::invokeMethod(widget, "setColorMap", colorMap)
 }
 
+
 #' Update Data Intensity Range
 #'
 #' Modify the minimum and maximum values used for data mapping.
@@ -280,9 +287,12 @@ updateColorMap <- function(widget, colorMap) {
 #' @param max Numeric maximum value for the intensity range.
 #'
 #' @export
+#' @rdname surfwidget-shiny
+#' @keywords internal
 updateIRange <- function(widget, min, max) {
   htmlwidgets::invokeMethod(widget, "setIRange", min, max)
 }
+
 
 #' Update Display Threshold
 #'
@@ -293,9 +303,12 @@ updateIRange <- function(widget, min, max) {
 #' @param max Numeric upper bound of the threshold.
 #'
 #' @export
+#' @rdname surfwidget-shiny
+#' @keywords internal
 updateThreshold <- function(widget, min, max) {
   htmlwidgets::invokeMethod(widget, "setThreshold", min, max)
 }
+
 
 #' Update Vertex Colors
 #'
@@ -305,9 +318,13 @@ updateThreshold <- function(widget, min, max) {
 #' @param colors A vector of colors to apply to each vertex.
 #'
 #' @export
+
+#' @rdname surfwidget-shiny
+#' @keywords internal
 updateVertexColors <- function(widget, colors) {
   htmlwidgets::invokeMethod(widget, "setVertexColors", colors)
 }
+
 
 #' Update Surface Opacity
 #'
@@ -317,6 +334,7 @@ updateVertexColors <- function(widget, colors) {
 #' @param alpha Numeric opacity value between 0 (transparent) and 1 (opaque).
 #'
 #' @export
+#' @rdname surfwidget-shiny
 updateAlpha <- function(widget, alpha) {
   htmlwidgets::invokeMethod(widget, "setAlpha", alpha)
 }
@@ -328,6 +346,7 @@ updateAlpha <- function(widget, alpha) {
 #' @param widget A surfwidget htmlwidget object.
 #' @param zoom   Numeric zoom factor.
 #' @export
+#' @rdname surfwidget-shiny
 updateZoom <- function(widget, zoom) {
   htmlwidgets::invokeMethod(widget, "setZoom", zoom)
 }
@@ -339,6 +358,7 @@ updateZoom <- function(widget, zoom) {
 #' @param widget A surfwidget htmlwidget object.
 #' @param speed  Numeric rotation speed.
 #' @export
+#' @rdname surfwidget-shiny
 updateRotationSpeed <- function(widget, speed) {
   htmlwidgets::invokeMethod(widget, "setRotationSpeed", speed)
 }

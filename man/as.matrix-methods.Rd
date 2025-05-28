@@ -4,7 +4,7 @@
 \alias{as.matrix,ROISurfaceVector-method}
 \alias{as.matrix,NeuroSurfaceVector-method}
 \alias{as.matrix,BilatNeuroSurfaceVector-method}
-\title{convert a \code{ROISurfaceVector} to an augmented matrix}
+\title{as.matrix}
 \usage{
 \S4method{as.matrix}{ROISurfaceVector}(x)
 
@@ -13,8 +13,8 @@
 \S4method{as.matrix}{BilatNeuroSurfaceVector}(x)
 }
 \arguments{
-\item{x}{the object}
+\item{x}{the object to convert to a matrix}
 }
 \description{
-convert a \code{ROISurfaceVector} to an augmented matrix
+as.matrix
 }

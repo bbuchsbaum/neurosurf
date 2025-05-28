@@ -41,7 +41,7 @@ of the surface mesh in order. The searchlight region for each node is defined
 by the specified radius and distance metric.
 }
 \examples{
-\dontrun{
+\donttest{
 file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 geom <- read_surf(file)
 searchlight <- SurfaceSearchlight(geom, 12, distance_type = "geodesic")

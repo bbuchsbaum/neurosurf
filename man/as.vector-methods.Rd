@@ -2,13 +2,13 @@
 % Please edit documentation in R/neuro_surface.R
 \name{as.vector,NeuroSurface-method}
 \alias{as.vector,NeuroSurface-method}
-\title{convert \code{NeuroSurface} instance to vector}
+\title{as.vector}
 \usage{
 \S4method{as.vector}{NeuroSurface}(x)
 }
 \arguments{
-\item{x}{the object}
+\item{x}{the object to convert to a vector}
 }
 \description{
-convert \code{NeuroSurface} instance to vector
+as.vector
 }

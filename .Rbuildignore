@@ -6,3 +6,8 @@
 ^codecov.yml
 ^README.Rmd
 ^.travis.yml
+^neurosurf/inst/htmlwidgets/neurosurface/node_modules$
+^neurosurf/inst/htmlwidgets/neurosurface/node_modules/.*$
+testshiny
+testshiny/test_shiny.R
+.cursor$

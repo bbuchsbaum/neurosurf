@@ -7,7 +7,7 @@
 \alias{show,SurfaceGeometry-method}
 \alias{show,NeuroSurfaceVector-method}
 \alias{show,NeuroSurface-method}
-\title{show an object}
+\title{show}
 \usage{
 \S4method{show}{SurfaceGeometryMetaInfo}(object)
 
@@ -21,9 +21,6 @@
 
 \S4method{show}{NeuroSurface}(object)
 }
-\arguments{
-\item{object}{the object}
-}
 \description{
-show an object
+show
 }

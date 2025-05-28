@@ -34,6 +34,3 @@ labeled_surface <- read_freesurfer_annot("path/to/labels.annot", geom)
 }
 
 }
-\seealso{
-\code{\link{LabeledNeuroSurface}}, \code{\link{SurfaceGeometry}}
-}

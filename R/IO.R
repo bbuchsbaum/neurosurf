@@ -3,6 +3,7 @@
 NULL
 
 #' @noRd
+#' @keywords internal
 .readHeader <- function(file_name) {
   desc <- findSurfaceDescriptor(file_name)
   if (is.null(desc)) {
@@ -33,7 +34,6 @@ NULL
 #' It then constructs a LabeledNeuroSurface object using this information
 #' along with the provided surface geometry.
 #'
-#' @seealso \code{\link{LabeledNeuroSurface}}, \code{\link{SurfaceGeometry}}
 #'
 #' @examples
 #' \donttest{
@@ -87,6 +87,7 @@ read_freesurfer_annot <- function(file_name, geometry) {
 }
 
 #' @noRd
+#' @keywords internal
 readGIFTIHeader <- function(file_name) {
   hdr <- gifti::readgii(file_name)
   list(header_file=file_name, data_file=file_name,
@@ -95,6 +96,7 @@ readGIFTIHeader <- function(file_name) {
 }
 
 #' @noRd
+#' @keywords internal
 readGIFTIGZHeader <- function(file_name) {
   hdr <- gifti::readgii(file_name)
   list(header_file=file_name, data_file=file_name,
@@ -107,6 +109,7 @@ readGIFTIGZHeader <- function(file_name) {
 #'
 #' @param file_name the file
 #' @noRd
+#' @keywords internal
 readFreesurferAsciiHeader <- function(file_name) {
   has_hemi <- grep(".*\\.[lr]h\\..*", file_name)
   hemi <- if (length(has_hemi) > 0) {
@@ -131,6 +134,7 @@ readFreesurferAsciiHeader <- function(file_name) {
 #' @param file_name the file
 #' @importFrom readr read_table
 #' @noRd
+#' @keywords internal
 readFreesurferAsciiGeometry <- function(file_name) {
   if (!requireNamespace("rgl", quietly = TRUE)) {
     stop("Pkg needed for this function to work. Please install it.",
@@ -150,6 +154,7 @@ readFreesurferAsciiGeometry <- function(file_name) {
 #'
 #' @param file_name the file
 #' @noRd
+#' @keywords internal
 readFreesurferBinaryHeader <- function(file_name) {
   has_hemi <- grep("^[lr]h\\..*", basename(file_name))
   hemi <- if (length(has_hemi) > 0) {
@@ -180,6 +185,7 @@ readFreesurferBinaryHeader <- function(file_name) {
 #' @param file_name the file
 #' @importFrom readr read_table
 #' @noRd
+#' @keywords internal
 readFreesurferBinaryGeometry <- function(file_name) {
   if (!requireNamespace("rgl", quietly = TRUE)) {
     stop("Pkg needed for this function to work. Please install it.",
@@ -210,6 +216,7 @@ readFreesurferBinaryGeometry <- function(file_name) {
 #' @param file_name the name of the AFNI 1D file
 #' @importFrom readr read_table
 #' @noRd
+#' @keywords internal
 readAFNISurfaceHeader <- function(file_name) {
 
   #dmat <- readr::read_table(file_name, col_names=FALSE)
@@ -227,6 +234,7 @@ readAFNISurfaceHeader <- function(file_name) {
 #'
 #' @param file_name the name of the NIML file
 #' @noRd
+#' @keywords internal
 readNIMLSurfaceHeader <- function(file_name) {
   p <- neuroim2:::parse_niml_file(file_name)
   whdat <- which(unlist(lapply(p, "[[", "label")) == "SPARSE_DATA")
@@ -251,8 +259,6 @@ readNIMLSurfaceHeader <- function(file_name) {
        label=neuroim2::strip_extension(NIML_SURFACE_DSET, basename(file_name)),
        data=dmat, nodes=idat)
 }
-
-
 
 
 
@@ -457,40 +463,43 @@ read_surf_data_seq <- function(leftGeometry, rightGeometry, leftDataNames, right
 }
 
 
-
-
 #' read_meta_info
 #'
 #' @param x the file descriptor object
 #' @param file_name the name of the file containing meta information.
-#' @rdname read_meta_info
+#' @export
+#' @rdname read_meta_info-methods
 #' @importMethodsFrom neuroim2 read_meta_info
 setMethod(f="read_meta_info",signature=signature(x= "AFNISurfaceFileDescriptor"),
           def=function(x, file_name) {
             .read_meta_info(x, file_name, readAFNISurfaceHeader, NIMLSurfaceDataMetaInfoFromAFNI)
           })
 
-#' @rdname read_meta_info
+#' @rdname read_meta_info-methods
+#' @export
 setMethod(f="read_meta_info",signature=signature(x= "NIMLSurfaceFileDescriptor"),
           def=function(x, file_name) {
             .read_meta_info(x, file_name, readNIMLSurfaceHeader, NIMLSurfaceDataMetaInfo)
           })
 
 
-#' @rdname read_meta_info
+#' @rdname read_meta_info-methods
+#' @export
 setMethod(f="read_meta_info",signature=signature(x= "FreesurferAsciiSurfaceFileDescriptor"),
           def=function(x, file_name) {
             .read_meta_info(x, file_name, readFreesurferAsciiHeader, FreesurferSurfaceGeometryMetaInfo)
           })
 
 
-#' @rdname read_meta_info
+#' @rdname read_meta_info-methods
+#' @export
 setMethod(f="read_meta_info",signature=signature(x= "FreesurferBinarySurfaceFileDescriptor"),
           def=function(x, file_name) {
             .read_meta_info(x, file_name, readFreesurferBinaryHeader, FreesurferSurfaceGeometryMetaInfo)
           })
 
-#' @rdname read_meta_info
+#' @rdname read_meta_info-methods
+#' @export
 setMethod(f="read_meta_info",signature=signature(x= "GIFTISurfaceFileDescriptor"),
           def=function(x, file_name) {
             .read_meta_info(x, file_name, readGIFTIHeader, GIFTISurfaceDataMetaInfo)
@@ -498,13 +507,9 @@ setMethod(f="read_meta_info",signature=signature(x= "GIFTISurfaceFileDescriptor"
 
 
 
-#' load a NeuroSurfaceVector
-#'
-#' @importFrom Matrix Matrix
-#' @importMethodsFrom neuroim2 load_data
+#' load_data
+#' @rdname load_data-methods
 #' @export
-#' @param x the data source to load
-#' @rdname load_data
 setMethod(f="load_data", signature=c("NeuroSurfaceVectorSource"),
           def=function(x) {
 
@@ -550,7 +555,7 @@ setMethod(f="load_data", signature=c("NeuroSurfaceVectorSource"),
 
 
 #' @export
-#' @rdname load_data
+#' @rdname load_data-methods
 setMethod(f="load_data", signature=c("NeuroSurfaceSource"),
           def=function(x) {
             geometry <- x@geometry
@@ -561,12 +566,13 @@ setMethod(f="load_data", signature=c("NeuroSurfaceSource"),
             nodes <- nodes[keep]
 
             vals <- neuroim2::read_columns(reader, as.integer(x@colind))[,1]
-            nvert <- ncol(geometry@mesh$vb)
+            # nvert <- ncol(geometry@mesh$vb) # No longer needed for this approach
 
-            avals <- numeric(nvert)
-            avals[nodes] <- vals[keep]
-            surf<- NeuroSurface(geometry=geometry, indices = nodes, data=avals)
+            # avals <- numeric(nvert) # No longer needed for this approach
+            # avals[nodes] <- vals[keep] # No longer needed for this approach
 
+            # Pass only the read indices and their corresponding data values
+            surf <- NeuroSurface(geometry=geometry, indices = nodes, data = vals[keep])
           })
 
 
@@ -574,7 +580,7 @@ setMethod(f="load_data", signature=c("NeuroSurfaceSource"),
 
 #' @export
 #' @importFrom utils read.table
-#' @rdname load_data
+#' @rdname load_data-methods
 setMethod(f="load_data", signature=c("FreesurferSurfaceGeometryMetaInfo"),
           def=function(x) {
             loadFSSurface(x)
@@ -634,6 +640,7 @@ loadFSSurface <- function(meta_info) {
 
 
 #' @noRd
+#' @keywords internal
 .read_meta_info <- function(desc, file_name, readFunc, constructor) {
   hfile <- neuroim2::header_file(desc, file_name)
   header <- readFunc(hfile)
@@ -641,16 +648,12 @@ loadFSSurface <- function(meta_info) {
   constructor(desc, header)
 }
 
+
 #' data_reader
-#'
-#' construct a reader function
-#'
-#' @param x object used to create reader from
-#'
-#' @rdname data_reader
+#' @rdname data_reader-methods
+#' @export
 #' @importClassesFrom neuroim2 ColumnReader
-#' @noRd
-setMethod(f="data_reader", signature=signature("SurfaceDataMetaInfo"),
+setMethod(f="data_reader", signature=signature("SurfaceGeometryMetaInfo"),
           def=function(x) {
             if (!all(c("data", "node_indices") %in% slotNames(x))) {
               stop("data_reader requires 'data' and 'node_indices' slots",
@@ -670,9 +673,21 @@ setMethod(f="data_reader", signature=signature("SurfaceDataMetaInfo"),
           })
 
 
+#' @rdname data_reader-methods
+#' @export
+setMethod(f="data_reader", signature=signature("NIMLSurfaceDataMetaInfo"),
+          def=function(x) {
+            reader <- function(i) {
+              if (length(i) == 1 && i == 0) {
+                x@node_indices
+              } else {
+                x@data[,i,drop=FALSE]
+              }
+            }
 
-#' @rdname data_reader
-#' @noRd
+            neuroim2::ColumnReader(nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
+            #new("ColumnReader", nrow=as.integer(nrow(x@data)), ncol=as.integer(ncol(x@data)), reader=reader)
+          })
 
 
 
@@ -741,6 +756,7 @@ FREESURFER_BINARY_SURFACE_DSET <- new("FreesurferBinarySurfaceFileDescriptor",
 #' @param descriptor the file descriptor
 #' @param header a \code{list} containing header information
 #' @noRd
+#' @keywords internal
 FreesurferSurfaceGeometryMetaInfo <- function(descriptor, header) {
   stopifnot(is.numeric(header$vertices))
   stopifnot(is.numeric(header$faces))
@@ -761,6 +777,7 @@ FreesurferSurfaceGeometryMetaInfo <- function(descriptor, header) {
 #' @param descriptor the file descriptor
 #' @param header a \code{list} containing header information
 #' @noRd
+#' @keywords internal
 SurfaceDataMetaInfo <- function(descriptor, header) {
   stopifnot(is.numeric(header$nodes))
 
@@ -777,6 +794,7 @@ SurfaceDataMetaInfo <- function(descriptor, header) {
 #' @param descriptor the file descriptor
 #' @param header a \code{list} containing header information
 #' @noRd
+#' @keywords internal
 NIMLSurfaceDataMetaInfo <- function(descriptor, header) {
   stopifnot(is.numeric(header$nodes))
 
@@ -796,7 +814,8 @@ NIMLSurfaceDataMetaInfo <- function(descriptor, header) {
 #' @param descriptor the file descriptor
 #' @param header a \code{list} containing header information
 #' @noRd
-NIMLSurfaceDataMetaInfoFromAFNI <- function(descriptor, header) {
+#' @keywords internal
+AFNISurfaceDataMetaInfo <- function(descriptor, header) {
   stopifnot(is.numeric(header$nodes))
 
   new("NIMLSurfaceDataMetaInfo",
@@ -814,6 +833,7 @@ NIMLSurfaceDataMetaInfoFromAFNI <- function(descriptor, header) {
 #' @param descriptor the file descriptor
 #' @param header a \code{list} containing header information
 #' @noRd
+#' @keywords internal
 GIFTISurfaceDataMetaInfo <- function(descriptor, header) {
   #stopifnot(is.numeric(header$nodes))
   #browser()
@@ -831,8 +851,9 @@ GIFTISurfaceDataMetaInfo <- function(descriptor, header) {
       info=header$info)
 }
 
-
-#' @rdname show
+#' show
+#' @rdname show-methods
+#' @export
 setMethod(f="show", signature=signature("SurfaceGeometryMetaInfo"),
           def=function(object) {
             cat("an instance of class",  class(object), "\n\n")
@@ -843,7 +864,8 @@ setMethod(f="show", signature=signature("SurfaceGeometryMetaInfo"),
             cat("embed dimension:", "\t", object@embed_dimension, "\n")
           })
 
-#' @rdname show
+#' @rdname show-methods
+#' @export
 setMethod(f="show", signature=signature("SurfaceDataMetaInfo"),
           def=function(object) {
             cat("an instance of class",  class(object), "\n\n")

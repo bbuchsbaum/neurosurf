@@ -109,5 +109,5 @@ colored_surface <- new("ColorMappedNeuroSurface",
 
 }
 \seealso{
-\code{\link{view_surface}}
+\code{\link{view_surface}}, \code{\link{plot-methods}}
 }

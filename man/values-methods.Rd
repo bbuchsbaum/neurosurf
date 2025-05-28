@@ -13,9 +13,9 @@
 \S4method{values}{NeuroSurface}(x, ...)
 }
 \arguments{
-\item{x}{the object to extract values from}
+\item{x}{the object to extract the values from}
 
-\item{...}{extra args}
+\item{...}{additional arguments}
 }
 \description{
 values

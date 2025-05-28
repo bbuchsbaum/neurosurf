@@ -7,8 +7,8 @@
 \S4method{length}{ROISurface}(x)
 }
 \arguments{
-\item{x}{the object}
+\item{x}{the object to extract the length from}
 }
 \description{
-get number of elements in object
+length
 }
