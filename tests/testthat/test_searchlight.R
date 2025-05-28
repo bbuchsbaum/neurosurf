@@ -83,3 +83,18 @@ test_that("RandomSurfaceSearchlight deflist works correctly", {
   expect_false(is.null(attr(nodes, "center")))
   expect_false(is.null(attr(nodes, "length")))
 })
+
+test_that("RandomSurfaceSearchlight deflist order changes with seed", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+
+  set.seed(123)
+  sl1 <- RandomSurfaceSearchlight(surf, radius=12, as_deflist=TRUE)
+  centers1 <- vapply(seq_len(length(sl1)), function(i) attr(sl1[[i]], "center.index"), numeric(1))
+
+  set.seed(124)
+  sl2 <- RandomSurfaceSearchlight(surf, radius=12, as_deflist=TRUE)
+  centers2 <- vapply(seq_len(length(sl2)), function(i) attr(sl2[[i]], "center.index"), numeric(1))
+
+  expect_false(identical(centers1, centers2))
+})
