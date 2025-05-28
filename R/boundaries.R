@@ -48,6 +48,45 @@
 #' using adjacency matrices and shortest path algorithms to ensure boundaries form
 #' complete cycles around each ROI component.
 #'
+#' The structure of the returned list varies with \code{boundary_method}:
+#' \describe{
+#'   \item{\code{"faces"}}{\code{boundary} is a logical vector the length of the
+#'     face matrix indicating which faces lie on an ROI boundary. The remaining
+#'     elements of the list are \code{NULL}.}
+#'   \item{\code{"midpoint"}}{\code{boundary} is a list of coordinate matrices
+#'     (each \code{n \times 3}) representing boundary polygons traced through
+#'     edge midpoints. \code{boundary_verts} contains the vertex pairs used to
+#'     compute those midpoints.}
+#'   \item{\code{"centroid"}}{\code{boundary} is a list of coordinate matrices
+#'     defined by face centroids. \code{boundary_verts} is \code{NULL}.}
+#'   \item{\code{"edge_vertices"}}{\code{boundary} stores boundary polygons as
+#'     vertex coordinates and \code{boundary_verts} records the vertex indices of
+#'     each polygon.}
+#'   \item{\code{"edge_faces"}}{Similar to \code{"edge_vertices"} but uses face
+#'     relationships to trace the path. Both \code{boundary} and
+#'     \code{boundary_verts} are lists.}
+#' }
+#'
+#' Example return structure for the \code{"faces"} method:
+#' \preformatted{
+#' list(
+#'   boundary = logical(n_faces),
+#'   boundary_roi_id = NULL,
+#'   roi_components = NULL,
+#'   boundary_verts = NULL
+#' )
+#' }
+#'
+#' Example return structure for path-based methods (e.g. \code{"midpoint"}):
+#' \preformatted{
+#' list(
+#'   boundary = list(matrix(nrow, 3), ...),
+#'   boundary_roi_id = integer(),
+#'   roi_components = integer(),
+#'   boundary_verts = list(matrix(nrow, 2), ...)
+#' )
+#' }
+#'
 #' @examples
 #' \donttest{
 #' # Create a simple toy mesh: a cube with 8 vertices and 12 triangular faces
