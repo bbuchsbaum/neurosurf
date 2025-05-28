@@ -116,7 +116,9 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
       D <- c(0, all_can$nn.dist[v,])
     } else if (distance_type == "spherical") {
       ind <- all_can$nn.index[v,]
-      ang <- acos(sin(lat[v]) * sin(lat[ind]) + cos(lat[v]) * cos(lat[ind]) * cos(abs(lon[v] - lon[ind])))
+      cos_val <- sin(lat[v]) * sin(lat[ind]) + cos(lat[v]) * cos(lat[ind]) * cos(abs(lon[v] - lon[ind]))
+      cos_val <- pmin(pmax(cos_val, -1), 1)
+      ang <- acos(cos_val)
       D <- c(0, R * ang)
     }
 
