@@ -19,3 +19,17 @@ an instance of class \code{ROISurface}
 \description{
 Create an instance of class \code{\linkS4class{ROISurface}}
 }
+\examples{
+\donttest{
+verts <- matrix(c(0,0,0,
+                  1,0,0,
+                  0,1,0), ncol=3, byrow=TRUE)
+faces <- matrix(c(1,2,3), ncol=3, byrow=TRUE)
+geom <- SurfaceGeometry(verts, faces, "lh")
+
+ROISurface(geom, 1L, 1)
+
+try(ROISurface(geom, 4L, 1))
+try(ROISurface(geom, 1.5, 1))
+}
+}

@@ -4,9 +4,36 @@
 #' @param indices the parent surface indices
 #' @param data the data values, numeric \code{vector}
 #' @return an instance of class \code{ROISurface}
+#' @examples
+#' \donttest{
+#' verts <- matrix(c(0,0,0,
+#'                   1,0,0,
+#'                   0,1,0), ncol=3, byrow=TRUE)
+#' faces <- matrix(c(1,2,3), ncol=3, byrow=TRUE)
+#' geom <- SurfaceGeometry(verts, faces, "lh")
+#'
+#' ROISurface(geom, 1L, 1)
+#'
+#' try(ROISurface(geom, 4L, 1))      # out of range
+#' try(ROISurface(geom, 1.5, 1))     # non-integer
+#' }
 #' @rdname ROISurface
 #' @export
 ROISurface <- function(geometry, indices, data) {
+  all_nodes <- nodes(geometry)
+
+  if (!is.integer(indices)) {
+    if (is.numeric(indices) && all(indices == as.integer(indices))) {
+      indices <- as.integer(indices)
+    } else {
+      stop("'indices' must be integer")
+    }
+  }
+
+  if (any(indices < 1L) || any(indices > length(all_nodes))) {
+    stop("'indices' are out of bounds for provided 'geometry'")
+  }
+
   vert <- vertices(geometry, indices)
   new("ROISurface", geometry=geometry, data=data, coords=vert, indices=indices)
 }
@@ -18,9 +45,37 @@ ROISurface <- function(geometry, indices, data) {
 #' @param indices the parent surface indices
 #' @param data the data values, a \code{matrix}
 #' @return an instance of class \code{ROISurfaceVector}
+#' @examples
+#' \donttest{
+#' verts <- matrix(c(0,0,0,
+#'                   1,0,0,
+#'                   0,1,0), ncol=3, byrow=TRUE)
+#' faces <- matrix(c(1,2,3), ncol=3, byrow=TRUE)
+#' geom <- SurfaceGeometry(verts, faces, "lh")
+#'
+#' vec <- matrix(c(0.5, 1.5), nrow=1)
+#' ROISurfaceVector(geom, c(1L,2L), vec)
+#'
+#' try(ROISurfaceVector(geom, c(1L,4L), vec))   # out of range
+#' try(ROISurfaceVector(geom, c(1,2.5), vec))   # non-integer
+#' }
 #' @rdname ROISurfaceVector
 #' @export
 ROISurfaceVector <- function(geometry, indices, data) {
+  all_nodes <- nodes(geometry)
+
+  if (!is.integer(indices)) {
+    if (is.numeric(indices) && all(indices == as.integer(indices))) {
+      indices <- as.integer(indices)
+    } else {
+      stop("'indices' must be integer")
+    }
+  }
+
+  if (any(indices < 1L) || any(indices > length(all_nodes))) {
+    stop("'indices' are out of bounds for provided 'geometry'")
+  }
+
   vert <- vertices(geometry, indices)
   new("ROISurfaceVector", geometry=geometry, data=data, coords=vert, indices=indices)
 }
