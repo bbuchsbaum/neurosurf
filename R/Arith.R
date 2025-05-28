@@ -8,6 +8,7 @@ NULL
 #' @param e2 Numeric value
 #' @return NeuroSurface object with comparison results
 #' @exportMethod Compare
+#' @rdname Compare-NeuroSurface-method
 setMethod(f="Compare", signature=signature(e1="NeuroSurface", e2="numeric"),
           def=function(e1, e2) {
             ret <- callGeneric(e1@data,e2)
@@ -22,6 +23,7 @@ setMethod(f="Compare", signature=signature(e1="NeuroSurface", e2="numeric"),
 #' @return NeuroSurface object with arithmetic operation results
 #' @importFrom assertthat assert_that
 #' @exportMethod Arith
+#' @rdname Arith-NeuroSurface-method
 setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="NeuroSurface"),
           def=function(e1, e2) {
             assert_that(length(nodes(e1)) == length(nodes(e2)))
@@ -35,7 +37,7 @@ setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="NeuroSurface"),
 #' @rdname Arith-NeuroSurface-method
 setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="numeric"),
           def=function(e1, e2) {
-            ind <- 1:length(nodes(e1))
+            ind <- e1@indices
             res <- callGeneric(e1@data, e2)
             NeuroSurface(geometry=e1@geometry, indices=ind, data=res)
 
@@ -44,7 +46,7 @@ setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="numeric"),
 #' @rdname Arith-NeuroSurface-method
 setMethod(f="Arith", signature=signature(e1="numeric", e2="NeuroSurface"),
           def=function(e1, e2) {
-            ind <- 1:length(nodes(e2))
+            ind <- e2@indices
             res <- callGeneric(e1, e2@data)
             NeuroSurface(geometry=e2@geometry, indices=ind, data=res)
 
@@ -57,6 +59,7 @@ setMethod(f="Arith", signature=signature(e1="numeric", e2="NeuroSurface"),
 #' @return NeuroSurfaceVector object with arithmetic operation results
 #' @importFrom assertthat assert_that
 #' @exportMethod Arith
+#' @rdname Arith-NeuroSurfaceVector-method
 setMethod(f="Arith", signature=signature(e1="NeuroSurfaceVector", e2="NeuroSurfaceVector"),
           def=function(e1, e2) {
             assert_that(length(nodes(e1)) == length(nodes(e2)))
@@ -92,6 +95,7 @@ setMethod(f="Arith", signature=signature(e1="numeric", e2="NeuroSurfaceVector"),
 #' @return NeuroSurfaceVector object with comparison results
 #' @importFrom assertthat assert_that
 #' @exportMethod Compare
+#' @rdname Compare-NeuroSurfaceVector-method
 setMethod(f="Compare", signature=signature(e1="NeuroSurfaceVector", e2="NeuroSurfaceVector"),
           def=function(e1, e2) {
             assert_that(length(nodes(e1)) == length(nodes(e2)))
@@ -122,6 +126,7 @@ setMethod(f="Compare", signature=signature(e1="numeric", e2="NeuroSurfaceVector"
 #' @return NeuroSurface object with comparison results
 #' @importFrom assertthat assert_that
 #' @exportMethod Compare
+#' @rdname Compare-NeuroSurface-method
 setMethod(f="Compare", signature=signature(e1="NeuroSurface", e2="NeuroSurface"),
           def=function(e1, e2) {
             assert_that(length(nodes(e1)) == length(nodes(e2)))
