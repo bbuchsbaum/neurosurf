@@ -68,8 +68,13 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
 
     # Create function to get nth element
     fun <- function(n) {
+#### === codex/modify-fun-functions-to-check-n->=-1
+      if (n < 1 || n > length(nds)) stop("Index out of bounds")
+      center <- which(!done)[n]
+##### =======
       if (n > length(order)) stop("Index out of bounds")
       center <- order[n]
+#### >>>>>>> master
       indices <- as.vector(igraph::neighborhood(bg, 1, nds[center])[[1]])
       indices <- indices[!done[indices]]
 
@@ -184,7 +189,7 @@ SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type=c
   if (as_deflist) {
     # Create function to get nth element
     fun <- function(n) {
-      if (n > length(nds)) stop("Index out of bounds")
+      if (n < 1 || n > length(nds)) stop("Index out of bounds")
       indices <- as.vector(igraph::neighborhood(bg, 1, nds[n])[[1]])
 
       if (subgraph) {
