@@ -13,6 +13,7 @@ NULL
 #' @param edgeWeights Numeric vector; weights for edges used in distance computation
 #' @param max_order Integer; maximum order of neighborhood to consider. If NULL, it's calculated
 #'                 based on radius and average edge weight
+#' @importFrom assertthat assert_that
 #'
 #' @details
 #' The function first identifies candidate neighbors using igraph's ego function up to max_order,
@@ -24,6 +25,18 @@ NULL
 #'
 #' @noRd
 findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
+  assertthat::assert_that(is.numeric(edgeWeights),
+                          msg="edgeWeights must be numeric")
+  assertthat::assert_that(!any(is.na(edgeWeights)),
+                          msg="edgeWeights cannot contain NA values")
+  assertthat::assert_that(is.numeric(radius), length(radius) == 1, radius > 0,
+                          msg="radius must be a single positive number")
+  assertthat::assert_that(is.numeric(node), length(node) == 1,
+                          node %% 1 == 0,
+                          msg="node must be a single integer index")
+  assertthat::assert_that(node >= 1, node <= igraph::vcount(graph),
+                          msg="node index out of range")
+
   if (is.null(max_order)) {
     avg_weight <- mean(edgeWeights)
     max_order <- radius/avg_weight + (2*avg_weight)
@@ -58,6 +71,7 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 #' @importFrom FNN get.knn
 #' @importFrom stats quantile
 #' @importFrom igraph V distances
+#' @importFrom assertthat assert_that
 #'
 #' @examples
 #' # Load a sample inflated surface from the package
@@ -88,6 +102,24 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
     g <- surf
   } else {
     g <- graph(surf)
+  }
+
+  assertthat::assert_that(is.numeric(edgeWeights),
+                          msg="edgeWeights must be numeric")
+  assertthat::assert_that(!any(is.na(edgeWeights)),
+                          msg="edgeWeights cannot contain NA values")
+  assertthat::assert_that(is.numeric(radius), length(radius) == 1, radius > 0,
+                          msg="radius must be a single positive number")
+
+  if (!is.null(nodes)) {
+    assertthat::assert_that(is.numeric(nodes),
+                            msg="nodes must be numeric indices")
+    assertthat::assert_that(!any(is.na(nodes)),
+                            msg="nodes cannot contain NA values")
+    assertthat::assert_that(all(nodes %% 1 == 0),
+                            msg="nodes must be integer indices")
+    assertthat::assert_that(all(nodes >= 1), all(nodes <= igraph::vcount(g)),
+                            msg="nodes indices out of range")
   }
 
   distance_type <- match.arg(distance_type)
