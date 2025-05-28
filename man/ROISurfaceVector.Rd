@@ -19,3 +19,18 @@ an instance of class \code{ROISurfaceVector}
 \description{
 Create an instance of class \code{\linkS4class{ROISurfaceVector}}
 }
+\examples{
+\donttest{
+verts <- matrix(c(0,0,0,
+                  1,0,0,
+                  0,1,0), ncol=3, byrow=TRUE)
+faces <- matrix(c(1,2,3), ncol=3, byrow=TRUE)
+geom <- SurfaceGeometry(verts, faces, "lh")
+
+vec <- matrix(c(0.5, 1.5), nrow=1)
+ROISurfaceVector(geom, c(1L,2L), vec)
+
+try(ROISurfaceVector(geom, c(1L,4L), vec))
+try(ROISurfaceVector(geom, c(1,2.5), vec))
+}
+}
