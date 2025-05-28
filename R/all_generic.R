@@ -1,5 +1,3 @@
-
-
 if (!isGeneric("plot"))
   setGeneric("plot", function(x, y, ...) standardGeneric("plot"))
 
@@ -268,5 +266,3 @@ setGeneric(name = "surfwidget",
 setGeneric(name = "findBoundaries",
            def = function(x, method = "midpoint", ...)
              standardGeneric("findBoundaries"))
-
-
