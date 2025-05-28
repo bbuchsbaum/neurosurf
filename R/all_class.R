@@ -1022,10 +1022,9 @@ setClass("ColorMappedNeuroSurface",
            if (length(object@thresh) != 2) {
              stop("'thresh' must be a numeric vector of length 2")
            }
-           if (!(object@irange[1] <= object@irange[2])) {
-             print(paste(object@irange[1], ",", object@irange[2]))
-             stop("'irange[1]' must be less than or equal to 'irange[2]'")
-           }
+          if (!(object@irange[1] <= object@irange[2])) {
+            stop("'irange[1]' must be less than or equal to 'irange[2]'")
+          }
            if (!(object@thresh[1] <= object@thresh[1])) {
              stop("'thresh[1]' must be less than or equal to 'thresh[2]'")
            }
