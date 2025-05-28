@@ -39,13 +39,14 @@
 
 \item{config}{A list of configuration options for the surface rendering:
 \itemize{
-  \item{\code{shininess}}{Numeric. Controls the shininess of the material. Higher values create a more polished appearance. Default is 30.}
+  \item{\code{shininess}}{Numeric between 0 and 100. Controls the shininess of the material. Higher values create a more polished appearance. Default is 30.}
   \item{\code{specularColor}}{Character. Hex color code for the specular highlights. Default is "#111111".}
-  \item{\code{flatShading}}{Logical. If TRUE, uses flat shading; if FALSE, uses smooth shading. Default is FALSE.}
+  \item{\code{flatShading}}{Logical scalar. If \code{TRUE}, uses flat shading; if \code{FALSE}, uses smooth shading. Default is \code{FALSE}.}
   \item{\code{ambientLightColor}}{Character. Hex color code for the ambient light. Default is "#404040".}
   \item{\code{directionalLightColor}}{Character. Hex color code for the directional light. Default is "#ffffff".}
-  \item{\code{directionalLightIntensity}}{Numeric. Intensity of the directional light. Default is 0.5.}
-}}
+  \item{\code{directionalLightIntensity}}{Numeric between 0 and 1. Intensity of the directional light. Default is 0.5.}
+}
+Unknown elements are ignored with a warning.}
 }
 \value{
 An HTMLWidget object
