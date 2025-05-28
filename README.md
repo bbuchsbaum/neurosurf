@@ -23,3 +23,8 @@ See examples of use of `neurosurf` in the
 
 [vignettes](https://bbuchsbaum.github.io/neurosurf/articles/index.html).
 
+
+## Cleaning Up
+
+When removing a surface from a viewer, call the `dispose()` method on the
+`NeuroSurface` object to free associated WebGL resources and event listeners.

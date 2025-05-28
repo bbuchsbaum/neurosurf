@@ -482,6 +482,9 @@ export class NeuroSurfaceViewer {
   removeSurface(id) {
     const surface = this.surfaces.get(id);
     if (surface) {
+      if (typeof surface.dispose === 'function') {
+        surface.dispose();
+      }
       this.scene.remove(surface.mesh);
       this.surfaces.delete(id);
     }
