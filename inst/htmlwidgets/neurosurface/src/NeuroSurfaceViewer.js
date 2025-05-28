@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { ColorMappedNeuroSurface, VertexColoredNeuroSurface } from './classes.js';
 import { Pane } from 'tweakpane';
@@ -17,6 +20,8 @@ export class NeuroSurfaceViewer {
       directionalLightIntensity: 0.5,
       rotationSpeed: 2,
       initialZoom: 4,
+      ssaoRadius: 4,
+      ssaoKernelSize: 32,
       rimStrength: 0,
       metalness: 0.1,
       roughness: 0.6,
@@ -35,6 +40,7 @@ export class NeuroSurfaceViewer {
     this.setupEnvironment();
     this.setupControls();
     this.setupPicking();
+    this.setupPostProcessing();
 
     this.surfaces = new Map(); // Store multiple surfaces
     this.rimStrengthUniforms = [];
@@ -158,6 +164,17 @@ export class NeuroSurfaceViewer {
     this.controls.dynamicDampingFactor = 0.3;
   }
 
+  setupPostProcessing() {
+    this.composer = new EffectComposer(this.renderer);
+    this.renderPass = new RenderPass(this.scene, this.camera);
+    this.composer.addPass(this.renderPass);
+
+    this.ssaoPass = new SSAOPass(this.scene, this.camera, this.width, this.height);
+    this.ssaoPass.kernelRadius = this.config.ssaoRadius;
+    this.ssaoPass.kernelSize = this.config.ssaoKernelSize;
+    this.composer.addPass(this.ssaoPass);
+  }
+
   setupTweakPane() {
     // Create a container for Tweakpane
     const paneContainer = document.createElement('div');
@@ -252,6 +269,39 @@ export class NeuroSurfaceViewer {
       max: this.dataRange.max,
       step: 0.01,
     }).on('change', this.updateThresholdRange.bind(this));
+
+
+    // SSAO folder
+    const ssaoFolder = this.pane.addFolder({
+      title: 'SSAO',
+      expanded: false,
+    });
+
+    ssaoFolder.addBinding(this.config, 'ssaoRadius', {
+      label: 'Radius',
+      min: 0,
+      max: 32,
+      step: 0.1,
+    }).on('change', (ev) => {
+      if (this.ssaoPass) {
+        this.ssaoPass.kernelRadius = ev.value;
+        this.render();
+      }
+    });
+
+    ssaoFolder.addBinding(this.config, 'ssaoKernelSize', {
+      label: 'Kernel Size',
+      min: 8,
+      max: 64,
+      step: 1,
+    }).on('change', (ev) => {
+      if (this.ssaoPass) {
+        this.ssaoPass.kernelSize = ev.value;
+        if (typeof this.ssaoPass.generateSampleKernel === 'function') {
+          this.ssaoPass.generateSampleKernel();
+        }
+        this.render();
+      }
 
     // Material folder
     const materialFolder = this.pane.addFolder({
@@ -507,6 +557,10 @@ export class NeuroSurfaceViewer {
     this.camera.aspect = this.width / this.height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.width, this.height);
+    if (this.composer && this.ssaoPass) {
+      this.composer.setSize(this.width, this.height);
+      this.ssaoPass.setSize(this.width, this.height);
+    }
   }
 
   animate() {
@@ -516,7 +570,9 @@ export class NeuroSurfaceViewer {
   }
 
   render() {
-    if (this.renderer && this.scene && this.camera) {
+    if (this.composer) {
+      this.composer.render();
+    } else if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);
     }
   }
@@ -693,6 +749,11 @@ export class NeuroSurfaceViewer {
     if (this.paneContainer && this.paneContainer.parentNode) {
       this.paneContainer.parentNode.removeChild(this.paneContainer);
       this.paneContainer = null;
+    }
+    if (this.composer) {
+      this.composer = null;
+      this.renderPass = null;
+      this.ssaoPass = null;
     }
   }
 }
