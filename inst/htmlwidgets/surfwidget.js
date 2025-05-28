@@ -8,22 +8,33 @@ HTMLWidgets.widget({
     var viewer;
     var surfaceId = 'main'; // Default ID for single surface
 
-    return {
+    function cleanup() {
+      if (viewer && typeof viewer.dispose === 'function') {
+        viewer.dispose();
+        viewer = null;
+        while (el.firstChild) {
+          el.removeChild(el.firstChild);
+        }
+      }
+    }
+
+    var instance = {
 
       renderValue: function(x) {
-        if (!viewer) {
-          neurosurface.debugLog('Creating NeuroSurfaceViewer');
-          viewer = new neurosurface.NeuroSurfaceViewer(el, width, height, {
-            ...x.config, 
-            cmap: x.cmap,
-            rotationSpeed: 2.5, // Increase rotation speed
-            initialZoom: 2.5 // Increase initial zoom
-          }, x.viewpoint);
+        // dispose a previous viewer before creating a new one
+        cleanup();
 
-          // Use the new methods to set rotation speed and initial zoom
-          //viewer.setRotationSpeed(2.5);
-          //viewer.setInitialZoom(2.5);
-        }
+        neurosurface.debugLog('Creating NeuroSurfaceViewer');
+        viewer = new neurosurface.NeuroSurfaceViewer(el, width, height, {
+          ...x.config,
+          cmap: x.cmap,
+          rotationSpeed: 2.5, // Increase rotation speed
+          initialZoom: 2.5 // Increase initial zoom
+        }, x.viewpoint);
+
+        // Use the new methods to set rotation speed and initial zoom
+        //viewer.setRotationSpeed(2.5);
+        //viewer.setInitialZoom(2.5);
 
         try {
           neurosurface.debugLog('Creating SurfaceGeometry');
@@ -60,7 +71,7 @@ HTMLWidgets.widget({
         } catch (error) {
           console.error("Error in renderValue:", error);
         }
-      },
+        },
 
       resize: function(width, height) {
         if (viewer) {
@@ -95,7 +106,18 @@ HTMLWidgets.widget({
 
       setZoom: function(zoom) {
         if (viewer) viewer.setInitialZoom(zoom);
-      }
+      },
+
+      // Clean up viewer resources
+      destroy: cleanup
     };
+    el.surfwidget = instance;
+    return instance;
+  },
+
+  onBeforeDestroy: function(el) {
+    if (el && el.surfwidget && typeof el.surfwidget.destroy === 'function') {
+      el.surfwidget.destroy();
+    }
   }
 });
