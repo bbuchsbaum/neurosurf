@@ -7,10 +7,8 @@
 \alias{read_meta_info,FreesurferAsciiSurfaceFileDescriptor-method}
 \alias{read_meta_info,FreesurferBinarySurfaceFileDescriptor-method}
 \alias{read_meta_info,GIFTISurfaceFileDescriptor-method}
-\title{Generic function to read image meta info given a file and a \code{\linkS4class{FileFormat}} instance.}
+\title{Read Meta Information}
 \usage{
-read_meta_info(x, file_name)
-
 \S4method{read_meta_info}{AFNISurfaceFileDescriptor}(x, file_name)
 
 \S4method{read_meta_info}{NIMLSurfaceFileDescriptor}(x, file_name)
@@ -22,9 +20,9 @@ read_meta_info(x, file_name)
 \S4method{read_meta_info}{GIFTISurfaceFileDescriptor}(x, file_name)
 }
 \arguments{
-\item{x}{file format}
+\item{x}{the file descriptor object}
 
-\item{file_name}{file name contianing meta information}
+\item{file_name}{the name of the file containing meta information.}
 }
 \description{
 Generic function to read image meta info given a file and a \code{\linkS4class{FileFormat}} instance.

@@ -9,7 +9,8 @@ projectCoordinates(surfgeom, points, sigma = 5, ...)
 \arguments{
 \item{surfgeom}{A \code{\linkS4class{SurfaceGeometry}} object representing the surface onto which the coordinates will be projected.}
 
-\item{points}{A numeric matrix with three columns (x, y, z) representing the 3D coordinates to be projected onto the surface.}
+\item{points}{A numeric matrix with three columns (x, y, z) representing the 3D
+coordinates to be projected onto the surface.}
 
 \item{sigma}{A numeric value specifying the smoothing radius for the kernel density smoother. Default is 5.}
 

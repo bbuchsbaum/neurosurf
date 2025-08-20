@@ -20,6 +20,7 @@ surfwidget(x, width = NULL, height = NULL, ...)
   thresh = c(0, 0),
   vertexColors = NULL,
   alpha = 1,
+  curvature = NULL,
   config = list(),
   ...
 )
@@ -33,6 +34,7 @@ surfwidget(x, width = NULL, height = NULL, ...)
   thresh = c(0, 0),
   vertexColors = NULL,
   alpha = 1,
+  curvature = NULL,
   config = list(),
   ...
 )
@@ -44,11 +46,20 @@ surfwidget(x, width = NULL, height = NULL, ...)
   thresh = c(0, 0),
   vertexColors = NULL,
   alpha = 1,
+  curvature = NULL,
   config = list(),
   ...
 )
 
-\S4method{surfwidget}{VertexColoredNeuroSurface}(x, width = NULL, height = NULL, alpha = 1, config = list(), ...)
+\S4method{surfwidget}{VertexColoredNeuroSurface}(
+  x,
+  width = NULL,
+  height = NULL,
+  alpha = 1,
+  curvature = NULL,
+  config = list(),
+  ...
+)
 }
 \arguments{
 \item{x}{A SurfaceGeometry, NeuroSurface, ColorMappedNeuroSurface, or VertexColoredNeuroSurface object}
@@ -71,15 +82,20 @@ surfwidget(x, width = NULL, height = NULL, ...)
 
 \item{alpha}{Opacity of the surface (0 to 1).}
 
+\item{curvature}{Optional numeric vector of curvature values for each vertex.
+If not supplied for a \code{SurfaceGeometry} object, it is computed via
+\code{curvature(x)}.}
+
 \item{config}{A list of configuration options for the surface rendering:
 \itemize{
-  \item{\code{shininess}}{Numeric. Controls the shininess of the material. Higher values create a more polished appearance. Default is 30.}
+  \item{\code{shininess}}{Numeric between 0 and 100. Controls the shininess of the material. Higher values create a more polished appearance. Default is 30.}
   \item{\code{specularColor}}{Character. Hex color code for the specular highlights. Default is "#111111".}
-  \item{\code{flatShading}}{Logical. If TRUE, uses flat shading; if FALSE, uses smooth shading. Default is FALSE.}
+  \item{\code{flatShading}}{Logical scalar. If \code{TRUE}, uses flat shading; if \code{FALSE}, uses smooth shading. Default is \code{FALSE}.}
   \item{\code{ambientLightColor}}{Character. Hex color code for the ambient light. Default is "#404040".}
   \item{\code{directionalLightColor}}{Character. Hex color code for the directional light. Default is "#ffffff".}
-  \item{\code{directionalLightIntensity}}{Numeric. Intensity of the directional light. Default is 0.5.}
-}}
+  \item{\code{directionalLightIntensity}}{Numeric between 0 and 1. Intensity of the directional light. Default is 0.5.}
+}
+Unknown elements in \code{config} are ignored with a warning.}
 }
 \value{
 An HTMLWidget object representing the surface visualization.

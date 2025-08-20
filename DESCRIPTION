@@ -45,7 +45,7 @@ Collate:
     'IO.R'
     'ROI.R'
     'Searchlight.R'
-    'boundaries.R'
+    'curv.R'
     'geometry.R'
     'curv.R'
     'neighborhood.R'
@@ -55,6 +55,7 @@ Collate:
     'surfwidget.R'
     'view_surface.R'
     'vol_to_surf.R'
+    'zzz.R'
 Suggests: 
     testthat,
     covr,

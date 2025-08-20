@@ -6,8 +6,11 @@
 ^codecov.yml
 ^README.Rmd
 ^.travis.yml
-^neurosurf/inst/htmlwidgets/neurosurface/node_modules$
-^neurosurf/inst/htmlwidgets/neurosurface/node_modules/.*$
+inst/htmlwidgets/neurosurface/node_modules
 testshiny
 testshiny/test_shiny.R
 .cursor$
+^CLAUDE\.md$
+^CRAN_prompt\.md$
+^cran_check\.log$
+^cran_check_final\.log$

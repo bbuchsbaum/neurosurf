@@ -29,7 +29,7 @@ geom <- SurfaceGeometry(verts, faces, "lh")
 
 ROISurface(geom, 1L, 1)
 
-try(ROISurface(geom, 4L, 1))
-try(ROISurface(geom, 1.5, 1))
+try(ROISurface(geom, 4L, 1))      # out of range
+try(ROISurface(geom, 1.5, 1))     # non-integer
 }
 }

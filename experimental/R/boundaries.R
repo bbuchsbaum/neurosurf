@@ -61,7 +61,7 @@
 #'     face matrix indicating which faces lie on an ROI boundary. The remaining
 #'     elements of the list are \code{NULL}.}
 #'   \item{\code{"midpoint"}}{\code{boundary} is a list of coordinate matrices
-#'     (each \code{n \times 3}) representing boundary polygons traced through
+#'     (each \code{n x 3}) representing boundary polygons traced through
 #'     edge midpoints. \code{boundary_verts} contains the vertex pairs used to
 #'     compute those midpoints.}
 #'   \item{\code{"centroid"}}{\code{boundary} is a list of coordinate matrices
@@ -254,41 +254,52 @@ find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "m
 
   # Get unique edges
   edges_sorted_df$edge_id <- paste(edges_sorted_df$v1, edges_sorted_df$v2, sep = "_")
-  unique_edges_metadata <- aggregate(
-    cbind(edge_color, edge_faceID, boundary_face) ~ v1 + v2 + edge_id,
-    data = edges_sorted_df,
-    FUN = function(x) x
-  )
-
-  # Since edges may appear twice (shared between two faces), combine them
-  edge_groups <- split(unique_edges_metadata, unique_edges_metadata$edge_id)
-
-  unique_edges_metadata <- do.call(rbind, lapply(edge_groups, function(group) {
-    if (nrow(group) == 2) {
+  
+  # Since edges may appear twice (shared between two faces), group and process them
+  edge_groups <- split(edges_sorted_df, edges_sorted_df$edge_id)
+  
+  unique_edges_metadata <- do.call(rbind, lapply(edge_groups, function(group_df) {
+    v1 <- group_df$v1[1]
+    v2 <- group_df$v2[1]
+    
+    # Get unique face IDs for this edge
+    unique_face_ids <- unique(group_df$edge_faceID)
+    n_faces <- length(unique_face_ids)
+    
+    if (n_faces == 2) {
       # Edge appears in two faces
-      diff_color <- as.integer(group$edge_color[1] != group$edge_color[2])
-      faceID1 <- group$edge_faceID[1]
-      faceID2 <- group$edge_faceID[2]
-      boundary_face <- max(group$boundary_face)
+      # Get the rows for each unique face
+      face1_rows <- group_df[group_df$edge_faceID == unique_face_ids[1], ]
+      face2_rows <- group_df[group_df$edge_faceID == unique_face_ids[2], ]
+      
+      diff_color <- as.integer(face1_rows$edge_color[1] != face2_rows$edge_color[1])
+      faceID1 <- unique_face_ids[1]
+      faceID2 <- unique_face_ids[2]
+      boundary_face <- max(c(face1_rows$boundary_face[1], face2_rows$boundary_face[1]))
     } else {
       # Edge appears in one face
       diff_color <- as.integer(
-        group$boundary_face[1] ||
-        vertex_id[group$v1[1]] != vertex_id[group$v2[1]]
+        any(
+          isTRUE(group_df$boundary_face[1]),
+          vertex_id[v1] != vertex_id[v2],
+          na.rm = TRUE
+        )
       )
-      faceID1 <- group$edge_faceID[1]
+      faceID1 <- unique_face_ids[1]
       faceID2 <- NA
-      boundary_face <- group$boundary_face[1]
+      boundary_face <- group_df$boundary_face[1]
     }
+    
     data.frame(
-      v1 = group$v1[1],
-      v2 = group$v2[1],
-      roi_v1 = vertex_id[group$v1[1]],
-      roi_v2 = vertex_id[group$v2[1]],
+      v1 = v1,
+      v2 = v2,
+      roi_v1 = vertex_id[v1],
+      roi_v2 = vertex_id[v2],
       diff_color = diff_color,
       faceID1 = faceID1,
       faceID2 = faceID2,
-      boundary_face = boundary_face
+      boundary_face = boundary_face,
+      stringsAsFactors = FALSE
     )
   }))
 
@@ -327,19 +338,59 @@ find_roi_boundaries <- function(vertices, faces, vertex_id, boundary_method = "m
       edge_roi_boundaryfaces <- boundary_edges_face_id[index, ]
 
       roi_faces <- unique(as.vector(edge_roi_boundaryfaces))
+      roi_faces <- roi_faces[!is.na(roi_faces)]
       nfaces <- length(roi_faces)
 
       # Relabel faces from 1 to nfaces
       face_map <- setNames(seq_len(nfaces), roi_faces)
-      roi_boundaryfaces_ordered <- matrix(face_map[as.character(edge_roi_boundaryfaces)], ncol = 2)
+      # Handle NA values in edge_roi_boundaryfaces
+      roi_boundaryfaces_ordered <- matrix(NA_integer_, nrow = nrow(edge_roi_boundaryfaces), ncol = 2)
+      for (ii in 1:nrow(edge_roi_boundaryfaces)) {
+        for (jj in 1:2) {
+          if (!is.na(edge_roi_boundaryfaces[ii, jj])) {
+            roi_boundaryfaces_ordered[ii, jj] <- face_map[as.character(edge_roi_boundaryfaces[ii, jj])]
+          }
+        }
+      }
 
-      # Create edge list for the graph
-      edgeList <- rbind(roi_boundaryfaces_ordered, roi_boundaryfaces_ordered[, 2:1])
-
-      # Edge IDs
-      edgeID <- c(index, index)
+      # Filter out incomplete cases BEFORE creating the mirrored edge list
+      # This ensures we don't duplicate NA rows
+      complete_rows <- complete.cases(roi_boundaryfaces_ordered)
+      roi_boundaryfaces_clean <- roi_boundaryfaces_ordered[complete_rows, , drop = FALSE]
+      
+      # Skip if no valid edges
+      if (nrow(roi_boundaryfaces_clean) == 0) next
+      
+      # Create edge list for the graph (with reverse edges)
+      edgeList <- rbind(roi_boundaryfaces_clean, roi_boundaryfaces_clean[, 2:1])
+      
+      # Edge IDs - just use dummy weights as O3 suggested
+      # The actual values don't matter for connectivity
+      edgeID <- rep(1L, nrow(edgeList))
 
       # Create adjacency matrix
+      # Double-check for NAs and valid indices before creating sparse matrix
+      if (any(is.na(edgeList))) {
+        warning(paste("Found NA values in edgeList for ROI", roi, "- skipping"))
+        next
+      }
+      
+      # Check if indices are in valid range
+      if (any(edgeList < 1) || any(edgeList > nfaces)) {
+        warning(paste("Found out-of-range indices in edgeList for ROI", roi, 
+                     "- min:", min(edgeList), "max:", max(edgeList), "nfaces:", nfaces))
+        # Try to fix by removing invalid entries
+        valid_indices <- edgeList[,1] >= 1 & edgeList[,1] <= nfaces & 
+                        edgeList[,2] >= 1 & edgeList[,2] <= nfaces
+        edgeList <- edgeList[valid_indices, , drop = FALSE]
+        edgeID <- edgeID[valid_indices]
+        
+        if (nrow(edgeList) == 0) {
+          warning(paste("No valid edges remain for ROI", roi, "after filtering"))
+          next
+        }
+      }
+      
       adj <- Matrix::sparseMatrix(
         i = edgeList[, 1],
         j = edgeList[, 2],

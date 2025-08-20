@@ -23,8 +23,8 @@ NeuroSurfaceSource(
 \item{nodeind}{the subset of node indices to load from surface data matrix (if provided)}
 }
 \value{
-An object of class \code{\linkS4class{NeuroSurfaceSource}} or \code{\linkS4class{NeuroSurfaceVectorSource}} 
-        that contains information about the surface geometry and associated data. If the data has multiple columns 
+An object of class \code{\linkS4class{NeuroSurfaceSource}} or \code{\linkS4class{NeuroSurfaceVectorSource}}
+        that contains information about the surface geometry and associated data. If the data has multiple columns
         (colind > 1), a \code{NeuroSurfaceVectorSource} is returned; otherwise, a \code{NeuroSurfaceSource} is returned.
         These objects can be used to load and map neuroimaging data onto brain surfaces.
 }

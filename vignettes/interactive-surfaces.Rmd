@@ -1,0 +1,257 @@
+---
+title: "Interactive Surface Visualization with surfwidget"
+author: "Bradley Buchsbaum"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Interactive Surface Visualization with surfwidget}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "100%",
+  fig.height = 6
+)
+
+# Ensure htmlwidgets dependencies are properly loaded
+library(htmlwidgets)
+library(neurosurf)
+
+# Load example data
+white_lh_asc <- system.file("extdata", "std.8_lh.smoothwm.asc", package="neurosurf")
+white_lh <- read_surf(white_lh_asc)
+white_lh_smooth <- smooth(white_lh, type="HCLaplace", delta=.2, iteration=5)
+
+# Prepare sample data
+set.seed(123)
+random_vals <- rnorm(length(nodes(white_lh_smooth)))
+```
+
+## Introduction
+
+The `surfwidget()` function provides interactive 3D visualization of brain surfaces using HTML widgets. This creates web-based viewers with real-time rotation, zooming, and interactive exploration capabilities.
+
+## System Check
+
+Let's first verify that the widget system is working properly:
+
+```{r system-check}
+# Check rendering context
+cat("Knitting context:", if(isTRUE(getOption('knitr.in.progress'))) "vignette" else "interactive", "\n")
+cat("htmlwidgets version:", as.character(packageVersion("htmlwidgets")), "\n")
+cat("neurosurf version:", as.character(packageVersion("neurosurf")), "\n")
+
+# Test basic widget creation
+tryCatch({
+  test_widget <- surfwidget(white_lh_smooth, width = "300px", height = "200px")
+  if (inherits(test_widget, "htmlwidget")) {
+    cat("✓ surfwidget creation successful\n")
+    cat("✓ Widget class:", paste(class(test_widget), collapse = " "), "\n")
+  } else {
+    cat("✗ surfwidget creation failed - wrong class\n")
+  }
+}, error = function(e) {
+  cat("✗ surfwidget creation failed:", e$message, "\n")
+})
+```
+
+## Basic Surface Display
+
+The simplest usage is to pass a `SurfaceGeometry` object directly:
+
+```{r basic-widget, results='asis'}
+tryCatch({
+  # Create basic interactive surface
+  basic_widget <- surfwidget(white_lh_smooth, width = "100%", height = "400px")
+  
+  if (inherits(basic_widget, "htmlwidget")) {
+    cat("**Interactive surface created successfully**\n\n")
+    basic_widget
+  } else {
+    cat("**Widget creation failed - not an htmlwidget**\n\n")
+  }
+}, error = function(e) {
+  cat("**Error creating widget:**", e$message, "\n\n")
+  cat("*Note: If you're viewing this vignette as HTML, the interactive widget may not display properly due to JavaScript loading issues in the vignette context. Try running the same code in an interactive R session.*\n\n")
+})
+```
+
+## Data Visualization
+
+Display data mapped onto surface vertices using a `NeuroSurface` object:
+
+```{r data-widget, results='asis'}
+tryCatch({
+  # Create NeuroSurface with data
+  nsurf <- NeuroSurface(white_lh_smooth, indices=1:length(random_vals), data=random_vals)
+  
+  # Create widget with data overlay
+  data_widget <- surfwidget(nsurf, 
+                           cmap = heat.colors(256), 
+                           irange = c(-2, 2),
+                           width = "100%", 
+                           height = "400px")
+  
+  if (inherits(data_widget, "htmlwidget")) {
+    cat("**Data overlay widget created successfully**\n\n")
+    data_widget
+  } else {
+    cat("**Data widget creation failed**\n\n")
+  }
+}, error = function(e) {
+  cat("**Error creating data widget:**", e$message, "\n\n")
+})
+```
+
+## Advanced Configuration
+
+Fine-tune the appearance with custom configuration:
+
+```{r advanced-widget, results='asis'}
+tryCatch({
+  # Create ColorMappedNeuroSurface with threshold
+  color_mapped_surf <- ColorMappedNeuroSurface(
+    white_lh_smooth, 
+    indices = 1:length(random_vals), 
+    data = random_vals,
+    cmap = rainbow(256),
+    irange = c(-2.5, 2.5),
+    thresh = c(-1, 1)
+  )
+  
+  # Advanced configuration
+  advanced_config <- list(
+    shininess = 60,
+    specularColor = "#ffffff",
+    ambientLightColor = "#606060",
+    directionalLightColor = "#ffffff",
+    directionalLightIntensity = 0.7,
+    flatShading = FALSE
+  )
+  
+  advanced_widget <- surfwidget(color_mapped_surf, 
+                               config = advanced_config, 
+                               alpha = 0.9,
+                               width = "100%", 
+                               height = "450px")
+  
+  if (inherits(advanced_widget, "htmlwidget")) {
+    cat("**Advanced configuration widget created successfully**\n\n")
+    advanced_widget
+  } else {
+    cat("**Advanced widget creation failed**\n\n")
+  }
+}, error = function(e) {
+  cat("**Error creating advanced widget:**", e$message, "\n\n")
+})
+```
+
+## Vertex-Colored Surfaces
+
+Create surfaces with direct vertex coloring:
+
+```{r vertex-widget, results='asis'}
+tryCatch({
+  # Create vertex colors based on coordinates
+  x_coords <- coords(white_lh_smooth)[, 1]
+  vertex_colors <- ifelse(x_coords > median(x_coords), "#FF6B6B", "#4ECDC4")
+  
+  # Create VertexColoredNeuroSurface
+  vertex_surf <- VertexColoredNeuroSurface(
+    geometry = white_lh_smooth, 
+    indices = 1:length(vertex_colors), 
+    colors = vertex_colors
+  )
+  
+  # Custom material settings
+  material_config <- list(
+    shininess = 20,
+    specularColor = "#333333",
+    ambientLightColor = "#404040"
+  )
+  
+  vertex_widget <- surfwidget(vertex_surf, 
+                             config = material_config, 
+                             alpha = 0.8,
+                             width = "100%", 
+                             height = "400px")
+  
+  if (inherits(vertex_widget, "htmlwidget")) {
+    cat("**Vertex-colored widget created successfully**\n\n")
+    vertex_widget
+  } else {
+    cat("**Vertex widget creation failed**\n\n")
+  }
+}, error = function(e) {
+  cat("**Error creating vertex widget:**", e$message, "\n\n")
+})
+```
+
+## Interactive Controls
+
+When the widgets display properly, they include several interactive controls:
+
+- **Rotation**: Click and drag to rotate the surface
+- **Zoom**: Mouse wheel or pinch gestures to zoom in/out
+- **Pan**: Right-click and drag to pan the view
+- **Control Panel**: Adjust lighting, materials, color mapping, and viewpoints
+  - **Lighting**: Ambient and directional light colors and intensity
+  - **Material**: Surface shininess (metalness/roughness)
+  - **Camera**: Reset camera position and orientation
+  - **Color Map**: Real-time adjustment of intensity and threshold ranges
+  - **Viewpoint**: Switch between anatomical views (lateral, medial, ventral, posterior)
+  - **SSAO**: Screen-space ambient occlusion for enhanced depth perception
+
+## Troubleshooting
+
+**Widget Creation vs. Display:**
+
+The widgets should create successfully (as shown in the system check above), but may not display properly in vignette HTML output due to JavaScript module loading timing issues.
+
+**Testing in Interactive R:**
+
+All `surfwidget()` examples should work perfectly when run in an interactive R console:
+
+```{r eval=FALSE}
+# This should work in interactive R:
+library(neurosurf)
+white_lh_asc <- system.file("extdata", "std.8_lh.smoothwm.asc", package="neurosurf")
+white_lh <- read_surf(white_lh_asc)
+white_lh_smooth <- smooth(white_lh, type="HCLaplace", delta=.2, iteration=5)
+
+# Basic widget
+surfwidget(white_lh_smooth, width = "100%", height = "400px")
+
+# With data
+random_vals <- rnorm(length(nodes(white_lh_smooth)))
+nsurf <- NeuroSurface(white_lh_smooth, indices=1:length(random_vals), data=random_vals)
+surfwidget(nsurf, cmap = heat.colors(256), irange = c(-2, 2))
+```
+
+**Alternative: Save to File**
+
+For guaranteed display, save widgets to standalone HTML files:
+
+```{r eval=FALSE}
+widget <- surfwidget(white_lh_smooth, width = "100%", height = "400px")
+htmlwidgets::saveWidget(widget, "interactive_surface.html", selfcontained = TRUE)
+# Open the resulting HTML file in your browser
+```
+
+## Advantages over Static Plots
+
+Interactive widgets offer several advantages:
+
+- **Real-time interaction**: Rotate, zoom, and pan without re-rendering
+- **Dynamic controls**: Adjust visualization parameters interactively
+- **Web-based**: Works in HTML documents, Shiny apps, and R Markdown
+- **Touch support**: Works on tablets and mobile devices
+- **High-quality rendering**: Uses WebGL for smooth, hardware-accelerated graphics
+- **Data exploration**: Click on vertices to see coordinate and data values
+- **Multiple viewpoints**: Easily switch between anatomical orientations
+
+These interactive capabilities make `surfwidget()` ideal for exploratory data analysis and interactive presentations. 

@@ -2,21 +2,9 @@
 % Please edit documentation in R/Arith.R
 \name{Compare,NeuroSurface,numeric-method}
 \alias{Compare,NeuroSurface,numeric-method}
-\alias{Compare,NeuroSurfaceVector,NeuroSurfaceVector-method}
-\alias{Compare,NeuroSurfaceVector,numeric-method}
-\alias{Compare,numeric,NeuroSurfaceVector-method}
-\alias{Compare,NeuroSurface,NeuroSurface-method}
 \title{Comparison Operations for NeuroSurface Objects}
 \usage{
 \S4method{Compare}{NeuroSurface,numeric}(e1, e2)
-
-\S4method{Compare}{NeuroSurfaceVector,NeuroSurfaceVector}(e1, e2)
-
-\S4method{Compare}{NeuroSurfaceVector,numeric}(e1, e2)
-
-\S4method{Compare}{numeric,NeuroSurfaceVector}(e1, e2)
-
-\S4method{Compare}{NeuroSurface,NeuroSurface}(e1, e2)
 }
 \arguments{
 \item{e1}{the left operand}

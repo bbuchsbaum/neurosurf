@@ -15,17 +15,10 @@ RandomSurfaceSearchlight(
 \item{surfgeom}{A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.}
 
 \item{radius}{Numeric, radius of the searchlight as a geodesic distance in mm.
-
 Must be a positive numeric scalar.}
 
 \item{nodeset}{Integer vector, optional subset of surface node indices to use.
 If supplied, must contain more than one index.}
-
-Must be a positive, length-one value.}
-
-\item{nodeset}{Integer vector, optional subset of surface node indices to use.
-If provided, the vector must contain at least one node index.}
-
 
 \item{as_deflist}{Logical, whether to return a deflist object.}
 }
@@ -39,12 +32,18 @@ using geodesic distance to define regions.
 \details{
 On each call to \code{nextElem}, a set of surface nodes is returned.
 These nodes index into the vertices of the \code{igraph} instance.
+When \code{as_deflist=TRUE}, the random ordering of centers is fixed when the
+object is created. Use \code{set.seed} before construction for reproducible
+sequences.
 }
 \examples{
 \donttest{
 file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 geom <- read_surf(file)
 searchlight <- RandomSurfaceSearchlight(geom, 12)
+set.seed(42)
+dl <- RandomSurfaceSearchlight(geom, 12, as_deflist=TRUE)
+attr(dl[[1]], "center")
 nodes <- searchlight$nextElem()
 length(nodes) > 1
 }

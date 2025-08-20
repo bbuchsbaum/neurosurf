@@ -66,21 +66,27 @@ The different \code{boundary_method} options produce different boundary represen
 The function relies on graph theory algorithms to find and trace boundary paths,
 using adjacency matrices and shortest path algorithms to ensure boundaries form
 complete cycles around each ROI component.
-The structure of the return value depends on \code{boundary_method}:
+
+The structure of the returned list varies with \code{boundary_method}:
 \describe{
-  \item{\code{"faces"}}{\code{boundary} is a logical vector marking boundary
-    faces. Other entries in the list are \code{NULL}.}
-  \item{\code{"midpoint"}}{\code{boundary} contains coordinate matrices traced
-    through edge midpoints and \code{boundary_verts} gives the vertex pairs used.}
-  \item{\code{"centroid"}}{Boundaries are matrices of face centroid coordinates;
-    \code{boundary_verts} is \code{NULL}.}
-  \item{\code{"edge_vertices"}}{Boundaries follow original vertices and the
-    indices are stored in \code{boundary_verts}.}
-  \item{\code{"edge_faces"}}{Similar to \code{"edge_vertices"} but based on
-    face relationships; both \code{boundary} and \code{boundary_verts} are lists.}
+  \item{\code{"faces"}}{\code{boundary} is a logical vector the length of the
+    face matrix indicating which faces lie on an ROI boundary. The remaining
+    elements of the list are \code{NULL}.}
+  \item{\code{"midpoint"}}{\code{boundary} is a list of coordinate matrices
+    (each \code{n x 3}) representing boundary polygons traced through
+    edge midpoints. \code{boundary_verts} contains the vertex pairs used to
+    compute those midpoints.}
+  \item{\code{"centroid"}}{\code{boundary} is a list of coordinate matrices
+    defined by face centroids. \code{boundary_verts} is \code{NULL}.}
+  \item{\code{"edge_vertices"}}{\code{boundary} stores boundary polygons as
+    vertex coordinates and \code{boundary_verts} records the vertex indices of
+    each polygon.}
+  \item{\code{"edge_faces"}}{Similar to \code{"edge_vertices"} but uses face
+    relationships to trace the path. Both \code{boundary} and
+    \code{boundary_verts} are lists.}
 }
 
-Example structure returned by the \code{"faces"} method:
+Example return structure for the \code{"faces"} method:
 \preformatted{
 list(
   boundary = logical(n_faces),
@@ -90,7 +96,7 @@ list(
 )
 }
 
-Example for path-based methods:
+Example return structure for path-based methods (e.g. \code{"midpoint"}):
 \preformatted{
 list(
   boundary = list(matrix(nrow, 3), ...),

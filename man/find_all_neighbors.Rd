@@ -15,9 +15,9 @@ find_all_neighbors(
 \arguments{
 \item{surf}{A SurfaceGeometry object or igraph object representing the mesh}
 
-\item{radius}{Numeric; the spatial radius within which to search for neighbors. Must be positive}
+\item{radius}{Numeric; the spatial radius within which to search for neighbors. Must be positive.}
 
-\item{edgeWeights}{Numeric vector; weights for edges used in distance computation. Length must equal the number of edges}
+\item{edgeWeights}{Numeric vector; weights for edges used in distance computation. Length must equal the number of edges.}
 
 \item{nodes}{Integer vector; subset of nodes to find neighbors for. If NULL, uses all nodes}
 
@@ -48,7 +48,7 @@ g <- graph(surf)
 edge_weights <- rep(1, length(E(g)))
 
 # Find neighbors within a 10mm radius for the first 5 vertices
-neighbors <- find_all_neighbors(surf, radius = 10, 
+neighbors <- find_all_neighbors(surf, radius = 10,
                                edgeWeights = edge_weights,
                                nodes = 1:5,
                                distance_type = "geodesic")

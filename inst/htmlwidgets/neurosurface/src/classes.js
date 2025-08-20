@@ -9,6 +9,7 @@ export class SurfaceGeometry {
     this.hemi = hemi;
     this.vertexCurv = vertexCurv ? new Float32Array(vertexCurv) : null;
     this.mesh = null;
+    this.hemisphere = hemi; // Add hemisphere property for viewer
 
     debugLog('SurfaceGeometry constructor called');
     debugLog('Vertices:', this.vertices.length);
@@ -19,12 +20,13 @@ export class SurfaceGeometry {
   }
 
   createMesh() {
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(this.vertices, 3));
-    geometry.setIndex(new THREE.Uint32BufferAttribute(this.faces, 1));
-    if (this.vertexCurv) {
-      geometry.setAttribute('curv', new THREE.Float32BufferAttribute(this.vertexCurv, 1));
-    }
+    try {
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(this.vertices, 3));
+      geometry.setIndex(new THREE.Uint32BufferAttribute(this.faces, 1));
+      if (this.vertexCurv) {
+        geometry.setAttribute('curv', new THREE.Float32BufferAttribute(this.vertexCurv, 1));
+      }
     
     const material = new THREE.MeshPhongMaterial({
       color: 0xA9A9A9, // Set default color to dark gray
@@ -32,9 +34,28 @@ export class SurfaceGeometry {
       vertexColors: false
     });
 
-    this.mesh = new THREE.Mesh(geometry, material);
-    debugLog('SurfaceGeometry construction complete');
-    debugLog('Mesh:', this.mesh);
+      this.mesh = new THREE.Mesh(geometry, material);
+      debugLog('SurfaceGeometry construction complete');
+      debugLog('Mesh:', this.mesh);
+    } catch (error) {
+      console.error('Error creating mesh:', error);
+      throw error;
+    }
+  }
+
+  dispose() {
+    if (this.mesh) {
+      if (this.mesh.geometry) {
+        this.mesh.geometry.dispose();
+      }
+      if (this.mesh.material) {
+        this.mesh.material.dispose();
+      }
+      this.mesh = null;
+    }
+    this.vertices = null;
+    this.faces = null;
+    this.vertexCurv = null;
   }
 }
 
@@ -47,6 +68,7 @@ export class NeuroSurface {
     this.mesh = null;
     this.threshold = config.thresh || [0, 0];
     this.irange = config.irange || [Math.min(...data), Math.max(...data)];
+    this.hemisphere = geometry.hemisphere; // Pass through hemisphere
 
     this.config = {
       color: new THREE.Color(0xA9A9A9), // Set default color to dark gray
@@ -99,9 +121,6 @@ export class NeuroSurface {
     if (this.vertexCurv) {
       geometry.setAttribute('curv', new THREE.Float32BufferAttribute(this.vertexCurv, 1));
     }
-    if (this.vertexCurv) {
-      geometry.setAttribute('curv', new THREE.Float32BufferAttribute(this.vertexCurv, 1));
-    }
     
     const material = new THREE.MeshBasicMaterial({
       vertexColors: true // Will be set to true for colored surfaces
@@ -129,7 +148,20 @@ export class NeuroSurface {
 
     const vertexCount = this.geometry.vertices.length / 3;
     const componentsPerColor = this.colorMap.hasAlpha ? 4 : 3;
-    const colors = new Float32Array(vertexCount * componentsPerColor);
+    
+    // Get or create color attribute
+    let colorAttribute = this.mesh.geometry.getAttribute('color');
+    let colors;
+    
+    if (!colorAttribute || colorAttribute.array.length !== vertexCount * componentsPerColor) {
+      // Create new buffer only if it doesn't exist or has wrong size
+      colors = new Float32Array(vertexCount * componentsPerColor);
+      colorAttribute = new THREE.BufferAttribute(colors, componentsPerColor);
+      this.mesh.geometry.setAttribute('color', colorAttribute);
+    } else {
+      // Reuse existing buffer
+      colors = colorAttribute.array;
+    }
 
     if (this.config.alpha > 0) {
       if (!this.data) {
@@ -159,11 +191,33 @@ export class NeuroSurface {
       }
     }
 
-    this.mesh.geometry.setAttribute('color', new THREE.BufferAttribute(colors, componentsPerColor));
-    this.mesh.geometry.attributes.color.needsUpdate = true;
+    // Mark the attribute as needing update
+    colorAttribute.needsUpdate = true;
     this.mesh.material.vertexColors = true;
     this.mesh.material.transparent = this.colorMap.hasAlpha;
     this.mesh.material.needsUpdate = true;
+  }
+
+  dispose() {
+    if (this.mesh) {
+      if (this.mesh.geometry) {
+        this.mesh.geometry.dispose();
+      }
+      if (this.mesh.material) {
+        if (Array.isArray(this.mesh.material)) {
+          this.mesh.material.forEach(mat => mat.dispose());
+        } else {
+          this.mesh.material.dispose();
+        }
+      }
+      this.mesh = null;
+    }
+    
+    // Don't dispose geometry as it's shared
+    this.geometry = null;
+    this.indices = null;
+    this.data = null;
+    this.vertexCurv = null;
   }
 }
 
@@ -175,27 +229,17 @@ export class ColorMappedNeuroSurface extends NeuroSurface {
     this.rangeListener = null;
     this.thresholdListener = null;
     this.alphaListener = null;
+    this.viewer = null; // Will be set by viewer when added
 
     this.createMesh();  // Create the mesh first
-    this.setColorMap(colorMap);  // Set the color map and update colors
+    if (colorMap) {
+      this.setColorMap(colorMap);  // Set the color map and update colors
+    }
   }
 
   setColorMap(colorMap) {
-    if (this.colorMap) {
-      // Remove old listeners
-      if (typeof this.rangeListener === 'function') {
-        this.rangeListener();
-        this.rangeListener = null;
-      }
-      if (typeof this.thresholdListener === 'function') {
-        this.thresholdListener();
-        this.thresholdListener = null;
-      }
-      if (typeof this.alphaListener === 'function') {
-        this.alphaListener();
-        this.alphaListener = null;
-      }
-    }
+    // Clean up old listeners if they exist
+    this.removeColorMapListeners();
 
     if (!(colorMap instanceof ColorMap)) {
       if (typeof colorMap === 'string') {
@@ -267,10 +311,29 @@ export class ColorMappedNeuroSurface extends NeuroSurface {
       debugLog('ColorMap:', this.colorMap);
       return;
     }
+    
+    // Safety check for geometry
+    if (!this.mesh.geometry) {
+      console.warn('Mesh geometry not initialized');
+      return;
+    }
 
     const vertexCount = this.geometry.vertices.length / 3;
     const componentsPerColor = 4; // Always use RGBA
-    const colors = new Float32Array(vertexCount * componentsPerColor);
+    
+    // Get or create color attribute
+    let colorAttribute = this.mesh.geometry.getAttribute('color');
+    let colors;
+    
+    if (!colorAttribute || colorAttribute.array.length !== vertexCount * componentsPerColor) {
+      // Create new buffer only if it doesn't exist or has wrong size
+      colors = new Float32Array(vertexCount * componentsPerColor);
+      colorAttribute = new THREE.BufferAttribute(colors, componentsPerColor);
+      this.mesh.geometry.setAttribute('color', colorAttribute);
+    } else {
+      // Reuse existing buffer
+      colors = colorAttribute.array;
+    }
 
     debugLog('threshold', this.threshold);
     debugLog('irange', this.irange);
@@ -311,14 +374,19 @@ export class ColorMappedNeuroSurface extends NeuroSurface {
       }
     }
 
-    this.mesh.geometry.setAttribute('color', new THREE.BufferAttribute(colors, componentsPerColor));
-    this.mesh.geometry.attributes.color.needsUpdate = true;
+    // Mark the attribute as needing update
+    colorAttribute.needsUpdate = true;
     this.mesh.material.vertexColors = true;
     this.mesh.material.needsUpdate = true;
 
     // Ensure transparency is set correctly
     this.mesh.material.transparent = true;
     this.mesh.material.opacity = 1; // We're using per-vertex color blending now
+    
+    // Request a render if we have access to the viewer
+    if (this.viewer && this.viewer.requestRender) {
+      this.viewer.requestRender();
+    }
   }
 
   updateConfig(newConfig) {
@@ -343,6 +411,35 @@ export class ColorMappedNeuroSurface extends NeuroSurface {
     this.data = newData;
     this.updateColors();
   }
+
+  removeColorMapListeners() {
+    if (this.colorMap) {
+      // Remove listeners using stored references
+      if (this.rangeListener) {
+        this.colorMap.off('rangeChanged', this.rangeListener);
+        this.rangeListener = null;
+      }
+      if (this.thresholdListener) {
+        this.colorMap.off('thresholdChanged', this.thresholdListener);
+        this.thresholdListener = null;
+      }
+      if (this.alphaListener) {
+        this.colorMap.off('alphaChanged', this.alphaListener);
+        this.alphaListener = null;
+      }
+    }
+  }
+
+  dispose() {
+    // Remove event listeners first
+    this.removeColorMapListeners();
+    
+    // Call parent dispose
+    super.dispose();
+    
+    // Clean up color map reference
+    this.colorMap = null;
+  }
 }
 
 export class VertexColoredNeuroSurface extends NeuroSurface {
@@ -365,7 +462,24 @@ export class VertexColoredNeuroSurface extends NeuroSurface {
   updateColors() {
     if (!this.mesh) return;
 
-    const colors = new Float32Array(this.geometry.vertices.length);
+    const vertexCount = this.geometry.vertices.length / 3;
+    const componentsPerColor = 3;
+    
+    // Get or create color attribute
+    let colorAttribute = this.mesh.geometry.getAttribute('color');
+    let colors;
+    
+    if (!colorAttribute || colorAttribute.array.length !== vertexCount * componentsPerColor) {
+      // Create new buffer only if it doesn't exist or has wrong size
+      colors = new Float32Array(vertexCount * componentsPerColor);
+      colorAttribute = new THREE.BufferAttribute(colors, componentsPerColor);
+      this.mesh.geometry.setAttribute('color', colorAttribute);
+    } else {
+      // Reuse existing buffer
+      colors = colorAttribute.array;
+    }
+    
+    // Update colors in place
     for (let i = 0; i < this.indices.length; i++) {
       const index = this.indices[i];
       colors[index * 3] = this.colors[i * 3];
@@ -373,8 +487,8 @@ export class VertexColoredNeuroSurface extends NeuroSurface {
       colors[index * 3 + 2] = this.colors[i * 3 + 2];
     }
 
-    this.mesh.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    this.mesh.geometry.attributes.color.needsUpdate = true;
+    // Mark the attribute as needing update
+    colorAttribute.needsUpdate = true;
     this.mesh.material.vertexColors = true;
     this.mesh.material.needsUpdate = true;
   }
@@ -384,6 +498,14 @@ export class VertexColoredNeuroSurface extends NeuroSurface {
     mesh.material.vertexColors = true;
     this.updateColors();
     return mesh;
+  }
+
+  dispose() {
+    // Clean up colors array
+    this.colors = null;
+    
+    // Call parent dispose
+    super.dispose();
   }
 }
 

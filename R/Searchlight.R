@@ -79,8 +79,8 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
         attr(vout, "length") <- length(vout)
         vout
       } else {
-        attr(indices, "center") <- center
-        attr(indices, "center.index") <- center
+        attr(indices, "center") <- nds[center]
+        attr(indices, "center.index") <- nds[center]
         attr(indices, "length") <- length(indices)
         indices
       }
@@ -105,8 +105,8 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
         attr(vout, "length") <- length(vout)
         vout
       } else {
-        attr(indices, "center") <- center
-        attr(indices, "center.index") <- center
+        attr(indices, "center") <- nds[center]
+        attr(indices, "center.index") <- nds[center]
         attr(indices, "length") <- length(indices)
         indices
       }
@@ -193,8 +193,8 @@ SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type=c
         attr(indices, "length") <- length(indices)
         indices
       } else {
-        attr(indices, "center") <- n
-        attr(indices, "center.index") <- n
+        attr(indices, "center") <- nds[n]
+        attr(indices, "center.index") <- nds[n]
         attr(indices, "length") <- length(indices)
         indices
       }
@@ -216,8 +216,8 @@ SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type=c
         attr(indices, "length") <- length(indices)
         indices
       } else {
-        attr(indices, "center") <- index
-        attr(indices, "center.index") <- index
+        attr(indices, "center") <- nds[index]
+        attr(indices, "center.index") <- nds[index]
         attr(indices, "length") <- length(indices)
         indices
       }

@@ -321,7 +321,11 @@ setMethod("series", signature(x="NeuroSurface", i="numeric"),
             Matrix::t(x@data[i])
           })
 
-#' @rdname map_values-methods
+#' Map Values for NeuroSurface with List Lookup
+#' 
+#' @param x a \code{NeuroSurface} object
+#' @param lookup a list of values to map
+#' @rdname map_values-NeuroSurface-list-method
 #' @export
 setMethod("map_values", signature(x="NeuroSurface", lookup="list"),
           def=function(x,lookup) {
@@ -332,11 +336,13 @@ setMethod("map_values", signature(x="NeuroSurface", lookup="list"),
 
 
 
+#' Map Values for NeuroSurface with Matrix Lookup
+#'
 #' @importMethodsFrom neuroim2 map_values
 #' @param x a \code{NeuroSurface} object
 #' @param lookup a \code{matrix} with two columns: the first column is the key, and the second column is the value
 #' @export
-#' @rdname map_values-methods
+#' @rdname map_values-NeuroSurface-matrix-method
 setMethod("map_values", signature(x="NeuroSurface", lookup="matrix"),
           def=function(x,lookup) {
             if (ncol(lookup) != 2) {
@@ -500,6 +506,59 @@ NeuroSurface <- function(geometry, indices, data) {
 ColorMappedNeuroSurface <- function(geometry, indices, data, cmap, irange, thresh) {
   new("ColorMappedNeuroSurface", geometry=geometry, indices=as.integer(indices),
       data=data, cmap=cmap, irange=irange, thresh=thresh)
+}
+
+
+#' VertexColoredNeuroSurface
+#'
+#' This function creates a VertexColoredNeuroSurface object, which represents a surface
+#' with explicit colors assigned to each vertex.
+#'
+#' @param geometry A \code{SurfaceGeometry} object representing the underlying surface structure.
+#' @param indices An integer vector specifying the indices of valid surface nodes.
+#' @param colors A character vector of hex color codes for each vertex.
+#' @param data An optional numeric vector of data values. If not provided, defaults to zeros.
+#'   This parameter exists for compatibility with the parent NeuroSurface class but is not
+#'   used for coloring (colors are specified directly via the \code{colors} parameter).
+#'
+#' @details This object represents a surface where each vertex has an explicitly assigned color,
+#'   bypassing any data-to-color mapping. This is useful when you want direct control over
+#'   vertex colors, such as when displaying parcellation results or pre-computed color schemes.
+#'
+#' @examples
+#' \donttest{
+#' # Load a sample surface geometry
+#' surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
+#' surf_geom <- read_surf_geometry(surf_file)
+#'
+#' # Get first 100 vertices for this example
+#' n_verts <- min(100, nrow(coords(surf_geom)))
+#' vertex_indices <- 1:n_verts
+#'
+#' # Create colors based on vertex coordinates (x-position)
+#' x_coords <- coords(surf_geom)[vertex_indices, 1]
+#' vertex_colors <- ifelse(x_coords > median(x_coords), "#FF6B6B", "#4ECDC4")
+#'
+#' # Create the VertexColoredNeuroSurface object
+#' colored_surf <- VertexColoredNeuroSurface(geometry = surf_geom,
+#'                                           indices = vertex_indices,
+#'                                           colors = vertex_colors)
+#'
+#' # Print the object summary
+#' print(colored_surf)
+#'
+#' # The object can now be plotted with the specified colors
+#' # plot(colored_surf) # Requires rgl package
+#' }
+#'
+#' @seealso \code{\link{SurfaceGeometry}}, \code{\link{NeuroSurface}}, \code{\link{ColorMappedNeuroSurface}}
+#' @export
+VertexColoredNeuroSurface <- function(geometry, indices, colors, data = NULL) {
+  if (is.null(data)) {
+    data <- rep(0, length(indices))
+  }
+  new("VertexColoredNeuroSurface", geometry=geometry, indices=as.integer(indices),
+      data=data, colors=colors)
 }
 
 

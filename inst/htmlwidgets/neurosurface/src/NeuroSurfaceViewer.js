@@ -52,10 +52,15 @@ export class NeuroSurfaceViewer {
 
     this.animationId = null; // Store animation frame id for cleanup
     this.paneContainer = null; // Reference to tweakpane container
+    this.needsRender = true; // Flag for on-demand rendering
 
     this.dataRange = { min: 0, max: 500 }; // Initialize to default values
     this.intensityRange = { range: { min: 0, max: 500 } };
     this.thresholdRange = { range: { min: 0, max: 0 } }; // Set default threshold to [0, 0]
+
+    // Bind methods to preserve context
+    this.animate = this.animate.bind(this);
+    this.onControlsChange = this.onControlsChange.bind(this);
 
     this.viewpoints = {
       left_lateral: new THREE.Matrix4().set(
@@ -112,8 +117,7 @@ export class NeuroSurfaceViewer {
     this.setViewpoint(this.viewpoint); // Set the initial viewpoint
     this.centerCamera(); // Center the camera after setting the viewpoint
 
-    this.animate = this.animate.bind(this);
-    this.animate();
+    // Don't automatically start render loop - let the widget control it
   }
 
   setupRenderer() {
@@ -146,12 +150,19 @@ export class NeuroSurfaceViewer {
   }
 
   setupEnvironment() {
-    new RGBELoader().load('assets/studio_small_09_2k.hdr', (tex) => {
-      tex.mapping = THREE.EquirectangularReflectionMapping;
-      this.environmentMap = tex;
-      this.scene.environment = tex;
-      this.updateMaterials();
-    });
+    new RGBELoader().load('assets/studio_small_09_2k.hdr', 
+      (tex) => {
+        tex.mapping = THREE.EquirectangularReflectionMapping;
+        this.environmentMap = tex;
+        this.scene.environment = tex;
+        this.updateMaterials();
+      },
+      undefined, // Progress callback
+      (error) => {
+        // Silently fail - environment map is optional
+        debugLog('Failed to load environment map:', error);
+      }
+    );
   }
 
   setupControls() {
@@ -163,6 +174,13 @@ export class NeuroSurfaceViewer {
     this.controls.noPan = false;
     this.controls.staticMoving = true;
     this.controls.dynamicDampingFactor = 0.3;
+    
+    // Listen for control changes to enable on-demand rendering
+    this.controls.addEventListener('change', this.onControlsChange);
+  }
+
+  onControlsChange() {
+    this.needsRender = true;
   }
 
   setupPostProcessing() {
@@ -255,22 +273,11 @@ export class NeuroSurfaceViewer {
       expanded: true,
     });
 
-    // Add intensity range slider
-    this.intensityRangeControl = colorMapFolder.addBinding(this.intensityRange, 'range', {
-      label: 'Intensity Range',
-      min: this.dataRange.min,
-      max: this.dataRange.max,
-      step: 0.01,
-    }).on('change', this.updateIntensityRange.bind(this));
+    // Store reference to the folder for dynamic control recreation
+    this.colorMapFolder = colorMapFolder;
 
-    // Add threshold range slider
-    this.thresholdRangeControl = colorMapFolder.addBinding(this.thresholdRange, 'range', {
-      label: 'Threshold Range',
-      min: this.dataRange.min,
-      max: this.dataRange.max,
-      step: 0.01,
-    }).on('change', this.updateThresholdRange.bind(this));
-
+    // Create initial range controls
+    this.createRangeControls();
 
     // SSAO folder
     const ssaoFolder = this.pane.addFolder({
@@ -286,7 +293,7 @@ export class NeuroSurfaceViewer {
     }).on('change', (ev) => {
       if (this.ssaoPass) {
         this.ssaoPass.kernelRadius = ev.value;
-        this.render();
+        this.requestRender();
       }
     });
 
@@ -301,8 +308,9 @@ export class NeuroSurfaceViewer {
         if (typeof this.ssaoPass.generateSampleKernel === 'function') {
           this.ssaoPass.generateSampleKernel();
         }
-        this.render();
+        this.requestRender();
       }
+    });
 
     // Material folder
     const materialFolder = this.pane.addFolder({
@@ -401,7 +409,7 @@ export class NeuroSurfaceViewer {
       this.viewpointState.viewpoint = viewpoint;
     }
    
-    this.render();
+    this.requestRender();
   }
 
   updateColormap(presetName) {
@@ -411,27 +419,27 @@ export class NeuroSurfaceViewer {
         surface.updateColors();
       }
     });
-    this.render();
+    this.requestRender();
   }
 
   updateAmbientLight(color) {
     if (this.ambientLight) {
       this.ambientLight.color.setHex(color);
-      this.render();
+      this.requestRender();
     }
   }
 
   updateDirectionalLight(color) {
     if (this.directionalLight) {
       this.directionalLight.color.setHex(color);
-      this.render();
+      this.requestRender();
     }
   }
 
   updateDirectionalLightIntensity(intensity) {
     if (this.directionalLight) {
       this.directionalLight.intensity = intensity;
-      this.render();
+      this.requestRender();
     }
   }
 
@@ -455,7 +463,7 @@ export class NeuroSurfaceViewer {
       surface.mesh.geometry.computeVertexNormals();
       surface.mesh.material.needsUpdate = true;
     });
-    this.render();
+    this.requestRender();
   }
 
   updateIntensityRange() {
@@ -481,39 +489,100 @@ export class NeuroSurfaceViewer {
   resetCamera() {
     if (this.camera && this.controls) {
       this.setViewpoint(this.viewpoint); // Reset to the current viewpoint
-      this.render();
+      this.requestRender();
     }
   }
 
   addSurface(surface, id) {
-    debugLog('Adding surface:', surface, 'with id:', id);
-    this.surfaces.set(id, surface);
-    if (!surface.mesh) {
-      console.warn('Surface mesh not created. Creating now.');
-      surface.createMesh();
-    }
-    if (surface.mesh && surface.mesh.material) {
-      this.applyRimLighting(surface.mesh.material);
-      this.applyCurvatureShading(surface.mesh);
-    }
-    this.scene.add(surface.mesh);
-    this.updateMaterials();
+    try {
+      debugLog('Adding surface:', surface, 'with id:', id);
+      
+      if (!surface) {
+        throw new Error('Surface is null or undefined');
+      }
+      
+      if (!id) {
+        throw new Error('Surface ID is required');
+      }
+      
+      this.surfaces.set(id, surface);
+      
+      // Set viewer reference for render callbacks
+      if (surface.viewer !== undefined) {
+        surface.viewer = this;
+      }
+      
+      if (!surface.mesh) {
+        console.warn('Surface mesh not created. Creating now.');
+        surface.createMesh();
+      }
+      
+      if (!surface.mesh) {
+        throw new Error('Failed to create surface mesh');
+      }
+      
+      if (surface.mesh && surface.mesh.material) {
+        this.applyRimLighting(surface.mesh.material);
+        this.applyCurvatureShading(surface.mesh);
+      }
+      
+      this.scene.add(surface.mesh);
+      this.updateMaterials();
     
-    if (surface instanceof ColorMappedNeuroSurface) {
-      debugLog('Updating data range for ColorMappedNeuroSurface');
+    // Update data range for any surface with data
+    if (surface.data && surface.data.length > 0) {
+      debugLog('Updating data range for surface with data');
       this.updateDataRange(surface.data);
+      this.updateRangeControls();
+    } else {
+      debugLog('Surface has no data, using default ranges');
+      // For surfaces without data (like basic SurfaceGeometry), set reasonable defaults
+      this.updateDataRange([0, 1]);
       this.updateRangeControls();
     }
     
-    if (this.surfaces.size === 1) {
-      this.resetCamera(); // Center the camera when the first surface is added
+      if (this.surfaces.size === 1) {
+        this.resetCamera(); // Center the camera when the first surface is added
+      }
+      this.requestRender();
+    } catch (error) {
+      console.error('Error adding surface:', error);
+      // Remove the surface if it was partially added
+      if (id && this.surfaces.has(id)) {
+        this.surfaces.delete(id);
+      }
+      throw error;
     }
-    this.render();
   }
 
   updateDataRange(data) {
-    const min = Math.min(...data);
-    const max = Math.max(...data);
+    if (!data || data.length === 0) {
+      debugLog('No data provided to updateDataRange, using defaults');
+      this.dataRange.min = 0;
+      this.dataRange.max = 1;
+      this.intensityRange.range.min = 0;
+      this.intensityRange.range.max = 1;
+      this.thresholdRange.range.min = 0;
+      this.thresholdRange.range.max = 0;
+      return;
+    }
+
+    const validData = data.filter(d => d !== null && d !== undefined && !isNaN(d));
+    if (validData.length === 0) {
+      debugLog('No valid data found, using defaults');
+      this.dataRange.min = 0;
+      this.dataRange.max = 1;
+      this.intensityRange.range.min = 0;
+      this.intensityRange.range.max = 1;
+      this.thresholdRange.range.min = 0;
+      this.thresholdRange.range.max = 0;
+      return;
+    }
+
+    const min = Math.min(...validData);
+    const max = Math.max(...validData);
+    
+    debugLog('Data range detected:', { min, max, dataPoints: validData.length });
     
     this.dataRange.min = min;
     this.dataRange.max = max;
@@ -522,34 +591,65 @@ export class NeuroSurfaceViewer {
     this.intensityRange.range.min = min;
     this.intensityRange.range.max = max;
 
-    // Keep threshold range at [0, 0]
-    this.thresholdRange.range.min = 0;
-    this.thresholdRange.range.max = 0;
+    // Set threshold range to a reasonable default (middle 50% of data)
+    const range = max - min;
+    const quarterRange = range * 0.25;
+    this.thresholdRange.range.min = min + quarterRange;
+    this.thresholdRange.range.max = max - quarterRange;
 
-    this.updateRangeControls();
+    debugLog('Updated ranges:', {
+      dataRange: this.dataRange,
+      intensityRange: this.intensityRange.range,
+      thresholdRange: this.thresholdRange.range
+    });
   }
 
   updateRangeControls() {
-    // Update intensity range control
-    this.intensityRangeControl.min = this.dataRange.min;
-    this.intensityRangeControl.max = this.dataRange.max;
-    this.intensityRangeControl.value = this.intensityRange.range;
+    debugLog('Updating range controls');
+    
+    // Check if controls exist
+    if (!this.intensityRangeControl || !this.thresholdRangeControl || !this.colorMapFolder) {
+      debugLog('Range controls not initialized yet');
+      return;
+    }
 
-    // Update threshold range control
-    this.thresholdRangeControl.min = this.dataRange.min;
-    this.thresholdRangeControl.max = this.dataRange.max;
-    this.thresholdRangeControl.value = this.thresholdRange.range;
-
-    // Refresh the controls
-    this.intensityRangeControl.refresh();
-    this.thresholdRangeControl.refresh();
+    try {
+      debugLog('Recreating range controls with new data range', this.dataRange);
+      
+      // Remove existing controls
+      this.colorMapFolder.remove(this.intensityRangeControl);
+      this.colorMapFolder.remove(this.thresholdRangeControl);
+      
+      // Clamp the current range values to the new data range
+      this.intensityRange.range.min = Math.max(this.intensityRange.range.min, this.dataRange.min);
+      this.intensityRange.range.max = Math.min(this.intensityRange.range.max, this.dataRange.max);
+      
+      this.thresholdRange.range.min = Math.max(this.thresholdRange.range.min, this.dataRange.min);
+      this.thresholdRange.range.max = Math.min(this.thresholdRange.range.max, this.dataRange.max);
+      
+      // Recreate controls with new ranges
+      this.createRangeControls();
+      
+      debugLog('Range controls recreated successfully', {
+        intensityRange: this.intensityRange.range,
+        thresholdRange: this.thresholdRange.range,
+        dataRange: this.dataRange
+      });
+    } catch (error) {
+      console.warn('Error updating range controls:', error);
+    }
   }
 
   removeSurface(id) {
     const surface = this.surfaces.get(id);
     if (surface) {
       this.scene.remove(surface.mesh);
+      // Dispose the surface properly
+      if (surface.dispose && typeof surface.dispose === 'function') {
+        surface.dispose();
+      }
       this.surfaces.delete(id);
+      this.requestRender();
     }
   }
 
@@ -567,8 +667,32 @@ export class NeuroSurfaceViewer {
 
   animate() {
     this.animationId = requestAnimationFrame(this.animate);
-    this.controls.update();
-    this.render();
+    
+    // Update controls - returns true if camera changed
+    const controlsNeedUpdate = this.controls.update();
+    
+    // Only render when needed
+    if (controlsNeedUpdate || this.needsRender) {
+      this.requestRender();
+      this.needsRender = false;
+    }
+  }
+
+  start() {
+    if (this.animationId === null) {
+      this.animate();
+    }
+  }
+
+  stop() {
+    if (this.animationId !== null) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
+  }
+
+  requestRender() {
+    this.needsRender = true;
   }
 
   render() {
@@ -616,7 +740,7 @@ export class NeuroSurfaceViewer {
       this.updateDataRange(newData);
       this.updateRangeControls();
       surface.updateColors();
-      this.render();
+      this.requestRender();
       debugLog(`Updated data for surface with id: ${id}`);
     } else {
       console.warn(`No ColorMappedNeuroSurface found with id: ${id}`);
@@ -627,7 +751,7 @@ export class NeuroSurfaceViewer {
     const surface = this.surfaces.get(id);
     if (surface && surface instanceof VertexColoredNeuroSurface) {
       surface.setColors(colors);
-      this.render();
+      this.requestRender();
       debugLog(`Updated colors for surface with id: ${id}`);
     } else {
       console.warn(`No VertexColoredNeuroSurface found with id: ${id}`);
@@ -714,7 +838,7 @@ export class NeuroSurfaceViewer {
   updateRimStrength(strength) {
     this.config.rimStrength = strength;
     this.rimStrengthUniforms.forEach(u => { u.value = strength; });
-    this.render();
+    this.requestRender();
   }
 
   setupPicking() {
@@ -779,14 +903,66 @@ export class NeuroSurfaceViewer {
   }
 
   dispose() {
-    if (this.animationId !== null) {
-      cancelAnimationFrame(this.animationId);
-      this.animationId = null;
-    }
+    // Stop animation loop
+    this.stop();
+    
+    // Dispose all surfaces
+    this.surfaces.forEach((surface, id) => {
+      this.removeSurface(id);
+    });
+    this.surfaces.clear();
+    
+    // Remove event listeners
     if (this.controls) {
+      this.controls.removeEventListener('change', this.onControlsChange);
       this.controls.dispose();
       this.controls = null;
     }
+    
+    // Dispose of scene objects
+    this.scene.traverse((object) => {
+      if (object.geometry) {
+        object.geometry.dispose();
+      }
+      if (object.material) {
+        if (Array.isArray(object.material)) {
+          object.material.forEach(material => {
+            this.disposeMaterial(material);
+          });
+        } else {
+          this.disposeMaterial(object.material);
+        }
+      }
+    });
+    
+    // Clear scene
+    while(this.scene.children.length > 0) {
+      this.scene.remove(this.scene.children[0]);
+    }
+    
+    // Dispose post-processing
+    if (this.composer) {
+      // Dispose render targets
+      if (this.composer.renderTarget1) {
+        this.composer.renderTarget1.dispose();
+      }
+      if (this.composer.renderTarget2) {
+        this.composer.renderTarget2.dispose();
+      }
+      this.composer = null;
+      this.renderPass = null;
+      this.ssaoPass = null;
+    }
+    
+    // Dispose renderer
+    if (this.renderer) {
+      this.renderer.dispose();
+      this.renderer.forceContextLoss();
+      this.renderer.domElement = null;
+      this.renderer = null;
+    }
+    
+    // Dispose Tweakpane
     if (this.pane && typeof this.pane.dispose === 'function') {
       this.pane.dispose();
     }
@@ -794,10 +970,41 @@ export class NeuroSurfaceViewer {
       this.paneContainer.parentNode.removeChild(this.paneContainer);
       this.paneContainer = null;
     }
-    if (this.composer) {
-      this.composer = null;
-      this.renderPass = null;
-      this.ssaoPass = null;
-    }
+    
+    // Clear references
+    this.camera = null;
+    this.scene = null;
+    this.ambientLight = null;
+    this.directionalLight = null;
+    this.light = null;
+    this.environmentMap = null;
+  }
+
+  disposeMaterial(material) {
+    if (material.map) material.map.dispose();
+    if (material.lightMap) material.lightMap.dispose();
+    if (material.bumpMap) material.bumpMap.dispose();
+    if (material.normalMap) material.normalMap.dispose();
+    if (material.specularMap) material.specularMap.dispose();
+    if (material.envMap) material.envMap.dispose();
+    material.dispose();
+  }
+
+  createRangeControls() {
+    // Add intensity range slider
+    this.intensityRangeControl = this.colorMapFolder.addBinding(this.intensityRange, 'range', {
+      label: 'Intensity Range',
+      min: this.dataRange.min,
+      max: this.dataRange.max,
+      step: 0.01,
+    }).on('change', this.updateIntensityRange.bind(this));
+
+    // Add threshold range slider
+    this.thresholdRangeControl = this.colorMapFolder.addBinding(this.thresholdRange, 'range', {
+      label: 'Threshold Range',
+      min: this.dataRange.min,
+      max: this.dataRange.max,
+      step: 0.01,
+    }).on('change', this.updateThresholdRange.bind(this));
   }
 }
