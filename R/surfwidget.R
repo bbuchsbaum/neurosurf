@@ -362,3 +362,130 @@ updateZoom <- function(widget, zoom) {
 updateRotationSpeed <- function(widget, speed) {
   htmlwidgets::invokeMethod(widget, "setRotationSpeed", speed)
 }
+
+#' Debugging Helper for surfwidget
+#'
+#' This function helps diagnose issues with surfwidget rendering by checking
+#' common problems and providing debugging information.
+#'
+#' @param x The surface object you're trying to visualize
+#' @param verbose Logical, whether to print detailed information
+#'
+#' @return Invisibly returns a list of diagnostic information
+#'
+#' @examples
+#' \donttest{
+#' # Load a surface and check it
+#' surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package="neurosurf")
+#' surf <- read_surf(surf_file)
+#' debug_surfwidget(surf)
+#' }
+#'
+#' @export
+debug_surfwidget <- function(x, verbose = TRUE) {
+  diagnostics <- list()
+  
+  if (verbose) {
+    cat("=== surfwidget Diagnostic Report ===\n\n")
+  }
+  
+  # Check object class
+  obj_class <- class(x)[1]
+  diagnostics$class <- obj_class
+  if (verbose) {
+    cat("Object class:", obj_class, "\n")
+  }
+  
+  # Check basic structure
+  if (inherits(x, "SurfaceGeometry")) {
+    n_vertices <- nrow(coords(x))
+    n_faces <- ncol(x@mesh$it)
+    hemi <- x@hemi
+    
+    diagnostics$n_vertices <- n_vertices
+    diagnostics$n_faces <- n_faces
+    diagnostics$hemisphere <- hemi
+    
+    if (verbose) {
+      cat("Vertices:", n_vertices, "\n")
+      cat("Faces:", n_faces, "\n") 
+      cat("Hemisphere:", hemi, "\n")
+    }
+    
+    # Check for common issues
+    issues <- character(0)
+    
+    if (n_vertices == 0) {
+      issues <- c(issues, "No vertices found")
+    }
+    
+    if (n_faces == 0) {
+      issues <- c(issues, "No faces found")
+    }
+    
+    if (is.null(x@mesh)) {
+      issues <- c(issues, "Mesh is NULL")
+    }
+    
+    if (length(issues) > 0) {
+      diagnostics$issues <- issues
+      if (verbose) {
+        cat("\n⚠️  Issues found:\n")
+        for (issue in issues) {
+          cat("  -", issue, "\n")
+        }
+      }
+    } else {
+      diagnostics$issues <- "None"
+      if (verbose) {
+        cat("\n✅ Basic structure looks good\n")
+      }
+    }
+    
+  } else if (inherits(x, "NeuroSurface")) {
+    geom_diag <- debug_surfwidget(x@geometry, verbose = FALSE)
+    diagnostics <- c(diagnostics, geom_diag)
+    
+    n_data <- length(x@data)
+    n_indices <- length(x@indices)
+    
+    diagnostics$n_data_points <- n_data
+    diagnostics$n_indices <- n_indices
+    
+    if (verbose) {
+      cat("Geometry info:\n")
+      cat("  Vertices:", geom_diag$n_vertices, "\n")
+      cat("  Faces:", geom_diag$n_faces, "\n")
+      cat("  Hemisphere:", geom_diag$hemisphere, "\n")
+      cat("Data info:\n")
+      cat("  Data points:", n_data, "\n")
+      cat("  Indices:", n_indices, "\n")
+    }
+    
+    # Check data consistency
+    if (n_data != n_indices) {
+      diagnostics$data_issues <- "Data length doesn't match indices length"
+      if (verbose) {
+        cat("\n⚠️  Data/indices length mismatch\n")
+      }
+    }
+  }
+  
+  # JavaScript debugging instructions
+  if (verbose) {
+    cat("\n=== JavaScript Debugging ===\n")
+    cat("1. Open browser developer tools (F12)\n")
+    cat("2. Go to Console tab\n")
+    cat("3. Run: neurosurface.setDebug(true)\n")
+    cat("4. Reload the page and check console for debug messages\n")
+    cat("5. Look for error messages in red\n\n")
+    
+    cat("=== Common Solutions ===\n")
+    cat("• If widget is blank: Check JavaScript console for errors\n")
+    cat("• If data doesn't show: Verify data ranges and color mapping\n")
+    cat("• If widget doesn't load: Check if WebGL is supported\n")
+    cat("• Try with a simpler surface first\n")
+  }
+  
+  invisible(diagnostics)
+}

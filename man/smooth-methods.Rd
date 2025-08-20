@@ -3,7 +3,6 @@
 \name{smooth}
 \alias{smooth}
 \alias{smooth,SurfaceGeometry-method}
-\alias{smooth,NeuroSurface-method}
 \title{Generic Function for Smoothing a Surface or Associated Data}
 \usage{
 smooth(x, ...)
@@ -17,13 +16,11 @@ smooth(x, ...)
   delta = 0.1,
   iteration = 5
 )
-
-\S4method{smooth}{NeuroSurface}(x, sigma = 5, ...)
 }
 \arguments{
-\item{x}{A \code{\linkS4class{NeuroSurface}} object containing the brain surface and associated data to be smoothed.}
+\item{x}{A \code{\linkS4class{SurfaceGeometry}} object representing the brain surface to be smoothed.}
 
-\item{...}{Additional arguments passed to the smoothing function.}
+\item{...}{Additional arguments passed to the specific method for smoothing the surface object.}
 
 \item{type}{A character string specifying the smoothing algorithm to use. Available options are:
 \describe{
@@ -42,20 +39,14 @@ smooth(x, ...)
 \item{delta}{A numeric value used in certain smoothing algorithms to adjust the influence of smoothing (e.g., in surface-preserving methods).}
 
 \item{iteration}{An integer specifying the number of smoothing iterations to apply. More iterations result in a smoother surface but can also lead to excessive flattening.}
-
-\item{sigma}{A numeric value specifying the smoothing radius. This defines the neighborhood around each vertex used to compute the smoothed value. Default is 5.}
 }
 \value{
 The function returns the smoothed \code{SurfaceGeometry} object with the updated mesh.
-
-A new \code{NeuroSurface} object with the smoothed data values. The geometry remains unchanged.
 }
 \description{
 The \code{smooth} function is a generic function designed to apply smoothing operations to various surface objects. The specific behavior of the function depends on the class of the object passed as the \code{x} argument. It can be used to smooth the geometry of a surface, the data associated with a surface, or other related operations depending on the method implemented for the object's class.
 
 This method applies smoothing to a brain surface geometry object of class \code{SurfaceGeometry} using various algorithms. Smoothing is useful for removing noise and creating a more continuous surface.
-
-This method applies smoothing to the data values associated with a \code{\linkS4class{NeuroSurface}} object. Unlike the geometric smoothing applied to \code{\linkS4class{SurfaceGeometry}}, this function smooths the scalar values (e.g., intensity or activation) associated with each vertex on the surface.
 }
 \details{
 The \code{smooth} function provides a common interface for smoothing operations on different types of surface objects. The actual smoothing process varies based on the class of the object provided:
@@ -65,10 +56,6 @@ The \code{smooth} function provides a common interface for smoothing operations 
 }
 
 Users should refer to the specific method documentation for the class of object they are working with to understand the exact behavior and parameters.
-
-The smoothing process involves averaging the data values within the neighborhood of each vertex. For each vertex on the surface, the function calculates the mean of its own value and the values of its adjacent vertices within the graph structure of the surface. The result is a smoother representation of the data, which can be useful for reducing noise or visualizing broader trends on the surface.
-
-The smoothing is particularly useful when working with noisy data or when a smoother representation of the underlying signal is desired. It is commonly applied in neuroimaging to enhance visualization or prepare data for further analysis.
 }
 \examples{
 \dontrun{
@@ -80,7 +67,7 @@ The smoothing is particularly useful when working with noisy data or when a smoo
 }
 
 # Load a surface file from the extdata directory
-surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
+surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 surface <- readAsc(surf_file)
 
 # Apply Taubin smoothing to the brain surface
@@ -89,32 +76,9 @@ smoothed_surface1 <- smooth(surface, type = "taubin", lambda = 0.5, mu = -0.5, i
 # Apply surface-preserving Laplacian smoothing
 smoothed_surface2 <- smooth(surface, type = "surfPreserveLaplace", iteration = 5)
 
-# Load a surface file from the extdata directory
-surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
-surface <- readAsc(surf_file)
-
-# Create some random data for the surface vertices
-n_vertices <- nrow(coords(surface))
-random_data <- rnorm(n_vertices)
-
-# Create a NeuroSurface object with the surface and data
-neuro_surf <- NeuroSurface(geometry = surface, 
-                          indices = 1:n_vertices,
-                          data = random_data)
-
-# Apply smoothing to the data
-smoothed_data_surface <- smooth(neuro_surf, sigma = 3)
-
-# The original geometry is preserved, but the data is smoothed
-# Compare a small section of data before and after smoothing
-head(random_data)
-head(series(smoothed_data_surface))
-
 }
 \seealso{
 \code{\link{smooth,SurfaceGeometry-method}}, \code{\link{smooth,NeuroSurface-method}}
 
 \code{\link[Rvcg]{vcgSmooth}} for more details on the underlying smoothing algorithms.
-
-\code{\link{smooth,SurfaceGeometry-method}} for smoothing the geometry of a surface.
 }

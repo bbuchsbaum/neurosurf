@@ -20,13 +20,18 @@ A new \code{NeuroSurface} object with the smoothed data values. The geometry rem
 This method applies smoothing to the data values associated with a \code{\linkS4class{NeuroSurface}} object. Unlike the geometric smoothing applied to \code{\linkS4class{SurfaceGeometry}}, this function smooths the scalar values (e.g., intensity or activation) associated with each vertex on the surface.
 }
 \details{
-The smoothing process involves averaging the data values within a geodesic neighbourhood of each vertex.  For every vertex the function uses \code{find_all_neighbors} to locate all vertices within the radius specified by \code{sigma}.  The smoothed value is the mean of the vertex's own value and those of its neighbours.  Increasing \code{sigma} results in broader smoothing because more neighbours are included in the average.
+The smoothing process involves averaging the data values within a geodesic
+neighbourhood of each vertex.  For every vertex the function uses
+\code{\link{find_all_neighbors}} to locate all vertices within the radius
+specified by \code{sigma}.  The smoothed value is the mean of the vertex's own
+value and those of its neighbours.  Increasing \code{sigma} results in
+broader smoothing because more neighbours are included in the average.
 
 The smoothing is particularly useful when working with noisy data or when a smoother representation of the underlying signal is desired. It is commonly applied in neuroimaging to enhance visualization or prepare data for further analysis.
 }
 \examples{
 # Load a surface file from the extdata directory
-surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
 surface <- readAsc(surf_file)
 
 # Create some random data for the surface vertices
@@ -34,7 +39,7 @@ n_vertices <- nrow(coords(surface))
 random_data <- rnorm(n_vertices)
 
 # Create a NeuroSurface object with the surface and data
-neuro_surf <- NeuroSurface(geometry = surface, 
+neuro_surf <- NeuroSurface(geometry = surface,
                           indices = 1:n_vertices,
                           data = random_data)
 

@@ -9,9 +9,11 @@ SurfaceDisk(surf, index, radius, max_order = NULL)
 \arguments{
 \item{surf}{a \code{SurfaceGeometry} or \code{BrainSurface} or \code{BrainSurfaceVector}}
 
-\item{index}{the index of the central surface node. Must be an integer within\code{1:length(V(surf@graph))}.}
+\item{index}{the index of the central surface node. Must be a numeric
+integer value within \code{1:length(V(surf@graph))}.}
 
-\item{radius}{the size in mm of the geodesic radius. Must be a single positive numeric value.}
+\item{radius}{the size in mm of the geodesic radius. Must be a single
+positive numeric value.}
 
 \item{max_order}{maximum number of edges to traverse.
 default is computed based on average edge length.}
@@ -20,7 +22,7 @@ default is computed based on average edge length.}
 Creates a Region on a Surface from a radius and surface
 }
 \details{
-The igraph object contained in \code{surf} must provide an edge
-attribute named \code{dist} and it must not contain \code{NA}
-values.
+The igraph associated with \code{surf} must have an edge
+  attribute named \code{dist} containing numeric weights with no
+  \code{NA} values.
 }

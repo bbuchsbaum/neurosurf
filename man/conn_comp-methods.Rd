@@ -56,7 +56,7 @@ for (center in cluster_centers) {
 }
 
 # Create a NeuroSurface object
-neuro_surf <- NeuroSurface(geometry = surf_geom, 
+neuro_surf <- NeuroSurface(geometry = surf_geom,
                           indices = 1:n_vertices,
                           data = random_data)
 

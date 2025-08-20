@@ -4,11 +4,12 @@
 \alias{surfwidgetOutput}
 \alias{renderSurfwidget}
 \alias{updateSurfwidgetConfig}
-\alias{updateColorMap}
 \alias{updateIRange}
 \alias{updateThreshold}
 \alias{updateVertexColors}
 \alias{updateAlpha}
+\alias{updateZoom}
+\alias{updateRotationSpeed}
 \title{Shiny bindings for surfwidget}
 \usage{
 surfwidgetOutput(outputId, width = "100\%", height = "400px")
@@ -17,8 +18,6 @@ renderSurfwidget(expr, env = parent.frame(), quoted = FALSE)
 
 updateSurfwidgetConfig(session, id, config)
 
-updateColorMap(widget, colorMap)
-
 updateIRange(widget, min, max)
 
 updateThreshold(widget, min, max)
@@ -26,6 +25,10 @@ updateThreshold(widget, min, max)
 updateVertexColors(widget, colors)
 
 updateAlpha(widget, alpha)
+
+updateZoom(widget, zoom)
+
+updateRotationSpeed(widget, speed)
 }
 \arguments{
 \item{outputId}{output variable to read from}
@@ -46,11 +49,40 @@ is useful if you want to save an expression in a variable.}
 \item{id}{The ID of the surfwidget output.}
 
 \item{config}{A list of configuration options to update. See \code{\link{surfwidget}} for details on available options.}
+
+\item{widget}{A surfwidget htmlwidget object.}
+
+\item{min}{Numeric lower bound of the threshold.}
+
+\item{max}{Numeric upper bound of the threshold.}
+
+\item{colors}{A vector of colors to apply to each vertex.}
+
+\item{alpha}{Numeric opacity value between 0 (transparent) and 1 (opaque).}
+
+\item{zoom}{Numeric zoom factor.}
+
+\item{speed}{Numeric rotation speed.}
 }
 \description{
 Output and render functions for using surfwidget within Shiny
 applications and interactive Rmd documents.
 
 Update the configuration of an existing surfwidget.
+
+Modify the minimum and maximum values used for data mapping.
+
+Set the threshold limits for showing surface data.
+
+Replace the per-vertex colors of an existing surfwidget.
+
+Adjust the overall opacity of an existing surfwidget.
+
+Adjust the zoom level of a surfwidget widget.
+
+Change the automatic rotation speed of a surfwidget widget.
+}
+\details{
+Sends a custom message of type \code{"neurosurf-surfwidget-config"} to update the widget configuration on the client.
 }
 \keyword{internal}

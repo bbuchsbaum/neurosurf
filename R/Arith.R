@@ -7,6 +7,8 @@ NULL
 #' @param e1 the left operand
 #' @param e2 the right operand
 #' @return NeuroSurface object with comparison results
+#' @exportMethod Compare
+#' @rdname Compare-NeuroSurface-numeric-method
 setMethod(f="Compare", signature=signature(e1="NeuroSurface", e2="numeric"),
           def=function(e1, e2) {
             ret <- callGeneric(e1@data,e2)
@@ -72,7 +74,7 @@ setMethod(f="Arith", signature=signature(e1="NeuroSurfaceVector", e2="NeuroSurfa
 
           })
 
-#' @rdname Arith-methods
+#' @rdname Arith-NeuroSurfaceVector-method
 #' @export
 setMethod(f="Arith", signature=signature(e1="NeuroSurfaceVector", e2="numeric"),
           def=function(e1, e2) {
@@ -82,7 +84,7 @@ setMethod(f="Arith", signature=signature(e1="NeuroSurfaceVector", e2="numeric"),
           })
 
 
-#' @rdname Arith-methods
+#' @rdname Arith-NeuroSurfaceVector-method
 #' @export
 setMethod(f="Arith", signature=signature(e1="numeric", e2="NeuroSurfaceVector"),
           def=function(e1, e2) {
@@ -109,7 +111,7 @@ setMethod(f="Compare", signature=signature(e1="NeuroSurfaceVector", e2="NeuroSur
             NeuroSurfaceVector(geometry=e1@geometry, indices=ind, mat=res)
           })
 
-#' @rdname Compare-methods
+#' @rdname Compare-NeuroSurfaceVector-method
 #' @export
 setMethod(f="Compare", signature=signature(e1="NeuroSurfaceVector", e2="numeric"),
           def=function(e1, e2) {
@@ -117,7 +119,7 @@ setMethod(f="Compare", signature=signature(e1="NeuroSurfaceVector", e2="numeric"
             NeuroSurfaceVector(geometry=e1@geometry, indices=e1@indices, mat=res)
           })
 
-#' @rdname Compare-methods
+#' @rdname Compare-NeuroSurfaceVector-method
 #' @export
 setMethod(f="Compare", signature=signature(e1="numeric", e2="NeuroSurfaceVector"),
           def=function(e1, e2) {
@@ -143,7 +145,7 @@ setMethod(f="Compare", signature=signature(e1="NeuroSurface", e2="NeuroSurface")
           })
 
 
-#' @rdname Arith-methods
+#' @rdname Arith-NeuroSurface-method
 #' @export
 setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="NeuroSurfaceVector"),
           def=function(e1, e2) {
@@ -153,7 +155,7 @@ setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="NeuroSurfaceVect
             NeuroSurfaceVector(geometry=e1@geometry, indices=ind, mat=res)
           })
 
-#' @rdname Arith-methods
+#' @rdname Arith-NeuroSurfaceVector-method
 #' @export
 setMethod(f="Arith", signature=signature(e1="NeuroSurfaceVector", e2="NeuroSurface"),
           def=function(e1, e2) {

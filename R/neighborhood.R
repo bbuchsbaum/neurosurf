@@ -401,7 +401,7 @@ setMethod(f="smooth", signature = c(x = "NeuroSurface"),
           def = function(x, sigma = 5, ...) {
 
             ind <- x@indices
-            edgeWeights <- igraph::E(g)$dist
+            edgeWeights <- igraph::E(graph(x))$dist
 
             nlist <- find_all_neighbors(geometry(x), radius = sigma,
                                          edgeWeights = edgeWeights,

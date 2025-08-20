@@ -13,27 +13,32 @@ HTMLWidgets.widget({
     return {
 
       renderValue: function(x) {
-        if (!viewer) {
-          neurosurface.debugLog('Creating NeuroSurfaceViewer');
+        try {
+          if (!viewer) {
+            neurosurface.debugLog('Creating NeuroSurfaceViewer');
 
-          // Start with any config values provided from R
-          var config = Object.assign({}, x.config);
-          // Only fill in defaults when the user did not specify them
-          if (!('cmap' in config)) config.cmap = x.cmap;
-          if (!('rotationSpeed' in config)) config.rotationSpeed = 2.5; // default rotation
-          if (!('initialZoom' in config)) config.initialZoom = 2.5;    // default zoom level
+            // Start with any config values provided from R
+            var config = Object.assign({}, x.config);
+            // Only fill in defaults when the user did not specify them
+            if (!('cmap' in config)) config.cmap = x.cmap;
+            if (!('rotationSpeed' in config)) config.rotationSpeed = 2.5; // default rotation
+            if (!('initialZoom' in config)) config.initialZoom = 2.5;    // default zoom level
 
-          viewer = new neurosurface.NeuroSurfaceViewer(
-            el,
-            width,
-            height,
-            config,
-            x.viewpoint
-          );
+            viewer = new neurosurface.NeuroSurfaceViewer(
+              el,
+              width,
+              height,
+              config,
+              x.viewpoint
+            );
 
-          // Use the new methods to set rotation speed and initial zoom
-          //viewer.setRotationSpeed(2.5);
-          //viewer.setInitialZoom(2.5);
+            // Use the new methods to set rotation speed and initial zoom
+            //viewer.setRotationSpeed(2.5);
+            //viewer.setInitialZoom(2.5);
+          }
+        } catch (error) {
+          console.error("Error creating NeuroSurfaceViewer:", error);
+          throw error;
         }
 
         try {
@@ -96,9 +101,9 @@ HTMLWidgets.widget({
           neurosurface.debugLog('Surface created:', surface);
           neurosurface.debugLog('Adding surface to viewer');
           viewer.addSurface(surface, surfaceId);
-          if (viewer.animationId === null) {
-            viewer.animate();
-          }
+          
+          // Start the render loop if not already running
+          viewer.start();
           
         } catch (error) {
           console.error("Error in renderValue:", error);

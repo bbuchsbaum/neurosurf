@@ -16,5 +16,5 @@ test_that("smoothing radius influences output", {
 
   expect_true(sd_large < sd_small)
   expect_false(isTRUE(all.equal(as.vector(series(sm_small, indices(sm_small))),
-                                as.vector(series(sm_large, indices(sm_large)))))
+                                as.vector(series(sm_large, indices(sm_large))))))
 })

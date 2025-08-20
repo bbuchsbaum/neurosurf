@@ -9,6 +9,9 @@
 
 \S4method{data_reader}{NIMLSurfaceDataMetaInfo}(x)
 }
+\arguments{
+\item{x}{A SurfaceGeometryMetaInfo object}
+}
 \description{
 data_reader
 }

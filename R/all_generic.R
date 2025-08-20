@@ -219,23 +219,23 @@ setGeneric(name="plot_js", def=function(x, width = NULL, height = NULL, ...) sta
 
 
 
+#' Read Meta Information
+#'
 #' Generic function to read image meta info given a file and a \code{\linkS4class{FileFormat}} instance.
 #'
-#' @param x file format
+#' @param x file format descriptor
 #' @param file_name file name containing meta information
 #'
 #' @export
 #' @rdname read_meta_info-methods
+#' @name read_meta_info
+NULL
+
 if (!isGeneric("read_meta_info")) {
   setGeneric(name = "read_meta_info",
              def = function(x, file_name) standardGeneric("read_meta_info"))
 }
 
-#' @param x file format
-#' @param file_name file name contianing meta information
-#' @export
-#' @rdname read_meta_info-methods
-setGeneric(name="read_meta_info", def=function(x, file_name) standardGeneric("read_meta_info"))
 
 
 
@@ -290,6 +290,6 @@ setGeneric(name = "surfwidget",
 #'
 #' @export
 #' @rdname findBoundaries-methods
-setGeneric(name = "findBoundaries",
-           def = function(x, method = "midpoint", ...)
-             standardGeneric("findBoundaries"))
+# setGeneric(name = "findBoundaries",
+#            def = function(x, method = "midpoint", ...)
+#              standardGeneric("findBoundaries"))

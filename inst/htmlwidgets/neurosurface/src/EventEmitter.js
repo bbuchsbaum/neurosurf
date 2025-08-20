@@ -51,4 +51,9 @@ export class EventEmitter {
       this._events = Object.create(null);
     }
   }
+
+  // Alias for removeListener
+  off(event, listener) {
+    return this.removeListener(event, listener);
+  }
 }

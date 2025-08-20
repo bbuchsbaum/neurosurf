@@ -4,9 +4,9 @@ author: "Bradley Buchsbaum"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\\VignetteIndexEntry{Displaying Surfaces with RGL}
-  %\\VignetteEngine{knitr::rmarkdown}
-  %\\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Displaying Surfaces with RGL}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 This vignette demonstrates how to display 3D brain surface meshes using the `rgl` plotting tools provided by the `neurosurf` package, primarily through the `plot()` method which utilizes the `view_surface()` function internally.
@@ -21,10 +21,29 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.width = 7,        # Default figure width
   fig.height = 5,       # Default figure height
-  rgl.newwindow = FALSE, # Prevent new RGL windows for chunks
+  rgl.newwindow = TRUE,  # Required for setupKnitr hook to work properly
   webgl = TRUE          # Use WebGL for embedding
 )
+
+# Ensure rgl uses NULL device in non-interactive sessions (CRAN checks)
+if (!interactive()) {
+  options(rgl.useNULL = TRUE)
+}
+
 rgl::setupKnitr()       # Setup rgl hook for knitr
+
+# Additional setup for htmlwidgets in vignettes
+knitr::opts_chunk$set(
+  dev = 'png',
+  out.width = "100%",
+  out.height = "400px"
+)
+
+# Ensure htmlwidgets dependencies are properly loaded
+if (!require(htmlwidgets)) {
+  install.packages("htmlwidgets")
+  library(htmlwidgets)
+}
 
 library(rgl)
 library(neuroim2)
@@ -169,12 +188,16 @@ The `spheres` argument allows you to draw spherical markers at specified coordin
 
 ```{r spheres-plot}
 # Define coordinates for some spherical markers
+# Sample some vertex indices safely from available vertices
+n_vertices <- nrow(coords(white_lh_smooth))
+sample_indices <- sample(1:n_vertices, size = min(3, n_vertices))
+
 peak_coords <- data.frame(
-  x = coords(white_lh_smooth)[c(100, 500, 1000), 1], # Example vertex coordinates
-  y = coords(white_lh_smooth)[c(100, 500, 1000), 2],
-  z = coords(white_lh_smooth)[c(100, 500, 1000), 3],
-  radius = c(3, 4, 2.5),
-  color = c("yellow", "cyan", "magenta")
+  x = coords(white_lh_smooth)[sample_indices, 1],
+  y = coords(white_lh_smooth)[sample_indices, 2], 
+  z = coords(white_lh_smooth)[sample_indices, 3],
+  radius = c(3, 4, 2.5)[1:length(sample_indices)],
+  color = c("yellow", "cyan", "magenta")[1:length(sample_indices)]
 )
 
 # Plot the surface and add the spheres
@@ -208,8 +231,8 @@ In the first column we display all the values in the map. Next we threshold all 
 
 open3d()
 mfrow3d(1, 3, byrow = TRUE)
-vals <- rnorm(length(nodes(white_surf2)))
-surf <- NeuroSurface(white_surf2, indices=1:length(vals), data=vals)
+vals <- rnorm(length(nodes(white_lh_smooth)))
+surf <- NeuroSurface(white_lh_smooth, indices=1:length(vals), data=vals)
 ssurf <- smooth(surf)
 p <- plot(geometry(ssurf), vals=values(ssurf), cmap=rainbow(100), irange=c(-2,2))
 
@@ -224,39 +247,237 @@ rglwidget()
 
 ```
 
-## Showing two hemisperes in same scene
+## Showing two hemispheres in same scene
 
 ```{r, fig.width=6, fig.height=5} 
 
 open3d()
 
-curv_lh <- curvature(white_surf2)
-white_rh_surf2 <- smooth(white_rh_surf, type="HCLaplace", delta=.2, iteration=5)
-curv_rh <- curvature(white_rh_surf2)
+curv_lh <- curvature(white_lh_smooth)
+white_rh_smooth <- smooth(white_rh, type="HCLaplace", delta=.2, iteration=5)
+curv_rh <- curvature(white_rh_smooth)
 
-p <- plot(white_surf2, bgcol=curv_cols(curv_lh), viewpoint="posterior")
-p <- plot(white_rh_surf2,bgcol=curv_cols(curv_rh), viewpoint="posterior")
+p <- plot(white_lh_smooth, bgcol=curv_cols(curv_lh), viewpoint="posterior")
+p <- plot(white_rh_smooth, bgcol=curv_cols(curv_rh), viewpoint="posterior")
 rglwidget()
 ```
 
-## Interactive Surface Visualization with plot_js
+## Interactive 3D Visualization with surfwidget
 
-We can use the `plot_js` function to create an interactive 3D visualization of our surface using HTMLWidgets. This allows for a more dynamic viewing experience directly in the HTML output.
+The `neurosurf` package provides interactive 3D surface visualization through HTML widgets using the `surfwidget()` function. This creates a web-based viewer that allows real-time rotation, zooming, and interactive exploration of brain surfaces with full control over lighting, materials, and data visualization.
 
-```{r, fig.width=7, fig.height=5}
+### Vignette Rendering Context
 
-# Create an interactive 3D visualization of white_surf1
-surfwidget(white_surf1, width = "100%", height = "400px")
+```{r vignette-debug, echo=TRUE}
+# Check rendering context
+cat("Knitting context:", if(isTRUE(getOption('knitr.in.progress'))) "vignette" else "interactive", "\n")
+cat("htmlwidgets version:", as.character(packageVersion("htmlwidgets")), "\n")
+
+# Ensure proper widget dependencies are available
+if (require(htmlwidgets, quietly = TRUE)) {
+  cat("✓ htmlwidgets loaded successfully\n")
+} else {
+  cat("✗ htmlwidgets not available\n")
+}
+
+# Test basic widget creation
+tryCatch({
+  test_widget <- surfwidget(white_lh_smooth, width = "200px", height = "200px")
+  if (inherits(test_widget, "htmlwidget")) {
+    cat("✓ surfwidget creation successful\n")
+  } else {
+    cat("✗ surfwidget creation failed - wrong class\n")
+  }
+}, error = function(e) {
+  cat("✗ surfwidget creation failed:", e$message, "\n")
+})
+
+# Helper function for vignette-safe widget display
+display_widget_safe <- function(widget, fallback_message = "Widget not displayed in vignette context") {
+  if (isTRUE(getOption('knitr.in.progress'))) {
+    # In vignette context, ensure proper display
+    if (inherits(widget, "htmlwidget")) {
+      return(widget)
+    } else {
+      cat(fallback_message, "\n")
+      return(NULL)
+    }
+  } else {
+    # In interactive context
+    return(widget)
+  }
+}
 ```
 
-The widget accepts an optional `curvature` argument. If omitted it will be
-derived from the geometry when `white_surf1` is a `SurfaceGeometry` object:
+### Debugging surfwidget Issues
 
-```{r, eval=FALSE}
-surfwidget(white_surf1, curvature = curv_lh)
+If a `surfwidget` doesn't render properly, here are several debugging approaches:
+
+**Vignette vs. Interactive Context:**
+
+HTMLWidgets like `surfwidget` may behave differently in vignettes vs. interactive R sessions. This is a common issue with complex JavaScript-based widgets in R Markdown documents.
+
+**Expected behavior:**
+- ✅ **Interactive R console**: `surfwidget()` should work perfectly
+- ❓ **Vignette HTML output**: May not display due to JavaScript module loading issues
+
+**Troubleshooting steps:**
+
+1. **Verify widget creation**: The widget object should be created successfully (class: `surfwidget htmlwidget`)
+2. **Check console during knitting**: Look for JavaScript errors in RStudio's background jobs or R console
+3. **Test interactively first**: Always test your `surfwidget()` code in the R console before adding to vignettes
+
+**Workarounds for vignettes:**
+
+```{r eval=FALSE}
+# Option 1: Use rglwidget() as a reliable fallback
+plot(white_lh_smooth, viewpoint = "lateral")
+rglwidget()
+
+# Option 2: Save widget to file and include as link
+widget <- surfwidget(white_lh_smooth, width = "100%", height = "400px")
+htmlwidgets::saveWidget(widget, "surface_widget.html", selfcontained = TRUE)
+# Then include: [View Interactive Surface](surface_widget.html)
+
+# Option 3: Conditional rendering
+if (interactive()) {
+  surfwidget(white_lh_smooth, width = "100%", height = "400px")
+} else {
+  cat("Interactive widget available in R console\n")
+  plot(white_lh_smooth, viewpoint = "lateral")
+  rglwidget()
+}
 ```
 
-=======
+### Basic Interactive Surface Display
+
+The simplest way to create an interactive widget is to pass a `SurfaceGeometry` object directly:
+
+```{r surfwidget-basic, results='asis', echo=TRUE}
+# Create an interactive 3D visualization of the smoothed left hemisphere
+tryCatch({
+  widget1 <- surfwidget(white_lh_smooth, width = "100%", height = "400px")
+  # Check if widget was created successfully
+  if (inherits(widget1, "htmlwidget")) {
+    cat("✓ Widget created successfully\n")
+    # Print widget explicitly for vignette rendering
+    widget1
+  } else {
+    cat("✗ Widget creation failed - not an htmlwidget\n")
+    cat("Alternative: Use plot() + rglwidget() for static visualization\n")
+  }
+}, error = function(e) {
+  cat("✗ Error creating surfwidget:", e$message, "\n")
+  cat("Alternative: Use plot() + rglwidget() for static visualization:\n")
+  plot(white_lh_smooth, viewpoint = "lateral")
+  rglwidget()
+})
+```
+
+The widget automatically computes curvature for shading unless explicitly provided:
+
+```{r surfwidget-curvature, results='asis', echo=TRUE}
+# Explicitly provide curvature values
+widget2 <- surfwidget(white_lh_smooth, curvature = curv_lh, width = "100%", height = "400px")
+widget2
+```
+
+### Interactive Data Visualization
+
+You can visualize data mapped onto the surface using a `NeuroSurface` object:
+
+```{r surfwidget-data, results='asis', echo=TRUE}
+# Create a NeuroSurface with random data
+nsurf <- NeuroSurface(white_lh_smooth, indices=1:length(random_vals), data=random_vals)
+
+# Create interactive widget with data overlay
+widget3 <- surfwidget(nsurf, cmap = heat.colors(256), irange = c(-2, 2), 
+           width = "100%", height = "400px")
+widget3
+```
+
+### Advanced Configuration Options
+
+The `surfwidget()` function accepts a `config` parameter for fine-tuning the appearance:
+
+```{r surfwidget-advanced, results='asis', echo=TRUE}
+# Create a ColorMappedNeuroSurface for more control
+color_mapped_surf <- ColorMappedNeuroSurface(
+  white_lh_smooth, 
+  indices = 1:length(random_vals), 
+  data = random_vals,
+  cmap = rainbow(256),
+  irange = c(-2.5, 2.5),
+  thresh = c(-1, 1)
+)
+
+# Advanced configuration with custom lighting and materials
+advanced_config <- list(
+  shininess = 60,                    # Higher shininess (0-100)
+  specularColor = "#ffffff",         # White specular highlights  
+  ambientLightColor = "#606060",     # Brighter ambient light
+  directionalLightColor = "#ffffff", # White directional light
+  directionalLightIntensity = 0.7,   # Stronger directional light
+  flatShading = FALSE                # Smooth shading
+)
+
+widget4 <- surfwidget(color_mapped_surf, config = advanced_config, alpha = 0.9,
+           width = "100%", height = "450px")
+widget4
+```
+
+### Interactive Controls
+
+The widget includes several interactive controls accessible through the control panel:
+
+- **Lighting**: Adjust ambient and directional light colors and intensity
+- **Material**: Control surface shininess (metalness/roughness)  
+- **Camera**: Reset camera position and orientation
+- **Color Map**: Real-time adjustment of intensity and threshold ranges
+- **Viewpoint**: Switch between anatomical views (lateral, medial, ventral, posterior)
+- **SSAO**: Screen-space ambient occlusion for enhanced depth perception
+
+### Vertex-Colored Surfaces
+
+You can also create surfaces with direct vertex coloring:
+
+```{r surfwidget-vertex, results='asis', echo=TRUE}
+# Create vertex colors based on coordinates
+x_coords <- coords(white_lh_smooth)[, 1]
+vertex_colors <- ifelse(x_coords > median(x_coords), "#FF6B6B", "#4ECDC4")
+
+# Create VertexColoredNeuroSurface using the constructor function
+vertex_surf <- VertexColoredNeuroSurface(
+  geometry = white_lh_smooth, 
+  indices = 1:length(vertex_colors), 
+  colors = vertex_colors
+)
+
+# Display with custom material settings
+material_config <- list(
+  shininess = 20,
+  specularColor = "#333333",
+  ambientLightColor = "#404040"
+)
+
+widget5 <- surfwidget(vertex_surf, config = material_config, alpha = 0.8,
+           width = "100%", height = "400px")
+widget5
+```
+
+### Comparison with Static RGL Plots
+
+The interactive widgets offer several advantages over static RGL plots:
+
+- **Real-time interaction**: Rotate, zoom, and pan without re-rendering
+- **Dynamic controls**: Adjust visualization parameters interactively  
+- **Web-based**: Works in HTML documents, Shiny apps, and RMarkdown
+- **Touch support**: Works on tablets and mobile devices
+- **High-quality rendering**: Uses WebGL for smooth, hardware-accelerated graphics
+
+Both approaches have their place: use `plot()` and `view_surface()` for quick exploration and static figures, and `surfwidget()` for interactive analysis and web applications.
+
+
 
 
 

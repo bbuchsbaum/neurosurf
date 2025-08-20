@@ -30,7 +30,7 @@ geom <- SurfaceGeometry(verts, faces, "lh")
 vec <- matrix(c(0.5, 1.5), nrow=1)
 ROISurfaceVector(geom, c(1L,2L), vec)
 
-try(ROISurfaceVector(geom, c(1L,4L), vec))
-try(ROISurfaceVector(geom, c(1,2.5), vec))
+try(ROISurfaceVector(geom, c(1L,4L), vec))   # out of range
+try(ROISurfaceVector(geom, c(1,2.5), vec))   # non-integer
 }
 }

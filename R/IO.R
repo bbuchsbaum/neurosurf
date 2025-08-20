@@ -156,25 +156,37 @@ readFreesurferAsciiGeometry <- function(file_name) {
 #' @noRd
 #' @keywords internal
 readFreesurferBinaryHeader <- function(file_name) {
-  has_hemi <- grep("^[lr]h\\..*", basename(file_name))
-  hemi <- if (length(has_hemi) > 0) {
-    if (length(grep("^lh.*", basename(file_name))) > 0) {
-      "lh"
-    } else if (length(grep("^rh.*", basename(file_name))) > 0) {
-      "rh"
-    } else {
-      "unknown"
-    }
+  # Check for hemisphere in filename - look for _lh. or _rh. or starting with lh/rh
+  base_name <- basename(file_name)
+  hemi <- if (length(grep("(^|_)lh\\.", base_name)) > 0) {
+    "lh"
+  } else if (length(grep("(^|_)rh\\.", base_name)) > 0) {
+    "rh"
   } else {
     "unknown"
   }
 
   fp <- file(file_name, "rb")
   on.exit(close(fp))
+  
+  # Check file size
+  file_info <- file.info(file_name)
+  if (file_info$size < 7) {
+    stop("File too small to be a valid FreeSurfer binary header")
+  }
+  
   magic <- readBin(fp, what="raw", n=3)
+  if (length(magic) < 3) {
+    stop("Unable to read magic bytes from FreeSurfer file")
+  }
+  
   created_by <- readLines(fp, 2)
   vcount <- readBin(fp, what="integer", n=1, endian="big")
   fcount <- readBin(fp, what="integer", n=1, endian="big")
+  
+  if (length(vcount) == 0 || length(fcount) == 0) {
+    stop("Unable to read vertex/face counts from FreeSurfer file")
+  }
 
   list(vertices=vcount, faces=fcount, label=basename(file_name),
        embed_dimension=3, header_file=file_name, data_file=file_name, hemi=hemi)
@@ -194,15 +206,36 @@ readFreesurferBinaryGeometry <- function(file_name) {
 
   fp <- file(file_name, "rb")
   on.exit(close(fp))
+  
+  # Check file size
+  file_info <- file.info(file_name)
+  if (file_info$size < 7) {
+    stop("File too small to be a valid FreeSurfer binary geometry")
+  }
+  
   magic <- readBin(fp, what="raw", n=3)
+  if (length(magic) < 3) {
+    stop("Unable to read magic bytes from FreeSurfer file")
+  }
+  
   created_by <- readLines(fp, 2)
   vcount <- readBin(fp, what="integer", n=1, endian="big")
   fcount <- readBin(fp, what="integer", n=1, endian="big")
+  
+  if (length(vcount) == 0 || length(fcount) == 0) {
+    stop("Unable to read vertex/face counts from FreeSurfer file")
+  }
 
   coords <- readBin(fp, what="double", n=vcount*3, size=4, endian="big")
+  if (length(coords) < vcount*3) {
+    stop("Unable to read all vertex coordinates from FreeSurfer file")
+  }
   coords <- matrix(coords, vcount, 3, byrow=TRUE)
 
   faces <- readBin(fp, what="integer", n=fcount*3, size=4, endian="big")
+  if (length(faces) < fcount*3) {
+    stop("Unable to read all face indices from FreeSurfer file")
+  }
   faces <- matrix(faces, fcount, 3, byrow=TRUE)
 
   list(coords=coords, faces=faces, header_file=file_name, data_file=file_name)
@@ -472,7 +505,7 @@ read_surf_data_seq <- function(leftGeometry, rightGeometry, leftDataNames, right
 #' @importMethodsFrom neuroim2 read_meta_info
 setMethod(f="read_meta_info",signature=signature(x= "AFNISurfaceFileDescriptor"),
           def=function(x, file_name) {
-            .read_meta_info(x, file_name, readAFNISurfaceHeader, NIMLSurfaceDataMetaInfoFromAFNI)
+            .read_meta_info(x, file_name, readAFNISurfaceHeader, NIMLSurfaceDataMetaInfo)
           })
 
 #' @rdname read_meta_info-methods
@@ -650,6 +683,7 @@ loadFSSurface <- function(meta_info) {
 
 
 #' data_reader
+#' @param x A SurfaceGeometryMetaInfo object
 #' @rdname data_reader-methods
 #' @export
 #' @importClassesFrom neuroim2 ColumnReader
@@ -852,6 +886,7 @@ GIFTISurfaceDataMetaInfo <- function(descriptor, header) {
 }
 
 #' show
+#' @param object A SurfaceGeometryMetaInfo object
 #' @rdname show-methods
 #' @export
 setMethod(f="show", signature=signature("SurfaceGeometryMetaInfo"),

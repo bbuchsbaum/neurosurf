@@ -21,6 +21,9 @@
 
 \S4method{show}{NeuroSurface}(object)
 }
+\arguments{
+\item{object}{A SurfaceGeometryMetaInfo object}
+}
 \description{
 show
 }

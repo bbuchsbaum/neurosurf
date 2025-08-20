@@ -13,14 +13,11 @@ ColorMappedNeuroSurface(geometry, indices, data, cmap, irange, thresh)
 
 \item{data}{A numeric vector of data values corresponding to the surface nodes.}
 
-\item{cmap}{A character vector defining the sequence of colors (e.g., hex codes) for the colormap.}
+\item{cmap}{A character string specifying the colormap to use for mapping the data values.}
 
-\item{irange}{A numeric vector of length 2 specifying the minimum and maximum data values that map to the start and end of the 'cmap'.}
+\item{irange}{A numeric vector of length 2 specifying the range of values to map.}
 
-\item{thresh}{A numeric vector of length 2 specifying the lower and upper thresholds. Values outside this range might be rendered differently (e.g., transparently, depending on the plotting function).}
-}
-\value{
-A new object of class \code{ColorMappedNeuroSurface}.
+\item{thresh}{A numeric value specifying the threshold for the colormap.}
 }
 \description{
 This function creates a ColorMappedNeuroSurface object, which represents a single set of data values
