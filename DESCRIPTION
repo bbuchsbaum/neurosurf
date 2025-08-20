@@ -47,7 +47,6 @@ Collate:
     'Searchlight.R'
     'curv.R'
     'geometry.R'
-    'curv.R'
     'neighborhood.R'
     'neuro_surface.R'
     'neurosurf.R'
