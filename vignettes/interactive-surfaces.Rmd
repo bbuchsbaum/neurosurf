@@ -1,15 +1,30 @@
 ---
-title: "Interactive Surface Visualization with surfwidget"
-author: "Bradley Buchsbaum"
-date: "`r Sys.Date()`"
+title: Interactive Surface Visualization with surfwidget
+author: Bradley Buchsbaum
+date: '`r Sys.Date()`'
 output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Interactive Surface Visualization with surfwidget}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+vignette: '%\VignetteIndexEntry{Interactive Surface Visualization with surfwidget}
+  %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}'
+params:
+  family: red
+css: albers.css
+resource_files:
+- albers.css
+- albers.js
+includes:
+  in_header: |-
+    <script src="albers.js"></script>
+    <script>document.addEventListener('DOMContentLoaded',()=>document.body.classList.add('palette-red'));</script>
+
 ---
 
+This vignette focuses on interactive 3D visualization using `surfwidget()`.
+For static RGL-based plots, see *Displaying Surfaces with RGL*. For
+multi-view, publication-style figures with shared colourbars and atlas
+outlines, see *Surfplot-style Figures with neurosurf*.
+
 ```{r setup, include = FALSE}
+if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(params$family))
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -35,28 +50,21 @@ random_vals <- rnorm(length(nodes(white_lh_smooth)))
 
 The `surfwidget()` function provides interactive 3D visualization of brain surfaces using HTML widgets. This creates web-based viewers with real-time rotation, zooming, and interactive exploration capabilities.
 
-## System Check
+## Quick Start
 
-Let's first verify that the widget system is working properly:
+Create a small widget to confirm things are working, then jump to richer examples below.
 
 ```{r system-check}
-# Check rendering context
-cat("Knitting context:", if(isTRUE(getOption('knitr.in.progress'))) "vignette" else "interactive", "\n")
-cat("htmlwidgets version:", as.character(packageVersion("htmlwidgets")), "\n")
-cat("neurosurf version:", as.character(packageVersion("neurosurf")), "\n")
-
-# Test basic widget creation
-tryCatch({
-  test_widget <- surfwidget(white_lh_smooth, width = "300px", height = "200px")
-  if (inherits(test_widget, "htmlwidget")) {
-    cat("✓ surfwidget creation successful\n")
-    cat("✓ Widget class:", paste(class(test_widget), collapse = " "), "\n")
-  } else {
-    cat("✗ surfwidget creation failed - wrong class\n")
-  }
-}, error = function(e) {
-  cat("✗ surfwidget creation failed:", e$message, "\n")
-})
+surfwidget(
+  white_lh_smooth,
+  width  = "100%",
+  height = "420px",
+  config = list(
+    ambientLightColor = "#f0f0f0",
+    initialZoom = 2,
+    showControls = FALSE   # keep the panel hidden for the quick preview
+  )
+)
 ```
 
 ## Basic Surface Display
@@ -64,20 +72,17 @@ tryCatch({
 The simplest usage is to pass a `SurfaceGeometry` object directly:
 
 ```{r basic-widget, results='asis'}
-tryCatch({
-  # Create basic interactive surface
-  basic_widget <- surfwidget(white_lh_smooth, width = "100%", height = "400px")
-  
-  if (inherits(basic_widget, "htmlwidget")) {
-    cat("**Interactive surface created successfully**\n\n")
-    basic_widget
-  } else {
-    cat("**Widget creation failed - not an htmlwidget**\n\n")
-  }
-}, error = function(e) {
-  cat("**Error creating widget:**", e$message, "\n\n")
-  cat("*Note: If you're viewing this vignette as HTML, the interactive widget may not display properly due to JavaScript loading issues in the vignette context. Try running the same code in an interactive R session.*\n\n")
-})
+# Create basic interactive surface
+basic_widget <- surfwidget(
+  white_lh_smooth,
+  width  = "100%",
+  height = "400px",
+  config = list(
+    ambientLightColor = "#f0f0f0",
+    initialZoom = 2
+  )
+)
+basic_widget
 ```
 
 ## Data Visualization
@@ -85,26 +90,21 @@ tryCatch({
 Display data mapped onto surface vertices using a `NeuroSurface` object:
 
 ```{r data-widget, results='asis'}
-tryCatch({
-  # Create NeuroSurface with data
-  nsurf <- NeuroSurface(white_lh_smooth, indices=1:length(random_vals), data=random_vals)
-  
-  # Create widget with data overlay
-  data_widget <- surfwidget(nsurf, 
-                           cmap = heat.colors(256), 
-                           irange = c(-2, 2),
-                           width = "100%", 
-                           height = "400px")
-  
-  if (inherits(data_widget, "htmlwidget")) {
-    cat("**Data overlay widget created successfully**\n\n")
-    data_widget
-  } else {
-    cat("**Data widget creation failed**\n\n")
-  }
-}, error = function(e) {
-  cat("**Error creating data widget:**", e$message, "\n\n")
-})
+# Create NeuroSurface with data
+nsurf <- NeuroSurface(white_lh_smooth, indices=1:length(random_vals), data=random_vals)
+
+# Create widget with data overlay
+data_widget <- surfwidget(nsurf, 
+                         cmap = heat.colors(256), 
+                         irange = c(-2, 2),
+                         width = "100%", 
+                         height = "400px",
+                         config = list(
+                           ambientLightColor = "#f0f0f0",
+                           initialZoom = 2
+                         ))
+
+data_widget
 ```
 
 ## Advanced Configuration
@@ -112,42 +112,33 @@ tryCatch({
 Fine-tune the appearance with custom configuration:
 
 ```{r advanced-widget, results='asis'}
-tryCatch({
-  # Create ColorMappedNeuroSurface with threshold
-  color_mapped_surf <- ColorMappedNeuroSurface(
-    white_lh_smooth, 
-    indices = 1:length(random_vals), 
-    data = random_vals,
-    cmap = rainbow(256),
-    irange = c(-2.5, 2.5),
-    thresh = c(-1, 1)
-  )
-  
-  # Advanced configuration
-  advanced_config <- list(
-    shininess = 60,
-    specularColor = "#ffffff",
-    ambientLightColor = "#606060",
-    directionalLightColor = "#ffffff",
-    directionalLightIntensity = 0.7,
-    flatShading = FALSE
-  )
-  
-  advanced_widget <- surfwidget(color_mapped_surf, 
-                               config = advanced_config, 
-                               alpha = 0.9,
-                               width = "100%", 
-                               height = "450px")
-  
-  if (inherits(advanced_widget, "htmlwidget")) {
-    cat("**Advanced configuration widget created successfully**\n\n")
-    advanced_widget
-  } else {
-    cat("**Advanced widget creation failed**\n\n")
-  }
-}, error = function(e) {
-  cat("**Error creating advanced widget:**", e$message, "\n\n")
-})
+# Create ColorMappedNeuroSurface with threshold
+color_mapped_surf <- ColorMappedNeuroSurface(
+  white_lh_smooth, 
+  indices = 1:length(random_vals), 
+  data = random_vals,
+  cmap = rainbow(256),
+  irange = c(-2.5, 2.5),
+  thresh = c(-1, 1)
+)
+
+# Advanced configuration
+advanced_config <- list(
+  shininess = 60,
+  specularColor = "#ffffff",
+  ambientLightColor = "#f0f0f0",
+  directionalLightColor = "#ffffff",
+  directionalLightIntensity = 0.7,
+  flatShading = FALSE
+)
+
+advanced_widget <- surfwidget(color_mapped_surf, 
+                             config = c(advanced_config, list(initialZoom = 2)), 
+                             alpha = 0.9,
+                             width = "100%", 
+                             height = "450px")
+
+advanced_widget
 ```
 
 ## Vertex-Colored Surfaces
@@ -155,40 +146,31 @@ tryCatch({
 Create surfaces with direct vertex coloring:
 
 ```{r vertex-widget, results='asis'}
-tryCatch({
-  # Create vertex colors based on coordinates
-  x_coords <- coords(white_lh_smooth)[, 1]
-  vertex_colors <- ifelse(x_coords > median(x_coords), "#FF6B6B", "#4ECDC4")
-  
-  # Create VertexColoredNeuroSurface
-  vertex_surf <- VertexColoredNeuroSurface(
-    geometry = white_lh_smooth, 
-    indices = 1:length(vertex_colors), 
-    colors = vertex_colors
-  )
-  
-  # Custom material settings
-  material_config <- list(
-    shininess = 20,
-    specularColor = "#333333",
-    ambientLightColor = "#404040"
-  )
-  
-  vertex_widget <- surfwidget(vertex_surf, 
-                             config = material_config, 
-                             alpha = 0.8,
-                             width = "100%", 
-                             height = "400px")
-  
-  if (inherits(vertex_widget, "htmlwidget")) {
-    cat("**Vertex-colored widget created successfully**\n\n")
-    vertex_widget
-  } else {
-    cat("**Vertex widget creation failed**\n\n")
-  }
-}, error = function(e) {
-  cat("**Error creating vertex widget:**", e$message, "\n\n")
-})
+# Create vertex colors based on coordinates
+x_coords <- coords(white_lh_smooth)[, 1]
+vertex_colors <- ifelse(x_coords > median(x_coords), "#FF6B6B", "#4ECDC4")
+
+# Create VertexColoredNeuroSurface
+vertex_surf <- VertexColoredNeuroSurface(
+  geometry = white_lh_smooth, 
+  indices = 1:length(vertex_colors), 
+  colors = vertex_colors
+)
+
+# Custom material settings
+material_config <- list(
+  shininess = 20,
+  specularColor = "#333333",
+  ambientLightColor = "#f0f0f0"
+)
+
+vertex_widget <- surfwidget(vertex_surf, 
+                           config = c(material_config, list(initialZoom = 2)), 
+                           alpha = 0.8,
+                           width = "100%", 
+                           height = "400px")
+
+vertex_widget
 ```
 
 ## Interactive Controls
@@ -207,10 +189,6 @@ When the widgets display properly, they include several interactive controls:
   - **SSAO**: Screen-space ambient occlusion for enhanced depth perception
 
 ## Troubleshooting
-
-**Widget Creation vs. Display:**
-
-The widgets should create successfully (as shown in the system check above), but may not display properly in vignette HTML output due to JavaScript module loading timing issues.
 
 **Testing in Interactive R:**
 

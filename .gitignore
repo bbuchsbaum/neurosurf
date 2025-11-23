@@ -3,3 +3,11 @@
 .RData
 .Ruserdata
 *.tar.gz
+
+# surfviewjs built files (build on-demand via Makefile)
+# Keep generated bundles out of source control except the UMD we ship
+inst/htmlwidgets/lib/neurosurface/neurosurface.js
+inst/htmlwidgets/lib/neurosurface/neurosurface.min.js
+inst/htmlwidgets/lib/neurosurface/neurosurface.umd.js.map
+/doc/
+/Meta/

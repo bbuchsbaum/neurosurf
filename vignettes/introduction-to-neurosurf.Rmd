@@ -1,21 +1,39 @@
 ---
-title: "Introduction to NeuroSurf Data Structures"
-author: "Bradley Buchsbaum"
-date: "`r Sys.Date()`"
+title: Introduction to NeuroSurf Data Structures
+author: Bradley Buchsbaum
+date: '`r Sys.Date()`'
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introduction to NeuroSurf}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+params:
+  family: red
+css: albers.css
+resource_files:
+- albers.css
+- albers.js
+includes:
+  in_header: |-
+    <script src="albers.js"></script>
+    <script>document.addEventListener('DOMContentLoaded',()=>document.body.classList.add('palette-red'));</script>
+
 ---
 
 This vignette introduces the fundamental data structures used in the `neurosurf` package for representing and working with brain surface geometries and associated data.
+
+For visualization, see the companion vignettes:
+
+- *Displaying Surfaces with RGL* for low-level static plots based on `plot()` and `view_surface()`.
+- *Interactive Surface Visualization with surfwidget* for HTML-widget based exploration.
+- *Surfplot-style Figures with neurosurf* for multi-view, publication-style layouts built with `surface_plot()` and friends.
 
 ## Setup
 
 First, let's load the necessary libraries and set up the environment.
 
 ```{r setup, include = FALSE}
+if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(params$family))
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -25,11 +43,8 @@ knitr::opts_chunk$set(
   webgl = TRUE          # Use WebGL for embedding rgl plots (if any)
 )
 
-# Ensure rgl uses NULL device in non-interactive sessions (CRAN checks)
-if (!interactive()) {
-  options(rgl.useNULL = TRUE)
-}
-
+# Ensure rgl widgets embed correctly
+options(rgl.useNULL = TRUE, rgl.printRglwidget = TRUE)
 rgl::setupKnitr()       # Setup rgl hook for knitr (if needed)
 
 library(neurosurf)

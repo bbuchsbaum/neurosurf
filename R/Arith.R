@@ -34,7 +34,7 @@ setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="NeuroSurface"),
 
           })
 
-#' @rdname Arith-methods
+#' @rdname Arith-NeuroSurface-method
 #' @export
 setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="numeric"),
           def=function(e1, e2) {
@@ -44,7 +44,7 @@ setMethod(f="Arith", signature=signature(e1="NeuroSurface", e2="numeric"),
 
           })
 
-#' @rdname Arith-methods
+#' @rdname Arith-NeuroSurface-method
 #' @export
 setMethod(f="Arith", signature=signature(e1="numeric", e2="NeuroSurface"),
           def=function(e1, e2) {

@@ -1,0 +1,29 @@
+# FreesurferSurfaceGeometryMetaInfo Class
+
+The \`FreesurferSurfaceGeometryMetaInfo\` class extends
+\`SurfaceGeometryMetaInfo\` to specifically handle meta information for
+Freesurfer-formatted brain surface geometries.
+
+## Details
+
+This class inherits all slots from the parent
+\`SurfaceGeometryMetaInfo\` class and is specialized for working with
+Freesurfer surface files (e.g., .asc, .pial, .white, .inflated). It
+maintains the same structure but is used specifically when the surface
+data originates from Freesurfer processing pipelines.
+
+## Examples
+
+``` r
+# \donttest{
+fs_meta <- new("FreesurferSurfaceGeometryMetaInfo",
+               header_file = "lh.white.asc",
+               data_file = "lh.white.asc",
+               file_descriptor = new("FileFormat"),
+               vertices = 140000L,
+               faces = 279998L,
+               embed_dimension = 3L,
+               label = "white",
+               hemi = "lh")
+# }
+```

@@ -1,0 +1,20 @@
+# FresurferBinarySurfaceFileDescriptor
+
+This class supports the Freesurfer binary file format for surface
+geometry
+
+## Examples
+
+``` r
+# \donttest{
+# Create a FreesurferBinarySurfaceFileDescriptor object
+fs_binary_descriptor <- new("FreesurferBinarySurfaceFileDescriptor")
+
+# This descriptor would typically be used when loading Freesurfer binary surfaces
+# Example of a path to a Freesurfer binary surface file:
+# fs_binary_file <- "/path/to/subject/surf/lh.pial"
+
+# In practice, this descriptor would be used in code like:
+# surface_geo <- loadSurfaceGeometry(fs_binary_file, descriptor = fs_binary_descriptor)
+# }
+```

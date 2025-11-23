@@ -1,34 +1,38 @@
 reference:
-  - title: read surfaces
-    desc: >
-      read different surface files into R
-    contents:
-    - read_surf
-    - read_surf_data
-    - read_surf_data_seq
-    - read_freesurfer_annot
-    - read_surf_geometry
-    - write_surf_data
-
-  - title: surface-based operations and functions
-    desc: >
-      process of manipulate surface data and geometry
-    contents:
-    - smooth
-    - cluster_threshold
-    - curvature
-
-  - title: extractors
-    desc: >
-      extract infromation from surface data structures
-    contents:
-    - vertices
-    - nodes
-    - geometry
-    - graph
-    - left
-    - right
-    - adjacency
-    - laplacian
-
-
+- title: read surfaces
+  desc: |
+    read different surface files into R
+  contents:
+  - read_surf
+  - read_surf_data
+  - read_surf_data_seq
+  - read_freesurfer_annot
+  - read_surf_geometry
+  - write_surf_data
+- title: surface-based operations and functions
+  desc: |
+    process of manipulate surface data and geometry
+  contents:
+  - smooth
+  - cluster_threshold
+  - curvature
+- title: extractors
+  desc: |
+    extract infromation from surface data structures
+  contents:
+  - vertices
+  - nodes
+  - geometry
+  - graph
+  - left
+  - right
+  - adjacency
+  - laplacian
+- title: Complete reference
+  desc: |
+    Catch-all index to include any remaining topics.
+  contents:
+  - starts_with("")
+template:
+  package: albersdown
+  bootstrap: 5.0

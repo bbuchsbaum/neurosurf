@@ -20,6 +20,7 @@ SurfaceGeometrySource <- function(surface_name) {
 #' @param vert A numeric matrix with 3 columns representing the x, y, and z coordinates of vertices.
 #' @param faces An integer matrix where each row represents a face, containing indices of vertices that form the face.
 #' @param hemi A character string indicating the hemisphere ("lh" for left, "rh" for right, or other identifier).
+#' @param label Optional character string describing the surface type (e.g., "pial", "white", "inflated", "sphere").
 #'
 #' @return A new object of class "SurfaceGeometry" containing:
 #'   \item{mesh}{An rgl mesh object representing the surface.}
@@ -56,10 +57,10 @@ SurfaceGeometrySource <- function(surface_name) {
 #'
 #' @importFrom rgl tmesh3d
 #' @export
-SurfaceGeometry <- function(vert, faces, hemi) {
+SurfaceGeometry <- function(vert, faces, hemi, label = NA_character_) {
   graph <- meshToGraph(vert, faces)
   mesh <- rgl::tmesh3d(as.vector(t(vert)), as.vector(t(faces))+1, homogeneous=FALSE)
-  new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=hemi)
+  new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=hemi, label=label)
 }
 
 
@@ -344,8 +345,8 @@ remeshSurface <- function(surfgeom, voxel_size=2, ...) {
 #' @seealso \code{\link{SurfaceGeometry}}, \code{\link[igraph]{graph_from_edgelist}}
 #'
 #' @export
-#' @importFrom igraph set.vertex.attribute simplify get.edgelist
-#' @importFrom igraph graph_from_edgelist get.edgelist set.vertex.attribute
+#' @importFrom igraph set_vertex_attr simplify as_edgelist
+#' @importFrom igraph graph_from_edgelist set_edge_attr
 #' @importFrom igraph simplify graph.adjacency
 meshToGraph <- function(vertices, nodes) {
   edge1 <- as.matrix(nodes[,1:2 ])
@@ -355,17 +356,17 @@ meshToGraph <- function(vertices, nodes) {
 
   gg1 <- igraph::simplify(igraph::graph_from_edgelist(edges, directed=FALSE))
 
-  emat <- igraph::get.edgelist(gg1)
+  emat <- igraph::as_edgelist(gg1)
   v1 <- vertices[emat[,1],]
   v2 <- vertices[emat[,2],]
 
   ED <- sqrt(rowSums((v1 - v2)^2))
 
-  gg1 <- igraph::set.vertex.attribute(gg1, "x", igraph::V(gg1), vertices[,1])
-  gg1 <- igraph::set.vertex.attribute(gg1, "y", igraph::V(gg1), vertices[,2])
-  gg1 <- igraph::set.vertex.attribute(gg1, "z", igraph::V(gg1), vertices[,3])
+  gg1 <- igraph::set_vertex_attr(gg1, "x", value = vertices[,1])
+  gg1 <- igraph::set_vertex_attr(gg1, "y", value = vertices[,2])
+  gg1 <- igraph::set_vertex_attr(gg1, "z", value = vertices[,3])
 
-  gg1 <- igraph::set.edge.attribute(gg1, "dist", igraph::E(gg1), ED)
+  gg1 <- igraph::set_edge_attr(gg1, "dist", value = ED)
   gg1
 
 }
@@ -541,4 +542,3 @@ setMethod(f="load_data", signature=c("SurfaceGeometrySource"),
           def=function(x) {
             geometry <- load_data(x@meta_info)
           })
-

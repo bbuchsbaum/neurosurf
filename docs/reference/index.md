@@ -1,0 +1,405 @@
+# Package index
+
+## read surfaces
+
+read different surface files into R
+
+- [`read_surf()`](read_surf.md) : Read Surface Data from a File
+
+- [`read_surf_data()`](read_surf_data.md) :
+
+  load surface data and link to `SurfaceGeometry`
+
+- [`read_surf_data_seq()`](read_surf_data_seq.md) : read_surf_data_seq
+
+- [`read_freesurfer_annot()`](read_freesurfer_annot.md) : Read
+  Freesurfer Annotation File
+
+- [`read_surf_geometry()`](read_surf_geometry.md) : Read Surface
+  Geometry from File
+
+- [`write_surf_data()`](write_surf_data.md) : Write Surface Data to File
+
+## surface-based operations and functions
+
+process of manipulate surface data and geometry
+
+- [`smooth()`](smooth-methods.md) : Generic Function for Smoothing a
+  Surface or Associated Data
+- [`cluster_threshold()`](cluster_threshold-methods.md) : Apply
+  Cluster-Extent Threshold to Surface Data
+- [`curvature()`](curvature-methods.md) : Compute Surface Curvature
+  Vector
+
+## extractors
+
+extract infromation from surface data structures
+
+- [`vertices()`](vertices-methods.md) : Extract Vertices from a Surface
+  Object
+
+- [`nodes()`](nodes-methods.md) : Extract Surface Node Numbers
+
+- [`geometry()`](geometry-methods.md) : Extract Geometry from Surface
+  Object
+
+- [`graph()`](graph-methods.md) :
+
+  extract `igraph` object
+
+- [`left()`](left-methods.md) : Get Left Hemisphere
+
+- [`right()`](right-methods.md) : Get Right Hemisphere
+
+- [`adjacency()`](adjacency-methods.md) : Get Adjacency Graph
+
+- [`laplacian()`](laplacian-methods.md) : Compute Graph Laplacian
+
+## Complete reference
+
+Catch-all index to include any remaining topics.
+
+- [`AFNISurfaceFileDescriptor-class`](AFNISurfaceFileDescriptor-class.md)
+  : AFNISurfaceFileDescriptor
+
+- [`Arith(`*`<NeuroSurface>`*`,`*`<NeuroSurface>`*`)`](Arith-NeuroSurface-method.md)
+  [`Arith(`*`<NeuroSurface>`*`,`*`<numeric>`*`)`](Arith-NeuroSurface-method.md)
+  [`Arith(`*`<numeric>`*`,`*`<NeuroSurface>`*`)`](Arith-NeuroSurface-method.md)
+  [`Arith(`*`<NeuroSurface>`*`,`*`<NeuroSurfaceVector>`*`)`](Arith-NeuroSurface-method.md)
+  : Arithmetic Operations for NeuroSurface Objects
+
+- [`Arith(`*`<NeuroSurfaceVector>`*`,`*`<NeuroSurfaceVector>`*`)`](Arith-NeuroSurfaceVector-method.md)
+  [`Arith(`*`<NeuroSurfaceVector>`*`,`*`<numeric>`*`)`](Arith-NeuroSurfaceVector-method.md)
+  [`Arith(`*`<numeric>`*`,`*`<NeuroSurfaceVector>`*`)`](Arith-NeuroSurfaceVector-method.md)
+  [`Arith(`*`<NeuroSurfaceVector>`*`,`*`<NeuroSurface>`*`)`](Arith-NeuroSurfaceVector-method.md)
+  : Arithmetic Operations for NeuroSurfaceVector Objects
+
+- [`BilatNeuroSurfaceVector-class`](BilatNeuroSurfaceVector-class.md) :
+  Bilateral NeuroSurface Vector Class
+
+- [`ColorMappedNeuroSurface-class`](ColorMappedNeuroSurface-class.md) :
+  ColorMappedNeuroSurface
+
+- [`ColorMappedNeuroSurface()`](ColorMappedNeuroSurface.md) :
+  ColorMappedNeuroSurface
+
+- [`Compare(`*`<NeuroSurface>`*`,`*`<NeuroSurface>`*`)`](Compare-NeuroSurface-method.md)
+  : Comparison Operations for NeuroSurface Objects
+
+- [`Compare(`*`<NeuroSurface>`*`,`*`<numeric>`*`)`](Compare-NeuroSurface-numeric-method.md)
+  : Comparison Operations for NeuroSurface Objects
+
+- [`Compare(`*`<NeuroSurfaceVector>`*`,`*`<NeuroSurfaceVector>`*`)`](Compare-NeuroSurfaceVector-method.md)
+  [`Compare(`*`<NeuroSurfaceVector>`*`,`*`<numeric>`*`)`](Compare-NeuroSurfaceVector-method.md)
+  [`Compare(`*`<numeric>`*`,`*`<NeuroSurfaceVector>`*`)`](Compare-NeuroSurfaceVector-method.md)
+  : Comparison Operations for NeuroSurfaceVector Objects
+
+- [`FreesurferAsciiSurfaceFileDescriptor-class`](FreesurferAsciiSurfaceFileDescriptor-class.md)
+  : FresurferAsciiSurfaceFileDescriptor
+
+- [`FreesurferBinarySurfaceFileDescriptor-class`](FreesurferBinarySurfaceFileDescriptor-class.md)
+  : FresurferBinarySurfaceFileDescriptor
+
+- [`FreesurferSurfaceGeometryMetaInfo-class`](FreesurferSurfaceGeometryMetaInfo-class.md)
+  : FreesurferSurfaceGeometryMetaInfo Class
+
+- [`GIFTISurfaceDataMetaInfo-class`](GIFTISurfaceDataMetaInfo-class.md)
+  : GIFTISurfaceDataMetaInfo
+
+- [`GIFTISurfaceFileDescriptor-class`](GIFTISurfaceFileDescriptor-class.md)
+  : GIFTISurfaceFileDescriptor
+
+- [`GIFTISurfaceGeometryMetaInfo-class`](GIFTISurfaceGeometryMetaInfo-class.md)
+  : GIFTISurfaceGeometryMetaInfo
+
+- [`LabeledNeuroSurface-class`](LabeledNeuroSurface-class.md) :
+  LabeledNeuroSurface Class
+
+- [`NIMLSurfaceDataMetaInfo-class`](NIMLSurfaceDataMetaInfo-class.md) :
+  NIMLSurfaceDataMetaInfo
+
+- [`NIMLSurfaceFileDescriptor-class`](NIMLSurfaceFileDescriptor-class.md)
+  : NIMLSurfaceFileDescriptor
+
+- [`NeuroSurface-class`](NeuroSurface-class.md) : NeuroSurface
+
+- [`NeuroSurface()`](NeuroSurface.md) : Construct a NeuroSurface Object
+
+- [`NeuroSurfaceSource()`](NeuroSurfaceSource-class.md) :
+  NeuroSurfaceSource Class
+
+- [`NeuroSurfaceVector-class`](NeuroSurfaceVector-class.md) :
+  NeuroSurfaceVector Class
+
+- [`NeuroSurfaceVector()`](NeuroSurfaceVector.md) : NeuroSurfaceVector
+
+- [`NeuroSurfaceVectorSource-class`](NeuroSurfaceVectorSource-class.md)
+  : NeuroSurfaceVectorSource
+
+- [`ROISurface-class`](ROISurface-class.md) : ROISurface
+
+- [`ROISurface()`](ROISurface.md) :
+
+  Create an instance of class `ROISurface`
+
+- [`ROISurfaceVector-class`](ROISurfaceVector-class.md) :
+  ROISurfaceVector
+
+- [`ROISurfaceVector()`](ROISurfaceVector.md) :
+
+  Create an instance of class `ROISurfaceVector`
+
+- [`RandomSurfaceSearchlight()`](RandomSurfaceSearchlight.md) : Create a
+  Random Searchlight iterator for surface mesh
+
+- [`SurfaceDataMetaInfo-class`](SurfaceDataMetaInfo-class.md) :
+  SurfaceDataMetaInfo
+
+- [`SurfaceDisk()`](SurfaceDisk.md) : Create a Region on Surface
+
+- [`SurfaceGeometry-class`](SurfaceGeometry-class.md) : SurfaceGeometry
+  Class
+
+- [`SurfaceGeometry()`](SurfaceGeometry.md) : Create a SurfaceGeometry
+  Object
+
+- [`SurfaceGeometryMetaInfo-class`](SurfaceGeometryMetaInfo-class.md) :
+  SurfaceGeometryMetaInfo Class
+
+- [`SurfaceGeometrySource-class`](SurfaceGeometrySource-class.md) :
+  SurfaceGeometrySource Class
+
+- [`SurfaceSearchlight()`](SurfaceSearchlight.md) : SurfaceSearchlight
+
+- [`VertexColoredNeuroSurface-class`](VertexColoredNeuroSurface-class.md)
+  : VertexColoredNeuroSurface
+
+- [`VertexColoredNeuroSurface()`](VertexColoredNeuroSurface.md) :
+  VertexColoredNeuroSurface
+
+- [`VertexData-class`](VertexData-class.md) : VertexData
+
+- [`add_atlas_outline()`](add_atlas_outline.md) : Add an atlas outline
+  layer to a surface plot
+
+- [`add_surface_layer()`](add_surface_layer.md) : Add a data layer to a
+  surface plot
+
+- [`adjacency()`](adjacency-methods.md) : Get Adjacency Graph
+
+- [`as`](as-methods.md) : as
+
+- [`as.matrix(`*`<ROISurfaceVector>`*`)`](as.matrix-methods.md)
+  [`as.matrix(`*`<NeuroSurfaceVector>`*`)`](as.matrix-methods.md)
+  [`as.matrix(`*`<BilatNeuroSurfaceVector>`*`)`](as.matrix-methods.md) :
+  as.matrix
+
+- [`as.vector(`*`<NeuroSurface>`*`)`](as.vector-methods.md) : as.vector
+
+- [`cluster_threshold()`](cluster_threshold-methods.md) : Apply
+  Cluster-Extent Threshold to Surface Data
+
+- [`conn_comp(`*`<NeuroSurfaceVector>`*`)`](conn_comp-methods.md)
+  [`conn_comp(`*`<NeuroSurface>`*`)`](conn_comp-methods.md) : Compute
+  Connected Components on a Surface
+
+- [`coords(`*`<ROISurface>`*`)`](coords-methods.md)
+  [`coords(`*`<SurfaceGeometry>`*`)`](coords-methods.md)
+  [`coords(`*`<igraph>`*`)`](coords-methods.md)
+  [`coords(`*`<NeuroSurfaceVector>`*`)`](coords-methods.md)
+  [`coords(`*`<NeuroSurface>`*`)`](coords-methods.md) : coords
+
+- [`curv_cols()`](curv_cols.md) : Convert Curvature Values to Binary
+  Colors for Visualization
+
+- [`curvature()`](curvature-methods.md) : Compute Surface Curvature
+  Vector
+
+- [`data_reader(`*`<SurfaceGeometryMetaInfo>`*`)`](data_reader-methods.md)
+  [`data_reader(`*`<NIMLSurfaceDataMetaInfo>`*`)`](data_reader-methods.md)
+  : data_reader
+
+- [`debug_surfwidget()`](debug_surfwidget.md) : Debugging Helper for
+  surfwidget
+
+- [`draw_surface_plot()`](draw_surface_plot.md) : Draw a static
+  multi-panel surface figure
+
+- [`findBoundaries()`](findBoundaries-methods.md) : Find Boundaries
+  Between Regions on a Surface
+
+- [`find_all_neighbors()`](find_all_neighbors.md) : Find Node Neighbors
+  in a Surface Mesh
+
+- [`find_roi_boundaries()`](find_roi_boundaries.md) : Find boundaries of
+  ROIs on a surface mesh
+
+- [`geometry()`](geometry-methods.md) : Extract Geometry from Surface
+  Object
+
+- [`graph()`](graph-methods.md) :
+
+  extract `igraph` object
+
+- [`indices(`*`<ROISurface>`*`)`](indices-methods.md)
+  [`indices(`*`<ROISurfaceVector>`*`)`](indices-methods.md)
+  [`indices(`*`<NeuroSurfaceVector>`*`)`](indices-methods.md)
+  [`indices(`*`<NeuroSurface>`*`)`](indices-methods.md) : indices
+
+- [`laplacian()`](laplacian-methods.md) : Compute Graph Laplacian
+
+- [`left()`](left-methods.md) : Get Left Hemisphere
+
+- [`length(`*`<ROISurface>`*`)`](length-methods.md) : length
+
+- [`loadFSSurface()`](loadFSSurface.md) : load Freesurfer ascii surface
+
+- [`load_data(`*`<NeuroSurfaceVectorSource>`*`)`](load_data-methods.md)
+  [`load_data(`*`<NeuroSurfaceSource>`*`)`](load_data-methods.md)
+  [`load_data(`*`<FreesurferSurfaceGeometryMetaInfo>`*`)`](load_data-methods.md)
+  [`load_data(`*`<SurfaceGeometrySource>`*`)`](load_data-methods.md) :
+  load_data
+
+- [`load_fsaverage()`](load_fsaverage.md) : Fetch fsaverage surfaces
+
+- [`load_fsaverage_std8()`](load_fsaverage_std8.md) : Load fsaverage
+  std.8 surfaces packaged with neurosurf
+
+- [`map_values(`*`<NeuroSurface>`*`,`*`<list>`*`)`](map_values-NeuroSurface-list-method.md)
+  : Map Values for NeuroSurface with List Lookup
+
+- [`map_values(`*`<NeuroSurface>`*`,`*`<matrix>`*`)`](map_values-NeuroSurface-matrix-method.md)
+  : Map Values for NeuroSurface with Matrix Lookup
+
+- [`meshToGraph()`](meshToGraph.md) : Construct a Graph from Mesh
+  Vertices and Faces
+
+- [`neighbor_graph()`](neighbor_graph-methods.md) : Construct
+  Neighborhood Graph from Surface Mesh
+
+- [`neurosurf-package`](neurosurf.md) [`neurosurf`](neurosurf.md) :
+  neurosurf: Data structures and IO for surface-based neuroimaging data.
+
+- [`nodes()`](nodes-methods.md) : Extract Surface Node Numbers
+
+- [`plot(`*`<SurfaceGeometry>`*`,`*`<missing>`*`)`](plot-methods.md)
+  [`plot(`*`<NeuroSurface>`*`,`*`<missing>`*`)`](plot-methods.md)
+  [`plot(`*`<LabeledNeuroSurface>`*`,`*`<missing>`*`)`](plot-methods.md)
+  [`plot(`*`<ColorMappedNeuroSurface>`*`,`*`<missing>`*`)`](plot-methods.md)
+  [`plot(`*`<VertexColoredNeuroSurface>`*`,`*`<missing>`*`)`](plot-methods.md)
+  : plot a surface
+
+- [`plot(`*`<SurfaceGeometry>`*`)`](plot.SurfaceGeometry.md) : Plot
+  method for SurfaceGeometry objects
+
+- [`plot(`*`<neurosurf_plot>`*`)`](plot.neurosurf_plot.md) : Plot method
+  for neurosurf_plot objects
+
+- [`plot_js()`](plot_js-methods.md) : Plot Surface as an HTMLWidget
+
+- [`print(`*`<Searchlight>`*`)`](print.Searchlight.md) : Print Method
+  for Searchlight Iterator
+
+- [`projectCoordinates()`](projectCoordinates.md) : Project 3D
+  Coordinates onto a Surface and Smooth the Values
+
+- [`read_freesurfer_annot()`](read_freesurfer_annot.md) : Read
+  Freesurfer Annotation File
+
+- [`read_meta_info(`*`<AFNISurfaceFileDescriptor>`*`)`](read_meta_info-methods.md)
+  [`read_meta_info(`*`<NIMLSurfaceFileDescriptor>`*`)`](read_meta_info-methods.md)
+  [`read_meta_info(`*`<FreesurferAsciiSurfaceFileDescriptor>`*`)`](read_meta_info-methods.md)
+  [`read_meta_info(`*`<FreesurferBinarySurfaceFileDescriptor>`*`)`](read_meta_info-methods.md)
+  [`read_meta_info(`*`<GIFTISurfaceFileDescriptor>`*`)`](read_meta_info-methods.md)
+  : Read Meta Information
+
+- [`read_surf()`](read_surf.md) : Read Surface Data from a File
+
+- [`read_surf_data()`](read_surf_data.md) :
+
+  load surface data and link to `SurfaceGeometry`
+
+- [`read_surf_data_seq()`](read_surf_data_seq.md) : read_surf_data_seq
+
+- [`read_surf_geometry()`](read_surf_geometry.md) : Read Surface
+  Geometry from File
+
+- [`remeshSurface()`](remeshSurface.md) : Remesh a SurfaceGeometry
+  object
+
+- [`render_surface_plot()`](render_surface_plot.md) : Render a neurosurf
+  plot using rgl
+
+- [`right()`](right-methods.md) : Get Right Hemisphere
+
+- [`series(`*`<NeuroSurfaceVector>`*`,`*`<numeric>`*`)`](series-methods.md)
+  [`series(`*`<NeuroSurfaceVector>`*`,`*`<integer>`*`)`](series-methods.md)
+  [`series(`*`<NeuroSurfaceVector>`*`,`*`<ROISurface>`*`)`](series-methods.md)
+  [`series(`*`<NeuroSurface>`*`,`*`<numeric>`*`)`](series-methods.md) :
+  series
+
+- [`series_roi(`*`<NeuroSurfaceVector>`*`,`*`<numeric>`*`)`](series_roi-methods.md)
+  [`series_roi(`*`<NeuroSurfaceVector>`*`,`*`<ROISurface>`*`)`](series_roi-methods.md)
+  : series_roi
+
+- [`show(`*`<SurfaceGeometryMetaInfo>`*`)`](show-methods.md)
+  [`show(`*`<SurfaceDataMetaInfo>`*`)`](show-methods.md)
+  [`show(`*`<ROISurface>`*`)`](show-methods.md)
+  [`show(`*`<SurfaceGeometry>`*`)`](show-methods.md)
+  [`show(`*`<NeuroSurfaceVector>`*`)`](show-methods.md)
+  [`show(`*`<NeuroSurface>`*`)`](show-methods.md) : show
+
+- [`show_surface_plot()`](show_surface_plot.md) : Show a surface plot in
+  one step
+
+- [`show_surface_widget()`](show_surface_widget.md) : Show an
+  interactive surface widget
+
+- [`smooth(`*`<NeuroSurface>`*`)`](smooth-NeuroSurface-method.md) :
+  Smooth Data on a NeuroSurface Object
+
+- [`smooth()`](smooth-methods.md) : Generic Function for Smoothing a
+  Surface or Associated Data
+
+- [`snapshot_surface()`](snapshot_surface.md) : Snapshot a surface to a
+  PNG
+
+- [`` `[`( ``*`<NeuroSurfaceVector>`*`,`*`<missing>`*`,`*`<missing>`*`,`*`<ANY>`*`)`](sub-NeuroSurfaceVector-missing-missing-ANY-method.md)
+  : extractor
+
+- [`` `[`( ``*`<NeuroSurfaceVector>`*`,`*`<missing>`*`,`*`<numeric>`*`,`*`<ANY>`*`)`](sub-NeuroSurfaceVector-missing-numeric-ANY-method.md)
+  : extractor
+
+- [`` `[`( ``*`<NeuroSurfaceVector>`*`,`*`<numeric>`*`,`*`<missing>`*`,`*`<ANY>`*`)`](sub-NeuroSurfaceVector-numeric-missing-ANY-method.md)
+  : extractor
+
+- [`` `[`( ``*`<NeuroSurfaceVector>`*`,`*`<numeric>`*`,`*`<numeric>`*`,`*`<ANY>`*`)`](sub-NeuroSurfaceVector-numeric-numeric-ANY-method.md)
+  : extractor
+
+- [`` `[`( ``*`<ROISurface>`*`,`*`<numeric>`*`,`*`<missing>`*`,`*`<ANY>`*`)`](sub-ROISurface.md)
+  : Subset an ROISurface Object
+
+- [`` `[[`( ``*`<NeuroSurfaceVector>`*`,`*`<numeric>`*`)`](sub-sub-NeuroSurfaceVector-numeric-method.md)
+  : extractor
+
+- [`surface_plot()`](surface_plot.md) : Create a surface plot
+  specification
+
+- [`surfwidget()`](surfwidget-methods.md) : Create a Surface Widget
+
+- [`updateColorMap()`](updateColorMap.md) : Update Surface Color Map
+
+- [`values(`*`<ROISurface>`*`)`](values-methods.md)
+  [`values(`*`<ROISurfaceVector>`*`)`](values-methods.md)
+  [`values(`*`<NeuroSurface>`*`)`](values-methods.md) : values
+
+- [`vertices()`](vertices-methods.md) : Extract Vertices from a Surface
+  Object
+
+- [`view_surface()`](view_surface.md) : Display a 3D Brain Surface using
+  RGL
+
+- [`vol_to_surf()`](vol_to_surf.md) : Map values from a 3D volume to a
+  surface in the same coordinate space
+
+- [`write_surf_data()`](write_surf_data.md) : Write Surface Data to File

@@ -148,7 +148,9 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
 
   if (distance_type == "spherical") {
     R <- diff(range(cds[,1]))/2
-    lat <- asin(cds[,3]/R)
+    # Clamp to [-1, 1] to avoid NaN from asin
+    z_normalized <- pmin(pmax(cds[,3]/R, -1), 1)
+    lat <- asin(z_normalized)
     lon <- atan2(cds[,2], cds[,1])
   }
 
@@ -183,7 +185,7 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
 #' @noRd
 .neighbors_to_graph <- function(nabelist) {
   mat <- plyr::rbind.fill.matrix(nabelist)
-  g <- igraph::graph.edgelist(mat[,1:2])
+  g <- igraph::graph_from_edgelist(mat[,1:2])
   igraph::E(g)$dist <- as.numeric(mat[,3])
   g
 }

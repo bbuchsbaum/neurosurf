@@ -2,10 +2,16 @@
 % Please edit documentation in R/Arith.R
 \name{Arith,NeuroSurface,NeuroSurface-method}
 \alias{Arith,NeuroSurface,NeuroSurface-method}
+\alias{Arith,NeuroSurface,numeric-method}
+\alias{Arith,numeric,NeuroSurface-method}
 \alias{Arith,NeuroSurface,NeuroSurfaceVector-method}
 \title{Arithmetic Operations for NeuroSurface Objects}
 \usage{
 \S4method{Arith}{NeuroSurface,NeuroSurface}(e1, e2)
+
+\S4method{Arith}{NeuroSurface,numeric}(e1, e2)
+
+\S4method{Arith}{numeric,NeuroSurface}(e1, e2)
 
 \S4method{Arith}{NeuroSurface,NeuroSurfaceVector}(e1, e2)
 }

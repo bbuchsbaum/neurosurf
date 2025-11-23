@@ -21,6 +21,9 @@ surfwidget(x, width = NULL, height = NULL, ...)
   vertexColors = NULL,
   alpha = 1,
   curvature = NULL,
+  colorbar = TRUE,
+  colorbar_label = NULL,
+  layers = NULL,
   config = list(),
   ...
 )
@@ -35,6 +38,9 @@ surfwidget(x, width = NULL, height = NULL, ...)
   vertexColors = NULL,
   alpha = 1,
   curvature = NULL,
+  colorbar = TRUE,
+  colorbar_label = NULL,
+  layers = NULL,
   config = list(),
   ...
 )
@@ -47,6 +53,9 @@ surfwidget(x, width = NULL, height = NULL, ...)
   vertexColors = NULL,
   alpha = 1,
   curvature = NULL,
+  colorbar = TRUE,
+  colorbar_label = NULL,
+  layers = NULL,
   config = list(),
   ...
 )
@@ -57,6 +66,9 @@ surfwidget(x, width = NULL, height = NULL, ...)
   height = NULL,
   alpha = 1,
   curvature = NULL,
+  colorbar = TRUE,
+  colorbar_label = NULL,
+  layers = NULL,
   config = list(),
   ...
 )
@@ -86,8 +98,17 @@ surfwidget(x, width = NULL, height = NULL, ...)
 If not supplied for a \code{SurfaceGeometry} object, it is computed via
 \code{curvature(x)}.}
 
+\item{colorbar}{Logical; if \code{TRUE} (default), render a colorbar when a
+colormap is used.}
+
+\item{colorbar_label}{Optional character label shown alongside the colorbar.}
+
+\item{layers}{Optional list of additional data layers to display on the surface.
+Each layer should be a list with elements such as \code{data}, \code{cmap},
+\code{alpha}, and optionally outline-specific parameters.}
+
 \item{config}{A list of configuration options for the surface rendering:
-\itemize{
+\describe{
   \item{\code{shininess}}{Numeric between 0 and 100. Controls the shininess of the material. Higher values create a more polished appearance. Default is 30.}
   \item{\code{specularColor}}{Character. Hex color code for the specular highlights. Default is "#111111".}
   \item{\code{flatShading}}{Logical scalar. If \code{TRUE}, uses flat shading; if \code{FALSE}, uses smooth shading. Default is \code{FALSE}.}

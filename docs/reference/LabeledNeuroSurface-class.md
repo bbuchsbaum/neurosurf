@@ -1,0 +1,90 @@
+# LabeledNeuroSurface Class
+
+Represents a 3D surface with labeled vertices, extending NeuroSurface.
+
+## Details
+
+The LabeledNeuroSurface class provides a way to represent anatomical
+parcellations or other categorical divisions of a brain surface. Each
+vertex is assigned a label based on its data value, which typically
+represents a region ID. The class maintains a mapping between these IDs
+and human-readable labels, along with colors for visualization.
+
+This is particularly useful for displaying anatomical atlases or the
+results of clustering algorithms on the brain surface.
+
+## Slots
+
+- `labels`:
+
+  Character vector of label annotations
+
+- `cols`:
+
+  Character vector of hex color codes for labels
+
+## See also
+
+[`NeuroSurface`](NeuroSurface.md)
+
+## Examples
+
+``` r
+# \donttest{
+# Create a simple tetrahedron mesh for the example
+vertices <- c(
+  0, 0, 0,
+  1, 0, 0,
+  0, 1, 0,
+  0, 0, 1
+)
+triangles <- c(
+  1, 2, 3,
+  1, 2, 4,
+  1, 3, 4,
+  2, 3, 4
+)
+
+# Create mesh3d object
+mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
+
+# Create a graph representation
+edges <- rbind(
+  c(1,2), c(1,3), c(1,4),
+  c(2,3), c(2,4),
+  c(3,4)
+)
+graph <- igraph::graph_from_edgelist(edges)
+
+# Create a SurfaceGeometry object
+geometry <- new("SurfaceGeometry",
+               mesh = mesh,
+               graph = graph,
+               hemi = "left")
+
+# Define indices for all vertices
+indices <- 1:4
+
+# Create data values for each vertex
+vertex_data <- c(1, 2, 1, 3)  # Values representing region IDs
+
+# Define the unique labels for the regions
+labels <- c("Region A", "Region B", "Region C")
+
+# Define colors for each label (in the same order as labels)
+colors <- c("#FF0000", "#00FF00", "#0000FF")  # Red, Green, Blue
+
+# Create the LabeledNeuroSurface object
+labeled_surface <- new("LabeledNeuroSurface",
+                      geometry = geometry,
+                      indices = indices,
+                      data = vertex_data,
+                      labels = labels,
+                      cols = colors)
+
+# In this example, vertices are labeled as follows:
+# - Vertices 1 and 3 belong to "Region A" (Red)
+# - Vertex 2 belongs to "Region B" (Green)
+# - Vertex 4 belongs to "Region C" (Blue)
+# }
+```

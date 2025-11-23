@@ -31,10 +31,13 @@ Imports:
     gifti,
     htmlwidgets,
     deflist,
-    crayon
+    crayon,
+    png,
+    Rcpp
+LinkingTo: Rcpp
 License: GPL (>= 2)
 LazyData: TRUE
-RoxygenNote: 7.3.2.9000
+RoxygenNote: 7.3.3
 Remotes:
   bbuchsbaum/neuroim2,
   bbuchsbaum/colorplane
@@ -44,13 +47,19 @@ Collate:
     'Arith.R'
     'IO.R'
     'ROI.R'
+    'RcppExports.R'
     'Searchlight.R'
     'curv.R'
+    'fetch_surfaces.R'
     'geometry.R'
     'neighborhood.R'
     'neuro_surface.R'
     'neurosurf.R'
+    'roi_boundaries.R'
+    'snapshot_surface.R'
     'spec.R'
+    'surface_plot.R'
+    'surface_set.R'
     'surfwidget.R'
     'view_surface.R'
     'vol_to_surf.R'
@@ -59,8 +68,10 @@ Suggests:
     testthat,
     covr,
     knitr,
-    rmarkdown
+    rmarkdown,
+    webshot2
 URL: https://github.com/bbuchsbaum/neurosurf
 BugReports: https://github.com/bbuchsbaum/neurosurf/issues
 VignetteBuilder: knitr
 Encoding: UTF-8
+Config/Needs/website: albersdown

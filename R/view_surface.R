@@ -101,15 +101,19 @@ curv_cols <- function(vals, incol="#B3B3B3", outcol="#404040") {
 #' @noRd
 #' @keywords internal
 surface_views <- list(
-  left_lateral=rbind(c(0,-1,0,0), c(0,0,1,0),c(-1,0,0,0), c(0,0,0,1)),
-  left_medial=rbind(c(0,1,0,0), c(0,0,1,0),c(1,0,0,0), c(0,0,0,1)),
-  left_ventral=rbind(c(-1,0,0,0), c(0,1,0,0),c(0,0,-1,0), c(0,0,0,1)),
-  left_posterior=rbind(c(1,0,0,0), c(0,0,1,0),c(0,-1,0,0), c(0,0,0,1)),
+  left_lateral   = rbind(c(0,-1,0,0), c(0,0,1,0), c(-1,0,0,0), c(0,0,0,1)),
+  left_medial    = rbind(c(0, 1,0,0), c(0,0,1,0), c( 1,0,0,0), c(0,0,0,1)),
+  left_ventral   = rbind(c(-1,0,0,0), c(0,1,0,0), c( 0,0,-1,0), c(0,0,0,1)),
+  left_dorsal    = rbind(c(1,0,0,0),  c(0,1,0,0), c( 0,0,1,0),  c(0,0,0,1)),
+  left_anterior  = rbind(c(0,0,1,0),  c(0,1,0,0), c(-1,0,0,0),  c(0,0,0,1)),
+  left_posterior = rbind(c(1,0,0,0),  c(0,0,1,0), c( 0,-1,0,0), c(0,0,0,1)),
 
-  right_lateral=rbind(c(0,1,0,0), c(0,0,1,0), c(1,0,0,0), c(0,0,0,1)),
-  right_medial=rbind(c(0,-1,0,0), c(0,0,1,0), c(-1,0,0,0), c(0,0,0,1)),
-  right_ventral=rbind(c(-1,0,0,0), c(0,1,0,0),c(0,0,-1,0), c(0,0,0,1)),
-  right_posterior=rbind(c(1,0,0,0), c(0,0,1,0),c(0,-1,0,0), c(0,0,0,1))
+  right_lateral   = rbind(c(0,1,0,0),  c(0,0,1,0), c( 1,0,0,0),  c(0,0,0,1)),
+  right_medial    = rbind(c(0,-1,0,0), c(0,0,1,0), c(-1,0,0,0), c(0,0,0,1)),
+  right_ventral   = rbind(c(-1,0,0,0), c(0,1,0,0), c( 0,0,-1,0), c(0,0,0,1)),
+  right_dorsal    = rbind(c(1,0,0,0),  c(0,1,0,0), c( 0,0,1,0),  c(0,0,0,1)),
+  right_anterior  = rbind(c(0,0,1,0),  c(0,1,0,0), c( 1,0,0,0),  c(0,0,0,1)),
+  right_posterior = rbind(c(1,0,0,0),  c(0,0,1,0), c( 0,-1,0,0), c(0,0,0,1))
 )
 
 
@@ -122,7 +126,8 @@ surface_views <- list(
 #' overlaying spherical markers.
 #'
 #' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the
-#'   3D brain surface mesh to be displayed.
+#'   3D brain surface mesh to be displayed, or a \code{\linkS4class{SurfaceSet}}
+#'   containing multiple variants.
 #' @param vals An optional numeric vector containing data values for each vertex
 #'   on the surface. If provided and `vert_clrs` is NULL, these values are mapped
 #'   to colors using `cmap` and `irange`.
@@ -146,12 +151,17 @@ surface_views <- list(
 #'   the range of `vals` to map onto the `cmap`. Values outside this range will be
 #'   clamped to the min/max colors. Defaults to the full range of `vals`.
 #' @param specular The color of specular highlights on the surface, affecting its
-#'   shininess. Can be a color name (e.g., "white") or hex code. Defaults to "white".
-#'   Set to "black" or NULL for a matte appearance.
-#' @param viewpoint A character string specifying a predefined view (e.g., "lateral",
-#'   "medial", "ventral", "posterior"). The actual view depends on the hemisphere
-#'   (`surfgeom@hemi`, e.g., "left_lateral"). Alternatively, a 4x4 transformation
-#'   matrix defining a custom view. Defaults to "lateral".
+#'   shininess. Can be a color name (e.g., "white") or hex code. Defaults to "black"
+#'   for a matte look. Set to a brighter colour for a glossier appearance.
+#' @param lit Logical. If \code{TRUE}, enables lighting effects on the surface. If
+#'   \code{FALSE}, disables lighting for a flat appearance. If \code{NULL} (default),
+#'   automatically sets to \code{TRUE} for interactive sessions and \code{FALSE} when
+#'   knitting (when \code{rgl.useNULL} is \code{TRUE}).
+#' @param viewpoint A character string specifying a predefined view (e.g.,
+#'   "lateral", "medial", "ventral", "dorsal", "anterior", "posterior"). The
+#'   actual view depends on the hemisphere (`surfgeom@hemi`, e.g.,
+#'   "left_lateral"). Alternatively, a 4x4 transformation matrix defining a
+#'   custom view. Defaults to "lateral".
 #' @param new_window Logical. If TRUE (default), opens a new `rgl` window for the plot.
 #'   If FALSE, attempts to plot in the currently active `rgl` window (useful for
 #'   updates or within Shiny apps).
@@ -163,6 +173,8 @@ surface_views <- list(
 #'   or near the surface. Must contain columns `x`, `y`, `z` (coordinates), and
 #'   `radius`. Can optionally include a `color` column (hex codes or color names)
 #'   for individual sphere colors (defaults to black).
+#' @param label Optional surface label to select when `surfgeom` is a
+#'   \code{SurfaceSet}. Defaults to the set's `default_label`.
 #' @param ... Additional arguments passed directly to `rgl::shade3d` for fine-grained
 #'   control over rendering (e.g., `lit`, `smooth`).
 #'
@@ -247,26 +259,38 @@ view_surface <- function(surfgeom, vals=NA,
                          add_normals=TRUE,
                          thresh=NULL,
                          irange=range(vals,na.rm=TRUE),
-                         specular="white",  # Default to white for a shiny surface
-                         viewpoint=c("lateral","medial", "ventral", "posterior"),
+                         specular="black",  # Matte by default
+                         lit=NULL,           # auto: TRUE interactive, FALSE when knitting (useNULL)
+                         viewpoint=c("lateral","medial", "ventral", "dorsal", "anterior", "posterior"),
                          new_window=TRUE,  # New argument to control RGL window
                          offset=c(0,0,0),
                          zoom=1,
                          spheres=NULL,  # New argument for spheres
+                         label=NULL,    # optional SurfaceSet label
                          ...) {
 
+  # If a SurfaceSet was supplied, pick the requested surface (or default)
+  if (is(surfgeom, "SurfaceSet")) {
+    surfgeom <- get_surface(surfgeom, label)
+  }
 
   # Open a new rgl window only if not in Shiny
   if (new_window && !rgl::rgl.useNULL()) {
     rgl::open3d()
-  } else {
-    #rgl::clear3d(type = "all")
+  } else if (new_window) {
+    # When knitting (rgl.useNULL=TRUE), make sure we start from a clean scene
+    rgl::clear3d(type = "all")
   }
 
 
 
+  mesh <- surfgeom@mesh
   if (add_normals) {
-    surfgeom@mesh <- rgl::addNormals(surfgeom@mesh)
+    mesh <- rgl::addNormals(mesh)
+  }
+
+  if (!is.null(offset) && length(offset) == 3 && any(offset != 0)) {
+    mesh$vb[1:3, ] <- sweep(mesh$vb[1:3, , drop = FALSE], 1, offset, "+")
   }
 
   viewpoint <- match.arg(viewpoint)
@@ -285,14 +309,18 @@ view_surface <- function(surfgeom, vals=NA,
     rgl::par3d()$userMatrix
   }
 
-  if (is.character(bgcol)) {
-    bgcol <- gplots::col2hex(bgcol)
-  }
-
-  if (length(bgcol) == 1) {
-    bg_layer <- colorplane::HexColorPlane(rep(bgcol, length(surfgeom@mesh$vb[1,])))
+  if (length(bgcol) == 1 && is.na(bgcol)) {
+    bg_layer <- NULL
   } else {
-    bg_layer <- colorplane::HexColorPlane(bgcol)
+    if (is.character(bgcol)) {
+      bgcol <- gplots::col2hex(bgcol)
+    }
+
+    if (length(bgcol) == 1) {
+      bg_layer <- colorplane::HexColorPlane(rep(bgcol, ncol(mesh$vb)))
+    } else {
+      bg_layer <- colorplane::HexColorPlane(bgcol)
+    }
   }
 
   if (any(!is.na(vals)) && !is.null(vals) && is.null(vert_clrs)) {
@@ -301,17 +329,63 @@ view_surface <- function(surfgeom, vals=NA,
     combined <- colorplane::blend_colors(bg_layer, fg_clrs, alpha=alpha)
     vertex_cols <- colorplane::as_hexcol(combined)
   } else if (!is.null(vert_clrs)) {
-    fg_layer <- colorplane::HexColorPlane(vert_clrs)
-    #fg_clrs <- fg_layer@clr
-    combined <- colorplane::blend_colors(bg_layer, fg_layer, alpha=alpha)
-    vertex_cols <- colorplane::as_hexcol(combined)
+    if (is.null(bg_layer)) {
+      vertex_cols <- vert_clrs
+    } else {
+      fg_layer <- colorplane::HexColorPlane(vert_clrs)
+      combined <- colorplane::blend_colors(bg_layer, fg_layer, alpha=alpha)
+      vertex_cols <- colorplane::as_hexcol(combined)
+    }
   } else {
-    vertex_cols <- colorplane::as_hexcol(bg_layer)
+    vertex_cols <- if (!is.null(bg_layer)) {
+      colorplane::as_hexcol(bg_layer)
+    } else {
+      rep("#FFFFFF", ncol(mesh$vb))
+    }
   }
 
   rgl::par3d(mouseMode="trackball")
-  ret <- rgl::shade3d(surfgeom@mesh, col=vertex_cols, specular=specular, meshColor="vertices", ...)
+  lit_arg <- lit
+  # Default lighting: interactive sessions lit; knitting (rgl.useNULL) unlit unless user explicitly requests
+  if (is.null(lit)) {
+    lit <- !rgl::rgl.useNULL()
+  }
+
+  # If users asked for a shiny surface explicitly keep it, otherwise soften
+  if (identical(specular, "white") && is.null(lit_arg)) {
+    specular <- "#333333"
+  }
+
+  # For knit/NULL scenes with lighting turned on, pad lights to match shader expectations (defaults to 8)
+  if (rgl::rgl.useNULL() && isTRUE(lit)) {
+    rgl::clear3d(type = "lights")
+    # two visible lights
+    rgl::light3d(theta = 45,   phi = 45, diffuse = "#E0E0E0",  specular = specular, ambient = "#d0d0d0")
+    rgl::light3d(theta = -45, phi = -20, diffuse = "#888888", specular = "black", ambient = "#c0c0c0")
+    # pad with zero-intensity lights so doLighting gets full-length uniform arrays
+    for (i in seq_len(6)) {
+      rgl::light3d(theta = 0, phi = 0,
+                   diffuse = "#000000", specular = "#000000", ambient = "#000000")
+    }
+  }
+
+  shade_args <- list(col = vertex_cols,
+                     specular = specular,
+                     polygon_offset = 1,
+                     meshColor = "vertices",
+                     lit = lit,
+                     ...)
+
+  ret <- do.call(rgl::shade3d, c(list(mesh), shade_args))
   rgl::view3d(fov=0, userMatrix=umat, zoom=zoom)
+
+  # Add better lights for interactive scenes (studio setup)
+  if (isTRUE(lit) && !rgl::rgl.useNULL()) {
+    rgl::clear3d(type = "lights")
+    rgl::light3d(theta = 45,  phi = 45, diffuse = "#E0E0E0", specular = specular)
+    rgl::light3d(theta = -45, phi = 0,  diffuse = "#B0B0B0", specular = "black")
+    rgl::light3d(theta = 0,   phi = -45, diffuse = "#606060", specular = "black")
+  }
 
   # Add spheres if specified
   if (!is.null(spheres)) {
@@ -355,6 +429,33 @@ setMethod("plot", signature=signature(x="SurfaceGeometry", y="missing"),
             view_surface(x,vals,cmap=cmap,vert_clrs=vert_clrs, irange=irange,thresh=thresh,alpha=alpha,bgcol=bgcol,specular=specular,...)
 
           })
+
+# S3 fallback so namespaced calls like graphics::plot() dispatch to neurosurf rendering
+#' Plot method for SurfaceGeometry objects
+#'
+#' @param x A \code{\linkS4class{SurfaceGeometry}} object.
+#' @param y Ignored (for S3 method compatibility).
+#' @param ... Additional arguments passed to \code{\link{view_surface}}.
+#'
+#' @return Invisibly returns the object ID(s) from the RGL scene.
+#' @method plot SurfaceGeometry
+#' @export
+plot.SurfaceGeometry <- function(x, y, ...) {
+  view_surface(x, ...)
+}
+
+#' Plot method for SurfaceSet objects
+#'
+#' @param x A \code{\linkS4class{SurfaceSet}}.
+#' @param y Ignored (for S3 compatibility).
+#' @param label Optional surface label to display; defaults to the set's default.
+#' @param ... Additional arguments passed to \code{\link{view_surface}}.
+#' @return Invisibly returns the object ID(s) from the RGL scene.
+#' @method plot SurfaceSet
+#' @export
+plot.SurfaceSet <- function(x, y, label = NULL, ...) {
+  view_surface(x, label = label, ...)
+}
 
 
 #' @export
@@ -530,4 +631,3 @@ setMethod("plot", signature=signature(x="VertexColoredNeuroSurface", y="missing"
 #' }
 #'
 #'
-

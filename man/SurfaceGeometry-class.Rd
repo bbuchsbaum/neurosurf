@@ -22,6 +22,8 @@ hemisphere the surface represents.
 \item{\code{graph}}{An object of class \code{igraph} representing the underlying graph structure of the surface.}
 
 \item{\code{hemi}}{A character string indicating the hemisphere of the surface ("left", "right", or "both").}
+
+\item{\code{label}}{A character string describing the surface type (e.g., "pial", "white", "inflated", "sphere").}
 }}
 
 \examples{

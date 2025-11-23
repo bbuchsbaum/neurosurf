@@ -290,6 +290,6 @@ setGeneric(name = "surfwidget",
 #'
 #' @export
 #' @rdname findBoundaries-methods
-# setGeneric(name = "findBoundaries",
-#            def = function(x, method = "midpoint", ...)
-#              standardGeneric("findBoundaries"))
+setGeneric(name = "findBoundaries",
+           def = function(x, method = "midpoint", ...)
+             standardGeneric("findBoundaries"))

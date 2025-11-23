@@ -12,7 +12,8 @@ vol_to_surf(
   fun = c("avg", "nn", "mode"),
   knn = 6,
   sigma = 8,
-  dthresh = sigma * 2
+  dthresh = sigma * 2,
+  fill = 0
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ vol_to_surf(
 \item{sigma}{The bandwidth of the smoothing kernel for the "avg" mapping function (default: 8).}
 
 \item{dthresh}{The maximum distance threshold for valid mapping. A voxel is only considered if it is less than \code{dthresh} units away from the vertex (default: 2 * sigma).}
+
+\item{fill}{Value used when no nearby voxels are found (default: 0 to preserve previous behavior).}
 }
 \value{
 A \code{NeuroSurface} object containing the mapped values.

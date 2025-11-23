@@ -14,3 +14,5 @@ testshiny/test_shiny.R
 ^CRAN_prompt\.md$
 ^cran_check\.log$
 ^cran_check_final\.log$
+^doc$
+^Meta$

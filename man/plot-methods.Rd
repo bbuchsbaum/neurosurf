@@ -83,8 +83,8 @@ Defaults to NULL (no thresholding).}
 controlling the overall transparency of the surface. Defaults to 1.}
 
 \item{specular}{The color of specular highlights on the surface, affecting its
-shininess. Can be a color name (e.g., "white") or hex code. Defaults to "white".
-Set to "black" or NULL for a matte appearance.}
+shininess. Can be a color name (e.g., "white") or hex code. Defaults to "black"
+for a matte look. Set to a brighter colour for a glossier appearance.}
 
 \item{bgcol}{A single hex color code or a vector of hex color codes used as the
 base color for the surface. If `vals` or `vert_clrs` are provided, this color

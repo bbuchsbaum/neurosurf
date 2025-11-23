@@ -15,6 +15,7 @@ setOldClass("gifti")
 #' @slot mesh An object of class \code{mesh3d} representing the underlying 3D mesh structure.
 #' @slot graph An object of class \code{igraph} representing the underlying graph structure of the surface.
 #' @slot hemi A character string indicating the hemisphere of the surface ("left", "right", or "both").
+#' @slot label A character string describing the surface type (e.g., "pial", "white", "inflated", "sphere").
 #'
 #' @details
 #' This class is fundamental for representing brain surface geometries in neuroimaging analyses.
@@ -63,8 +64,10 @@ setClass("SurfaceGeometry",
          representation = representation(
            mesh = "mesh3d",
            graph = "igraph",
-           hemi = "character"
-         ))
+           hemi = "character",
+           label = "character"
+         ),
+         prototype = list(label = NA_character_))
 
 
 
@@ -1440,7 +1443,6 @@ setClass("BilatNeuroSurfaceVector",
     right = "NeuroSurfaceVector"
   )
 )
-
 
 
 

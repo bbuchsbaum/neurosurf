@@ -378,7 +378,7 @@ write_surf_data <- function(surf, outstem, hemi="") {
 #' @examples
 #' \donttest{
 #' # Find the path to the example surface file in the package
-#' surf_file <- system.file("extdata", "std.8.lh.white.asc", package = "neurosurfr")
+#' surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 #'
 #' # Check if the file exists
 #' if (file.exists(surf_file)) {
@@ -422,9 +422,6 @@ write_surf_data <- function(surf, outstem, hemi="") {
 #'           "was installed without the example data.")
 #' }
 #' }
-#'
-#' load a surface from a surface geometry file with optional mapped surface data
-#'
 #' @export
 read_surf  <- function(surface_name, surface_data_name=NULL, colind=NULL, nodeind=NULL) {
   if (is.null(surface_data_name)) {
@@ -640,7 +637,7 @@ loadFSSurface <- function(meta_info) {
     bdat <- readFreesurferBinaryGeometry(meta_info@data_file)
     graph <- meshToGraph(bdat$coords, bdat$faces)
     mesh <- rgl::tmesh3d(as.vector(t(bdat$coords)), as.vector(t(bdat$faces))+1, homogeneous=FALSE)
-    new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=meta_info@hemi)
+    new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=meta_info@hemi, label=meta_info@label)
 
   } else {
 
@@ -665,7 +662,7 @@ loadFSSurface <- function(meta_info) {
 
     mesh <- rgl::tmesh3d(as.vector(t(vertices)), as.vector(t(nodes))+1, homogeneous=FALSE)
     #new("SurfaceGeometry", source=new("SurfaceGeometrySource", meta_info=meta_info), mesh=mesh, graph=graph)
-    new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=meta_info@hemi)
+    new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=meta_info@hemi, label=meta_info@label)
   }
 }
 
@@ -908,4 +905,3 @@ setMethod(f="show", signature=signature("SurfaceDataMetaInfo"),
             cat("nels:", "\t", object@nels, "\n")
             cat("label:", "\t", object@label, "\n")
           })
-

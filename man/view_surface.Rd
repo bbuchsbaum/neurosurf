@@ -14,18 +14,21 @@ view_surface(
   add_normals = TRUE,
   thresh = NULL,
   irange = range(vals, na.rm = TRUE),
-  specular = "white",
-  viewpoint = c("lateral", "medial", "ventral", "posterior"),
+  specular = "black",
+  lit = NULL,
+  viewpoint = c("lateral", "medial", "ventral", "dorsal", "anterior", "posterior"),
   new_window = TRUE,
   offset = c(0, 0, 0),
   zoom = 1,
   spheres = NULL,
+  label = NULL,
   ...
 )
 }
 \arguments{
 \item{surfgeom}{A \code{\linkS4class{SurfaceGeometry}} object representing the
-3D brain surface mesh to be displayed.}
+3D brain surface mesh to be displayed, or a \code{\linkS4class{SurfaceSet}}
+containing multiple variants.}
 
 \item{vals}{An optional numeric vector containing data values for each vertex
 on the surface. If provided and `vert_clrs` is NULL, these values are mapped
@@ -58,13 +61,19 @@ the range of `vals` to map onto the `cmap`. Values outside this range will be
 clamped to the min/max colors. Defaults to the full range of `vals`.}
 
 \item{specular}{The color of specular highlights on the surface, affecting its
-shininess. Can be a color name (e.g., "white") or hex code. Defaults to "white".
-Set to "black" or NULL for a matte appearance.}
+shininess. Can be a color name (e.g., "white") or hex code. Defaults to "black"
+for a matte look. Set to a brighter colour for a glossier appearance.}
 
-\item{viewpoint}{A character string specifying a predefined view (e.g., "lateral",
-"medial", "ventral", "posterior"). The actual view depends on the hemisphere
-(`surfgeom@hemi`, e.g., "left_lateral"). Alternatively, a 4x4 transformation
-matrix defining a custom view. Defaults to "lateral".}
+\item{lit}{Logical. If \code{TRUE}, enables lighting effects on the surface. If
+\code{FALSE}, disables lighting for a flat appearance. If \code{NULL} (default),
+automatically sets to \code{TRUE} for interactive sessions and \code{FALSE} when
+knitting (when \code{rgl.useNULL} is \code{TRUE}).}
+
+\item{viewpoint}{A character string specifying a predefined view (e.g.,
+"lateral", "medial", "ventral", "dorsal", "anterior", "posterior"). The
+actual view depends on the hemisphere (`surfgeom@hemi`, e.g.,
+"left_lateral"). Alternatively, a 4x4 transformation matrix defining a
+custom view. Defaults to "lateral".}
 
 \item{new_window}{Logical. If TRUE (default), opens a new `rgl` window for the plot.
 If FALSE, attempts to plot in the currently active `rgl` window (useful for
@@ -80,6 +89,9 @@ Values > 1 zoom in, < 1 zoom out.}
 or near the surface. Must contain columns `x`, `y`, `z` (coordinates), and
 `radius`. Can optionally include a `color` column (hex codes or color names)
 for individual sphere colors (defaults to black).}
+
+\item{label}{Optional surface label to select when `surfgeom` is a
+\code{SurfaceSet}. Defaults to the set's `default_label`.}
 
 \item{...}{Additional arguments passed directly to `rgl::shade3d` for fine-grained
 control over rendering (e.g., `lit`, `smooth`).}

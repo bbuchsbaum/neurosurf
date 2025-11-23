@@ -30,3 +30,7 @@ curvature values. When omitted and the input is a `SurfaceGeometry` object the
 values are computed via `curvature(x)` and forwarded to the viewer for
 curvature based coloring.
 
+
+
+## Albers theme
+This package uses the albersdown theme. Vignettes are styled with `vignettes/albers.css` and a local `vignettes/albers.js`; the palette family is provided via `params$family` (default 'red'). The pkgdown site uses `template: { package: albersdown }`.

@@ -1,0 +1,44 @@
+# Render a neurosurf plot using rgl
+
+Render a neurosurf plot using rgl
+
+## Usage
+
+``` r
+render_surface_plot(x, offscreen = TRUE, scale = c(2, 2), crop = TRUE)
+```
+
+## Arguments
+
+- x:
+
+  A `"neurosurf_plot"` object.
+
+- offscreen:
+
+  Logical; if `TRUE`, rendering is performed with `rgl.useNULL = TRUE`
+  so that plots can be captured as images. A real GL context is
+  attempted first for better antialiasing.
+
+- scale:
+
+  Numeric vector of length 2 giving a supersampling factor for the
+  offscreen snapshot. Values above 1 render at higher resolution before
+  downscaling for smoother edges. Defaults to `c(2, 2)`.
+
+- crop:
+
+  Logical; if `TRUE`, automatically crops away white/empty margins from
+  each snapshot to avoid the "tiny brain" effect in grids.
+
+## Value
+
+A list containing rendered panel images (with aspect ratios) and layout
+information. This is a low-level helper intended to be wrapped by
+higher-level figure drawing utilities.
+
+## See also
+
+[`surface_plot`](surface_plot.md),
+[`add_surface_layer`](add_surface_layer.md),
+[`view_surface`](view_surface.md)

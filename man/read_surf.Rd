@@ -43,7 +43,7 @@ The format is determined automatically from the file extension.
 \examples{
 \donttest{
 # Find the path to the example surface file in the package
-surf_file <- system.file("extdata", "std.8.lh.white.asc", package = "neurosurfr")
+surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 
 # Check if the file exists
 if (file.exists(surf_file)) {
@@ -87,7 +87,4 @@ if (file.exists(surf_file)) {
           "was installed without the example data.")
 }
 }
-
-load a surface from a surface geometry file with optional mapped surface data
-
 }

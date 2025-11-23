@@ -5,6 +5,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { ColorMappedNeuroSurface, VertexColoredNeuroSurface } from './classes.js';
+import ColorMap from './ColorMap.js';
 import { Pane } from 'tweakpane';
 import * as EssentialsPlugin from '@tweakpane/plugin-essentials';
 import { debugLog } from './debug.js';
@@ -26,6 +27,7 @@ export class NeuroSurfaceViewer {
       metalness: 0.1,
       roughness: 0.6,
       useShaders: true,
+      colorMapPreset: 'jet',
       ...config
     };
     this.viewpoint = viewpoint;
@@ -275,6 +277,29 @@ export class NeuroSurfaceViewer {
 
     // Store reference to the folder for dynamic control recreation
     this.colorMapFolder = colorMapFolder;
+
+    // Colormap preset selector
+    const presetList = ColorMap.getAvailableMaps();
+    const presetOptions = presetList.reduce((acc, name) => {
+      acc[name] = name;
+      return acc;
+    }, {});
+
+    this.colorMapState = {
+      preset: (this.config.colorMapPreset && presetList.includes(this.config.colorMapPreset))
+        ? this.config.colorMapPreset
+        : presetList[0]
+    };
+
+    this.colorMapPresetControl = colorMapFolder.addBinding(this.colorMapState, 'preset', {
+      label: 'Preset',
+      options: presetOptions
+    }).on('change', (ev) => {
+      this.updateColormap(ev.value);
+    });
+
+    // Apply initial preset so viewer and UI stay in sync
+    this.updateColormap(this.colorMapState.preset);
 
     // Create initial range controls
     this.createRangeControls();

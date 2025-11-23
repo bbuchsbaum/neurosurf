@@ -4,7 +4,7 @@
 \alias{SurfaceGeometry}
 \title{Create a SurfaceGeometry Object}
 \usage{
-SurfaceGeometry(vert, faces, hemi)
+SurfaceGeometry(vert, faces, hemi, label = NA_character_)
 }
 \arguments{
 \item{vert}{A numeric matrix with 3 columns representing the x, y, and z coordinates of vertices.}
@@ -12,6 +12,8 @@ SurfaceGeometry(vert, faces, hemi)
 \item{faces}{An integer matrix where each row represents a face, containing indices of vertices that form the face.}
 
 \item{hemi}{A character string indicating the hemisphere ("lh" for left, "rh" for right, or other identifier).}
+
+\item{label}{Optional character string describing the surface type (e.g., "pial", "white", "inflated", "sphere").}
 }
 \value{
 A new object of class "SurfaceGeometry" containing:

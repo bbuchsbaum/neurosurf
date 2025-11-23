@@ -14,8 +14,14 @@
 #' @param curvature Optional numeric vector of curvature values for each vertex.
 #'   If not supplied for a \code{SurfaceGeometry} object, it is computed via
 #'   \code{curvature(x)}.
+#' @param colorbar Logical; if \code{TRUE} (default), render a colorbar when a
+#'   colormap is used.
+#' @param colorbar_label Optional character label shown alongside the colorbar.
+#' @param layers Optional list of additional data layers to display on the surface.
+#'   Each layer should be a list with elements such as \code{data}, \code{cmap},
+#'   \code{alpha}, and optionally outline-specific parameters.
 #' @param config A list of configuration options for the surface rendering:
-#'   \itemize{
+#'   \describe{
 #'     \item{\code{shininess}}{Numeric between 0 and 100. Controls the shininess of the material. Higher values create a more polished appearance. Default is 30.}
 #'     \item{\code{specularColor}}{Character. Hex color code for the specular highlights. Default is "#111111".}
 #'     \item{\code{flatShading}}{Logical scalar. If \code{TRUE}, uses flat shading; if \code{FALSE}, uses smooth shading. Default is \code{FALSE}.}
@@ -34,12 +40,13 @@
 setMethod("surfwidget", signature(x = "SurfaceGeometry"),
   function(x, width = NULL, height = NULL, data = NULL, cmap = grDevices::rainbow(256),
            irange = NULL, thresh = c(0,0), vertexColors = NULL, alpha = 1,
-           curvature = NULL, config = list(), ...) {
+           curvature = NULL, colorbar = TRUE, colorbar_label = NULL,
+           layers = NULL, config = list(), ...) {
 
     curv_vals <- curvature
     if (is.null(curv_vals)) {
-      curv_vals <- curvature(x)
-    }
+    curv_vals <- curvature(x)
+  }
 
     # Extract data values if not provided
     if (is.null(data)) {
@@ -50,7 +57,9 @@ setMethod("surfwidget", signature(x = "SurfaceGeometry"),
     neuro_surface <- NeuroSurface(x, indices=nodes(x), data)
     surfwidget(neuro_surface, width, height, cmap = cmap, irange = irange,
                thresh = thresh, vertexColors = vertexColors, alpha = alpha,
-               curvature = curv_vals, config = config, ...)
+               curvature = curv_vals, colorbar = colorbar,
+               colorbar_label = colorbar_label, layers = layers,
+               config = config, ...)
   }
 )
 
@@ -59,7 +68,9 @@ setMethod("surfwidget", signature(x = "SurfaceGeometry"),
 setMethod("surfwidget", signature(x = "NeuroSurface"),
   function(x, width = NULL, height = NULL, cmap = grDevices::rainbow(256),
            irange = range(x@data), thresh = c(0,0), vertexColors = NULL,
-           alpha = 1, curvature = NULL, config = list(), ...) {
+           alpha = 1, curvature = NULL, colorbar = TRUE,
+           colorbar_label = NULL, layers = NULL,
+           config = list(), ...) {
 
     if (is.null(irange)) {
       irange <- range(x@data)
@@ -73,6 +84,8 @@ setMethod("surfwidget", signature(x = "NeuroSurface"),
                                 irange = irange, thresh=thresh)
     surfwidget(color_mapped_surface, width, height, thresh = thresh,
                vertexColors = vertexColors, alpha = alpha, curvature = curv_vals,
+               colorbar = colorbar, colorbar_label = colorbar_label,
+               layers = layers,
                config = config, ...)
   }
 )
@@ -81,7 +94,9 @@ setMethod("surfwidget", signature(x = "NeuroSurface"),
 #' @export
 setMethod("surfwidget", signature(x = "ColorMappedNeuroSurface"),
   function(x, width = NULL, height = NULL, thresh = c(0,0), vertexColors = NULL,
-           alpha = 1, curvature = NULL, config = list(), ...) {
+           alpha = 1, curvature = NULL, colorbar = TRUE,
+           colorbar_label = NULL, layers = NULL,
+           config = list(), ...) {
 
     curv_vals <- curvature
     if (is.null(curv_vals)) {
@@ -89,7 +104,10 @@ setMethod("surfwidget", signature(x = "ColorMappedNeuroSurface"),
     }
 
     surface_data <- prepare_surface_data(x, thresh, vertexColors, alpha, config,
-                                         curv_vals)
+                                         curv_vals,
+                                         colorbar = colorbar,
+                                         colorbar_label = colorbar_label,
+                                         layers = layers)
     create_widget(surface_data, width, height)
   }
 )
@@ -98,6 +116,8 @@ setMethod("surfwidget", signature(x = "ColorMappedNeuroSurface"),
 #' @export
 setMethod("surfwidget", signature(x = "VertexColoredNeuroSurface"),
   function(x, width = NULL, height = NULL, alpha = 1, curvature = NULL,
+           colorbar = TRUE, colorbar_label = NULL,
+           layers = NULL,
            config = list(), ...) {
 
     curv_vals <- curvature
@@ -106,14 +126,21 @@ setMethod("surfwidget", signature(x = "VertexColoredNeuroSurface"),
     }
 
     surface_data <- prepare_surface_data(x, c(0,0), x@colors, alpha, config,
-                                         curv_vals)
+                                         curv_vals,
+                                         colorbar = colorbar,
+                                         colorbar_label = colorbar_label,
+                                         layers = layers)
     create_widget(surface_data, width, height)
   }
 )
 
 # Helper function to prepare surface data
 #' @noRd
-prepare_surface_data <- function(x, thresh, vertexColors, alpha, config, curvature = NULL) {
+prepare_surface_data <- function(x, thresh, vertexColors, alpha, config,
+                                 curvature = NULL,
+                                 colorbar = TRUE,
+                                 colorbar_label = NULL,
+                                 layers = NULL) {
   surface_data <- list(
     vertices = as.vector(x@geometry@mesh$vb[1:3,]),
     faces = as.vector(x@geometry@mesh$it - 1),
@@ -136,10 +163,56 @@ prepare_surface_data <- function(x, thresh, vertexColors, alpha, config, curvatu
   surface_data$curv <- curv_vals
 
   if (!is.null(vertexColors)) {
-    surface_data$vertexColors <- sapply(vertexColors, color_to_hex)
+    # JS expects a numeric vector; if we got colors, convert or drop safely
+    if (is.numeric(vertexColors)) {
+      surface_data$vertexColors <- vertexColors
+    } else if (is.character(vertexColors)) {
+      vc_hex <- sapply(vertexColors, color_to_hex)
+      # pack as integer RGB (0-255) to satisfy JS numeric check
+      rgb_mat <- grDevices::col2rgb(vc_hex)
+      surface_data$vertexColors <- as.numeric(rgb_mat[1, ] * 65536 +
+                                              rgb_mat[2, ] * 256 +
+                                              rgb_mat[3, ])
+    } else {
+      warning("vertexColors must be numeric or character; ignoring provided vertexColors")
+    }
   }
 
   surface_data$config <- process_config(config)
+
+  # Colorbar metadata for the JS widget
+  surface_data$colorbar <- list(
+    show = isTRUE(colorbar),
+    label = colorbar_label
+  )
+
+  if (!is.null(layers)) {
+    # Keep structure lightweight for JS
+    surface_data$layers <- lapply(layers, function(layer) {
+      # allow both snake_case and camelCase for incoming lists
+      lc <- function(name) if (!is.null(layer[[name]])) layer[[name]] else NULL
+      list(
+        id = layer$label %||% NULL,
+        data = layer$data,
+        cmap = layer$cmap,
+        color_range = layer$color_range,
+        thresh = layer$thresh %||% layer$threshold,
+        alpha = layer$alpha %||% 1,
+        visible = isTRUE(layer$visible) || is.null(layer$visible),
+        as_outline = isTRUE(layer$as_outline),
+        blendMode = layer$blendMode,
+        # Outline-specific
+        outline_col = lc("outline_col"),
+        outline_width = lc("outline_width"),
+        outline_halo = lc("outline_halo"),
+        outline_halo_col = lc("outline_halo_col"),
+        outline_halo_width = lc("outline_halo_width"),
+        outline_offset = lc("outline_offset"),
+        outline_rois = lc("outline_rois"),
+        indices = layer$indices
+      )
+    })
+  }
 
   surface_data
 }
@@ -166,7 +239,9 @@ process_config <- function(config) {
   known_keys <- c(
     "shininess", "specularColor", "flatShading",
     "ambientLightColor", "directionalLightColor",
-    "directionalLightIntensity", "color"
+    "directionalLightIntensity", "color",
+    "materialType", "showControls", "controlType",
+    "rotationSpeed", "initialZoom", "ambientLightIntensity"
   )
 
   unknown <- setdiff(names(config), known_keys)
@@ -200,6 +275,38 @@ process_config <- function(config) {
     }
   }
 
+  if ("ambientLightIntensity" %in% names(config)) {
+    val <- config$ambientLightIntensity
+    if (!is.numeric(val) || length(val) != 1 || val < 0 || val > 1) {
+      warning("Invalid 'ambientLightIntensity' value; expected numeric in [0,1].")
+      config$ambientLightIntensity <- NULL
+    }
+  }
+
+  if ("rotationSpeed" %in% names(config)) {
+    val <- config$rotationSpeed
+    if (!is.numeric(val) || length(val) != 1 || val < 0) {
+      warning("Invalid 'rotationSpeed' value; expected non-negative numeric scalar.")
+      config$rotationSpeed <- NULL
+    }
+  }
+
+  if ("initialZoom" %in% names(config)) {
+    val <- config$initialZoom
+    if (!is.numeric(val) || length(val) != 1 || val <= 0) {
+      warning("Invalid 'initialZoom' value; expected positive numeric scalar.")
+      config$initialZoom <- NULL
+    }
+  }
+
+  if ("showControls" %in% names(config)) {
+    val <- config$showControls
+    if (!is.logical(val) || length(val) != 1) {
+      warning("Invalid 'showControls' value; expected logical scalar.")
+      config$showControls <- NULL
+    }
+  }
+
   if ("flatShading" %in% names(config)) {
     val <- config$flatShading
     if (!is.logical(val) || length(val) != 1) {
@@ -218,6 +325,38 @@ color_to_hex <- function(color) {
   rgb_values <- col2rgb(color)
   sprintf("#%02X%02X%02X", rgb_values[1], rgb_values[2], rgb_values[3])
 }
+
+
+#' Show an interactive surface widget
+#'
+#' This is a convenience wrapper around \code{\link{surfwidget}} for quick,
+#' interactive inspection of a single surface. It returns an HTML widget that
+#' can be used in R Markdown documents or Shiny applications.
+#'
+#' @param x A \code{SurfaceGeometry}, \code{NeuroSurface}, or related object
+#'   supported by \code{\link{surfwidget}}.
+#' @param data Optional numeric vector of data values for each vertex when
+#'   \code{x} is a \code{SurfaceGeometry}. Ignored if \code{x} already carries
+#'   data (e.g., a \code{NeuroSurface}).
+#' @param ... Additional arguments passed on to \code{\link{surfwidget}}.
+#'
+#' @return An \code{htmlwidget} object.
+#'
+#' @examples
+#' \donttest{
+#' fs <- load_fsaverage_std8("inflated")
+#' show_surface_widget(fs$lh)
+#' }
+#'
+#' @export
+show_surface_widget <- function(x, data = NULL, ...) {
+  if (inherits(x, "SurfaceGeometry")) {
+    surfwidget(x, data = data, ...)
+  } else {
+    surfwidget(x, ...)
+  }
+}
+
 
 
 #' Shiny bindings for surfwidget
