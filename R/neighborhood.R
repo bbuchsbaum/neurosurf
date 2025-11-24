@@ -39,7 +39,8 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 
   if (is.null(max_order)) {
     avg_weight <- mean(edgeWeights)
-    max_order <- radius/avg_weight + (2*avg_weight)
+    max_order <- ceiling(radius/avg_weight + (2*avg_weight))
+    max_order <- max(1L, max_order)
   }
 
   cand <- igraph::ego(graph, order= max_order, nodes=node)[[1]]
@@ -106,6 +107,10 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
     g <- graph(surf)
   }
 
+  if (igraph::vcount(g) < 2) {
+    return(lapply(nodes %||% igraph::V(g), function(v) matrix(0, 0, 0)))
+  }
+
   assertthat::assert_that(is.numeric(edgeWeights),
                           msg="edgeWeights must be numeric")
   assertthat::assert_that(!any(is.na(edgeWeights)),
@@ -135,6 +140,12 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
   }
 
   avg_weight <- stats::quantile(edgeWeights, .25)
+  if (avg_weight <= 0) {
+    avg_weight <- stats::quantile(edgeWeights[edgeWeights > 0], .25, na.rm = TRUE)
+  }
+  if (is.na(avg_weight) || avg_weight <= 0) {
+    stop("edgeWeights must contain positive values")
+  }
 
   if (is.null(nodes)) {
     nodes <- igraph::V(g)
@@ -142,12 +153,16 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
 
   k_est <- ceiling((radius + 2) / avg_weight)^3
   k <- min(k_est, igraph::vcount(g) - 1)
+  if (k < 1) {
+    return(lapply(nodes, function(v) matrix(0, 0, 0)))
+  }
   all_can <- FNN::get.knn(coords(surf), k = k)
 
   cds <- coords(g)
 
   if (distance_type == "spherical") {
     R <- diff(range(cds[,1]))/2
+    if (R <= 0) stop("spherical distance requested but radius cannot be computed (degenerate coords)")
     # Clamp to [-1, 1] to avoid NaN from asin
     z_normalized <- pmin(pmax(cds[,3]/R, -1), 1)
     lat <- asin(z_normalized)
@@ -184,8 +199,12 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
 #' @importFrom plyr rbind.fill.matrix
 #' @noRd
 .neighbors_to_graph <- function(nabelist) {
+  nabelist <- Filter(function(m) nrow(m) > 0, nabelist)
+  if (length(nabelist) == 0) {
+    return(igraph::make_empty_graph())
+  }
   mat <- plyr::rbind.fill.matrix(nabelist)
-  g <- igraph::graph_from_edgelist(mat[,1:2])
+  g <- igraph::graph_from_edgelist(as.matrix(mat[,1:2]))
   igraph::E(g)$dist <- as.numeric(mat[,3])
   g
 }

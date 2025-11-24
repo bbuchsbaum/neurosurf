@@ -34,7 +34,7 @@ Imports:
     crayon,
     png,
     Rcpp
-LinkingTo: Rcpp
+LinkingTo: Rcpp, RcppArmadillo, roptim
 License: GPL (>= 2)
 LazyData: TRUE
 RoxygenNote: 7.3.3
@@ -56,6 +56,7 @@ Collate:
     'neuro_surface.R'
     'neurosurf.R'
     'roi_boundaries.R'
+    'sdf_alignment.R'
     'snapshot_surface.R'
     'spec.R'
     'surface_plot.R'
@@ -63,6 +64,7 @@ Collate:
     'surfwidget.R'
     'view_surface.R'
     'vol_to_surf.R'
+    'vol_to_surf_sdf.R'
     'zzz.R'
 Suggests: 
     testthat,

@@ -26,37 +26,9 @@ setOldClass("gifti")
 #' @seealso \code{\link[rgl]{mesh3d}}, \code{\link[igraph]{igraph}}
 #'
 #' @examples
+#' @examples
 #' \donttest{
-#' # Create a simple tetrahedron mesh
-#' vertices <- c(
-#'   0, 0, 0,
-#'   1, 0, 0,
-#'   0, 1, 0,
-#'   0, 0, 1
-#' )
-#' triangles <- c(
-#'   1, 2, 3,
-#'   1, 2, 4,
-#'   1, 3, 4,
-#'   2, 3, 4
-#' )
-#'
-#' # Create mesh3d object
-#' mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
-#'
-#' # Create a graph representation
-#' edges <- rbind(
-#'   c(1,2), c(1,3), c(1,4),
-#'   c(2,3), c(2,4),
-#'   c(3,4)
-#' )
-#' graph <- igraph::graph_from_edgelist(edges)
-#'
-#' # Create a SurfaceGeometry object
-#' surface <- new("SurfaceGeometry",
-#'                mesh = mesh,
-#'                graph = graph,
-#'                hemi = "left")
+#' geometry <- example_surface_geometry()
 #' }
 #'
 #' @export
@@ -167,13 +139,13 @@ setClass("FreesurferSurfaceGeometryMetaInfo", contains=c("SurfaceGeometryMetaInf
 #' (e.g. white, pial, inflated, flat, spherical)
 #'
 #' @examples
+#' \dontshow{geometry <- example_surface_geometry()}
 #' \donttest{
-#' # Create a SurfaceDataMetaInfo object
 #' meta_info <- new("SurfaceDataMetaInfo",
 #'                  header_file = "data_header.txt",
 #'                  data_file = "surface_data.1D",
 #'                  file_descriptor = new("FileFormat"),
-#'                  node_count = 10000L,
+#'                  node_count = length(nodes(geometry)),
 #'                  nels = 1L,
 #'                  label = "thickness")
 #' }
@@ -199,23 +171,19 @@ setClass("SurfaceDataMetaInfo",
 #' @slot node_indices the indices of the nodes for mapping to associated surface geometry.
 #'
 #' @examples
+#' \dontshow{geometry <- example_surface_geometry()}
 #' \donttest{
-#' # Create a SurfaceDataMetaInfo parent object
 #' meta_info <- new("SurfaceDataMetaInfo",
 #'                  header_file = "data_header.txt",
 #'                  data_file = "surface_data.niml.dset",
 #'                  file_descriptor = new("FileFormat"),
-#'                  node_count = 10000L,
+#'                  node_count = length(nodes(geometry)),
 #'                  nels = 2L,
 #'                  label = "thickness")
 #'
-#' # Create sample data matrix (10000 nodes, 2 data vectors)
-#' surface_data <- matrix(rnorm(20000), nrow = 10000, ncol = 2)
+#' surface_data <- matrix(rnorm(meta_info@node_count * meta_info@nels),
+#'                        nrow = meta_info@node_count, ncol = meta_info@nels)
 #'
-#' # Create node indices
-#' node_indices <- 1:10000
-#'
-#' # Create NIMLSurfaceDataMetaInfo object
 #' niml_meta <- new("NIMLSurfaceDataMetaInfo",
 #'                 header_file = meta_info@header_file,
 #'                 data_file = meta_info@data_file,
@@ -224,7 +192,7 @@ setClass("SurfaceDataMetaInfo",
 #'                 nels = meta_info@nels,
 #'                 label = meta_info@label,
 #'                 data = surface_data,
-#'                 node_indices = node_indices)
+#'                 node_indices = seq_len(meta_info@node_count))
 #' }
 #'
 #' @export
@@ -1443,8 +1411,6 @@ setClass("BilatNeuroSurfaceVector",
     right = "NeuroSurfaceVector"
   )
 )
-
-
 
 
 

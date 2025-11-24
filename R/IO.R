@@ -67,8 +67,8 @@ read_freesurfer_annot <- function(file_name, geometry) {
       num=lnum,
       label=label,
       red=rgba[1],
-      blue=rgba[2],
-      green=rgba[3],
+      green=rgba[2],
+      blue=rgba[3],
       col=grDevices::rgb(rgba[1]/255, rgba[2]/255, rgba[3]/255),
       code=rgba[3] * 256^2 + (rgba[2] * 256) + rgba[1]
     )
@@ -327,7 +327,6 @@ write_surf_data <- function(surf, outstem, hemi="") {
   assert_that(inherits(surf, "NeuroSurface") || inherits(surf, "NeuroSurfaceVector"))
 
   nodes <- surf@indices - 1
-  keep <- nodes(surf@geometry) %in% surf@indices
 
   marker <- if (hemi == "") {
     ""
@@ -336,13 +335,13 @@ write_surf_data <- function(surf, outstem, hemi="") {
   }
 
   if (inherits(surf, "NeuroSurfaceVector")) {
-    dat <- as.matrix(surf@data[keep,])
+    dat <- as.matrix(surf@data)
     out <- as.data.frame(cbind(nodes, dat))
     fname <- paste0(outstem, marker, ".1D.dset")
     utils::write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
   } else {
     dat <- surf@data
-    out <- as.data.frame(cbind(nodes, dat[keep]))
+    out <- as.data.frame(cbind(nodes, dat))
     fname <- paste0(outstem, marker, ".1D.dset")
     utils::write.table(out, file=fname, row.names=FALSE, col.names=FALSE, quote=FALSE)
   }

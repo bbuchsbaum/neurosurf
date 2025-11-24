@@ -1,30 +1,33 @@
+test_that("write_surf_data writes expected rows/cols", {
+  geom <- example_surface_geometry()
+  idx <- c(1L, 3L)
+  vals <- c(10, 20)
+  surf <- NeuroSurface(geometry = geom, indices = idx, data = vals)
 
-library(testthat)
-library(neurosurf)
-inflated_asc <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
-niml_data_lh <- system.file("extdata", "rscan01_lh.niml.dset", package="neurosurf")
-curv_lh <- system.file("extdata", "std.8_lh.curv.niml.dset", package="neurosurf")
+  outstem <- tempfile("surfdata")
+  fname <- paste0(outstem, ".1D.dset")
+  on.exit(unlink(fname), add = TRUE)
 
-test_that("can read a freesurfer ascii geometry file", {
-  surf <- neurosurf::read_surf(inflated_asc)
-  expect_true(!is.null(surf))
+  write_surf_data(surf, outstem = outstem, hemi = "")
+  tab <- read.table(fname, header = FALSE)
+  expect_equal(nrow(tab), length(idx))
+  expect_equal(tab[, 1], idx - 1)
+  expect_equal(tab[, 2], vals)
 })
 
-test_that("can read a niml 4D data file", {
-  #surf <- neurosurf::read_surf(inflated_asc, niml_data_lh)
-  #expect_true(!is.null(surf))
-  expect_true(TRUE)
+test_that("write_surf_data handles NeuroSurfaceVector", {
+  geom <- example_surface_geometry()
+  idx <- 1:4
+  mat <- matrix(1:8, nrow = 4, ncol = 2)
+  surfv <- NeuroSurfaceVector(geometry = geom, indices = idx, mat = mat)
+
+  outstem <- tempfile("surfvec")
+  fname <- paste0(outstem, "_lh.1D.dset")
+  on.exit(unlink(fname), add = TRUE)
+
+  write_surf_data(surfv, outstem = outstem, hemi = "lh")
+  tab <- read.table(fname, header = FALSE)
+  expect_equal(nrow(tab), length(idx))
+  expect_equal(tab[, 1], idx - 1)
+  expect_equal(unname(as.matrix(tab[, -1])), unname(mat))
 })
-
-test_that("readFreesurferBinaryHeader hemisphere detection works", {
-  lh_file <- system.file("extdata", "std.8_lh.pial.asc", package = "neurosurf")
-  lh_hdr <- neurosurf:::readFreesurferBinaryHeader(lh_file)
-  expect_equal(lh_hdr$hemi, "lh")
-
-  rh_file <- system.file("extdata", "std.8_rh.pial.asc", package = "neurosurf")
-  rh_hdr <- neurosurf:::readFreesurferBinaryHeader(rh_file)
-  expect_equal(rh_hdr$hemi, "rh")
-})
-
-
-

@@ -1,0 +1,21 @@
+test_that("find_all_neighbors handles single-vertex graph", {
+  verts <- matrix(c(0, 0, 0), ncol = 3)
+  faces <- matrix(c(0L, 0L, 0L), ncol = 3)
+  sg <- SurfaceGeometry(verts, faces, hemi = "lh")
+  g <- graph(sg)
+  igraph::E(g)$dist <- rep(1, igraph::ecount(g))
+  res <- find_all_neighbors(g, radius = 1, edgeWeights = igraph::E(g)$dist)
+  expect_length(res, igraph::vcount(g))
+  expect_true(all(vapply(res, nrow, integer(1)) == 0))
+})
+
+test_that("projectCoordinates returns smoothed NeuroSurface", {
+  geom <- example_surface_geometry()
+  surf_coords <- coords(geom)
+  set.seed(123)
+  pts <- surf_coords[sample(1:nrow(surf_coords), 5, replace = TRUE), ] + matrix(rnorm(15, 0, 0.1), ncol = 3)
+  ns <- projectCoordinates(geom, pts, sigma = 2)
+  expect_s4_class(ns, "NeuroSurface")
+  expect_equal(ns@indices, seq_len(nrow(surf_coords)))
+  expect_true(all(ns@data >= 0))
+})

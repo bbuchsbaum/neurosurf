@@ -58,6 +58,26 @@ SurfaceGeometrySource <- function(surface_name) {
 #' @importFrom rgl tmesh3d
 #' @export
 SurfaceGeometry <- function(vert, faces, hemi, label = NA_character_) {
+  if (!is.matrix(vert) || ncol(vert) != 3) {
+    stop("vert must be a numeric matrix with 3 columns (x, y, z).")
+  }
+  if (!is.matrix(faces) || ncol(faces) != 3) {
+    stop("faces must be a matrix with 3 columns (triangles).")
+  }
+  if (any(faces < 0)) {
+    stop("faces contain negative indices; expected 0-based, non-negative.")
+  }
+  max_idx <- max(faces)
+  if (max_idx >= nrow(vert)) {
+    stop("faces reference vertices beyond available rows in vert.")
+  }
+  if (!is.numeric(vert)) {
+    stop("vert must be numeric.")
+  }
+  if (!is.numeric(faces)) {
+    stop("faces must be numeric (0-based).")
+  }
+
   graph <- meshToGraph(vert, faces)
   mesh <- rgl::tmesh3d(as.vector(t(vert)), as.vector(t(faces))+1, homogeneous=FALSE)
   new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=hemi, label=label)
@@ -349,9 +369,22 @@ remeshSurface <- function(surfgeom, voxel_size=2, ...) {
 #' @importFrom igraph graph_from_edgelist set_edge_attr
 #' @importFrom igraph simplify graph.adjacency
 meshToGraph <- function(vertices, nodes) {
-  edge1 <- as.matrix(nodes[,1:2 ])
-  edge2 <- as.matrix(nodes[,2:3 ])
-  edge3 <- as.matrix(nodes[,c(1,3) ])
+  if (!is.matrix(vertices) || ncol(vertices) != 3) {
+    stop("vertices must be a numeric matrix with 3 columns.")
+  }
+  if (!is.matrix(nodes) || ncol(nodes) != 3) {
+    stop("nodes must be a matrix with 3 columns (triangles).")
+  }
+  if (any(nodes < 0)) {
+    stop("nodes contain negative indices; expected 0-based, non-negative.")
+  }
+  if (max(nodes) >= nrow(vertices)) {
+    stop("nodes reference vertices beyond available rows in vertices.")
+  }
+
+  edge1 <- as.matrix(nodes[, 1:2, drop = FALSE])
+  edge2 <- as.matrix(nodes[, 2:3, drop = FALSE])
+  edge3 <- as.matrix(nodes[, c(1, 3), drop = FALSE])
   edges <- rbind(edge1,edge2,edge3) + 1
 
   gg1 <- igraph::simplify(igraph::graph_from_edgelist(edges, directed=FALSE))
@@ -519,9 +552,9 @@ setMethod(f="nodes", signature=c("SurfaceGeometry"),
 #' @export
 setMethod(f="coords", signature=c("igraph"),
           def=function(x) {
-            cbind(igraph:::vertex_attr(x, "x"),
-                  igraph:::vertex_attr(x, "y"),
-                  igraph:::vertex_attr(x, "z"))
+            cbind(igraph::vertex_attr(x, "x"),
+                  igraph::vertex_attr(x, "y"),
+                  igraph::vertex_attr(x, "z"))
           })
 
 

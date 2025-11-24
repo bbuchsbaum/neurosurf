@@ -294,6 +294,14 @@ find_roi_boundaries <- function(vertices,
     }
   }
 
+  # Recompute component counts directly from detected loops to ensure consistency
+  if (length(boundary_roi_id)) {
+    roi_components <- tabulate(match(boundary_roi_id, roi_ids),
+                               nbins = length(roi_ids))
+  } else {
+    roi_components <- integer(length(roi_ids))
+  }
+
   list(
     boundary = boundaries,
     boundary_roi_id = boundary_roi_id,
