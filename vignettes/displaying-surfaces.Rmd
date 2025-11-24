@@ -170,7 +170,7 @@ plot(white_lh_display, vals = random_vals_display_smooth, cmap = rainbow(256),
 
 The `thresh` argument (a vector of two values, `c(lower, upper)`) can be used with `vals` to make parts of the surface transparent. Vertices where the corresponding value in `vals` is *inside* this range (between `lower` and `upper`) are rendered transparently; values outside remain opaque. This is useful for masking out a band of values.
 
-```{r threshold-plot, eval = !identical(Sys.getenv("IN_PKGDOWN"), "true")}
+```{r threshold-plot}
 # Same data overlay as above, but make values between -1 and 1 transparent
 plot(white_lh_display, vals = random_vals_display_smooth, cmap = rainbow(256),
      irange = c(-2, 2), thresh = c(-1, 1), viewpoint="lateral", lit=TRUE)
@@ -221,14 +221,10 @@ img_path <- try(snapshot_surface(white_lh_display,
                                  width = 1200, height = 900),
                 silent = TRUE)
 
-if (!inherits(img_path, "try-error") &&
-    is.character(img_path) &&
-    length(img_path) == 1 &&
-    nzchar(img_path) &&
-    file.exists(img_path)) {
+if (!inherits(img_path, "try-error") && is.character(img_path) && file.exists(img_path)) {
   knitr::include_graphics(img_path)
 } else {
-  cat("*(Snapshot unavailable in this build environment. Install `webshot2` for headless captures.)*")
+  cat("*(Snapshot unavailable in this build environment)*")
 }
 ```
 
