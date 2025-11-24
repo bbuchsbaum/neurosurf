@@ -118,6 +118,7 @@ SurfaceDisk <- function(surf, index, radius, max_order=NULL) {
   if (is.null(max_order)) {
     avg_weight <- mean(edgeWeights)
     max_order <- ceiling(radius/avg_weight) + 1
+    max_order <- max(1L, max_order)
   }
 
   cand <- as.vector(igraph::ego(surf@graph, order= max_order, nodes=index)[[1]])

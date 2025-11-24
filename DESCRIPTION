@@ -44,6 +44,7 @@ Remotes:
 Collate:
     'all_generic.R'
     'all_class.R'
+    'example_helpers.R'
     'Arith.R'
     'IO.R'
     'ROI.R'
