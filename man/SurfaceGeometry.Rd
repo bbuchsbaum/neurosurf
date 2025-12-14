@@ -4,7 +4,13 @@
 \alias{SurfaceGeometry}
 \title{Create a SurfaceGeometry Object}
 \usage{
-SurfaceGeometry(vert, faces, hemi, label = NA_character_)
+SurfaceGeometry(
+  vert,
+  faces,
+  hemi,
+  label = NA_character_,
+  surf_to_world = diag(4)
+)
 }
 \arguments{
 \item{vert}{A numeric matrix with 3 columns representing the x, y, and z coordinates of vertices.}
@@ -14,12 +20,17 @@ SurfaceGeometry(vert, faces, hemi, label = NA_character_)
 \item{hemi}{A character string indicating the hemisphere ("lh" for left, "rh" for right, or other identifier).}
 
 \item{label}{Optional character string describing the surface type (e.g., "pial", "white", "inflated", "sphere").}
+
+\item{surf_to_world}{Optional 4x4 affine transformation matrix from surface coordinates to world
+(scanner RAS) coordinates. Defaults to identity matrix. This transform handles coordinate system
+conventions (e.g., RAS vs LPI) and reference space alignment (e.g., MNI305 vs MNI152).}
 }
 \value{
 A new object of class "SurfaceGeometry" containing:
   \item{mesh}{An rgl mesh object representing the surface.}
   \item{graph}{An igraph object representing the mesh connectivity.}
   \item{hemi}{The hemisphere identifier.}
+  \item{surf_to_world}{The 4x4 affine transformation matrix.}
 }
 \description{
 This function creates a new SurfaceGeometry object from vertex coordinates and face indices.

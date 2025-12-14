@@ -29,7 +29,7 @@ significance thresholds.
 \section{Slots}{
 
 \describe{
-\item{\code{geometry}}{The surface geometry, an instance of \code{SurfaceGeometry}}
+\item{\code{geometry}}{The surface geometry, an instance of \code{SurfaceGeometry} or \code{SurfaceSet}}
 
 \item{\code{indices}}{An \code{integer} vector specifying the subset of valid surface nodes encoded in the \code{geometry} object}
 

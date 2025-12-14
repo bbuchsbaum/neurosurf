@@ -87,6 +87,16 @@ get_surface <- function(x, label = NULL) {
   x@surfaces[[label]]
 }
 
+resolve_surface_geometry <- function(geom, label = NULL) {
+  if (is(geom, "SurfaceSet")) {
+    get_surface(geom, label)
+  } else if (is(geom, "SurfaceGeometry")) {
+    geom
+  } else {
+    stop("expected a SurfaceGeometry or SurfaceSet")
+  }
+}
+
 #' List available surface labels
 #' @param x SurfaceSet
 #' @return Character vector of labels
@@ -97,14 +107,24 @@ surface_labels <- function(x) {
 }
 
 # convenience helpers and pass-through methods
+#' @rdname SurfaceSet-class
 #' @export
 setMethod("geometry", signature(x = "SurfaceSet"), function(x) get_surface(x))
 
+#' @param x a `SurfaceSet`
+#' @param ... additional arguments forwarded to the underlying geometry method
+#' @rdname SurfaceSet-class
 #' @export
 setMethod("vertices", signature(x = "SurfaceSet"), function(x, ...) vertices(get_surface(x), ...))
 
+#' @rdname SurfaceSet-class
 #' @export
 setMethod("nodes", signature(x = "SurfaceSet"), function(x) nodes(get_surface(x)))
 
+#' @rdname SurfaceSet-class
 #' @export
 setMethod("graph", signature(x = "SurfaceSet"), function(x, ...) graph(get_surface(x), ...))
+
+#' @rdname SurfaceSet-class
+#' @export
+setMethod("curvature", signature(x = "SurfaceSet"), function(x, ...) curvature(get_surface(x), ...))

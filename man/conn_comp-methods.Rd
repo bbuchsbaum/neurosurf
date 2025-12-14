@@ -36,8 +36,8 @@ Vertices that do not pass the threshold are assigned a value of 0 in both output
 }
 \examples{
 # Load a sample surface from the package
-surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
-surf_geom <- readAsc(surf_file)
+surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+surf_geom <- read_surf_geometry(surf_file)
 
 # Create random data for the surface with some clusters
 n_vertices <- nrow(coords(surf_geom))
@@ -65,13 +65,13 @@ neuro_surf <- NeuroSurface(geometry = surf_geom,
 components <- conn_comp(neuro_surf, c(-Inf, 1.5))
 
 # Check the number of components found
-max(series(components$index))
+max(series(components$index, seq_len(n_vertices)))
 
 # Check the size of the largest component
-max(series(components$size))
+max(series(components$size, seq_len(n_vertices)))
 
 # Count vertices in components of size >= 10
-sum(series(components$size) >= 10)
+sum(series(components$size, seq_len(n_vertices)) >= 10)
 
 }
 \seealso{

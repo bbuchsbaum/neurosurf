@@ -29,8 +29,9 @@ along with the provided surface geometry.
 }
 \examples{
 \donttest{
-geom <- readSurfaceGeometry("path/to/surface.gii")
-labeled_surface <- read_freesurfer_annot("path/to/labels.annot", geom)
+# Read a FreeSurfer annotation file (requires actual annotation file)
+geom <- example_surface_geometry()
+# labeled_surface <- read_freesurfer_annot("lh.aparc.annot", geom)
 }
 
 }

@@ -37,8 +37,9 @@ NULL
 #'
 #' @examples
 #' \donttest{
-#' geom <- readSurfaceGeometry("path/to/surface.gii")
-#' labeled_surface <- read_freesurfer_annot("path/to/labels.annot", geom)
+#' # Read a FreeSurfer annotation file (requires actual annotation file)
+#' geom <- example_surface_geometry()
+#' # labeled_surface <- read_freesurfer_annot("lh.aparc.annot", geom)
 #' }
 #'
 #' @export
@@ -263,13 +264,157 @@ readAFNISurfaceHeader <- function(file_name) {
 }
 
 
+#' Parse a NIML element string into label and attributes
+#'
+#' @param el Character string containing NIML element
+#' @return List with label and attr components
+#' @noRd
+#' @keywords internal
+.parse_niml_element <- function(el) {
+  items <- strsplit(el, " ")[[1]]
+  if (length(items) > 1) {
+    items <- items[items != "" & items != ">"]
+    label <- items[1]
+    # Parse key=value pairs
+    attr_list <- list()
+    for (it in items[-1]) {
+      keyval <- strsplit(it, "=")[[1]]
+      if (length(keyval) == 2) {
+        attr_list[[keyval[1]]] <- keyval[2]
+      }
+    }
+    list(label = label, attr = attr_list)
+  } else if (length(items) == 1) {
+    list(label = items[[1]], attr = NULL)
+  } else {
+    list(label = NULL, attr = NULL)
+  }
+}
+
+#' Parse a NIML header from file connection
+#'
+#' @param fconn File connection opened in binary mode
+#' @return List with label and attr components
+#' @noRd
+#' @keywords internal
+.parse_niml_header <- function(fconn) {
+  out <- c()
+  STATE <- "BEGIN"
+  while (TRUE) {
+    ch <- suppressWarnings(readChar(fconn, 1))
+    if (length(ch) == 0) {
+      break
+    } else if (ch == "<" && STATE == "BEGIN") {
+      STATE <- "HEADER"
+    } else if (ch == ">" && STATE == "HEADER") {
+      STATE <- "END"
+      break
+    } else {
+      out <- c(out, ch)
+    }
+  }
+  out <- paste(out, collapse = "")
+  out <- gsub("\n", "", out)
+  out <- gsub("\"", "", out)
+  out <- gsub("/", "", out)
+  .parse_niml_element(trimws(out))
+}
+
+#' Read binary NIML data
+#'
+#' @param fconn File connection
+#' @param meta List with ni_type, ni_dimen, ni_form attributes
+#' @return Matrix of data values
+#' @noRd
+#' @keywords internal
+.read_niml_data <- function(fconn, meta) {
+  dtype <- meta$ni_type
+  dtype <- strsplit(as.character(dtype), "\\*")[[1]]
+  if (length(dtype) == 2) {
+    nvols <- as.integer(dtype[1])
+    type <- dtype[2]
+  } else {
+    nvols <- 1
+    type <- dtype[1]
+  }
+  type <- switch(type,
+                 int = "integer",
+                 double = "double",
+                 float = "double")
+  nels <- as.integer(meta$ni_dimen)
+
+  if (!is.null(meta$ni_form) && meta$ni_form == "binary.lsbfirst") {
+    allvals <- readBin(fconn, what = type, size = 4, n = nels * nvols)
+    mat <- matrix(allvals, nvols, nels)
+  } else {
+    ret <- readLines(fconn, n = nels * nvols + 1)[-1]
+    if (type == "integer") {
+      matrix(as.integer(trimws(ret)), nvols, nels)
+    } else if (type == "double") {
+      matrix(as.numeric(trimws(ret)), nvols, nels)
+    } else {
+      stop(paste("unrecognized type: ", type))
+    }
+  }
+}
+
+#' Parse next NIML element from file connection
+#'
+#' @param fconn File connection opened in binary mode
+#' @return List with label, attr, and optionally data components
+#' @noRd
+#' @keywords internal
+.parse_niml_next <- function(fconn) {
+  header <- .parse_niml_header(fconn)
+  if (!is.null(header$attr) &&
+      (header$label == "SPARSE_DATA" || header$label == "INDEX_LIST")) {
+    header$data <- .read_niml_data(fconn, header$attr)
+  }
+  # Skip to closing tag
+  STATE <- "BEGIN"
+  while (TRUE) {
+    ch <- suppressWarnings(readChar(fconn, 1))
+    if (length(ch) == 0) {
+      break
+    } else if (ch == "<" && STATE == "BEGIN") {
+      STATE <- "CLOSE_TAG"
+    } else if (ch == ">" && STATE == "CLOSE_TAG") {
+      break
+    }
+  }
+  header
+}
+
+#' Parse a NIML file
+#'
+#' @param fname File path to NIML file
+#' @param maxels Maximum number of elements to parse
+#' @return List of parsed elements
+#' @noRd
+#' @keywords internal
+.parse_niml_file <- function(fname, maxels = 10000) {
+  fconn <- file(fname, open = "rb")
+  on.exit(close(fconn))
+  fsize <- file.info(fname)$size
+  out <- list()
+  elcount <- 1
+  out[[elcount]] <- .parse_niml_header(fconn)
+  while (seek(fconn, where = NA) < fsize && elcount < maxels) {
+    elcount <- elcount + 1
+    el <- .parse_niml_next(fconn)
+    out[[elcount]] <- el
+  }
+  out
+}
+
 #' readNIMLSurfaceHeader
 #'
 #' @param file_name the name of the NIML file
 #' @noRd
 #' @keywords internal
 readNIMLSurfaceHeader <- function(file_name) {
-  p <- neuroim2:::parse_niml_file(file_name)
+  # Use our fixed NIML parser instead of neuroim2's buggy one
+  p <- .parse_niml_file(file_name)
   whdat <- which(unlist(lapply(p, "[[", "label")) == "SPARSE_DATA")
   dmat <- if (length(whdat) > 1) {
     t(do.call(rbind, lapply(p[[whdat]], "[[", "data")))
@@ -381,44 +526,14 @@ write_surf_data <- function(surf, outstem, hemi="") {
 #'
 #' # Check if the file exists
 #' if (file.exists(surf_file)) {
-#'   # Read the surface data
+#'   # Read the surface geometry (returns SurfaceGeometry for geometry-only files)
 #'   surf <- read_surf(surf_file)
 #'
 #'   # Display basic information about the surface
 #'   print(surf)
 #'
-#'   # Get summary statistics of the surface data
-#'   summary(surf@data)
-#'
-#'   # Visualize the surface if rgl is available
-#'   if (requireNamespace("rgl", quietly = TRUE)) {
-#'     # Plot the surface mesh
-#'     rgl::open3d()
-#'     rgl::shade3d(surf@geometry@mesh, col = "lightblue")
-#'     rgl::title3d(main = "Example Surface")
-#'
-#'     # If the surface has data values, color the mesh by these values
-#'     if (length(surf@data) > 0) {
-#'       # Normalize data to [0,1] for coloring
-#'       norm_data <- (surf@data - min(surf@data)) / (max(surf@data) - min(surf@data))
-#'
-#'       # Create a color palette
-#'       colors <- grDevices::colorRampPalette(c("blue", "cyan", "green",
-#'                                              "yellow", "red"))(100)
-#'
-#'       # Map data values to colors
-#'       col_idx <- ceiling(norm_data * 99) + 1
-#'       vertex_colors <- colors[col_idx]
-#'
-#'       # Plot colored mesh
-#'       rgl::open3d()
-#'       rgl::shade3d(surf@geometry@mesh, col = vertex_colors)
-#'       rgl::title3d(main = "Surface Colored by Data Values")
-#'     }
-#'   }
-#' } else {
-#'   message("Example surface file not found. This may occur if the package ",
-#'           "was installed without the example data.")
+#'   # Get vertex coordinates
+#'   head(coords(surf))
 #' }
 #' }
 #' @export
@@ -467,10 +582,8 @@ read_surf_data_seq <- function(leftGeometry, rightGeometry, leftDataNames, right
     rightGeometry <- read_surf_geometry(rightGeometry)
   }
 
-
-
-  assert_that(is(leftGeometry, "SurfaceGeometry"))
-  assert_that(is(rightGeometry, "SurfaceGeometry"))
+  assert_that(is_surface_like(leftGeometry))
+  assert_that(is_surface_like(rightGeometry))
 
   ret <- lapply(1:length(leftDataNames), function(i) {
     src1 <- NeuroSurfaceSource(leftGeometry, leftDataNames[i], NULL)
@@ -531,7 +644,7 @@ setMethod(f="read_meta_info",signature=signature(x= "FreesurferBinarySurfaceFile
 #' @export
 setMethod(f="read_meta_info",signature=signature(x= "GIFTISurfaceFileDescriptor"),
           def=function(x, file_name) {
-            .read_meta_info(x, file_name, readGIFTIHeader, GIFTISurfaceDataMetaInfo)
+            .read_meta_info(x, file_name, readGIFTIHeader, GIFTISurfaceGeometryMetaInfo)
           })
 
 
@@ -542,7 +655,8 @@ setMethod(f="read_meta_info",signature=signature(x= "GIFTISurfaceFileDescriptor"
 setMethod(f="load_data", signature=c("NeuroSurfaceVectorSource"),
           def=function(x) {
 
-            geometry <- x@geometry
+            geom_source <- x@geometry
+            geometry <- resolve_surface_geometry(geom_source)
 
             reader <- data_reader(x@data_meta_info,0)
 
@@ -575,7 +689,7 @@ setMethod(f="load_data", signature=c("NeuroSurfaceVectorSource"),
               Matrix::Matrix(mat)
             }
 
-            svec <- new("NeuroSurfaceVector", geometry=geometry,
+            svec <- new("NeuroSurfaceVector", geometry=geom_source,
                         indices=as.integer(valid_nodes), data=mat)
 
           })
@@ -615,28 +729,125 @@ setMethod(f="load_data", signature=c("FreesurferSurfaceGeometryMetaInfo"),
             loadFSSurface(x)
           })
 
+#' @export
+#' @rdname load_data-methods
+setMethod(f="load_data", signature=c("GIFTISurfaceGeometryMetaInfo"),
+          def=function(x) {
+            loadGIFTISurface(x)
+          })
+
+#' Load GIFTI surface geometry
+#'
+#' @param meta_info instance of type \code{GIFTISurfaceGeometryMetaInfo}
+#' @details requires rgl library
+#' @return a class of type \code{SurfaceGeometry}
+#' @export
+loadGIFTISurface <- function(meta_info) {
+  if (!requireNamespace("rgl", quietly = TRUE)) {
+    stop("Pkg rgl needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
+
+  # The info slot contains the gifti object from readgii()
+  gii <- meta_info@info
+
+  # Extract vertices (pointset) and faces (triangle) from gifti data
+  vertices <- gii$data$pointset
+  faces <- gii$data$triangle
+
+  # Build graph from mesh
+  graph <- meshToGraph(vertices, faces)
+
+  # Create mesh - note that GIFTI faces are 0-indexed, need to add 1
+  mesh <- rgl::tmesh3d(as.vector(t(vertices)), as.vector(t(faces)) + 1, homogeneous = FALSE)
+
+  # Extract surf_to_world transform from GIFTI CoordinateSystemTransformMatrix if present
+  # The transform is typically stored in data_info for the pointset data array
+  surf_to_world <- .extract_gifti_transform(gii)
+
+  new("SurfaceGeometry", mesh = mesh, graph = graph, hemi = meta_info@hemi,
+      label = meta_info@label, surf_to_world = surf_to_world)
+}
+
+
+#' Extract coordinate transform from GIFTI object
+#'
+#' @param gii gifti object returned by gifti::readgii()
+#' @return 4x4 affine transformation matrix (identity if not found)
+#' @noRd
+#' @keywords internal
+.extract_gifti_transform <- function(gii) {
+  # Default to identity
+  xform <- diag(4)
+
+  # The gifti package stores transform in data_info$trans_mat for each data array
+
+  # We look for the pointset (NIFTI_INTENT_POINTSET) transform first
+  if (!is.null(gii$data_info)) {
+    for (i in seq_along(gii$data_info)) {
+      info <- gii$data_info[[i]]
+      # Check if this is the pointset and has a transform
+      if (!is.null(info$trans_mat) && !is.null(info$intent)) {
+        if (grepl("POINTSET|pointset", info$intent, ignore.case = TRUE)) {
+          # trans_mat should be a 4x4 matrix
+          if (is.matrix(info$trans_mat) &&
+              nrow(info$trans_mat) == 4 && ncol(info$trans_mat) == 4) {
+            xform <- info$trans_mat
+            break
+          }
+        }
+      }
+    }
+
+    # If no pointset-specific transform, check first available transform
+    if (identical(xform, diag(4))) {
+      for (i in seq_along(gii$data_info)) {
+        info <- gii$data_info[[i]]
+        if (!is.null(info$trans_mat)) {
+          if (is.matrix(info$trans_mat) &&
+              nrow(info$trans_mat) == 4 && ncol(info$trans_mat) == 4) {
+            xform <- info$trans_mat
+            break
+          }
+        }
+      }
+    }
+  }
+
+  xform
+}
+
 
 
 
 #' load Freesurfer ascii surface
 #'
 #' @param meta_info instance of type \code{FreesurferSurfaceGeometryMetaInfo}
+#' @param surf_to_world Optional 4x4 affine transformation matrix from surface (tkr-RAS)
+#'   coordinates to world (scanner RAS) coordinates. Defaults to identity. For proper
+#'   alignment with volumes, this transform can be computed from FreeSurfer's vox2ras-tkr
+#'   matrix (available in orig.mgz or via mri_info --vox2ras-tkr).
 #' @details requires rgl library
-#' @return a class of type \code{NeuroSurface}
+#' @return a class of type \code{SurfaceGeometry}
 #' @importFrom plyr rbind.fill.matrix
 #' @importFrom readr read_table
 #' @export
-loadFSSurface <- function(meta_info) {
+loadFSSurface <- function(meta_info, surf_to_world = diag(4)) {
   if (!requireNamespace("rgl", quietly = TRUE)) {
     stop("Pkg rgl needed for this function to work. Please install it.",
          call. = FALSE)
+  }
+
+  if (!is.matrix(surf_to_world) || nrow(surf_to_world) != 4 || ncol(surf_to_world) != 4) {
+    stop("surf_to_world must be a 4x4 matrix.")
   }
 
   if (meta_info@file_descriptor@file_format == "Freesurfer_BINARY") {
     bdat <- readFreesurferBinaryGeometry(meta_info@data_file)
     graph <- meshToGraph(bdat$coords, bdat$faces)
     mesh <- rgl::tmesh3d(as.vector(t(bdat$coords)), as.vector(t(bdat$faces))+1, homogeneous=FALSE)
-    new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=meta_info@hemi, label=meta_info@label)
+    new("SurfaceGeometry", mesh = mesh, graph = graph, hemi = meta_info@hemi,
+        label = meta_info@label, surf_to_world = surf_to_world)
 
   } else {
 
@@ -660,8 +871,8 @@ loadFSSurface <- function(meta_info) {
     }
 
     mesh <- rgl::tmesh3d(as.vector(t(vertices)), as.vector(t(nodes))+1, homogeneous=FALSE)
-    #new("SurfaceGeometry", source=new("SurfaceGeometrySource", meta_info=meta_info), mesh=mesh, graph=graph)
-    new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=meta_info@hemi, label=meta_info@label)
+    new("SurfaceGeometry", mesh = mesh, graph = graph, hemi = meta_info@hemi,
+        label = meta_info@label, surf_to_world = surf_to_world)
   }
 }
 
@@ -859,6 +1070,37 @@ AFNISurfaceDataMetaInfo <- function(descriptor, header) {
       node_indices=as.integer(header$nodes))
 }
 
+#' Constructor for \code{GIFTISurfaceGeometryMetaInfo} class
+#' @param descriptor the file descriptor
+#' @param header a \code{list} containing header information
+#' @noRd
+#' @keywords internal
+GIFTISurfaceGeometryMetaInfo <- function(descriptor, header) {
+  id0 <- which(header$info$data_info$name == "pointset")
+  id1 <- which(header$info$data_info$name == "triangle")
+  assertthat::assert_that(length(id0) > 0, msg="gifti surface file must have pointset")
+  assertthat::assert_that(length(id1) > 0, msg="gifti surface file must have triangles")
+
+  # Determine hemisphere from file name
+  hemi <- "unknown"
+  if (grepl("\\.lh\\.|_lh[._]|^lh\\.", basename(header$header_file))) {
+    hemi <- "lh"
+  } else if (grepl("\\.rh\\.|_rh[._]|^rh\\.", basename(header$header_file))) {
+    hemi <- "rh"
+  }
+
+  new("GIFTISurfaceGeometryMetaInfo",
+      header_file=header$header_file,
+      data_file=header$data_file,
+      file_descriptor=descriptor,
+      vertices=as.integer(header$info$data_info$Dim0[id0]),
+      faces=as.integer(header$info$data_info$Dim0[id1]),
+      embed_dimension=3L,
+      label=as.character(header$label),
+      hemi=hemi,
+      info=header$info)
+}
+
 #' Constructor for \code{GIFTISurfaceDataMetaInfo} class
 #' @param descriptor the file descriptor
 #' @param header a \code{list} containing header information
@@ -876,7 +1118,7 @@ GIFTISurfaceDataMetaInfo <- function(descriptor, header) {
       data_file=header$data_file,
       file_descriptor=descriptor,
       node_count=as.integer(header$info$data_info$Dim0[id0]),
-      nels=1,
+      nels=1L,
       label=as.character(header$label),
       info=header$info)
 }

@@ -150,6 +150,13 @@ surface_views <- list(
 #' @param irange An optional numeric vector of length 2, `c(min, max)`. Specifies
 #'   the range of `vals` to map onto the `cmap`. Values outside this range will be
 #'   clamped to the min/max colors. Defaults to the full range of `vals`.
+#' @param vals_vertices Optional integer vector of 1-based vertex ids corresponding
+#'   to `vals` when `length(vals) < n_vertices`. Enables sparse data inputs.
+#' @param vals_smoothing One of `"auto"` (default) or `"nearest"`. When using
+#'   sparse data, `"auto"` diffuses values with neighbor averaging after nearest
+#'   fill; `"nearest"` performs nearest-neighbour fill only.
+#' @param vals_smoothing_steps Integer number of smoothing iterations applied
+#'   when `vals_smoothing = "auto"`. Ignored otherwise.
 #' @param specular The color of specular highlights on the surface, affecting its
 #'   shininess. Can be a color name (e.g., "white") or hex code. Defaults to "black"
 #'   for a matte look. Set to a brighter colour for a glossier appearance.
@@ -172,7 +179,26 @@ surface_views <- list(
 #' @param spheres An optional data frame to draw spheres at specific locations on
 #'   or near the surface. Must contain columns `x`, `y`, `z` (coordinates), and
 #'   `radius`. Can optionally include a `color` column (hex codes or color names)
-#'   for individual sphere colors (defaults to black).
+#'   for individual sphere colors (defaults to black). Alternatively, supply a
+#'   `vertex` column (1-based vertex ids) and set \code{spheres_as_vertices = TRUE}
+#'   to position foci by vertex.
+#' @param spheres_map_surface Optional \code{SurfaceGeometry}, \code{SurfaceSet},
+#'   or file path used to map sphere coordinates to the nearest vertex on that
+#'   surface before snapping to \code{surfgeom}. Assumes both surfaces share the
+#'   same vertex ordering (e.g., white -> inflated).
+#' @param spheres_map_label Optional surface label to use when
+#'   \code{spheres_map_surface} is a \code{SurfaceSet}.
+#' @param spheres_as_vertices Logical; if \code{TRUE}, interpret the `vertex`
+#'   column of \code{spheres} as 1-based vertex ids on \code{surfgeom} rather
+#'   than raw coordinates.
+#' @param vectors Optional matrix (n x 3) of XYZ vectors to draw as line glyphs.
+#' @param vector_vertices Optional vertex ids matching rows of \code{vectors}
+#'   when they are defined on a subset of vertices.
+#' @param vector_scale Optional numeric scale factor for vectors. If \code{NULL},
+#'   a heuristic scale based on mesh extent and vector magnitudes is used.
+#' @param vector_color Colour for the vectors (single value or vector).
+#' @param vector_alpha Opacity for the vectors (0–1).
+#' @param vector_lwd Numeric line width for vector glyphs.
 #' @param label Optional surface label to select when `surfgeom` is a
 #'   \code{SurfaceSet}. Defaults to the set's `default_label`.
 #' @param ... Additional arguments passed directly to `rgl::shade3d` for fine-grained
@@ -210,29 +236,16 @@ surface_views <- list(
 #' @importFrom grDevices rainbow
 #'
 #' @examples
-#' \donttest{
-#' # Assume 'surf_geom' is a SurfaceGeometry object loaded previously
-#' # e.g., surf_geom <- read_surf_geometry("path/to/surface.gii")
+#' \dontrun{
+#' # Load a surface geometry
+#' surf_geom <- example_surface_geometry()
 #'
 #' # Simple display with default background color
 #' view_surface(surf_geom, viewpoint = "lateral")
 #'
 #' # Display with curvature coloring (assuming you have curvature data)
-#' # curv_vals <- curvature(surf_geom) # Calculate curvature if needed
-#' # view_surface(surf_geom, vals = curv_vals, cmap = gray.colors(256), viewpoint = "medial")
-#'
-#' # Display with specific vertex colors (e.g., based on labels)
-#' # num_verts <- length(nodes(surf_geom))
-#' # colors_for_verts <- sample(c("red", "blue", "green"), num_verts, replace = TRUE)
-#' # view_surface(surf_geom, vert_clrs = colors_for_verts, viewpoint = "ventral")
-#'
-#' # Display with thresholding and custom color map
-#' # random_data <- rnorm(length(nodes(surf_geom)))
-#' # view_surface(surf_geom, vals = random_data,
-#' #              cmap = colorRampPalette(c("blue", "white", "red"))(256),
-#' #              thresh = c(-1.5, 1.5), # Make values between -1.5 and 1.5 transparent
-#' #              irange = c(-3, 3),     # Map values from -3 to 3 onto the cmap
-#' #              viewpoint = "posterior")
+#' curv_vals <- curvature(surf_geom)
+#' view_surface(surf_geom, vals = curv_vals, cmap = gray.colors(256), viewpoint = "medial")
 #'
 #' # Display with spheres marking specific coordinates
 #' sphere_coords <- data.frame(
@@ -243,10 +256,6 @@ surface_views <- list(
 #'   color = c("yellow", "cyan", "magenta")
 #' )
 #' view_surface(surf_geom, viewpoint = "lateral", spheres = sphere_coords)
-#'
-#' # Plot in the current rgl window without opening a new one
-#' # rgl::open3d() # Open window first
-#' # view_surface(surf_geom, new_window = FALSE)
 #' }
 #'
 #' @seealso \code{\link[rgl]{shade3d}}, \code{\link[rgl]{spheres3d}}, \code{\link[rgl]{view3d}}, \code{\link{SurfaceGeometry}}
@@ -258,7 +267,7 @@ view_surface <- function(surfgeom, vals=NA,
                          alpha=1,
                          add_normals=TRUE,
                          thresh=NULL,
-                         irange=range(vals,na.rm=TRUE),
+                         irange=NULL,
                          specular="black",  # Matte by default
                          lit=NULL,           # auto: TRUE interactive, FALSE when knitting (useNULL)
                          viewpoint=c("lateral","medial", "ventral", "dorsal", "anterior", "posterior"),
@@ -266,6 +275,18 @@ view_surface <- function(surfgeom, vals=NA,
                          offset=c(0,0,0),
                          zoom=1,
                          spheres=NULL,  # New argument for spheres
+                         spheres_map_surface = NULL,
+                         spheres_map_label = NULL,
+                         spheres_as_vertices = FALSE,
+                         vectors = NULL,
+                         vector_vertices = NULL,
+                         vector_scale = NULL,
+                         vector_color = "red",
+                         vector_alpha = 0.8,
+                         vector_lwd = 1.5,
+                         vals_vertices = NULL,
+                         vals_smoothing = c("auto", "nearest"),
+                         vals_smoothing_steps = 20,
                          label=NULL,    # optional SurfaceSet label
                          ...) {
 
@@ -309,6 +330,38 @@ view_surface <- function(surfgeom, vals=NA,
     rgl::par3d()$userMatrix
   }
 
+  n_vert <- nrow(coords(surfgeom))
+
+  vals_smoothing <- match.arg(vals_smoothing)
+
+  vals_use <- vals
+  if (length(vals_use) == 1L && is.na(vals_use)) {
+    vals_use <- rep(NA_real_, n_vert)
+  }
+
+  if (is.numeric(vals_use) && length(vals_use) > 1L &&
+      length(vals_use) != n_vert) {
+    if (is.null(vals_vertices)) {
+      stop("vals length (", length(vals_use),
+           ") does not match number of vertices (", n_vert,
+           "); supply vals_vertices to indicate which vertices the data map to.")
+    }
+    vals_use <- .ns_fill_sparse_data(
+      surf = surfgeom,
+      values = vals_use,
+      vertices = vals_vertices,
+      smoothing = vals_smoothing,
+      smoothing_steps = vals_smoothing_steps
+    )
+  }
+
+  if (is.null(irange) || any(!is.finite(irange))) {
+    irange <- range(vals_use, na.rm = TRUE)
+    if (!all(is.finite(irange))) {
+      irange <- c(0, 1)
+    }
+  }
+
   if (length(bgcol) == 1 && is.na(bgcol)) {
     bg_layer <- NULL
   } else {
@@ -323,8 +376,8 @@ view_surface <- function(surfgeom, vals=NA,
     }
   }
 
-  if (any(!is.na(vals)) && !is.null(vals) && is.null(vert_clrs)) {
-    fg_layer <- colorplane::IntensityColorPlane(vals, cmap, alpha=1)
+  if (is.numeric(vals_use) && any(!is.na(vals_use)) && is.null(vert_clrs)) {
+    fg_layer <- colorplane::IntensityColorPlane(vals_use, cmap, alpha=1)
     fg_clrs <- colorplane::map_colors(fg_layer, alpha=alpha, threshold=thresh, irange=irange)
     combined <- colorplane::blend_colors(bg_layer, fg_clrs, alpha=alpha)
     vertex_cols <- colorplane::as_hexcol(combined)
@@ -387,20 +440,58 @@ view_surface <- function(surfgeom, vals=NA,
     rgl::light3d(theta = 0,   phi = -45, diffuse = "#606060", specular = "black")
   }
 
+  if (!is.null(vectors)) {
+    .ns_draw_vector_overlay(
+      surf = surfgeom,
+      vectors = vectors,
+      vertices = vector_vertices,
+      scale = vector_scale,
+      color = vector_color,
+      alpha = vector_alpha,
+      lwd = vector_lwd
+    )
+  }
+
   # Add spheres if specified
   if (!is.null(spheres)) {
-    # Ensure the spheres data frame has the required columns
-    if (!all(c("x", "y", "z", "radius") %in% names(spheres))) {
-      stop("spheres data frame must contain columns 'x', 'y', 'z', and 'radius'.")
+    spheres_df <- as.data.frame(spheres)
+    use_vertices <- isTRUE(spheres_as_vertices) ||
+      (!all(c("x", "y", "z") %in% names(spheres_df)) &&
+         "vertex" %in% names(spheres_df))
+
+    if (use_vertices) {
+      if (!"vertex" %in% names(spheres_df)) {
+        stop("spheres must include a 'vertex' column when ",
+             "spheres_as_vertices = TRUE.")
+      }
+    } else {
+      if (!all(c("x", "y", "z") %in% names(spheres_df))) {
+        stop("spheres data frame must contain columns 'x', 'y', 'z' when ",
+             "spheres_as_vertices = FALSE.")
+      }
     }
-    for (i in seq_len(nrow(spheres))) {
+    if (!"radius" %in% names(spheres_df)) {
+      stop("spheres data frame must contain a 'radius' column.")
+    }
+
+    mapped <- .ns_map_foci_to_surface(
+      spheres = spheres_df,
+      target_surf = surfgeom,
+      map_surface = spheres_map_surface,
+      coords_as_vertices = use_vertices,
+      map_label = spheres_map_label
+    )
+
+    foci_coords <- mapped$coords
+
+    for (i in seq_len(nrow(spheres_df))) {
       # Use provided color or default to black
-      sphere_color <- if ("color" %in% names(spheres)) spheres$color[i] else "black"
+      sphere_color <- if ("color" %in% names(spheres_df)) spheres_df$color[i] else "black"
       rgl::spheres3d(
-        x = spheres$x[i],
-        y = spheres$y[i],
-        z = spheres$z[i],
-        radius = spheres$radius[i],
+        x = foci_coords[i, 1],
+        y = foci_coords[i, 2],
+        z = foci_coords[i, 3],
+        radius = spheres_df$radius[i],
         color = sphere_color
       )
     }
@@ -408,6 +499,68 @@ view_surface <- function(surfgeom, vals=NA,
 
   ret
 }
+
+#' Map foci coordinates to a target surface
+#'
+#' @keywords internal
+#' @noRd
+.ns_map_foci_to_surface <- function(spheres,
+                                    target_surf,
+                                    map_surface = NULL,
+                                    coords_as_vertices = FALSE,
+                                    map_label = NULL) {
+  stopifnot(inherits(target_surf, "SurfaceGeometry"))
+
+  if (coords_as_vertices) {
+    v_idx <- as.integer(spheres$vertex)
+    n_vert <- nrow(coords(target_surf))
+    if (any(v_idx < 1L | v_idx > n_vert)) {
+      stop("vertex ids must be within [1, ", n_vert, "].")
+    }
+    mapped_coords <- coords(target_surf)[v_idx, , drop = FALSE]
+    return(list(coords = mapped_coords, vertex = v_idx))
+  }
+
+  if (is.null(map_surface)) {
+    return(list(coords = as.matrix(spheres[, c("x", "y", "z")]), vertex = NULL))
+  }
+
+  map_geom <- .ns_resolve_surface_geom(map_surface, map_label)
+  map_coords <- coords(map_geom)
+  target_coords <- coords(target_surf)
+
+  if (nrow(map_coords) != nrow(target_coords)) {
+    warning("map_surface vertex count (", nrow(map_coords),
+            ") differs from target (", nrow(target_coords),
+            "); mapped vertices may be misaligned.")
+  }
+
+  knn <- FNN::get.knnx(map_coords,
+                       query = as.matrix(spheres[, c("x", "y", "z")]),
+                       k = 1L)
+  v_idx <- as.integer(knn$nn.index[, 1])
+  mapped_coords <- target_coords[v_idx, , drop = FALSE]
+  list(coords = mapped_coords, vertex = v_idx)
+}
+
+#' Normalize surface input for mapping
+#'
+#' @keywords internal
+#' @noRd
+.ns_resolve_surface_geom <- function(x, label = NULL) {
+  if (inherits(x, "SurfaceGeometry")) {
+    return(x)
+  }
+  if (is(x, "SurfaceSet")) {
+    return(get_surface(x, label))
+  }
+  if (is.character(x) && length(x) == 1L) {
+    return(read_surf_geometry(x))
+  }
+  stop("Unsupported surface specification for spheres_map_surface. ",
+       "Provide a SurfaceGeometry, SurfaceSet, or file path.")
+}
+
 #' plot a surface
 #'
 #' @rdname plot-methods

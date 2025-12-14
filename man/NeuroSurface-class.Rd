@@ -31,7 +31,7 @@ processing of surface-based neuroimaging data.
 \section{Slots}{
 
 \describe{
-\item{\code{geometry}}{the surface geometry, an instance of \code{SurfaceGeometry}}
+\item{\code{geometry}}{the surface geometry, an instance of \code{SurfaceGeometry} or \code{SurfaceSet}}
 
 \item{\code{indices}}{an \code{integer} vector specifying the subset of valid surface nodes encoded in the \code{geometry} object.}
 

@@ -26,13 +26,13 @@ in the surface data matrix; nels = 1 for a single surface data set)}
 }}
 
 \examples{
+\dontshow{geometry <- example_surface_geometry()}
 \donttest{
-# Create a SurfaceDataMetaInfo object
 meta_info <- new("SurfaceDataMetaInfo",
                  header_file = "data_header.txt",
                  data_file = "surface_data.1D",
                  file_descriptor = new("FileFormat"),
-                 node_count = 10000L,
+                 node_count = length(nodes(geometry)),
                  nels = 1L,
                  label = "thickness")
 }

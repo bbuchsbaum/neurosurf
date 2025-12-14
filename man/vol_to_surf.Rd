@@ -13,7 +13,12 @@ vol_to_surf(
   knn = 6,
   sigma = 8,
   dthresh = sigma * 2,
-  fill = 0
+  fill = 0,
+  sampling = c("midpoint", "normal_line", "thickness"),
+  n_samples = NULL,
+  depth = NULL,
+  radius = 3,
+  sampler = NULL
 )
 }
 \arguments{
@@ -39,6 +44,25 @@ vol_to_surf(
 \item{dthresh}{The maximum distance threshold for valid mapping. A voxel is only considered if it is less than \code{dthresh} units away from the vertex (default: 2 * sigma).}
 
 \item{fill}{Value used when no nearby voxels are found (default: 0 to preserve previous behavior).}
+
+\item{sampling}{How to place sample points relative to the white/pial pair.
+Options are:
+\itemize{
+  \item "midpoint" (default): original behaviour, samples at the midpoint between white and pial.
+  \item "thickness": samples along the white→pial line at fractions given by \code{depth} or evenly spaced.
+  \item "normal_line": samples along the vertex normal centred on the midpoint, spanning \code{radius} in both directions (or using \code{depth} offsets).
+}}
+
+\item{n_samples}{Number of samples per vertex for \code{sampling != "midpoint"} when \code{depth} is not supplied.}
+
+\item{depth}{Optional numeric vector controlling sampling positions; interpreted as fractions of thickness (for "thickness") or multiples of \code{radius} (for "normal_line").}
+
+\item{radius}{Radius (in voxel units) for normal-line sampling when
+\code{sampling = "normal_line"}; also used as the distance scale when
+interpreting \code{depth} offsets for that mode.}
+
+\item{sampler}{Optional surface sampler object created by \code{surface_sampler()}.
+When provided, the sampler is reused and other sampling-related arguments are ignored.}
 }
 \value{
 A \code{NeuroSurface} object containing the mapped values.
@@ -50,34 +74,23 @@ allowing for different mapping strategies.
 \examples{
 \donttest{
 # Load standard white and pial surfaces from the package
-wm_surf_file <- system.file("extdata", "std.8.lh.white.asc", package = "neurosurf")
-pial_surf_file <- system.file("extdata", "std.8.lh.pial.asc", package = "neurosurf")
+wm_surf_file <- system.file("extdata", "std.8_lh.white.asc", package = "neurosurf")
+pial_surf_file <- system.file("extdata", "std.8_lh.pial.asc", package = "neurosurf")
 
 surf_wm <- read_surf_geometry(wm_surf_file)
 surf_pial <- read_surf_geometry(pial_surf_file)
 
-# Load an example volume (replace with actual loading code later)
-# vol <- neuroim2::read_vol("path/to/volume.nii")
-
-# Example: Create a dummy volume for demonstration purposes
-# This should be replaced with real volume data
-library(neuroim2)
-# Assume the surfaces are in a space roughly covered by this bounding box
-# Adjust dimensions and origin based on your actual data alignment
+# Create a dummy volume for demonstration purposes
 bb <- matrix(c(-80, 80, -120, 80, -60, 90), 3, 2, byrow = TRUE)
 spacing <- c(1, 1, 1)
 dims <- ceiling(abs(bb[,2] - bb[,1]) / spacing)
 origin <- bb[,1]
-sp <- NeuroSpace(dims, spacing, origin)
-vol <- NeuroVol(rnorm(prod(dims)), sp)
+sp <- neuroim2::NeuroSpace(dims, spacing, origin)
+vol <- neuroim2::NeuroVol(rnorm(prod(dims)), sp)
 
 # Map volume to surface using average mapping
 mapped_surf <- vol_to_surf(surf_wm, surf_pial, vol, fun = "avg")
-print(summary(series(mapped_surf)))
-
-# Map volume to surface using nearest neighbor mapping
-mapped_surf_nn <- vol_to_surf(surf_wm, surf_pial, vol, fun = "nn")
-print(summary(series(mapped_surf_nn)))
+print(mapped_surf)
 }
 
 }

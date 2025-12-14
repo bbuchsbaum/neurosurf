@@ -30,8 +30,8 @@ The result is a \code{NeuroSurface} object containing the smoothed values, suita
 }
 \examples{
 # Load a sample surface from the package
-surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
-surfgeom <- readAsc(surf_file)
+surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+surfgeom <- read_surf_geometry(surf_file)
 
 # Get the surface coordinates
 surf_coords <- coords(surfgeom)
@@ -46,7 +46,8 @@ sample_coords <- surf_coords[sample_indices, ] + matrix(rnorm(150, 0, 0.5), ncol
 projected_surface <- projectCoordinates(surfgeom, sample_coords, sigma = 3)
 
 # Check the result
-max(series(projected_surface))  # Maximum density value
-sum(series(projected_surface) > 0)  # Number of vertices with non-zero values
+vals <- series(projected_surface, indices(projected_surface))
+max(vals)        # Maximum density value
+sum(vals > 0)    # Number of vertices with non-zero values
 
 }

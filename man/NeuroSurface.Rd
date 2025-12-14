@@ -7,7 +7,7 @@
 NeuroSurface(geometry, indices, data)
 }
 \arguments{
-\item{geometry}{A \code{SurfaceGeometry} object representing the underlying surface structure.}
+\item{geometry}{A \code{SurfaceGeometry} or \code{SurfaceSet} object representing the underlying surface structure.}
 
 \item{indices}{An integer vector specifying the indices of valid surface nodes.}
 
@@ -33,9 +33,9 @@ Nodes not included in the \code{indices} vector are considered to have no data o
 }
 \examples{
 \donttest{
-# Assuming 'surf_geom' is a pre-existing SurfaceGeometry object
-indices <- 1:1000  # Example indices
-data_values <- rnorm(1000)  # Example data
+surf_geom <- example_surface_geometry()
+indices <- seq_len(nrow(coords(surf_geom)))  # all vertices
+data_values <- rnorm(length(indices))        # Example data
 neuro_surf <- NeuroSurface(surf_geom, indices, data_values)
 }
 

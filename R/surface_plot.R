@@ -216,7 +216,8 @@ surface_plot <- function(lh,
     zoom = zoom,
     background = background,
     brightness = brightness,
-    layers = list()
+    layers = list(),
+    vector_layers = list()
   )
   class(obj) <- "neurosurf_plot"
   obj
@@ -237,6 +238,15 @@ surface_plot <- function(lh,
 #' @param color_range Optional numeric vector of length 2 giving the minimum
 #'   and maximum data values to map to the colour scale. If \code{NULL}, the
 #'   range of \code{data} (ignoring \code{NA}) is used.
+#' @param vertices Optional vector or list of vertex ids corresponding to the
+#'   supplied \code{data} when it is defined on a subset of vertices. Use a list
+#'   with elements \code{left}/\code{right} for hemisphere-specific subsets.
+#' @param smoothing One of \code{"auto"} (default) or \code{"nearest"} when
+#'   using sparse data. \code{"auto"} fills missing vertices by nearest
+#'   neighbour then applies smoothing iterations; \code{"nearest"} performs only
+#'   nearest-neighbour fill.
+#' @param smoothing_steps Integer number of smoothing iterations applied when
+#'   \code{smoothing = "auto"}. Ignored otherwise.
 #' @param as_outline Logical; if \code{TRUE}, the data are treated as labels
 #'   and are intended to be visualised as region outlines rather than a filled
 #'   map. When \code{as_outline = TRUE}, the layer does not contribute to the
@@ -281,6 +291,9 @@ add_surface_layer <- function(x,
                               cmap = "viridis",
                               alpha = 1,
                               color_range = NULL,
+                              vertices = NULL,
+                              smoothing = c("auto", "nearest"),
+                              smoothing_steps = 20,
                               as_outline = FALSE,
                               zero_transparent = TRUE,
                               show_colorbar = TRUE,
@@ -296,20 +309,46 @@ add_surface_layer <- function(x,
                               hemi = c("both", "left", "right")) {
   stopifnot(inherits(x, "neurosurf_plot"))
   hemi <- match.arg(hemi)
+  smoothing <- match.arg(smoothing)
   outline_lty <- match.arg(outline_lty)
 
-  split_data <- .ns_split_layer_data(x$surfaces, data, hemi)
+  split_data <- .ns_split_layer_data(
+    surfaces = x$surfaces,
+    data = data,
+    hemi = hemi,
+    allow_partial = !is.null(vertices)
+  )
+  split_vertices <- .ns_split_vertices(
+    x$surfaces,
+    vertices,
+    hemi,
+    allow_partial = !is.null(vertices)
+  )
+
+  filled_data <- .ns_prepare_layer_data(
+    surfaces = x$surfaces,
+    data = split_data,
+    vertices = split_vertices,
+    smoothing = smoothing,
+    smoothing_steps = smoothing_steps
+  )
 
   if (is.null(color_range)) {
-    vals <- unlist(split_data, use.names = FALSE)
+    vals <- unlist(filled_data, use.names = FALSE)
     color_range <- range(vals, na.rm = TRUE)
+    if (!all(is.finite(color_range))) {
+      color_range <- c(0, 1)
+    }
   }
 
   layer <- list(
-    data = split_data,
+    data = filled_data,
     cmap = cmap,
     alpha = alpha,
     color_range = color_range,
+    vertices = split_vertices,
+    smoothing = smoothing,
+    smoothing_steps = smoothing_steps,
     as_outline = as_outline,
     zero_transparent = zero_transparent,
     show_colorbar = show_colorbar,
@@ -325,6 +364,81 @@ add_surface_layer <- function(x,
   )
 
   x$layers <- c(x$layers, list(layer))
+  x
+}
+
+#' Add a vector field overlay
+#'
+#' @param x A \code{"neurosurf_plot"} object.
+#' @param vectors Matrix (n x 3) of XYZ vectors or a list with \code{left}/\code{right}
+#'   matrices. When supplying a single matrix for both hemispheres, rows are split
+#'   left-to-right to match the vertex ordering.
+#' @param vertices Optional vector or list of vertex ids matching the rows of
+#'   \code{vectors} when defined on a subset of vertices. For both hemispheres,
+#'   supply a list to avoid ambiguity.
+#' @param scale Optional numeric scalar. If \code{NULL}, a heuristic scale is
+#'   derived from the mesh extent and vector magnitudes.
+#' @param color Colour for the vectors (single value or vector).
+#' @param alpha Numeric in \eqn{[0,1]} for vector opacity.
+#' @param lwd Numeric line width for the glyphs.
+#' @param hemi One of \code{"both"}, \code{"left"}, or \code{"right"} when a
+#'   single \code{vectors} matrix is provided.
+#'
+#' @return A modified \code{"neurosurf_plot"} object.
+#' @export
+add_vector_layer <- function(x,
+                             vectors,
+                             vertices = NULL,
+                             scale = NULL,
+                             color = "red",
+                             alpha = 0.8,
+                             lwd = 1.5,
+                             hemi = c("both", "left", "right")) {
+  stopifnot(inherits(x, "neurosurf_plot"))
+  hemi <- match.arg(hemi)
+
+  vec_data <- .ns_split_vector_data(x$surfaces, vectors, hemi)
+  vec_vertices <- .ns_split_vertices(
+    x$surfaces,
+    vertices,
+    hemi,
+    allow_partial = !is.null(vertices)
+  )
+
+  hemis <- c("left", "right")
+  for (h in hemis) {
+    vmat <- vec_data[[h]]
+    if (is.null(vmat)) {
+      next
+    }
+    surf <- x$surfaces[[h]]
+    if (is.null(surf)) {
+      next
+    }
+    if (!is.matrix(vmat) || ncol(vmat) != 3) {
+      stop("vectors for ", h, " must be a matrix with 3 columns (XYZ).")
+    }
+    n_vert <- nrow(coords(surf))
+    v_idx <- vec_vertices[[h]]
+    if (is.null(v_idx)) {
+      if (nrow(vmat) != n_vert) {
+        stop("vectors for ", h, " must have one row per vertex or supply vertices.")
+      }
+    } else if (length(v_idx) != nrow(vmat)) {
+      stop("Length of vertices for ", h, " does not match number of vectors.")
+    }
+  }
+
+  layer <- list(
+    data = vec_data,
+    vertices = vec_vertices,
+    scale = scale,
+    color = color,
+    alpha = alpha,
+    lwd = lwd
+  )
+
+  x$vector_layers <- c(x$vector_layers, list(layer))
   x
 }
 
@@ -427,9 +541,7 @@ render_surface_plot <- function(x,
     # Draw ROI outlines for any layers marked as_outline = TRUE
     outline_layers <- Filter(function(layer) isTRUE(layer$as_outline), x$layers)
     if (length(outline_layers)) {
-      # Ensure per-vertex normals are available for optional depth offsets
       vertex_normals <- .ns_vertex_normals(surf)
-
       for (layer in outline_layers) {
         roi_vals <- layer$data[[h_spec]]
         if (is.null(roi_vals)) {
@@ -543,6 +655,28 @@ render_surface_plot <- function(x,
                               lty = layer$outline_lty)
           }
         }
+      }
+    }
+
+    if (length(x$vector_layers)) {
+      for (v_layer in x$vector_layers) {
+        vecs <- v_layer$data[[h_spec]]
+        if (is.null(vecs)) {
+          next
+        }
+        verts <- v_layer$vertices[[h_spec]]
+        tryCatch(
+          .ns_draw_vector_overlay(
+            surf = surf,
+            vectors = vecs,
+            vertices = verts,
+            scale = v_layer$scale,
+            color = v_layer$color,
+            alpha = v_layer$alpha,
+            lwd = v_layer$lwd
+          ),
+          error = function(e) warning("Skipping vector layer for ", h_spec, ": ", e$message)
+        )
       }
     }
 
@@ -844,7 +978,7 @@ plot.neurosurf_plot <- function(x, ...) {
   )
 }
 
-.ns_split_layer_data <- function(surfaces, data, hemi) {
+.ns_split_layer_data <- function(surfaces, data, hemi, allow_partial = FALSE) {
   if (is.list(data)) {
     out <- list(left = data$left, right = data$right)
     return(out)
@@ -855,10 +989,18 @@ plot.neurosurf_plot <- function(x, ...) {
   n_left <- if (!is.null(surfaces$left)) nrow(coords(surfaces$left)) else 0L
   n_right <- if (!is.null(surfaces$right)) nrow(coords(surfaces$right)) else 0L
 
-  if (length(data) != (n_left + n_right)) {
-    stop("Length of 'data' (", length(data),
-         ") does not match total number of vertices (",
-         n_left + n_right, ").")
+  total <- n_left + n_right
+
+  if (length(data) != total) {
+    if (!allow_partial) {
+      stop("Length of 'data' (", length(data),
+           ") does not match total number of vertices (",
+           total, ").")
+    }
+    if (hemi == "both") {
+      stop("Provide hemisphere-specific data or set hemi to 'left'/'right' ",
+           "when using sparse data.")
+    }
   }
 
   if (hemi == "both") {
@@ -873,6 +1015,216 @@ plot.neurosurf_plot <- function(x, ...) {
   }
 
   list(left = left_vals, right = right_vals)
+}
+
+.ns_split_vertices <- function(surfaces, vertices, hemi, allow_partial = FALSE) {
+  if (is.null(vertices)) {
+    return(list(left = NULL, right = NULL))
+  }
+
+  if (is.list(vertices)) {
+    return(list(left = vertices$left, right = vertices$right))
+  }
+
+  stopifnot(is.numeric(vertices))
+
+  n_left <- if (!is.null(surfaces$left)) nrow(coords(surfaces$left)) else 0L
+  n_right <- if (!is.null(surfaces$right)) nrow(coords(surfaces$right)) else 0L
+
+  if (hemi == "left") {
+    return(list(left = vertices, right = NULL))
+  }
+  if (hemi == "right") {
+    return(list(left = NULL, right = vertices))
+  }
+
+  total <- n_left + n_right
+  if (length(vertices) != total) {
+    if (!allow_partial) {
+      stop("Length of 'vertices' (", length(vertices),
+           ") does not match total number of vertices (",
+           total, "). Supply a list with left/right indices for sparse data.")
+    }
+    stop("Provide hemisphere-specific vertices (list) when using sparse data with both hemispheres.")
+  }
+
+  left_vals <- if (n_left) vertices[seq_len(n_left)] else NULL
+  right_vals <- if (n_right) vertices[n_left + seq_len(n_right)] else NULL
+  list(left = left_vals, right = right_vals)
+}
+
+.ns_split_vector_data <- function(surfaces, vectors, hemi) {
+  if (is.list(vectors)) {
+    out <- list(left = if (!is.null(vectors$left)) as.matrix(vectors$left) else NULL,
+                right = if (!is.null(vectors$right)) as.matrix(vectors$right) else NULL)
+    return(out)
+  }
+
+  vec_mat <- as.matrix(vectors)
+  if (ncol(vec_mat) != 3) {
+    stop("vectors must have 3 columns (XYZ).")
+  }
+
+  n_left <- if (!is.null(surfaces$left)) nrow(coords(surfaces$left)) else 0L
+  n_right <- if (!is.null(surfaces$right)) nrow(coords(surfaces$right)) else 0L
+
+  if (hemi == "left") {
+    return(list(left = vec_mat, right = NULL))
+  }
+  if (hemi == "right") {
+    return(list(left = NULL, right = vec_mat))
+  }
+
+  if (nrow(vec_mat) != (n_left + n_right)) {
+    stop("When supplying a single vectors matrix for both hemispheres, rows must ",
+         "match total vertices or provide a left/right list.")
+  }
+
+  left_vals <- if (n_left) vec_mat[seq_len(n_left), , drop = FALSE] else NULL
+  right_vals <- if (n_right) vec_mat[n_left + seq_len(n_right), , drop = FALSE] else NULL
+  list(left = left_vals, right = right_vals)
+}
+
+.ns_prepare_layer_data <- function(surfaces, data, vertices, smoothing, smoothing_steps) {
+  out <- data
+  hemis <- c("left", "right")
+  for (h in hemis) {
+    vals <- data[[h]]
+    surf <- surfaces[[h]]
+    if (is.null(vals) || is.null(surf)) {
+      next
+    }
+    n_vert <- nrow(coords(surf))
+    if (length(vals) == n_vert) {
+      out[[h]] <- vals
+      next
+    }
+    verts <- vertices[[h]]
+    if (is.null(verts)) {
+      stop("Layer data length for ", h, " (", length(vals),
+           ") does not match number of vertices (", n_vert,
+           "); supply vertices for sparse data.")
+    }
+    if (length(verts) != length(vals)) {
+      stop("Length of vertices for ", h, " (", length(verts),
+           ") does not match length of data (", length(vals), ").")
+    }
+    out[[h]] <- .ns_fill_sparse_data(
+      surf = surf,
+      values = vals,
+      vertices = verts,
+      smoothing = smoothing,
+      smoothing_steps = smoothing_steps
+    )
+  }
+  out
+}
+
+.ns_fill_sparse_data <- function(surf, values, vertices,
+                                 smoothing = c("auto", "nearest"),
+                                 smoothing_steps = 20) {
+  smoothing <- match.arg(smoothing)
+  n_vert <- nrow(coords(surf))
+
+  if (length(values) == n_vert) {
+    return(values)
+  }
+
+  v_idx <- as.integer(vertices)
+  if (any(v_idx < 1L | v_idx > n_vert)) {
+    stop("vertex ids must be within [1, ", n_vert, "].")
+  }
+  if (length(values) != length(v_idx)) {
+    stop("values length (", length(values), ") must match length of vertices (", length(v_idx), ").")
+  }
+
+  coords_all <- coords(surf)
+  seeds <- rep(NA_real_, n_vert)
+  seeds[v_idx] <- values
+
+  knn <- FNN::get.knnx(data = coords_all[v_idx, , drop = FALSE],
+                       query = coords_all,
+                       k = 1L)
+  filled <- seeds
+  filled[is.na(filled)] <- values[knn$nn.index[is.na(filled), 1L]]
+
+  if (identical(smoothing, "nearest") || smoothing_steps <= 0) {
+    return(filled)
+  }
+
+  adj <- igraph::adjacent_vertices(graph(surf), seq_len(n_vert))
+  seed_mask <- rep(FALSE, n_vert)
+  seed_mask[v_idx] <- TRUE
+
+  current <- filled
+  for (i in seq_len(smoothing_steps)) {
+    updated <- current
+    for (v in seq_len(n_vert)) {
+      neigh <- adj[[v]]
+      vals <- current[c(v, neigh)]
+      vals <- vals[!is.na(vals)]
+      if (length(vals)) {
+        updated[v] <- mean(vals)
+      }
+    }
+    updated[seed_mask] <- filled[seed_mask]
+    current <- updated
+  }
+
+  current
+}
+
+.ns_draw_vector_overlay <- function(surf, vectors, vertices = NULL,
+                                    scale = NULL, color = "red",
+                                    alpha = 0.8, lwd = 1.5) {
+  surf_coords <- coords(surf)
+  vecs <- as.matrix(vectors)
+  if (ncol(vecs) != 3) {
+    stop("vectors must have 3 columns (XYZ).")
+  }
+
+  if (is.null(vertices)) {
+    if (nrow(vecs) != nrow(surf_coords)) {
+      stop("vectors must have one row per vertex or supply vertices.")
+    }
+    verts <- seq_len(nrow(surf_coords))
+  } else {
+    verts <- as.integer(vertices)
+    if (length(verts) != nrow(vecs)) {
+      stop("Length of vertices does not match number of vectors.")
+    }
+  }
+
+  norms <- sqrt(rowSums(vecs^2))
+  max_range <- max(apply(surf_coords, 2, function(col) diff(range(col))))
+  if (!is.finite(max_range) || max_range == 0) {
+    max_range <- 1
+  }
+  if (is.null(scale)) {
+    max_norm <- max(norms, na.rm = TRUE)
+    if (!is.finite(max_norm) || max_norm == 0) {
+      max_norm <- 1
+    }
+    scale <- 0.05 * max_range / max_norm
+  }
+
+  starts <- surf_coords[verts, , drop = FALSE]
+  ends <- starts + scale * vecs
+
+  col_vec <- color
+  if (length(col_vec) == 1L) {
+    col_vec <- rep(col_vec, nrow(starts))
+  }
+  col_vec <- rep(col_vec, each = 2L)
+
+  rgl::segments3d(
+    x = as.vector(rbind(starts[, 1], ends[, 1])),
+    y = as.vector(rbind(starts[, 2], ends[, 2])),
+    z = as.vector(rbind(starts[, 3], ends[, 3])),
+    col = col_vec,
+    alpha = alpha,
+    lwd = lwd
+  )
 }
 
 .ns_cmap_to_colors <- function(cmap, n = 256L) {

@@ -29,7 +29,7 @@ requires the `webshot2` package; otherwise a blank image is likely and an
 empty path is returned.
 }
 \examples{
-\donttest{
+\dontrun{
 fs <- load_fsaverage_std8("inflated")
 img <- snapshot_surface(fs$lh, viewpoint = "lateral", specular = "black")
 # knitr::include_graphics(img)

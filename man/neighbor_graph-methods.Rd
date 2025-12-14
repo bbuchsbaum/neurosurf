@@ -76,18 +76,17 @@ neuroimaging analyses for defining local connectivity on brain surfaces.
 }
 \examples{
 \donttest{
-# Assuming 'surface_mesh' is a pre-defined surface mesh object
-graph <- neighbor_graph(surface_mesh, radius = 5,
-                        edgeWeights = runif(nrow(surface_mesh$vertices)),
-                        nodes = 1:1000)
+geom <- example_surface_geometry()
+graph <- neighbor_graph(geom, radius = 1)
+igraph::vcount(graph)
 }
 
 \donttest{
-g <- make_graph("Zachary")
-E(g)$dist <- runif(ecount(g))
-neighbor_g <- neighbor_graph(g, radius = 0.5, distance_type = "geodesic")
+# Build a neighbor graph from a simple SurfaceGeometry
+geom <- example_surface_geometry()
+g_geom <- neighbor_graph(geom, radius = 1)
+igraph::vcount(g_geom)
 }
-
 }
 \seealso{
 \code{\link{graph}}, \code{\link{vertices}}

@@ -7,7 +7,7 @@
 NeuroSurfaceVector(geometry, indices, mat)
 }
 \arguments{
-\item{geometry}{a \code{SurfaceGeometry} instance}
+\item{geometry}{a \code{SurfaceGeometry} or \code{SurfaceSet} instance}
 
 \item{indices}{an integer vector specifying the valid surface nodes.}
 

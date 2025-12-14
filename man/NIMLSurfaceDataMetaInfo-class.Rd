@@ -16,23 +16,19 @@ This class contains meta information for surface-based data for the NIML data fo
 }}
 
 \examples{
+\dontshow{geometry <- example_surface_geometry()}
 \donttest{
-# Create a SurfaceDataMetaInfo parent object
 meta_info <- new("SurfaceDataMetaInfo",
                  header_file = "data_header.txt",
                  data_file = "surface_data.niml.dset",
                  file_descriptor = new("FileFormat"),
-                 node_count = 10000L,
+                 node_count = length(nodes(geometry)),
                  nels = 2L,
                  label = "thickness")
 
-# Create sample data matrix (10000 nodes, 2 data vectors)
-surface_data <- matrix(rnorm(20000), nrow = 10000, ncol = 2)
+surface_data <- matrix(rnorm(meta_info@node_count * meta_info@nels),
+                       nrow = meta_info@node_count, ncol = meta_info@nels)
 
-# Create node indices
-node_indices <- 1:10000
-
-# Create NIMLSurfaceDataMetaInfo object
 niml_meta <- new("NIMLSurfaceDataMetaInfo",
                 header_file = meta_info@header_file,
                 data_file = meta_info@data_file,
@@ -41,7 +37,7 @@ niml_meta <- new("NIMLSurfaceDataMetaInfo",
                 nels = meta_info@nels,
                 label = meta_info@label,
                 data = surface_data,
-                node_indices = node_indices)
+                node_indices = seq_len(meta_info@node_count))
 }
 
 }

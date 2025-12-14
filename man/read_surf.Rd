@@ -47,44 +47,14 @@ surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosur
 
 # Check if the file exists
 if (file.exists(surf_file)) {
-  # Read the surface data
+  # Read the surface geometry (returns SurfaceGeometry for geometry-only files)
   surf <- read_surf(surf_file)
 
   # Display basic information about the surface
   print(surf)
 
-  # Get summary statistics of the surface data
-  summary(surf@data)
-
-  # Visualize the surface if rgl is available
-  if (requireNamespace("rgl", quietly = TRUE)) {
-    # Plot the surface mesh
-    rgl::open3d()
-    rgl::shade3d(surf@geometry@mesh, col = "lightblue")
-    rgl::title3d(main = "Example Surface")
-
-    # If the surface has data values, color the mesh by these values
-    if (length(surf@data) > 0) {
-      # Normalize data to [0,1] for coloring
-      norm_data <- (surf@data - min(surf@data)) / (max(surf@data) - min(surf@data))
-
-      # Create a color palette
-      colors <- grDevices::colorRampPalette(c("blue", "cyan", "green",
-                                             "yellow", "red"))(100)
-
-      # Map data values to colors
-      col_idx <- ceiling(norm_data * 99) + 1
-      vertex_colors <- colors[col_idx]
-
-      # Plot colored mesh
-      rgl::open3d()
-      rgl::shade3d(surf@geometry@mesh, col = vertex_colors)
-      rgl::title3d(main = "Surface Colored by Data Values")
-    }
-  }
-} else {
-  message("Example surface file not found. This may occur if the package ",
-          "was installed without the example data.")
+  # Get vertex coordinates
+  head(coords(surf))
 }
 }
 }

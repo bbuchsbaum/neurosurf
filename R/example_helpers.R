@@ -2,6 +2,7 @@
 #'
 #' @keywords internal
 #' @return A \code{SurfaceGeometry} tetrahedron useful for examples/tests.
+#' @export
 example_surface_geometry <- function() {
   verts <- matrix(c(
     0, 0, 0,

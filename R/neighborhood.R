@@ -78,12 +78,12 @@ findNeighbors <- function(graph, node, radius, edgeWeights, max_order=NULL) {
 #'
 #' @examples
 #' # Load a sample inflated surface from the package
-#' surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
-#' surf <- readAsc(surf_file)
+#' surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+#' surf <- read_surf_geometry(surf_file)
 #'
 #' # Create edge weights (using uniform weights for simplicity)
 #' g <- graph(surf)
-#' edge_weights <- rep(1, length(E(g)))
+#' edge_weights <- rep(1, length(igraph::E(g)))
 #'
 #' # Find neighbors within a 10mm radius for the first 5 vertices
 #' neighbors <- find_all_neighbors(surf, radius = 10,
@@ -213,11 +213,11 @@ find_all_neighbors <- function(surf, radius, edgeWeights, nodes=NULL,
 #' @param distance_type the type of distance metric to use
 #' @examples
 #' \donttest{
-#' g <- make_graph("Zachary")
-#' E(g)$dist <- runif(ecount(g))
-#' neighbor_g <- neighbor_graph(g, radius = 0.5, distance_type = "geodesic")
+#' # Build a neighbor graph from a simple SurfaceGeometry
+#' geom <- example_surface_geometry()
+#' g_geom <- neighbor_graph(geom, radius = 1)
+#' igraph::vcount(g_geom)
 #' }
-#'
 #' @importFrom igraph E
 #' @export
 #' @rdname neighbor_graph-methods
@@ -353,7 +353,7 @@ setMethod(f="adjacency", signature=c(x="SurfaceGeometry", attr="missing"),
 #' @examples
 #' # Load a surface file from the extdata directory
 #' surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
-#' surface <- readAsc(surf_file)
+#' surface <- read_surf_geometry(surf_file)
 #'
 #' # Apply Taubin smoothing to the brain surface
 #' smoothed_surface1 <- smooth(surface, type = "taubin", lambda = 0.5, mu = -0.5, iteration = 10)
@@ -394,27 +394,21 @@ setMethod(f="smooth", signature=c(x="SurfaceGeometry"),
 #' The smoothing is particularly useful when working with noisy data or when a smoother representation of the underlying signal is desired. It is commonly applied in neuroimaging to enhance visualization or prepare data for further analysis.
 #'
 #' @examples
-#' # Load a surface file from the extdata directory
-#' surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
-#' surface <- readAsc(surf_file)
-#'
-#' # Create some random data for the surface vertices
+#' # Create a tiny example surface and data
+#' surface <- example_surface_geometry()
 #' n_vertices <- nrow(coords(surface))
 #' random_data <- rnorm(n_vertices)
 #'
-#' # Create a NeuroSurface object with the surface and data
 #' neuro_surf <- NeuroSurface(geometry = surface,
-#'                           indices = 1:n_vertices,
+#'                           indices = seq_len(n_vertices),
 #'                           data = random_data)
 #'
 #' # Apply smoothing with different radii
-#' smoothed_small <- smooth(neuro_surf, sigma = 2)
-#' smoothed_large <- smooth(neuro_surf, sigma = 6)
+#' smoothed_small <- smooth(neuro_surf, sigma = 1)
+#' smoothed_large <- smooth(neuro_surf, sigma = 2)
 #'
 #' # The original geometry is preserved, but the data is smoothed
-#' # Compare a small section of data before and after smoothing
-#' head(random_data)
-#' head(series(smoothed_large))
+#' head(series(smoothed_large, indices(smoothed_large)))
 #'
 #' @seealso \code{\link{smooth,SurfaceGeometry-method}} for smoothing the geometry of a surface.
 #' @export
@@ -459,8 +453,8 @@ setMethod(f="smooth", signature = c(x = "NeuroSurface"),
 #'
 #' @examples
 #' # Load a sample surface from the package
-#' surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
-#' surfgeom <- readAsc(surf_file)
+#' surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+#' surfgeom <- read_surf_geometry(surf_file)
 #'
 #' # Get the surface coordinates
 #' surf_coords <- coords(surfgeom)
@@ -475,8 +469,9 @@ setMethod(f="smooth", signature = c(x = "NeuroSurface"),
 #' projected_surface <- projectCoordinates(surfgeom, sample_coords, sigma = 3)
 #'
 #' # Check the result
-#' max(series(projected_surface))  # Maximum density value
-#' sum(series(projected_surface) > 0)  # Number of vertices with non-zero values
+#' vals <- series(projected_surface, indices(projected_surface))
+#' max(vals)        # Maximum density value
+#' sum(vals > 0)    # Number of vertices with non-zero values
 #'
 #' @export
 projectCoordinates <- function(surfgeom, points, sigma=5, ...) {

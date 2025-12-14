@@ -36,10 +36,9 @@ if (!isGeneric("plot"))
 #'
 #' @examples
 #' \donttest{
-#' # Assuming 'surface_mesh' is a pre-defined surface mesh object
-#' graph <- neighbor_graph(surface_mesh, radius = 5,
-#'                         edgeWeights = runif(nrow(surface_mesh$vertices)),
-#'                         nodes = 1:1000)
+#' geom <- example_surface_geometry()
+#' graph <- neighbor_graph(geom, radius = 1)
+#' igraph::vcount(graph)
 #' }
 #'
 #' @seealso \code{\link{graph}}, \code{\link{vertices}}
@@ -200,7 +199,7 @@ setGeneric(name="right", def=function(x) standardGeneric("right"))
 #' @param threshold Numeric threshold range
 #' @param size Minimum cluster size in nodes
 #' @param ... Additional arguments
-#' @seealso \code{\link{conn_comp}}
+#' @seealso \code{\link[neuroim2]{conn_comp}}
 #' @export
 #' @rdname cluster_threshold-methods
 setGeneric(name="cluster_threshold", def=function(x, threshold, size, ...) standardGeneric("cluster_threshold"))
@@ -221,7 +220,8 @@ setGeneric(name="plot_js", def=function(x, width = NULL, height = NULL, ...) sta
 
 #' Read Meta Information
 #'
-#' Generic function to read image meta info given a file and a \code{\linkS4class{FileFormat}} instance.
+#' Generic function to read image meta info given a file and a
+#' \code{\link[neuroim2:FileFormat-class]{FileFormat}} instance from \pkg{neuroim2}.
 #'
 #' @param x file format descriptor
 #' @param file_name file name containing meta information
@@ -293,3 +293,48 @@ setGeneric(name = "surfwidget",
 setGeneric(name = "findBoundaries",
            def = function(x, method = "midpoint", ...)
              standardGeneric("findBoundaries"))
+
+
+#' Get Surface-to-World Transform
+#'
+#' @description
+#' Retrieves the 4x4 affine transformation matrix that converts surface coordinates
+#' to world (scanner RAS) coordinates.
+#'
+#' @param x An object containing surface geometry (e.g., \code{SurfaceGeometry}).
+#'
+#' @return A 4x4 numeric matrix representing the affine transformation.
+#'
+#' @details
+#' The surface-to-world transform handles coordinate system conventions (e.g., RAS vs LPI),
+#' reference space alignment (e.g., MNI305 vs MNI152), and any embedded transforms from
+#' file formats (e.g., GIFTI CoordinateSystemTransformMatrix).
+#'
+#' To transform surface vertices to world coordinates:
+#' \code{world_coords = surf_to_world(geom) \%*\% rbind(t(vertices), 1)}
+#'
+#' @seealso \code{\link{surf_to_world<-}}, \code{\link{SurfaceGeometry-class}}
+#'
+#' @export
+#' @rdname surf_to_world-methods
+setGeneric(name = "surf_to_world",
+           def = function(x) standardGeneric("surf_to_world"))
+
+
+#' Set Surface-to-World Transform
+#'
+#' @description
+#' Sets the 4x4 affine transformation matrix that converts surface coordinates
+#' to world (scanner RAS) coordinates.
+#'
+#' @param x An object containing surface geometry (e.g., \code{SurfaceGeometry}).
+#' @param value A 4x4 numeric matrix representing the affine transformation.
+#'
+#' @return The modified object with the updated transform.
+#'
+#' @seealso \code{\link{surf_to_world}}, \code{\link{SurfaceGeometry-class}}
+#'
+#' @export
+#' @rdname surf_to_world-set-methods
+setGeneric(name = "surf_to_world<-",
+           def = function(x, value) standardGeneric("surf_to_world<-"))

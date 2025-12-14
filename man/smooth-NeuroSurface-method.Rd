@@ -30,27 +30,21 @@ broader smoothing because more neighbours are included in the average.
 The smoothing is particularly useful when working with noisy data or when a smoother representation of the underlying signal is desired. It is commonly applied in neuroimaging to enhance visualization or prepare data for further analysis.
 }
 \examples{
-# Load a surface file from the extdata directory
-surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
-surface <- readAsc(surf_file)
-
-# Create some random data for the surface vertices
+# Create a tiny example surface and data
+surface <- example_surface_geometry()
 n_vertices <- nrow(coords(surface))
 random_data <- rnorm(n_vertices)
 
-# Create a NeuroSurface object with the surface and data
 neuro_surf <- NeuroSurface(geometry = surface,
-                          indices = 1:n_vertices,
+                          indices = seq_len(n_vertices),
                           data = random_data)
 
 # Apply smoothing with different radii
-smoothed_small <- smooth(neuro_surf, sigma = 2)
-smoothed_large <- smooth(neuro_surf, sigma = 6)
+smoothed_small <- smooth(neuro_surf, sigma = 1)
+smoothed_large <- smooth(neuro_surf, sigma = 2)
 
 # The original geometry is preserved, but the data is smoothed
-# Compare a small section of data before and after smoothing
-head(random_data)
-head(series(smoothed_large))
+head(series(smoothed_large, indices(smoothed_large)))
 
 }
 \seealso{

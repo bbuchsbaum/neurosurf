@@ -19,6 +19,7 @@ Imports:
     igraph,
     rgl,
     assertthat,
+    digest,
     neuroim2,
     colorplane,
     FNN,
@@ -31,6 +32,7 @@ Imports:
     gifti,
     htmlwidgets,
     deflist,
+    fastmap,
     crayon,
     png,
     Rcpp
@@ -44,14 +46,16 @@ Remotes:
 Collate:
     'all_generic.R'
     'all_class.R'
-    'example_helpers.R'
     'Arith.R'
     'IO.R'
     'ROI.R'
     'RcppExports.R'
     'Searchlight.R'
     'curv.R'
+    'example_helpers.R'
     'fetch_surfaces.R'
+    'gaussian_splat.R'
+    'geodesic.R'
     'geometry.R'
     'neighborhood.R'
     'neuro_surface.R'
@@ -70,9 +74,13 @@ Collate:
 Suggests: 
     testthat,
     covr,
+    bench,
     knitr,
     rmarkdown,
-    webshot2
+    webshot2,
+    ggplot2,
+    viridis,
+    albersdown
 URL: https://github.com/bbuchsbaum/neurosurf
 BugReports: https://github.com/bbuchsbaum/neurosurf/issues
 VignetteBuilder: knitr

@@ -40,12 +40,12 @@ requesting more neighbors than exist in the graph.
 }
 \examples{
 # Load a sample inflated surface from the package
-surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
-surf <- readAsc(surf_file)
+surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+surf <- read_surf_geometry(surf_file)
 
 # Create edge weights (using uniform weights for simplicity)
 g <- graph(surf)
-edge_weights <- rep(1, length(E(g)))
+edge_weights <- rep(1, length(igraph::E(g)))
 
 # Find neighbors within a 10mm radius for the first 5 vertices
 neighbors <- find_all_neighbors(surf, radius = 10,

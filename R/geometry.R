@@ -21,11 +21,15 @@ SurfaceGeometrySource <- function(surface_name) {
 #' @param faces An integer matrix where each row represents a face, containing indices of vertices that form the face.
 #' @param hemi A character string indicating the hemisphere ("lh" for left, "rh" for right, or other identifier).
 #' @param label Optional character string describing the surface type (e.g., "pial", "white", "inflated", "sphere").
+#' @param surf_to_world Optional 4x4 affine transformation matrix from surface coordinates to world
+#'   (scanner RAS) coordinates. Defaults to identity matrix. This transform handles coordinate system
+#'   conventions (e.g., RAS vs LPI) and reference space alignment (e.g., MNI305 vs MNI152).
 #'
 #' @return A new object of class "SurfaceGeometry" containing:
 #'   \item{mesh}{An rgl mesh object representing the surface.}
 #'   \item{graph}{An igraph object representing the mesh connectivity.}
 #'   \item{hemi}{The hemisphere identifier.}
+#'   \item{surf_to_world}{The 4x4 affine transformation matrix.}
 #'
 #' @details
 #' This function constructs a SurfaceGeometry object by creating a mesh and a graph
@@ -57,7 +61,8 @@ SurfaceGeometrySource <- function(surface_name) {
 #'
 #' @importFrom rgl tmesh3d
 #' @export
-SurfaceGeometry <- function(vert, faces, hemi, label = NA_character_) {
+SurfaceGeometry <- function(vert, faces, hemi, label = NA_character_,
+                            surf_to_world = diag(4)) {
   if (!is.matrix(vert) || ncol(vert) != 3) {
     stop("vert must be a numeric matrix with 3 columns (x, y, z).")
   }
@@ -77,10 +82,14 @@ SurfaceGeometry <- function(vert, faces, hemi, label = NA_character_) {
   if (!is.numeric(faces)) {
     stop("faces must be numeric (0-based).")
   }
+  if (!is.matrix(surf_to_world) || nrow(surf_to_world) != 4 || ncol(surf_to_world) != 4) {
+    stop("surf_to_world must be a 4x4 matrix.")
+  }
 
   graph <- meshToGraph(vert, faces)
   mesh <- rgl::tmesh3d(as.vector(t(vert)), as.vector(t(faces))+1, homogeneous=FALSE)
-  new("SurfaceGeometry",  mesh=mesh, graph=graph, hemi=hemi, label=label)
+  new("SurfaceGeometry", mesh = mesh, graph = graph, hemi = hemi, label = label,
+      surf_to_world = surf_to_world)
 }
 
 
@@ -564,6 +573,27 @@ setMethod(f="coords", signature=c("igraph"),
 setMethod("graph", signature(x="SurfaceGeometry"),
           def=function(x) {
             x@graph
+          })
+
+
+#' @export
+#' @rdname surf_to_world-methods
+setMethod("surf_to_world", signature(x = "SurfaceGeometry"),
+          def = function(x) {
+            x@surf_to_world
+          })
+
+
+#' @export
+#' @rdname surf_to_world-set-methods
+setMethod("surf_to_world<-", signature(x = "SurfaceGeometry", value = "matrix"),
+          def = function(x, value) {
+            stopifnot(
+              "surf_to_world must be a 4x4 matrix" = is.matrix(value) &&
+                nrow(value) == 4 && ncol(value) == 4
+            )
+            x@surf_to_world <- value
+            x
           })
 
 

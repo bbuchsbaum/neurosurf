@@ -5,6 +5,10 @@ setOldClass("mesh3d")
 setOldClass("igraph")
 setOldClass("gifti")
 
+is_surface_like <- function(x) {
+  is(x, "SurfaceGeometry") || (methods::isClass("SurfaceSet") && is(x, "SurfaceSet"))
+}
+
 
 #' SurfaceGeometry Class
 #'
@@ -16,6 +20,11 @@ setOldClass("gifti")
 #' @slot graph An object of class \code{igraph} representing the underlying graph structure of the surface.
 #' @slot hemi A character string indicating the hemisphere of the surface ("left", "right", or "both").
 #' @slot label A character string describing the surface type (e.g., "pial", "white", "inflated", "sphere").
+#' @slot surf_to_world A 4x4 numeric matrix representing the affine transformation from surface
+#'   coordinates to world (scanner RAS) coordinates. This handles coordinate system conventions
+#'   (e.g., RAS vs LPI), reference space alignment (e.g., MNI305 vs MNI152), and any embedded
+#'   transforms from file formats (e.g., GIFTI CoordinateSystemTransformMatrix). Defaults to
+#'   the identity matrix (surface coordinates are assumed to be in world space).
 #'
 #' @details
 #' This class is fundamental for representing brain surface geometries in neuroimaging analyses.
@@ -23,9 +32,12 @@ setOldClass("gifti")
 #' a network representation of the surface topology. The hemi slot specifies which
 #' hemisphere the surface represents.
 #'
-#' @seealso \code{\link[rgl]{mesh3d}}, \code{\link[igraph]{igraph}}
+#' The \code{surf_to_world} transform enables proper projection between surface and volume spaces:
+#' \code{world_pos = surf_to_world \%*\% c(vertex_pos, 1)}, then
+#' \code{voxel_ijk = world_to_vox \%*\% world_pos}.
 #'
-#' @examples
+#' @seealso \code{\link[rgl]{mesh3d}}, \code{\link[igraph]{igraph}}, \code{\link{surf_to_world}}
+#'
 #' @examples
 #' \donttest{
 #' geometry <- example_surface_geometry()
@@ -37,9 +49,13 @@ setClass("SurfaceGeometry",
            mesh = "mesh3d",
            graph = "igraph",
            hemi = "character",
-           label = "character"
+           label = "character",
+           surf_to_world = "matrix"
          ),
-         prototype = list(label = NA_character_))
+         prototype = list(
+           label = NA_character_,
+           surf_to_world = diag(4)
+         ))
 
 
 
@@ -209,7 +225,8 @@ setClass("NIMLSurfaceDataMetaInfo",
 #' This class contains meta information for surface-based geometry for the GIFTI data format
 #'
 #' @rdname GIFTISurfaceGeometryMetaInfo-class
-#' @slot info the underlying \code{gifti} object returned by \code{\link{readgii}}
+#' @slot info the underlying \code{gifti} object returned by
+#'   \code{\link[gifti]{readgii}}
 #'
 #' @examples
 #' \donttest{
@@ -258,7 +275,8 @@ setClass("GIFTISurfaceGeometryMetaInfo",
 #' This class contains meta information for surface-based data for the GIFTI data format
 #'
 #' @rdname GIFTISurfaceDataMetaInfo-class
-#' @slot info the underlying \code{gifti} object returned by \code{\link{readgii}}
+#' @slot info the underlying \code{gifti} object returned by
+#'   \code{\link[gifti]{readgii}}
 #'
 #' @examples
 #' \donttest{
@@ -794,7 +812,7 @@ setClass("VertexData",
 #' a three-dimensional surface consisting of a set of triangle vertices with one value per vertex.
 #'
 #' @rdname NeuroSurface-class
-#' @slot geometry the surface geometry, an instance of \code{SurfaceGeometry}
+#' @slot geometry the surface geometry, an instance of \code{SurfaceGeometry} or \code{SurfaceSet}
 #' @slot indices an \code{integer} vector specifying the subset of valid surface nodes encoded in the \code{geometry} object.
 #' @slot data the 1-D vector of data value at each vertex of the mesh
 #'
@@ -870,10 +888,13 @@ setClass("VertexData",
 #'
 #' @export
 setClass("NeuroSurface",
-         slots=c(geometry="SurfaceGeometry",
+         slots=c(geometry="ANY",
                  indices="integer",
                  data="numeric"),
          validity = function(object) {
+           if (!is_surface_like(object@geometry)) {
+             stop("geometry must be a SurfaceGeometry or SurfaceSet")
+           }
            if (length(object@data) != length(object@indices)) {
              stop("length of 'data' must equal length of 'indices'")
            }
@@ -885,7 +906,7 @@ setClass("NeuroSurface",
 #' mapped to colors using a specified colormap and range.
 #'
 #' @rdname ColorMappedNeuroSurface-class
-#' @slot geometry The surface geometry, an instance of \code{SurfaceGeometry}
+#' @slot geometry The surface geometry, an instance of \code{SurfaceGeometry} or \code{SurfaceSet}
 #' @slot indices An \code{integer} vector specifying the subset of valid surface nodes encoded in the \code{geometry} object
 #' @slot data The 1-D vector of data values at each vertex of the mesh
 #' @slot cmap A character vector of hex color codes representing the colormap
@@ -1008,7 +1029,7 @@ setClass("ColorMappedNeuroSurface",
 #' A three-dimensional surface consisting of a set of triangle vertices with one color per vertex.
 #'
 #' @rdname VertexColoredNeuroSurface-class
-#' @slot geometry The surface geometry, an instance of \code{SurfaceGeometry}
+#' @slot geometry The surface geometry, an instance of \code{SurfaceGeometry} or \code{SurfaceSet}
 #' @slot indices An \code{integer} vector specifying the subset of valid surface nodes encoded in the \code{geometry} object
 #' @slot colors A character vector of hex color codes representing the color of each vertex
 #'
@@ -1283,10 +1304,16 @@ setClass("LabeledNeuroSurface",
 #' @export
 setClass("NeuroSurfaceVector",
          representation = representation(
-           geometry = "SurfaceGeometry",
+           geometry = "ANY",
            indices = "integer",
            data = "Matrix"
-         ))
+         ),
+         validity = function(object) {
+           if (!is_surface_like(object@geometry)) {
+             stop("geometry must be a SurfaceGeometry or SurfaceSet")
+           }
+           TRUE
+         })
 
 
 #' Bilateral NeuroSurface Vector Class
@@ -1411,7 +1438,3 @@ setClass("BilatNeuroSurfaceVector",
     right = "NeuroSurfaceVector"
   )
 )
-
-
-
-

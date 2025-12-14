@@ -118,7 +118,8 @@ test_that("optimized implementation performance (benchmark)", {
                                     use_cpp = FALSE,
                                     verbose = FALSE),
     iterations = 10,
-    check = FALSE  # Don't check equality (order may differ)
+    check = FALSE,  # Don't check equality (order may differ)
+    filter_gc = FALSE
   )
 
   print(bm)

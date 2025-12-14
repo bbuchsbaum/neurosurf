@@ -24,7 +24,7 @@ Create an instance of class \code{\linkS4class{ROISurfaceVector}}
 verts <- matrix(c(0,0,0,
                   1,0,0,
                   0,1,0), ncol=3, byrow=TRUE)
-faces <- matrix(c(1,2,3), ncol=3, byrow=TRUE)
+faces <- matrix(c(0L,1L,2L), ncol=3, byrow=TRUE)
 geom <- SurfaceGeometry(verts, faces, "lh")
 
 vec <- matrix(c(0.5, 1.5), nrow=1)

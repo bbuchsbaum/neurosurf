@@ -272,10 +272,12 @@ find_roi_boundaries <- function(vertices,
         edge_id <- igraph::get.edge.ids(g, c(start_id, end_id))
         g_temp <- igraph::delete_edges(g, edge_id)
 
-        sp <- igraph::shortest_paths(g_temp,
-                                     from = start_id,
-                                     to   = end_id,
-                                     output = "vpath")
+        sp <- suppressWarnings(
+          igraph::shortest_paths(g_temp,
+                                 from = start_id,
+                                 to   = end_id,
+                                 output = "vpath")
+        )
         vpath <- sp$vpath[[1]]
         if (!length(vpath)) {
           next

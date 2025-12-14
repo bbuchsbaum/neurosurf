@@ -12,6 +12,9 @@ test_that("data_reader works for SurfaceDataMetaInfo", {
   meta <- NIMLSurfaceDataMetaInfo(NIML_SURFACE_DSET, header)
 
   reader <- data_reader(meta)
-  nodes <- neuroim2::read_columns(reader, as.integer(0))
+  nodes <- NULL
+  utils::capture.output(
+    nodes <- neuroim2::read_columns(reader, as.integer(0))
+  )
   expect_equal(as.integer(nodes), meta@node_indices)
 })

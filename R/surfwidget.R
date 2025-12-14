@@ -141,10 +141,12 @@ prepare_surface_data <- function(x, thresh, vertexColors, alpha, config,
                                  colorbar = TRUE,
                                  colorbar_label = NULL,
                                  layers = NULL) {
+  geom <- resolve_surface_geometry(x@geometry)
+
   surface_data <- list(
-    vertices = as.vector(x@geometry@mesh$vb[1:3,]),
-    faces = as.vector(x@geometry@mesh$it - 1),
-    hemi = x@geometry@hemi,
+    vertices = as.vector(geom@mesh$vb[1:3,]),
+    faces = as.vector(geom@mesh$it - 1),
+    hemi = geom@hemi,
     data = x@data,
     indices = x@indices - 1,
     thresh = thresh,
@@ -158,7 +160,7 @@ prepare_surface_data <- function(x, thresh, vertexColors, alpha, config,
 
   curv_vals <- curvature
   if (is.null(curv_vals)) {
-    curv_vals <- curvature(x@geometry)
+    curv_vals <- curvature(geom)
   }
   surface_data$curv <- curv_vals
 
@@ -387,6 +389,11 @@ renderSurfwidget <- function(expr, env = parent.frame(), quoted = FALSE) {
   htmlwidgets::shinyRenderWidget(expr, surfwidgetOutput, env, quoted = TRUE)
 }
 
+invoke_widget_method <- function(widget, method, ...) {
+  widget$x$calls <- c(widget$x$calls, list(list(method = method, args = list(...))))
+  widget
+}
+
 #' Update Surfwidget Configuration
 #'
 #' Update the configuration of an existing surfwidget.
@@ -413,7 +420,7 @@ updateSurfwidgetConfig <- function(session, id, config) {
 #'
 #' @export
 updateColorMap <- function(widget, colorMap) {
-  htmlwidgets::invokeMethod(widget, "setColorMap", colorMap)
+  invoke_widget_method(widget, "setColorMap", colorMap)
 }
 
 
@@ -429,7 +436,7 @@ updateColorMap <- function(widget, colorMap) {
 #' @rdname surfwidget-shiny
 #' @keywords internal
 updateIRange <- function(widget, min, max) {
-  htmlwidgets::invokeMethod(widget, "setIRange", min, max)
+  invoke_widget_method(widget, "setIRange", min, max)
 }
 
 
@@ -445,7 +452,7 @@ updateIRange <- function(widget, min, max) {
 #' @rdname surfwidget-shiny
 #' @keywords internal
 updateThreshold <- function(widget, min, max) {
-  htmlwidgets::invokeMethod(widget, "setThreshold", min, max)
+  invoke_widget_method(widget, "setThreshold", min, max)
 }
 
 
@@ -461,7 +468,7 @@ updateThreshold <- function(widget, min, max) {
 #' @rdname surfwidget-shiny
 #' @keywords internal
 updateVertexColors <- function(widget, colors) {
-  htmlwidgets::invokeMethod(widget, "setVertexColors", colors)
+  invoke_widget_method(widget, "setVertexColors", colors)
 }
 
 
@@ -475,7 +482,7 @@ updateVertexColors <- function(widget, colors) {
 #' @export
 #' @rdname surfwidget-shiny
 updateAlpha <- function(widget, alpha) {
-  htmlwidgets::invokeMethod(widget, "setAlpha", alpha)
+  invoke_widget_method(widget, "setAlpha", alpha)
 }
 
 #' Update Zoom Level
@@ -487,7 +494,7 @@ updateAlpha <- function(widget, alpha) {
 #' @export
 #' @rdname surfwidget-shiny
 updateZoom <- function(widget, zoom) {
-  htmlwidgets::invokeMethod(widget, "setZoom", zoom)
+  invoke_widget_method(widget, "setZoom", zoom)
 }
 
 #' Update Rotation Speed
@@ -499,7 +506,7 @@ updateZoom <- function(widget, zoom) {
 #' @export
 #' @rdname surfwidget-shiny
 updateRotationSpeed <- function(widget, speed) {
-  htmlwidgets::invokeMethod(widget, "setRotationSpeed", speed)
+  invoke_widget_method(widget, "setRotationSpeed", speed)
 }
 
 #' Debugging Helper for surfwidget
@@ -569,7 +576,7 @@ debug_surfwidget <- function(x, verbose = TRUE) {
     if (length(issues) > 0) {
       diagnostics$issues <- issues
       if (verbose) {
-        cat("\n⚠️  Issues found:\n")
+        cat("\nWARNING: Issues found:\n")
         for (issue in issues) {
           cat("  -", issue, "\n")
         }
@@ -577,7 +584,7 @@ debug_surfwidget <- function(x, verbose = TRUE) {
     } else {
       diagnostics$issues <- "None"
       if (verbose) {
-        cat("\n✅ Basic structure looks good\n")
+        cat("\nOK: Basic structure looks good\n")
       }
     }
     
@@ -605,7 +612,7 @@ debug_surfwidget <- function(x, verbose = TRUE) {
     if (n_data != n_indices) {
       diagnostics$data_issues <- "Data length doesn't match indices length"
       if (verbose) {
-        cat("\n⚠️  Data/indices length mismatch\n")
+        cat("\nWARNING: Data/indices length mismatch\n")
       }
     }
   }
@@ -620,10 +627,10 @@ debug_surfwidget <- function(x, verbose = TRUE) {
     cat("5. Look for error messages in red\n\n")
     
     cat("=== Common Solutions ===\n")
-    cat("• If widget is blank: Check JavaScript console for errors\n")
-    cat("• If data doesn't show: Verify data ranges and color mapping\n")
-    cat("• If widget doesn't load: Check if WebGL is supported\n")
-    cat("• Try with a simpler surface first\n")
+    cat("- If widget is blank: Check JavaScript console for errors\n")
+    cat("- If data doesn't show: Verify data ranges and color mapping\n")
+    cat("- If widget doesn't load: Check if WebGL is supported\n")
+    cat("- Try with a simpler surface first\n")
   }
   
   invisible(diagnostics)

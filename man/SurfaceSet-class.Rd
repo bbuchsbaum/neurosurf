@@ -3,7 +3,28 @@
 \docType{class}
 \name{SurfaceSet-class}
 \alias{SurfaceSet-class}
+\alias{geometry,SurfaceSet-method}
+\alias{vertices,SurfaceSet-method}
+\alias{nodes,SurfaceSet-method}
+\alias{graph,SurfaceSet-method}
+\alias{curvature,SurfaceSet-method}
 \title{SurfaceSet: bundle multiple surface variants for one hemisphere}
+\usage{
+\S4method{geometry}{SurfaceSet}(x)
+
+\S4method{vertices}{SurfaceSet}(x, ...)
+
+\S4method{nodes}{SurfaceSet}(x)
+
+\S4method{graph}{SurfaceSet}(x, ...)
+
+\S4method{curvature}{SurfaceSet}(x, ...)
+}
+\arguments{
+\item{x}{a `SurfaceSet`}
+
+\item{...}{additional arguments forwarded to the underlying geometry method}
+}
 \description{
 A `SurfaceSet` keeps several `SurfaceGeometry` variants (e.g., pial, white,
 inflated, sphere) for the same hemisphere together with a default choice.

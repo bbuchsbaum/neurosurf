@@ -13,7 +13,7 @@ view_surface(
   alpha = 1,
   add_normals = TRUE,
   thresh = NULL,
-  irange = range(vals, na.rm = TRUE),
+  irange = NULL,
   specular = "black",
   lit = NULL,
   viewpoint = c("lateral", "medial", "ventral", "dorsal", "anterior", "posterior"),
@@ -21,6 +21,18 @@ view_surface(
   offset = c(0, 0, 0),
   zoom = 1,
   spheres = NULL,
+  spheres_map_surface = NULL,
+  spheres_map_label = NULL,
+  spheres_as_vertices = FALSE,
+  vectors = NULL,
+  vector_vertices = NULL,
+  vector_scale = NULL,
+  vector_color = "red",
+  vector_alpha = 0.8,
+  vector_lwd = 1.5,
+  vals_vertices = NULL,
+  vals_smoothing = c("auto", "nearest"),
+  vals_smoothing_steps = 20,
   label = NULL,
   ...
 )
@@ -88,7 +100,45 @@ Values > 1 zoom in, < 1 zoom out.}
 \item{spheres}{An optional data frame to draw spheres at specific locations on
 or near the surface. Must contain columns `x`, `y`, `z` (coordinates), and
 `radius`. Can optionally include a `color` column (hex codes or color names)
-for individual sphere colors (defaults to black).}
+for individual sphere colors (defaults to black). Alternatively, supply a
+`vertex` column (1-based vertex ids) and set \code{spheres_as_vertices = TRUE}
+to position foci by vertex.}
+
+\item{spheres_map_surface}{Optional \code{SurfaceGeometry}, \code{SurfaceSet},
+or file path used to map sphere coordinates to the nearest vertex on that
+surface before snapping to \code{surfgeom}. Assumes both surfaces share the
+same vertex ordering (e.g., white -> inflated).}
+
+\item{spheres_map_label}{Optional surface label to use when
+\code{spheres_map_surface} is a \code{SurfaceSet}.}
+
+\item{spheres_as_vertices}{Logical; if \code{TRUE}, interpret the `vertex`
+column of \code{spheres} as 1-based vertex ids on \code{surfgeom} rather
+than raw coordinates.}
+
+\item{vectors}{Optional matrix (n x 3) of XYZ vectors to draw as line glyphs.}
+
+\item{vector_vertices}{Optional vertex ids matching rows of \code{vectors}
+when they are defined on a subset of vertices.}
+
+\item{vector_scale}{Optional numeric scale factor for vectors. If \code{NULL},
+a heuristic scale based on mesh extent and vector magnitudes is used.}
+
+\item{vector_color}{Colour for the vectors (single value or vector).}
+
+\item{vector_alpha}{Opacity for the vectors (0–1).}
+
+\item{vector_lwd}{Numeric line width for vector glyphs.}
+
+\item{vals_vertices}{Optional integer vector of 1-based vertex ids corresponding
+to `vals` when `length(vals) < n_vertices`. Enables sparse data inputs.}
+
+\item{vals_smoothing}{One of `"auto"` (default) or `"nearest"`. When using
+sparse data, `"auto"` diffuses values with neighbor averaging after nearest
+fill; `"nearest"` performs nearest-neighbour fill only.}
+
+\item{vals_smoothing_steps}{Integer number of smoothing iterations applied
+when `vals_smoothing = "auto"`. Ignored otherwise.}
 
 \item{label}{Optional surface label to select when `surfgeom` is a
 \code{SurfaceSet}. Defaults to the set's `default_label`.}
@@ -129,29 +179,16 @@ overlaying spherical markers.
   can be computationally intensive.
 }
 \examples{
-\donttest{
-# Assume 'surf_geom' is a SurfaceGeometry object loaded previously
-# e.g., surf_geom <- read_surf_geometry("path/to/surface.gii")
+\dontrun{
+# Load a surface geometry
+surf_geom <- example_surface_geometry()
 
 # Simple display with default background color
 view_surface(surf_geom, viewpoint = "lateral")
 
 # Display with curvature coloring (assuming you have curvature data)
-# curv_vals <- curvature(surf_geom) # Calculate curvature if needed
-# view_surface(surf_geom, vals = curv_vals, cmap = gray.colors(256), viewpoint = "medial")
-
-# Display with specific vertex colors (e.g., based on labels)
-# num_verts <- length(nodes(surf_geom))
-# colors_for_verts <- sample(c("red", "blue", "green"), num_verts, replace = TRUE)
-# view_surface(surf_geom, vert_clrs = colors_for_verts, viewpoint = "ventral")
-
-# Display with thresholding and custom color map
-# random_data <- rnorm(length(nodes(surf_geom)))
-# view_surface(surf_geom, vals = random_data,
-#              cmap = colorRampPalette(c("blue", "white", "red"))(256),
-#              thresh = c(-1.5, 1.5), # Make values between -1.5 and 1.5 transparent
-#              irange = c(-3, 3),     # Map values from -3 to 3 onto the cmap
-#              viewpoint = "posterior")
+curv_vals <- curvature(surf_geom)
+view_surface(surf_geom, vals = curv_vals, cmap = gray.colors(256), viewpoint = "medial")
 
 # Display with spheres marking specific coordinates
 sphere_coords <- data.frame(
@@ -162,10 +199,6 @@ sphere_coords <- data.frame(
   color = c("yellow", "cyan", "magenta")
 )
 view_surface(surf_geom, viewpoint = "lateral", spheres = sphere_coords)
-
-# Plot in the current rgl window without opening a new one
-# rgl::open3d() # Open window first
-# view_surface(surf_geom, new_window = FALSE)
 }
 
 }

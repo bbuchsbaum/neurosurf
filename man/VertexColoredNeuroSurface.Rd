@@ -29,7 +29,7 @@ This object represents a surface where each vertex has an explicitly assigned co
 \examples{
 \donttest{
 # Load a sample surface geometry
-surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
+surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 surf_geom <- read_surf_geometry(surf_file)
 
 # Get first 100 vertices for this example

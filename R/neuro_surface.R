@@ -202,8 +202,8 @@ setMethod(f="cluster_threshold", signature=c(x="NeuroSurface"),
 #'
 #' @examples
 #' # Load a sample surface from the package
-#' surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
-#' surf_geom <- readAsc(surf_file)
+#' surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+#' surf_geom <- read_surf_geometry(surf_file)
 #'
 #' # Create random data for the surface with some clusters
 #' n_vertices <- nrow(coords(surf_geom))
@@ -231,13 +231,13 @@ setMethod(f="cluster_threshold", signature=c(x="NeuroSurface"),
 #' components <- conn_comp(neuro_surf, c(-Inf, 1.5))
 #'
 #' # Check the number of components found
-#' max(series(components$index))
+#' max(series(components$index, seq_len(n_vertices)))
 #'
 #' # Check the size of the largest component
-#' max(series(components$size))
+#' max(series(components$size, seq_len(n_vertices)))
 #'
 #' # Count vertices in components of size >= 10
-#' sum(series(components$size) >= 10)
+#' sum(series(components$size, seq_len(n_vertices)) >= 10)
 #'
 #' @seealso \code{\link{NeuroSurface}}, \code{\link[igraph]{components}}
 #'
@@ -248,8 +248,9 @@ setMethod(f="cluster_threshold", signature=c(x="NeuroSurface"),
 setMethod(f="conn_comp", signature=c(x="NeuroSurface"),
           def=function(x, threshold) {
             keep <- x@data <= threshold[1] | x@data >= threshold[2]
-            vs <- V(x@geometry@graph)[keep]
-            sg <- igraph::induced_subgraph(x@geometry@graph, vs)
+            g <- graph(x@geometry)
+            vs <- igraph::V(g)[keep]
+            sg <- igraph::induced_subgraph(g, vs)
             comps <- igraph::components(sg)
 
             memb <- numeric(length(keep))
@@ -400,7 +401,7 @@ setMethod("graph", signature(x="NeuroSurfaceVector"),
 #'
 #' construct a new NeuroSurfaceVector
 #'
-#' @param geometry a \code{SurfaceGeometry} instance
+#' @param geometry a \code{SurfaceGeometry} or \code{SurfaceSet} instance
 #' @param indices an integer vector specifying the valid surface nodes.
 #' @param mat a \code{matrix} of data values (rows=nodes, columns=variables)
 #' @export
@@ -416,7 +417,7 @@ NeuroSurfaceVector <- function(geometry, indices, mat) {
 #' This function creates a new NeuroSurface object, which represents a single set of data values
 #' associated with nodes on a surface geometry.
 #'
-#' @param geometry A \code{SurfaceGeometry} object representing the underlying surface structure.
+#' @param geometry A \code{SurfaceGeometry} or \code{SurfaceSet} object representing the underlying surface structure.
 #' @param indices An integer vector specifying the indices of valid surface nodes.
 #' @param data A numeric vector of data values corresponding to the surface nodes.
 #'
@@ -435,9 +436,9 @@ NeuroSurfaceVector <- function(geometry, indices, mat) {
 #'
 #' @examples
 #' \donttest{
-#' # Assuming 'surf_geom' is a pre-existing SurfaceGeometry object
-#' indices <- 1:1000  # Example indices
-#' data_values <- rnorm(1000)  # Example data
+#' surf_geom <- example_surface_geometry()
+#' indices <- seq_len(nrow(coords(surf_geom)))  # all vertices
+#' data_values <- rnorm(length(indices))        # Example data
 #' neuro_surf <- NeuroSurface(surf_geom, indices, data_values)
 #' }
 #'
@@ -470,7 +471,7 @@ NeuroSurface <- function(geometry, indices, data) {
 #'
 #' @examples
 #' # Load a sample surface geometry
-#' surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
+#' surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 #' surf_geom <- read_surf_geometry(surf_file)
 #'
 #' # Get vertex count and generate some random data
@@ -528,7 +529,7 @@ ColorMappedNeuroSurface <- function(geometry, indices, data, cmap, irange, thres
 #' @examples
 #' \donttest{
 #' # Load a sample surface geometry
-#' surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
+#' surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 #' surf_geom <- read_surf_geometry(surf_file)
 #'
 #' # Get first 100 vertices for this example
@@ -753,9 +754,3 @@ setAs(from="BilatNeuroSurfaceVector", to="matrix",
 #' @export
 #' @rdname as.matrix-methods
 setMethod("as.matrix", signature(x = "BilatNeuroSurfaceVector"), function(x) as(x, "matrix"))
-
-
-
-
-
-

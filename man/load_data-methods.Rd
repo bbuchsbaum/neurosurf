@@ -4,6 +4,7 @@
 \alias{load_data,NeuroSurfaceVectorSource-method}
 \alias{load_data,NeuroSurfaceSource-method}
 \alias{load_data,FreesurferSurfaceGeometryMetaInfo-method}
+\alias{load_data,GIFTISurfaceGeometryMetaInfo-method}
 \alias{load_data,SurfaceGeometrySource-method}
 \title{load_data}
 \usage{
@@ -12,6 +13,8 @@
 \S4method{load_data}{NeuroSurfaceSource}(x)
 
 \S4method{load_data}{FreesurferSurfaceGeometryMetaInfo}(x)
+
+\S4method{load_data}{GIFTISurfaceGeometryMetaInfo}(x)
 
 \S4method{load_data}{SurfaceGeometrySource}(x)
 }

@@ -10,7 +10,8 @@ This class contains meta information for surface-based data for the GIFTI data f
 \section{Slots}{
 
 \describe{
-\item{\code{info}}{the underlying \code{gifti} object returned by \code{\link{readgii}}}
+\item{\code{info}}{the underlying \code{gifti} object returned by
+\code{\link[gifti]{readgii}}}
 }}
 
 \examples{

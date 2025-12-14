@@ -4,13 +4,18 @@
 \alias{loadFSSurface}
 \title{load Freesurfer ascii surface}
 \usage{
-loadFSSurface(meta_info)
+loadFSSurface(meta_info, surf_to_world = diag(4))
 }
 \arguments{
 \item{meta_info}{instance of type \code{FreesurferSurfaceGeometryMetaInfo}}
+
+\item{surf_to_world}{Optional 4x4 affine transformation matrix from surface (tkr-RAS)
+coordinates to world (scanner RAS) coordinates. Defaults to identity. For proper
+alignment with volumes, this transform can be computed from FreeSurfer's vox2ras-tkr
+matrix (available in orig.mgz or via mri_info --vox2ras-tkr).}
 }
 \value{
-a class of type \code{NeuroSurface}
+a class of type \code{SurfaceGeometry}
 }
 \description{
 load Freesurfer ascii surface

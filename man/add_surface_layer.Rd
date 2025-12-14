@@ -10,6 +10,9 @@ add_surface_layer(
   cmap = "viridis",
   alpha = 1,
   color_range = NULL,
+  vertices = NULL,
+  smoothing = c("auto", "nearest"),
+  smoothing_steps = 20,
   as_outline = FALSE,
   zero_transparent = TRUE,
   show_colorbar = TRUE,
@@ -42,6 +45,18 @@ through to \code{\link{colorRampPalette}} to generate colours.}
 \item{color_range}{Optional numeric vector of length 2 giving the minimum
 and maximum data values to map to the colour scale. If \code{NULL}, the
 range of \code{data} (ignoring \code{NA}) is used.}
+
+\item{vertices}{Optional vector or list of vertex ids corresponding to the
+supplied \code{data} when it is defined on a subset of vertices. Use a list
+with elements \code{left}/\code{right} for hemisphere-specific subsets.}
+
+\item{smoothing}{One of \code{"auto"} (default) or \code{"nearest"} when
+using sparse data. \code{"auto"} fills missing vertices by nearest
+neighbour then applies smoothing iterations; \code{"nearest"} performs only
+nearest-neighbour fill.}
+
+\item{smoothing_steps}{Integer number of smoothing iterations applied when
+\code{smoothing = "auto"}. Ignored otherwise.}
 
 \item{as_outline}{Logical; if \code{TRUE}, the data are treated as labels
 and are intended to be visualised as region outlines rather than a filled

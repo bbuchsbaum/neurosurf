@@ -27,5 +27,5 @@ cluster_threshold(x, threshold, size, ...)
 Apply Cluster-Extent Threshold to Surface Data
 }
 \seealso{
-\code{\link{conn_comp}}
+\code{\link[neuroim2]{conn_comp}}
 }

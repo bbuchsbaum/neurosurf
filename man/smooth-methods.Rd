@@ -68,7 +68,7 @@ Users should refer to the specific method documentation for the class of object 
 
 # Load a surface file from the extdata directory
 surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
-surface <- readAsc(surf_file)
+surface <- read_surf_geometry(surf_file)
 
 # Apply Taubin smoothing to the brain surface
 smoothed_surface1 <- smooth(surface, type = "taubin", lambda = 0.5, mu = -0.5, iteration = 10)

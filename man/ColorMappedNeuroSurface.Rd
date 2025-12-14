@@ -31,7 +31,7 @@ This object bundles the surface geometry, data, and specific color mapping
 }
 \examples{
 # Load a sample surface geometry
-surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
+surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 surf_geom <- read_surf_geometry(surf_file)
 
 # Get vertex count and generate some random data
