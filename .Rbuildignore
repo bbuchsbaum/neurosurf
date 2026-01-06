@@ -6,7 +6,10 @@
 ^codecov.yml
 ^README.Rmd
 ^.travis.yml
-inst/htmlwidgets/neurosurface/node_modules
+^inst/htmlwidgets/neurosurface/node_modules
+^src/.*\.o$
+^src/.*\.so$
+^src/.*\.a$
 testshiny
 testshiny/test_shiny.R
 .cursor$

@@ -111,7 +111,7 @@ SurfaceGeometry <- function(vert, faces, hemi, label = NA_character_,
 #' The appropriate loader is automatically selected based on the file extension or content.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Load a FreeSurfer surface
 #' lh_surface <- read_surf_geometry("lh.pial")
 #'

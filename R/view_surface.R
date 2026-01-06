@@ -236,7 +236,7 @@ surface_views <- list(
 #' @importFrom grDevices rainbow
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Load a surface geometry
 #' surf_geom <- example_surface_geometry()
 #'

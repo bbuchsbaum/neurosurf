@@ -17,7 +17,7 @@
 #'   In headless mode without `webshot2`, an empty character vector is returned.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' fs <- load_fsaverage_std8("inflated")
 #' img <- snapshot_surface(fs$lh, viewpoint = "lateral", specular = "black")
 #' # knitr::include_graphics(img)

@@ -459,7 +459,7 @@ readNIMLSurfaceHeader <- function(file_name) {
 #' This function does not return a value. It writes the data to a .1D.dset file as a side effect.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Assuming 'surf_data' is a NeuroSurface or NeuroSurfaceVector object
 #' write_surf_data(surf_data, "output_data", "lh")
 #' # This will create a file named "output_data_lh.1D.dset"
