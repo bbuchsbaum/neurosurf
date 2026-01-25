@@ -5,6 +5,7 @@
 \alias{SurfaceSet-class}
 \alias{geometry,SurfaceSet-method}
 \alias{vertices,SurfaceSet-method}
+\alias{faces,SurfaceSet-method}
 \alias{nodes,SurfaceSet-method}
 \alias{graph,SurfaceSet-method}
 \alias{curvature,SurfaceSet-method}
@@ -13,6 +14,8 @@
 \S4method{geometry}{SurfaceSet}(x)
 
 \S4method{vertices}{SurfaceSet}(x, ...)
+
+\S4method{faces}{SurfaceSet}(x, ...)
 
 \S4method{nodes}{SurfaceSet}(x)
 

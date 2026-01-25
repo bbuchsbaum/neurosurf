@@ -103,6 +103,22 @@ setMethod(f="vertices", signature=c("NeuroSurfaceVector"),
           })
 
 
+#' @export
+#' @rdname faces-methods
+setMethod(f="faces", signature=c("NeuroSurface"),
+          def=function(x) {
+            faces(x@geometry)
+          })
+
+
+#' @export
+#' @rdname faces-methods
+setMethod(f="faces", signature=c("NeuroSurfaceVector"),
+          def=function(x) {
+            faces(x@geometry)
+          })
+
+
 #' @importMethodsFrom neuroim2 indices
 #' @export
 #' @rdname indices-methods

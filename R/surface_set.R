@@ -119,6 +119,10 @@ setMethod("vertices", signature(x = "SurfaceSet"), function(x, ...) vertices(get
 
 #' @rdname SurfaceSet-class
 #' @export
+setMethod("faces", signature(x = "SurfaceSet"), function(x, ...) faces(get_surface(x), ...))
+
+#' @rdname SurfaceSet-class
+#' @export
 setMethod("nodes", signature(x = "SurfaceSet"), function(x) nodes(get_surface(x)))
 
 #' @rdname SurfaceSet-class
