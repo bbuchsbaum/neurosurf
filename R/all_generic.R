@@ -68,11 +68,36 @@ setGeneric(name = "neighbor_graph",
 #' num_vertices <- nrow(vertex_data)
 #' }
 #'
-#' @seealso \code{\link{nodes}}
+#' @seealso \code{\link{nodes}}, \code{\link{faces}}
 #'
 #' @export
 #' @rdname vertices-methods
 setGeneric(name = "vertices", def = function(x, ...) standardGeneric("vertices"))
+
+#' Extract Faces from a Surface Object
+#'
+#' @description
+#' Extracts the triangle faces from a surface object, providing a standardized
+#' interface across different surface representations.
+#'
+#' @param x An object representing a surface.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @return A matrix where each row represents a triangular face,
+#'   containing the 1-based vertex indices that form the triangle.
+#'
+#' @examples
+#' \donttest{
+#' geom <- example_surface_geometry()
+#' face_data <- faces(geom)
+#' num_faces <- nrow(face_data)
+#' }
+#'
+#' @seealso \code{\link{vertices}}, \code{\link{nodes}}
+#'
+#' @export
+#' @rdname faces-methods
+setGeneric(name = "faces", def = function(x, ...) standardGeneric("faces"))
 
 #' Extract Surface Node Numbers
 #'

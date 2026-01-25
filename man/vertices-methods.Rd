@@ -37,5 +37,5 @@ num_vertices <- nrow(vertex_data)
 
 }
 \seealso{
-\code{\link{nodes}}
+\code{\link{nodes}}, \code{\link{faces}}
 }

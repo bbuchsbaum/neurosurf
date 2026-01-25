@@ -549,6 +549,14 @@ setMethod(f="vertices", signature=c("SurfaceGeometry"),
 
 
 #' @export
+#' @rdname faces-methods
+setMethod(f="faces", signature=c("SurfaceGeometry"),
+          def=function(x) {
+            t(x@mesh$it)
+          })
+
+
+#' @export
 #' @rdname nodes-methods
 setMethod(f="nodes", signature=c("SurfaceGeometry"),
           def=function(x) {
