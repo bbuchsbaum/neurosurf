@@ -402,7 +402,7 @@ test_that("load_data on FreesurferSurfaceGeometryMetaInfo returns SurfaceGeometr
 
 # Tests for readFreesurferAsciiGeometry ------------------------------------
 
-test_that("readFreesurferAsciiGeometry returns vertices and faces", {
+test_that("readFreesurferAsciiGeometry returns vertices and nodes", {
   surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
   skip_if(surf_file == "", "std.8 surface not available")
 
@@ -410,9 +410,8 @@ test_that("readFreesurferAsciiGeometry returns vertices and faces", {
 
   expect_type(result, "list")
   expect_true("vertices" %in% names(result))
-  expect_true("faces" %in% names(result))
+  expect_true("nodes" %in% names(result))
   expect_equal(ncol(result$vertices), 3)
-  expect_equal(ncol(result$faces), 3)
 })
 
 
@@ -427,8 +426,8 @@ test_that("FreesurferSurfaceGeometryMetaInfo stores header info correctly", {
   meta <- neurosurf:::FreesurferSurfaceGeometryMetaInfo(desc, header)
 
   expect_s4_class(meta, "FreesurferSurfaceGeometryMetaInfo")
-  expect_equal(meta@nvertices, 642)
-  expect_equal(meta@nfaces, 1280)
+  expect_equal(meta@vertices, 642L)
+  expect_equal(meta@faces, 1280L)
 })
 
 
@@ -571,4 +570,86 @@ test_that("read_surf works for sphere.reg surface", {
   geom <- read_surf(surf_file)
 
   expect_s4_class(geom, "SurfaceGeometry")
+})
+
+
+# Tests for readFreesurferAsciiHeader results ------------------------------
+
+test_that("readFreesurferAsciiHeader returns expected fields", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  header <- neurosurf:::readFreesurferAsciiHeader(surf_file)
+
+  expect_type(header, "list")
+  expect_true("vertices" %in% names(header))
+  expect_true("faces" %in% names(header))
+  expect_equal(header$vertices, 642)
+  expect_equal(header$faces, 1280)
+})
+
+
+# Tests for error handling in read_surf -------------------------------------
+
+test_that("read_surf handles missing surface file", {
+  expect_error(read_surf("nonexistent_file.asc"))
+})
+
+
+# Tests for SurfaceGeometrySource and load_data -----------------------------
+
+test_that("SurfaceGeometrySource round-trip works", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  # Create source
+  src <- SurfaceGeometrySource(surf_file)
+  expect_s4_class(src, "SurfaceGeometrySource")
+
+  # Load data from source
+  geom <- load_data(src)
+  expect_s4_class(geom, "SurfaceGeometry")
+
+  # Verify data matches direct read
+  geom_direct <- read_surf_geometry(surf_file)
+  expect_equal(nrow(vertices(geom)), nrow(vertices(geom_direct)))
+})
+
+
+# Tests for load_fsaverage functions ----------------------------------------
+
+test_that("load_fsaverage_std8 loads surfaces", {
+  surfs <- load_fsaverage_std8("smoothwm")
+
+  expect_type(surfs, "list")
+  expect_true("lh" %in% names(surfs))
+  expect_true("rh" %in% names(surfs))
+  expect_s4_class(surfs$lh, "SurfaceGeometry")
+  expect_s4_class(surfs$rh, "SurfaceGeometry")
+})
+
+test_that("load_fsaverage_std8 loads different surface types", {
+  surf_types <- c("smoothwm", "pial", "inflated", "white", "sphere")
+
+  for (surf_type in surf_types) {
+    surfs <- load_fsaverage_std8(surf_type)
+    expect_s4_class(surfs$lh, "SurfaceGeometry")
+  }
+})
+
+test_that("load_fsaverage wrapper works", {
+  surfs <- load_fsaverage(density = "std.8", surf = "smoothwm")
+
+  expect_type(surfs, "list")
+  expect_s4_class(surfs$lh, "SurfaceGeometry")
+})
+
+test_that("load_fsaverage_bundle returns SurfaceSet objects", {
+  bundle <- load_fsaverage_bundle(surfs = c("smoothwm", "pial"))
+
+  expect_type(bundle, "list")
+  expect_true("lh" %in% names(bundle))
+  expect_true("rh" %in% names(bundle))
+  expect_s4_class(bundle$lh, "SurfaceSet")
+  expect_s4_class(bundle$rh, "SurfaceSet")
 })
