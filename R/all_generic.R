@@ -108,6 +108,10 @@ setGeneric(name = "faces", def = function(x, ...) standardGeneric("faces"))
 #'
 #' @return A vector of node numbers.
 #'
+#' @examples
+#' geom <- example_surface_geometry()
+#' nodes(geom)
+#'
 #' @seealso \code{\link{vertices}}
 #'
 #' @export
@@ -121,6 +125,18 @@ setGeneric(name = "nodes", def = function(x) standardGeneric("nodes"))
 #'
 #' @param x A surface object
 #' @return A geometry object representing the surface structure
+#'
+#' @examples
+#' \donttest{
+#' # Load a sample surface
+#' surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+#' surf <- read_surf_geometry(surf_file)
+#' # Create a NeuroSurface with some data
+#' ns <- NeuroSurface(surf, indices = 1:100, data = rnorm(100))
+#' # Extract the geometry
+#' geom <- geometry(ns)
+#' class(geom)
+#' }
 #'
 #' @seealso \code{\link{vertices}}, \code{\link{nodes}}
 #'
@@ -208,6 +224,13 @@ setGeneric(name="curvature", def=function(x, ...) standardGeneric("curvature"))
 #'
 #' @param x Surface object
 #' @return Left hemisphere of the surface
+#'
+#' @examples
+#' \donttest{
+#' # Requires bilateral surface data
+#' # lh <- left(bilat_surface)
+#' }
+#'
 #' @export
 #' @rdname left-methods
 setGeneric(name="left", def=function(x) standardGeneric("left"))
@@ -218,6 +241,13 @@ setGeneric(name="left", def=function(x) standardGeneric("left"))
 #'
 #' @param x Surface object
 #' @return Right hemisphere of the surface
+#'
+#' @examples
+#' \donttest{
+#' # Requires bilateral surface data
+#' # rh <- right(bilat_surface)
+#' }
+#'
 #' @export
 #' @rdname right-methods
 setGeneric(name="right", def=function(x) standardGeneric("right"))
@@ -242,6 +272,13 @@ setGeneric(name="cluster_threshold", def=function(x, threshold, size, ...) stand
 #' @param height The height of the widget (optional)
 #' @param ... Additional arguments passed to the plotting function
 #' @return An HTMLWidget object
+#'
+#' @examples
+#' \donttest{
+#' geom <- example_surface_geometry()
+#' widget <- plot_js(geom)
+#' }
+#'
 #' @export
 #' @rdname plot_js-methods
 setGeneric(name="plot_js", def=function(x, width = NULL, height = NULL, ...) standardGeneric("plot_js"))
@@ -255,6 +292,7 @@ setGeneric(name="plot_js", def=function(x, width = NULL, height = NULL, ...) sta
 #'
 #' @param x file format descriptor
 #' @param file_name file name containing meta information
+#' @return A meta info object containing header information from the surface file
 #'
 #' @export
 #' @rdname read_meta_info-methods
@@ -318,6 +356,12 @@ setGeneric(name = "surfwidget",
 #'
 #' @seealso \code{\link{find_roi_boundaries}}
 #'
+#' @examples
+#' \donttest{
+#' # Requires surface with ROI labels
+#' # boundaries <- findBoundaries(labeled_surface)
+#' }
+#'
 #' @export
 #' @rdname findBoundaries-methods
 setGeneric(name = "findBoundaries",
@@ -343,6 +387,14 @@ setGeneric(name = "findBoundaries",
 #' To transform surface vertices to world coordinates:
 #' \code{world_coords = surf_to_world(geom) \%*\% rbind(t(vertices), 1)}
 #'
+#' @examples
+#' \donttest{
+#' surf_file <- system.file("extdata", "std.8_lh.white.asc", package = "neurosurf")
+#' geom <- read_surf_geometry(surf_file)
+#' xform <- surf_to_world(geom)
+#' print(xform)
+#' }
+#'
 #' @seealso \code{\link{surf_to_world<-}}, \code{\link{SurfaceGeometry-class}}
 #'
 #' @export
@@ -361,6 +413,14 @@ setGeneric(name = "surf_to_world",
 #' @param value A 4x4 numeric matrix representing the affine transformation.
 #'
 #' @return The modified object with the updated transform.
+#'
+#' @examples
+#' \donttest{
+#' surf_file <- system.file("extdata", "std.8_lh.white.asc", package = "neurosurf")
+#' geom <- read_surf_geometry(surf_file)
+#' new_xform <- diag(4)
+#' surf_to_world(geom) <- new_xform
+#' }
 #'
 #' @seealso \code{\link{surf_to_world}}, \code{\link{SurfaceGeometry-class}}
 #'
