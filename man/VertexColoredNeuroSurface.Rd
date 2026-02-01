@@ -17,6 +17,10 @@ VertexColoredNeuroSurface(geometry, indices, colors, data = NULL)
 This parameter exists for compatibility with the parent NeuroSurface class but is not
 used for coloring (colors are specified directly via the \code{colors} parameter).}
 }
+\value{
+A \code{VertexColoredNeuroSurface} object containing the surface geometry
+  with explicit vertex colors.
+}
 \description{
 This function creates a VertexColoredNeuroSurface object, which represents a surface
 with explicit colors assigned to each vertex.

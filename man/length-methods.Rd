@@ -2,13 +2,16 @@
 % Please edit documentation in R/ROI.R
 \name{length,ROISurface-method}
 \alias{length,ROISurface-method}
-\title{length}
+\title{Get Length of Surface Object}
 \usage{
 \S4method{length}{ROISurface}(x)
 }
 \arguments{
 \item{x}{the object to extract the length from}
 }
+\value{
+An integer giving the number of vertices
+}
 \description{
-length
+Returns the number of vertices in a surface object.
 }

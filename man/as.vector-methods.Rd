@@ -2,13 +2,16 @@
 % Please edit documentation in R/neuro_surface.R
 \name{as.vector,NeuroSurface-method}
 \alias{as.vector,NeuroSurface-method}
-\title{as.vector}
+\title{Convert Surface Data to Vector}
 \usage{
 \S4method{as.vector}{NeuroSurface}(x)
 }
 \arguments{
 \item{x}{the object to convert to a vector}
 }
+\value{
+A numeric vector of surface data values
+}
 \description{
-as.vector
+Converts surface data to a numeric vector.
 }

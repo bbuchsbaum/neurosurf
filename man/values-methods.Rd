@@ -4,7 +4,7 @@
 \alias{values,ROISurface-method}
 \alias{values,ROISurfaceVector-method}
 \alias{values,NeuroSurface-method}
-\title{values}
+\title{Extract Data Values from Surface Objects}
 \usage{
 \S4method{values}{ROISurface}(x, ...)
 
@@ -17,6 +17,9 @@
 
 \item{...}{additional arguments}
 }
+\value{
+A numeric vector or matrix of data values
+}
 \description{
-values
+Extracts the data values associated with vertices in a surface object.
 }

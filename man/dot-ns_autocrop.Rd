@@ -6,6 +6,14 @@
 \usage{
 .ns_autocrop(img, border = 0)
 }
+\arguments{
+\item{img}{A raster image array}
+
+\item{border}{Number of pixels to preserve as border}
+}
+\value{
+The cropped image array with whitespace removed
+}
 \description{
 Auto-crop a raster image (removes whitespace)
 }

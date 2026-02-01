@@ -11,6 +11,9 @@
 
 \item{lookup}{a \code{matrix} with two columns: the first column is the key, and the second column is the value}
 }
+\value{
+A \code{NeuroSurface} object with remapped values
+}
 \description{
 Map Values for NeuroSurface with Matrix Lookup
 }

@@ -64,6 +64,10 @@ is useful if you want to save an expression in a variable.}
 
 \item{speed}{Numeric rotation speed.}
 }
+\value{
+For \code{surfwidgetOutput}, a Shiny UI element for displaying the widget.
+  For \code{renderSurfwidget}, a server-side render function.
+}
 \description{
 Output and render functions for using surfwidget within Shiny
 applications and interactive Rmd documents.

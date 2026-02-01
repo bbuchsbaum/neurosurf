@@ -22,6 +22,9 @@ adjacency(x, attr, ...)
 
 \item{...}{Additional arguments}
 }
+\value{
+A sparse adjacency matrix of class \code{dgCMatrix}
+}
 \description{
 Get Adjacency Graph
 }

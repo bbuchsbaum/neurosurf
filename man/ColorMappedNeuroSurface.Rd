@@ -19,6 +19,9 @@ ColorMappedNeuroSurface(geometry, indices, data, cmap, irange, thresh)
 
 \item{thresh}{A numeric value specifying the threshold for the colormap.}
 }
+\value{
+An instance of class \code{ColorMappedNeuroSurface}.
+}
 \description{
 This function creates a ColorMappedNeuroSurface object, which represents a single set of data values
 associated with nodes on a surface geometry, with pre-defined color mapping parameters.

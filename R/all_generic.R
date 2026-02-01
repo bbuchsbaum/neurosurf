@@ -133,6 +133,7 @@ setGeneric(name="geometry", def=function(x) standardGeneric("geometry"))
 #'
 #' @param x the object to extract the graph from
 #' @param ... extra args
+#' @return An \code{igraph} object representing the surface mesh connectivity
 #' @export
 #' @rdname graph-methods
 setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
@@ -175,6 +176,7 @@ setGeneric(name="smooth", def=function(x, ...) standardGeneric("smooth"))
 #' @param normalized Logical; whether to normalize the Laplacian
 #' @param weights Edge weights for weighted Laplacian matrix
 #' @param ... Additional arguments
+#' @return A sparse Laplacian matrix of class \code{dgCMatrix}
 #' @export
 #' @rdname laplacian-methods
 setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardGeneric("laplacian"))
@@ -185,6 +187,7 @@ setGeneric(name="laplacian", def=function(x, normalized, weights, ...) standardG
 #' @param x Graph structure
 #' @param attr Character; edge attribute for weights in igraph object. If absent, weights are 0 or 1.
 #' @param ... Additional arguments
+#' @return A sparse adjacency matrix of class \code{dgCMatrix}
 #' @export
 #' @rdname adjacency-methods
 setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacency"))
@@ -195,6 +198,7 @@ setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacen
 #'
 #' @param x Object to compute curvature from
 #' @param ... Additional arguments
+#' @return A numeric vector of curvature values, one per vertex
 #' @export
 #' @rdname curvature-methods
 setGeneric(name="curvature", def=function(x, ...) standardGeneric("curvature"))
@@ -224,6 +228,7 @@ setGeneric(name="right", def=function(x) standardGeneric("right"))
 #' @param threshold Numeric threshold range
 #' @param size Minimum cluster size in nodes
 #' @param ... Additional arguments
+#' @return A thresholded surface object of the same class as \code{x}
 #' @seealso \code{\link[neuroim2]{conn_comp}}
 #' @export
 #' @rdname cluster_threshold-methods

@@ -74,8 +74,13 @@ setMethod(f="geometry", signature=c("NeuroSurfaceVector"),
             x@geometry
           })
 
-#' as.matrix
+#' Convert Surface Data to Matrix
+#'
+#' @description
+#' Converts surface data to a matrix representation.
+#'
 #' @param x the object to convert to a matrix
+#' @return A numeric matrix with vertices as rows and time points/features as columns
 #' @rdname as.matrix-methods
 #' @export
 setMethod(f="as.matrix", signature=c("NeuroSurfaceVector"),
@@ -281,20 +286,30 @@ setMethod(f="conn_comp", signature=c(x="NeuroSurface"),
             list(index=index_surf, size=size_surf)
           })
 
-#' series
+#' Extract Time Series from Surface Vector
+#'
+#' @description
+#' Extracts time series data from specific vertices in a surface vector.
+#'
 #' @rdname series-methods
 #' @param x the object to extract the series from
 #' @param i the indices of the series to extract
+#' @return A matrix where columns are time points and rows are vertex indices
 #' @export
 setMethod("series", signature(x="NeuroSurfaceVector", i="numeric"),
           def=function(x, i) {
             Matrix::t(x@data[i,,drop=FALSE])
           })
 
-#' series_roi
+#' Extract ROI Time Series from Surface Vector
+#'
+#' @description
+#' Extracts time series data from a region of interest in a surface vector.
+#'
 #' @rdname series_roi-methods
 #' @param x the object to extract the series from
 #' @param i the indices of the series to extract
+#' @return An \code{\linkS4class{ROISurfaceVector}} containing the extracted time series
 #' @importMethodsFrom neuroim2 series_roi
 #' @export
 setMethod("series_roi", signature(x="NeuroSurfaceVector", i="numeric"),
@@ -339,9 +354,10 @@ setMethod("series", signature(x="NeuroSurface", i="numeric"),
           })
 
 #' Map Values for NeuroSurface with List Lookup
-#' 
+#'
 #' @param x a \code{NeuroSurface} object
 #' @param lookup a list of values to map
+#' @return A \code{NeuroSurface} object with remapped values
 #' @rdname map_values-NeuroSurface-list-method
 #' @export
 setMethod("map_values", signature(x="NeuroSurface", lookup="list"),
@@ -358,6 +374,7 @@ setMethod("map_values", signature(x="NeuroSurface", lookup="list"),
 #' @importMethodsFrom neuroim2 map_values
 #' @param x a \code{NeuroSurface} object
 #' @param lookup a \code{matrix} with two columns: the first column is the key, and the second column is the value
+#' @return A \code{NeuroSurface} object with remapped values
 #' @export
 #' @rdname map_values-NeuroSurface-matrix-method
 setMethod("map_values", signature(x="NeuroSurface", lookup="matrix"),
@@ -377,9 +394,13 @@ setMethod("map_values", signature(x="NeuroSurface", lookup="matrix"),
           })
 
 
-#' as.vector
+#' Convert Surface Data to Vector
+#'
+#' @description
+#' Converts surface data to a numeric vector.
 #'
 #' @param x the object to convert to a vector
+#' @return A numeric vector of surface data values
 #' @export
 #' @rdname as.vector-methods
 setMethod(f="as.vector", signature=signature(x = "NeuroSurface"), def=function(x) as(x, "vector"))
@@ -420,6 +441,7 @@ setMethod("graph", signature(x="NeuroSurfaceVector"),
 #' @param geometry a \code{SurfaceGeometry} or \code{SurfaceSet} instance
 #' @param indices an integer vector specifying the valid surface nodes.
 #' @param mat a \code{matrix} of data values (rows=nodes, columns=variables)
+#' @return A \code{\linkS4class{NeuroSurfaceVector}} object containing the geometry, node indices, and data matrix.
 #' @export
 NeuroSurfaceVector <- function(geometry, indices, mat) {
   new("NeuroSurfaceVector", geometry=geometry, indices=as.integer(indices),
@@ -480,6 +502,7 @@ NeuroSurface <- function(geometry, indices, data) {
 #' @param cmap A character string specifying the colormap to use for mapping the data values.
 #' @param irange A numeric vector of length 2 specifying the range of values to map.
 #' @param thresh A numeric value specifying the threshold for the colormap.
+#' @return An instance of class \code{ColorMappedNeuroSurface}.
 #' @details This object bundles the surface geometry, data, and specific color mapping
 #'   parameters ('cmap', 'irange', 'thresh'). This is useful for ensuring consistent
 #'   visualization across different plots or for saving a predefined view. The actual
@@ -568,6 +591,8 @@ ColorMappedNeuroSurface <- function(geometry, indices, data, cmap, irange, thres
 #' # plot(colored_surf) # Requires rgl package
 #' }
 #'
+#' @return A \code{VertexColoredNeuroSurface} object containing the surface geometry
+#'   with explicit vertex colors.
 #' @seealso \code{\link{SurfaceGeometry}}, \code{\link{NeuroSurface}}, \code{\link{ColorMappedNeuroSurface}}
 #' @export
 VertexColoredNeuroSurface <- function(geometry, indices, colors, data = NULL) {
@@ -690,10 +715,15 @@ normalize <- function(vals) {
 
 
 
-#' extractor
+#' Extract Data from NeuroSurfaceVector
+#'
+#' @description
+#' Extracts data from a NeuroSurfaceVector using bracket notation.
+#'
 #' @export
 #' @param x the object
 #' @param i first index
+#' @return A numeric vector of data values for the specified column
 setMethod(f="[[", signature=signature(x = "NeuroSurfaceVector", i = "numeric"),
           def=function (x, i) {
             x@data[,i]
@@ -702,26 +732,36 @@ setMethod(f="[[", signature=signature(x = "NeuroSurfaceVector", i = "numeric"),
 
 
 
-#' extractor
+#' Subset NeuroSurfaceVector
+#'
+#' @description
+#' Extracts a subset of data from a NeuroSurfaceVector.
+#'
 #' @export
 #' @param x the object
-#' @param i first index
-#' @param j second index
+#' @param i first index (rows/vertices)
+#' @param j second index (columns/time points)
 #' @param ... additional args
-#' @param drop dimension
+#' @param drop whether to drop dimensions
+#' @return A numeric matrix or vector of the extracted data subset
 setMethod(f="[", signature=signature(x = "NeuroSurfaceVector", i = "numeric", j = "numeric", drop="ANY"),
           def=function (x, i, j, ..., drop=TRUE) {
             x@data[i,j]
 
           })
 
-#' extractor
+#' Subset NeuroSurfaceVector by Column
+#'
+#' @description
+#' Extracts columns (time points) from a NeuroSurfaceVector.
+#'
 #' @export
 #' @param x the object
 #' @param i first index
 #' @param j second index
 #' @param ... additional args
 #' @param drop dimension
+#' @return A numeric matrix or vector of extracted column data
 setMethod(f="[", signature=signature(x = "NeuroSurfaceVector", i = "missing", j = "numeric", drop="ANY"),
           def=function (x, i, j, ..., drop=TRUE) {
             x@data[,j]
@@ -729,13 +769,18 @@ setMethod(f="[", signature=signature(x = "NeuroSurfaceVector", i = "missing", j 
 
 
 
-#' extractor
+#' Subset NeuroSurfaceVector by Row
+#'
+#' @description
+#' Extracts rows (vertices) from a NeuroSurfaceVector.
+#'
 #' @export
 #' @param x the object
 #' @param i first index
 #' @param j second index
 #' @param ... additional args
 #' @param drop dimension
+#' @return A numeric matrix or vector of extracted row data
 setMethod(f="[", signature=signature(x = "NeuroSurfaceVector", i = "numeric", j = "missing", drop="ANY"),
           def=function (x, i, j, ..., drop=TRUE) {
             x@data[i,]

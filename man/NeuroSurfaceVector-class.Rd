@@ -4,6 +4,9 @@
 \name{NeuroSurfaceVector-class}
 \alias{NeuroSurfaceVector-class}
 \title{NeuroSurfaceVector Class}
+\value{
+An object of class \code{NeuroSurfaceVector}
+}
 \description{
 Represents a 3D surface with multiple values per vertex.
 }

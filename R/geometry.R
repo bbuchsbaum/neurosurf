@@ -415,6 +415,13 @@ meshToGraph <- function(vertices, nodes) {
 
 
 
+#' Display Method for Surface Objects
+#'
+#' @description
+#' Prints a human-readable summary of surface objects to the console.
+#'
+#' @param object The surface object to display
+#' @return Invisibly returns \code{NULL}. Called for its side effect of printing.
 #' @rdname show-methods
 #' @importFrom crayon bold blue green red yellow style silver
 #' @importFrom crayon bgBlue white
@@ -530,9 +537,14 @@ setMethod(f="show", signature=signature("SurfaceGeometry"),
 
 
 
-#' coords
+#' Extract Vertex Coordinates
+#'
+#' @description
+#' Extracts the 3D coordinates of vertices from a surface object.
+#'
 #' @rdname coords-methods
 #' @param x the object to extract coordinates from
+#' @return A numeric matrix with three columns (x, y, z) and one row per vertex
 #' @export
 setMethod(f="coords", signature=c("SurfaceGeometry"),
           def=function(x) {
@@ -605,9 +617,14 @@ setMethod("surf_to_world<-", signature(x = "SurfaceGeometry", value = "matrix"),
           })
 
 
-#' load_data
+#' Load Surface Geometry Data
+#'
+#' @description
+#' Loads surface geometry data from a source object.
+#'
 #' @export
 #' @param x the object to load data from
+#' @return A \code{SurfaceGeometry} object containing the loaded mesh data
 #' @rdname load_data-methods
 setMethod(f="load_data", signature=c("SurfaceGeometrySource"),
           def=function(x) {

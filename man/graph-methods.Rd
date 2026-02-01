@@ -20,6 +20,9 @@ graph(x, ...)
 
 \item{...}{extra args}
 }
+\value{
+An \code{igraph} object representing the surface mesh connectivity
+}
 \description{
 extract \code{igraph} object
 }

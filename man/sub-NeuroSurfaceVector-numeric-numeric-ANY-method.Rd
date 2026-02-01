@@ -2,21 +2,24 @@
 % Please edit documentation in R/neuro_surface.R
 \name{[,NeuroSurfaceVector,numeric,numeric,ANY-method}
 \alias{[,NeuroSurfaceVector,numeric,numeric,ANY-method}
-\title{extractor}
+\title{Subset NeuroSurfaceVector}
 \usage{
 \S4method{[}{NeuroSurfaceVector,numeric,numeric,ANY}(x, i, j, ..., drop = TRUE)
 }
 \arguments{
 \item{x}{the object}
 
-\item{i}{first index}
+\item{i}{first index (rows/vertices)}
 
-\item{j}{second index}
+\item{j}{second index (columns/time points)}
 
 \item{...}{additional args}
 
-\item{drop}{dimension}
+\item{drop}{whether to drop dimensions}
+}
+\value{
+A numeric matrix or vector of the extracted data subset
 }
 \description{
-extractor
+Extracts a subset of data from a NeuroSurfaceVector.
 }

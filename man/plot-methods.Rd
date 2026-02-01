@@ -6,7 +6,7 @@
 \alias{plot,LabeledNeuroSurface,missing-method}
 \alias{plot,ColorMappedNeuroSurface,missing-method}
 \alias{plot,VertexColoredNeuroSurface,missing-method}
-\title{plot a surface}
+\title{Plot a Surface}
 \usage{
 \S4method{plot}{SurfaceGeometry,missing}(
   x,
@@ -92,6 +92,9 @@ is blended with the data/vertex colors. Defaults to "lightgray".}
 
 \item{...}{extra args to send to \code{view_surface}}
 }
+\value{
+An htmlwidget object for interactive visualization
+}
 \description{
-plot a surface
+Renders a surface object using the interactive viewer.
 }

@@ -4,7 +4,7 @@
 \alias{as.matrix,ROISurfaceVector-method}
 \alias{as.matrix,NeuroSurfaceVector-method}
 \alias{as.matrix,BilatNeuroSurfaceVector-method}
-\title{as.matrix}
+\title{Convert Surface Data to Matrix}
 \usage{
 \S4method{as.matrix}{ROISurfaceVector}(x)
 
@@ -15,6 +15,9 @@
 \arguments{
 \item{x}{the object to convert to a matrix}
 }
+\value{
+A numeric matrix with vertices as rows and time points/features as columns
+}
 \description{
-as.matrix
+Converts surface data to a matrix representation.
 }

@@ -18,6 +18,11 @@ positive numeric value.}
 \item{max_order}{maximum number of edges to traverse.
 default is computed based on average edge length.}
 }
+\value{
+An \code{ROISurfaceVector} if \code{surf} is a \code{BrainSurface} or
+  \code{BrainSurfaceVector}, otherwise an \code{ROISurface} containing the
+  vertices within the specified geodesic radius.
+}
 \description{
 Creates a Region on a Surface from a radius and surface
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/neuro_surface.R
 \name{[[,NeuroSurfaceVector,numeric-method}
 \alias{[[,NeuroSurfaceVector,numeric-method}
-\title{extractor}
+\title{Extract Data from NeuroSurfaceVector}
 \usage{
 \S4method{[[}{NeuroSurfaceVector,numeric}(x, i)
 }
@@ -11,6 +11,9 @@
 
 \item{i}{first index}
 }
+\value{
+A numeric vector of data values for the specified column
+}
 \description{
-extractor
+Extracts data from a NeuroSurfaceVector using bracket notation.
 }

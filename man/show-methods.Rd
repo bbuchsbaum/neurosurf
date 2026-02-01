@@ -22,8 +22,11 @@
 \S4method{show}{NeuroSurface}(object)
 }
 \arguments{
-\item{object}{A SurfaceGeometryMetaInfo object}
+\item{object}{The surface object to display}
+}
+\value{
+Invisibly returns \code{NULL}. Called for its side effect of printing.
 }
 \description{
-show
+Prints a human-readable summary of surface objects to the console.
 }

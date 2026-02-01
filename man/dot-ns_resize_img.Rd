@@ -6,6 +6,14 @@
 \usage{
 .ns_resize_img(img, scale_factor = 0.5)
 }
+\arguments{
+\item{img}{A raster image array}
+
+\item{scale_factor}{Scale factor for resizing (default 0.5)}
+}
+\value{
+The resized image array
+}
 \description{
 Supersample/Resize image for antialiasing (placeholder)
 }

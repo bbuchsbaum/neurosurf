@@ -11,6 +11,9 @@
 
 \item{lookup}{a list of values to map}
 }
+\value{
+A \code{NeuroSurface} object with remapped values
+}
 \description{
 Map Values for NeuroSurface with List Lookup
 }

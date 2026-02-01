@@ -11,6 +11,9 @@ updateColorMap(widget, colorMap)
 
 \item{colorMap}{A vector of colors defining the new color map.}
 }
+\value{
+The modified surfwidget object (invisibly).
+}
 \description{
 Change the color map used by an existing surfwidget.
 }

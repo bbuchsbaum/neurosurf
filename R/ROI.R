@@ -102,6 +102,9 @@ setMethod(f="as.matrix", signature=signature(x = "ROISurfaceVector"), def=functi
 #' @details The igraph associated with \code{surf} must have an edge
 #'   attribute named \code{dist} containing numeric weights with no
 #'   \code{NA} values.
+#' @return An \code{ROISurfaceVector} if \code{surf} is a \code{BrainSurface} or
+#'   \code{BrainSurfaceVector}, otherwise an \code{ROISurface} containing the
+#'   vertices within the specified geodesic radius.
 #' @importFrom assertthat assert_that
 #' @importFrom igraph E V ego distances induced_subgraph V neighborhood
 #' @rdname SurfaceDisk
@@ -153,9 +156,15 @@ roi_surface_matrix <- function(mat, refspace, indices, coords) {
 
 
 
+#' Extract Data Values from Surface Objects
+#'
+#' @description
+#' Extracts the data values associated with vertices in a surface object.
+#'
 #' @rdname values-methods
 #' @param x the object to extract the values from
 #' @param ... additional arguments
+#' @return A numeric vector or matrix of data values
 #' @export
 setMethod("values", signature(x="ROISurface"),
           function(x, ...) {
@@ -190,11 +199,13 @@ setMethod("indices", signature(x="ROISurface"),
             x@indices
           })
 
-#' indices
+#' Extract Vertex Indices
 #'
-#' extract indices
+#' @description
+#' Extracts the vertex indices from surface objects.
 #'
 #' @param x the object to extract indices from
+#' @return An integer vector of vertex indices
 #'
 #' @rdname indices-methods
 #' @export
@@ -212,9 +223,14 @@ setMethod(f="coords", signature=signature(x="ROISurface"),
           })
 
 
-#' length
+#' Get Length of Surface Object
+#'
+#' @description
+#' Returns the number of vertices in a surface object.
+#'
 #' @rdname length-methods
 #' @param x the object to extract the length from
+#' @return An integer giving the number of vertices
 #' @export
 setMethod(f="length", signature=signature(x="ROISurface"),
           function(x) {

@@ -3,7 +3,7 @@
 \name{data_reader,SurfaceGeometryMetaInfo-method}
 \alias{data_reader,SurfaceGeometryMetaInfo-method}
 \alias{data_reader,NIMLSurfaceDataMetaInfo-method}
-\title{data_reader}
+\title{Create a Column Reader for Surface Data}
 \usage{
 \S4method{data_reader}{SurfaceGeometryMetaInfo}(x)
 
@@ -12,6 +12,9 @@
 \arguments{
 \item{x}{A SurfaceGeometryMetaInfo object}
 }
+\value{
+A \code{ColumnReader} object for accessing surface data columns
+}
 \description{
-data_reader
+Creates a column reader object for accessing surface data.
 }

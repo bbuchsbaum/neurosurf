@@ -17,6 +17,9 @@ curvature(x, ...)
 
 \item{...}{Additional arguments}
 }
+\value{
+A numeric vector of curvature values, one per vertex
+}
 \description{
 Compute Surface Curvature Vector
 }

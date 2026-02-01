@@ -13,6 +13,9 @@ NeuroSurfaceVector(geometry, indices, mat)
 
 \item{mat}{a \code{matrix} of data values (rows=nodes, columns=variables)}
 }
+\value{
+A \code{\linkS4class{NeuroSurfaceVector}} object containing the geometry, node indices, and data matrix.
+}
 \description{
 construct a new NeuroSurfaceVector
 }

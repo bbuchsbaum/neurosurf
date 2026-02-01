@@ -6,7 +6,7 @@
 \alias{coords,igraph-method}
 \alias{coords,NeuroSurfaceVector-method}
 \alias{coords,NeuroSurface-method}
-\title{coords}
+\title{Extract Vertex Coordinates}
 \usage{
 \S4method{coords}{ROISurface}(x)
 
@@ -21,6 +21,9 @@
 \arguments{
 \item{x}{the object to extract coordinates from}
 }
+\value{
+A numeric matrix with three columns (x, y, z) and one row per vertex
+}
 \description{
-coords
+Extracts the 3D coordinates of vertices from a surface object.
 }

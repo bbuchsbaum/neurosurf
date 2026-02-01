@@ -5,7 +5,7 @@
 \alias{indices,ROISurfaceVector-method}
 \alias{indices,NeuroSurfaceVector-method}
 \alias{indices,NeuroSurface-method}
-\title{indices}
+\title{Extract Vertex Indices}
 \usage{
 \S4method{indices}{ROISurface}(x)
 
@@ -18,6 +18,9 @@
 \arguments{
 \item{x}{the object to extract indices from}
 }
+\value{
+An integer vector of vertex indices
+}
 \description{
-extract indices
+Extracts the vertex indices from surface objects.
 }

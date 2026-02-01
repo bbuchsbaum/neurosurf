@@ -23,6 +23,9 @@ cluster_threshold(x, threshold, size, ...)
 
 \item{index}{the index/column of the underlying data matrix to cluster}
 }
+\value{
+A thresholded surface object of the same class as \code{x}
+}
 \description{
 Apply Cluster-Extent Threshold to Surface Data
 }

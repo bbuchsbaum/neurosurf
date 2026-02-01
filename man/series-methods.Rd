@@ -5,7 +5,7 @@
 \alias{series,NeuroSurfaceVector,integer-method}
 \alias{series,NeuroSurfaceVector,ROISurface-method}
 \alias{series,NeuroSurface,numeric-method}
-\title{series}
+\title{Extract Time Series from Surface Vector}
 \usage{
 \S4method{series}{NeuroSurfaceVector,numeric}(x, i)
 
@@ -20,6 +20,9 @@
 
 \item{i}{the indices of the series to extract}
 }
+\value{
+A matrix where columns are time points and rows are vertex indices
+}
 \description{
-series
+Extracts time series data from specific vertices in a surface vector.
 }

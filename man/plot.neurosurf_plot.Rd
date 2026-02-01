@@ -11,6 +11,9 @@
 
 \item{...}{Additional arguments passed to \code{\link{draw_surface_plot}}.}
 }
+\value{
+Invisibly returns the input \code{neurosurf_plot} object.
+}
 \description{
 This is a convenience wrapper that renders a multi-panel surface layout and
 draws it to a new grid device.

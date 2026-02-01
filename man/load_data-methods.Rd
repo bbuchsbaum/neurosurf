@@ -21,8 +21,9 @@
 \arguments{
 \item{x}{the object to load data from}
 }
+\value{
+A \code{SurfaceGeometry} object containing the loaded mesh data
+}
 \description{
-load_data
-
-load_data
+Loads surface geometry data from a source object.
 }

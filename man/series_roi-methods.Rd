@@ -3,7 +3,7 @@
 \name{series_roi,NeuroSurfaceVector,numeric-method}
 \alias{series_roi,NeuroSurfaceVector,numeric-method}
 \alias{series_roi,NeuroSurfaceVector,ROISurface-method}
-\title{series_roi}
+\title{Extract ROI Time Series from Surface Vector}
 \usage{
 \S4method{series_roi}{NeuroSurfaceVector,numeric}(x, i)
 
@@ -14,6 +14,9 @@
 
 \item{i}{the indices of the series to extract}
 }
+\value{
+An \code{\linkS4class{ROISurfaceVector}} containing the extracted time series
+}
 \description{
-series_roi
+Extracts time series data from a region of interest in a surface vector.
 }

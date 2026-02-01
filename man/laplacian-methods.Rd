@@ -21,6 +21,9 @@ laplacian(x, normalized, weights, ...)
 
 \item{...}{Additional arguments}
 }
+\value{
+A sparse Laplacian matrix of class \code{dgCMatrix}
+}
 \description{
 Compute Graph Laplacian
 }

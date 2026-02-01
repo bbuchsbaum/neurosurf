@@ -4,6 +4,9 @@
 \name{ColorMappedNeuroSurface-class}
 \alias{ColorMappedNeuroSurface-class}
 \title{ColorMappedNeuroSurface}
+\value{
+An object of class \code{ColorMappedNeuroSurface}
+}
 \description{
 A three-dimensional surface consisting of a set of triangle vertices with one value per vertex,
 mapped to colors using a specified colormap and range.
