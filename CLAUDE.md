@@ -82,6 +82,18 @@ Tests use `testthat` framework and are located in `tests/testthat/`. Key test ar
 - Searchlight analysis
 - Surface smoothing operations
 
+### Files Excluded from Coverage Targets
+
+The following files have low or zero test coverage due to their nature:
+
+- **`snapshot_surface.R`**: Screenshot functionality requiring interactive graphics device
+- **`surfwidget.R`**: HTMLWidget creation requiring browser/JavaScript runtime
+- **`view_surface.R`**: RGL 3D visualization requiring interactive graphics context
+- **`zzz.R`**: Package initialization hooks (`.onLoad`, `.onAttach`)
+- **`spec.R`**: Internal specification/configuration (no testable logic)
+
+These files contain visualization, UI, or package infrastructure code that cannot be meaningfully unit tested without interactive sessions or external rendering contexts.
+
 ## Dependencies
 
 Key R dependencies:
