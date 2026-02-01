@@ -1,5 +1,7 @@
 # Tests for testdata.R - optional test data download functionality
 
+library(neurosurf)
+
 test_that("neurosurf_cache_dir returns a string", {
   cache_dir <- neurosurf_cache_dir()
   expect_type(cache_dir, "character")
@@ -179,4 +181,115 @@ test_that("neurosurf_download_testdata rejects mixed valid/invalid files", {
     neurosurf_download_testdata(c("rscan01_lh.gii", "invalid_file.xyz")),
     "Unknown files"
   )
+})
+
+# Additional comprehensive tests for testdata.R
+# Note: Only files currently in GitHub release are tested here:
+# rscan01_lh.gii, rscan01_lh.niml.dset, rscan01_rh.niml.dset
+
+test_that("neurosurf_download_testdata quiet=TRUE suppresses messages", {
+  temp_dir <- tempfile()
+  dir.create(temp_dir)
+  on.exit(unlink(temp_dir, recursive = TRUE), add = TRUE)
+
+  # Create dummy file
+  dummy_file <- file.path(temp_dir, "rscan01_lh.gii")
+  writeLines("dummy", dummy_file)
+
+  # With quiet=TRUE, should not produce messages
+  expect_silent(
+    neurosurf_download_testdata("rscan01_lh.gii", destdir = temp_dir, quiet = TRUE)
+  )
+})
+
+test_that("neurosurf_cache_dir is consistent across calls", {
+  cache1 <- neurosurf_cache_dir()
+  cache2 <- neurosurf_cache_dir()
+  expect_equal(cache1, cache2)
+})
+
+test_that("neurosurf_testdata_path prefers package extdata", {
+  # For files that exist in package extdata, should return package path
+  pkg_path <- neurosurf_testdata_path("std.8_lh.smoothwm.asc")
+
+  # Should be from package, not cache
+  expect_true(grepl("neurosurf", pkg_path))
+  expect_true(grepl("extdata", pkg_path))
+})
+
+test_that("neurosurf_has_testdata returns TRUE for all std.8 surfaces", {
+  surfaces <- c(
+    "std.8_lh.smoothwm.asc",
+    "std.8_lh.inflated.asc",
+    "std.8_lh.pial.asc",
+    "std.8_rh.smoothwm.asc",
+    "std.8_rh.inflated.asc"
+  )
+
+  for (surf in surfaces) {
+    expect_true(neurosurf_has_testdata(surf), info = paste("Missing:", surf))
+  }
+})
+
+test_that("neurosurf_download_testdata creates destdir if using cache", {
+ # When destdir is NULL and package extdata is not writable,
+  # it should try to use/create cache dir
+  # This is hard to test directly, but we can verify the function handles NULL destdir
+
+  # Skip actual download
+  skip_if_offline()
+
+  # With NULL destdir, the function should determine appropriate destination
+  # We can't easily test this without mocking, so just verify it doesn't error immediately
+  expect_error(
+    neurosurf_download_testdata("rscan01_lh.gii", destdir = NULL, quiet = TRUE),
+    NA  # NA means we expect no error from this specific call
+  ) |> suppressWarnings()  # Suppress download warnings
+})
+
+test_that("neurosurf_testdata_path returns empty string for missing file", {
+  path <- neurosurf_testdata_path("this_file_does_not_exist_12345.xyz")
+  expect_equal(path, "")
+  expect_type(path, "character")
+  expect_length(path, 1)
+})
+
+test_that("neurosurf_has_testdata returns FALSE for missing file", {
+  result <- neurosurf_has_testdata("this_file_does_not_exist_12345.xyz")
+  expect_false(result)
+  expect_type(result, "logical")
+  expect_length(result, 1)
+})
+
+test_that("neurosurf_download_testdata error message lists all available files", {
+  # Check that the error message is informative
+  err <- tryCatch(
+    neurosurf_download_testdata("bad_file.xyz"),
+    error = function(e) conditionMessage(e)
+  )
+
+  expect_true(grepl("rscan01_lh.gii", err))
+  expect_true(grepl("rscan01_lh.niml.dset", err))
+  expect_true(grepl("rscan01_rh.niml.dset", err))
+})
+
+test_that("neurosurf_download_testdata returns character vector", {
+  temp_dir <- tempfile()
+  dir.create(temp_dir)
+  on.exit(unlink(temp_dir, recursive = TRUE), add = TRUE)
+
+  # Create dummy files
+  for (f in c("rscan01_lh.gii", "rscan01_lh.niml.dset")) {
+    writeLines("dummy", file.path(temp_dir, f))
+  }
+
+  result <- neurosurf_download_testdata(
+    c("rscan01_lh.gii", "rscan01_lh.niml.dset"),
+    destdir = temp_dir,
+    quiet = TRUE
+  )
+
+  expect_type(result, "character")
+  expect_length(result, 2)
+  expect_true(all(file.exists(result)))
 })

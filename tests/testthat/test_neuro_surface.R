@@ -581,3 +581,291 @@ test_that("show method for NeuroSurface handles empty data", {
   # Should not error
   expect_no_error(capture.output(show(ns)))
 })
+
+
+# Tests for map_values method -----------------------------------------------
+
+test_that("map_values works with list lookup", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  data <- 1:n_verts
+  ns <- NeuroSurface(geom, seq_len(n_verts), data)
+
+  lookup <- list("1" = 10, "2" = 20, "3" = 30, "4" = 40)
+  result <- map_values(ns, lookup)
+
+  expect_s4_class(result, "NeuroSurface")
+})
+
+test_that("map_values works with matrix lookup", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  data <- 1:n_verts
+  ns <- NeuroSurface(geom, seq_len(n_verts), data)
+
+  lookup <- matrix(c(1, 10, 2, 20, 3, 30, 4, 40), ncol = 2, byrow = TRUE)
+  result <- map_values(ns, lookup)
+
+  expect_s4_class(result, "NeuroSurface")
+})
+
+
+# Tests for NeuroSurfaceVector subsetting -----------------------------------
+
+test_that("NeuroSurfaceVector [[ operator works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  mat <- matrix(1:(n_verts * 3), nrow = n_verts, ncol = 3)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
+
+  # Extract first column - returns numeric vector
+  result <- nsv[[1]]
+
+  expect_type(result, "double")
+  expect_equal(length(result), n_verts)
+})
+
+test_that("NeuroSurfaceVector [ operator with row index works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  mat <- matrix(1:(n_verts * 3), nrow = n_verts, ncol = 3)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
+
+  # Extract rows 1-2
+  result <- nsv[1:2, ]
+
+  expect_true(inherits(result, "matrix") || inherits(result, "Matrix"))
+})
+
+test_that("NeuroSurfaceVector [ operator with column index works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  mat <- matrix(1:(n_verts * 3), nrow = n_verts, ncol = 3)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
+
+  # Extract columns 1-2
+  result <- nsv[, 1:2]
+
+  expect_true(inherits(result, "matrix") || inherits(result, "Matrix") || inherits(result, "NeuroSurfaceVector"))
+})
+
+
+# Tests for series_roi method -----------------------------------------------
+
+test_that("series_roi with ROISurface works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  mat <- matrix(rnorm(n_verts * 5), nrow = n_verts, ncol = 5)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
+
+  # Create a simple ROI
+  roi_indices <- 1:2
+  roi <- ROISurface(geom, indices = roi_indices, data = rep(1, length(roi_indices)))
+
+  result <- series_roi(nsv, roi)
+
+  expect_s4_class(result, "ROISurfaceVector")
+})
+
+
+# Tests for normalize function ----------------------------------------------
+
+test_that("normalize function scales values", {
+  vals <- c(0, 50, 100)
+  result <- neurosurf:::normalize(vals)
+
+  expect_equal(min(result), 0)
+  expect_equal(max(result), 1)
+})
+
+
+# Tests for NeuroSurfaceSource ----------------------------------------------
+
+test_that("NeuroSurfaceSource creates valid source", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  geom <- read_surf_geometry(surf_file)
+
+  data_file <- system.file("extdata", "std.8_lh_area.1D.dset", package = "neurosurf")
+  skip_if(data_file == "", "1D.dset file not available")
+
+  src <- NeuroSurfaceSource(geom, data_file)
+
+  expect_s4_class(src, "NeuroSurfaceSource")
+})
+
+
+# Tests for series_roi methods ---------------------------------------------
+
+test_that("series_roi works with numeric indices", {
+  geom <- example_surface_geometry()
+  n <- length(nodes(geom))
+  mat <- matrix(rnorm(n * 5), nrow = n, ncol = 5)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n), mat)
+
+  # Extract series for first 10 vertices
+  roi <- series_roi(nsv, 1:10)
+
+  expect_s4_class(roi, "ROISurfaceVector")
+  expect_equal(length(indices(roi)), 10)
+})
+
+test_that("series_roi works with ROISurface", {
+  geom <- example_surface_geometry()
+  n <- length(nodes(geom))
+  mat <- matrix(rnorm(n * 5), nrow = n, ncol = 5)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n), mat)
+
+  # Create an ROISurface
+  roi_indices <- 1:20
+  roi_surf <- ROISurface(geom, roi_indices)
+
+  # Extract series using ROISurface
+  roi_vec <- series_roi(nsv, roi_surf)
+
+  expect_s4_class(roi_vec, "ROISurfaceVector")
+  expect_equal(length(indices(roi_vec)), 20)
+})
+
+
+# Tests for series with ROISurface -----------------------------------------
+
+test_that("series works with ROISurface index", {
+  geom <- example_surface_geometry()
+  n <- length(nodes(geom))
+  mat <- matrix(rnorm(n * 5), nrow = n, ncol = 5)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n), mat)
+
+  # Create an ROISurface using valid indices (n might be small for example geometry)
+  roi_indices <- seq_len(min(n, 3))
+  roi_surf <- ROISurface(geom, roi_indices)
+
+  # Extract series
+  s <- series(nsv, roi_surf)
+
+  expect_equal(ncol(s), length(roi_indices))
+  expect_equal(nrow(s), 5)  # 5 time points
+})
+
+
+# Tests for normalize internal function ------------------------------------
+
+test_that("normalize scales values to 0-1 range", {
+  vals <- c(10, 20, 30, 40, 50)
+  result <- neurosurf:::normalize(vals)
+
+  expect_equal(min(result), 0)
+  expect_equal(max(result), 1)
+  expect_equal(length(result), 5)
+})
+
+test_that("normalize handles constant values", {
+  vals <- c(5, 5, 5, 5)
+  result <- neurosurf:::normalize(vals)
+
+  # When all values are the same, should return zeros
+  expect_true(all(result == 0))
+})
+
+test_that("normalize handles negative values", {
+  vals <- c(-10, 0, 10)
+  result <- neurosurf:::normalize(vals)
+
+  expect_equal(min(result), 0)
+  expect_equal(max(result), 1)
+  expect_equal(result[2], 0.5)  # Middle value
+})
+
+
+# Tests for BilatNeuroSurfaceVector ----------------------------------------
+
+test_that("BilatNeuroSurfaceVector left and right methods work", {
+  geom_lh <- example_surface_geometry()
+  geom_rh <- example_surface_geometry()
+
+  n <- length(nodes(geom_lh))
+  mat_lh <- matrix(rnorm(n * 3), nrow = n, ncol = 3)
+  mat_rh <- matrix(rnorm(n * 3), nrow = n, ncol = 3)
+
+  nsv_lh <- NeuroSurfaceVector(geom_lh, seq_len(n), mat_lh)
+  nsv_rh <- NeuroSurfaceVector(geom_rh, seq_len(n), mat_rh)
+
+  bilat <- new("BilatNeuroSurfaceVector", left = nsv_lh, right = nsv_rh)
+
+  expect_s4_class(left(bilat), "NeuroSurfaceVector")
+  expect_s4_class(right(bilat), "NeuroSurfaceVector")
+})
+
+test_that("BilatNeuroSurfaceVector as.matrix works", {
+  geom_lh <- example_surface_geometry()
+  geom_rh <- example_surface_geometry()
+
+  n <- length(nodes(geom_lh))
+  mat_lh <- matrix(rnorm(n * 3), nrow = n, ncol = 3)
+  mat_rh <- matrix(rnorm(n * 3), nrow = n, ncol = 3)
+
+  nsv_lh <- NeuroSurfaceVector(geom_lh, seq_len(n), mat_lh)
+  nsv_rh <- NeuroSurfaceVector(geom_rh, seq_len(n), mat_rh)
+
+  bilat <- new("BilatNeuroSurfaceVector", left = nsv_lh, right = nsv_rh)
+
+  result <- as.matrix(bilat)
+
+  expect_true(is.matrix(result))
+  expect_equal(nrow(result), 2 * n)
+  expect_equal(ncol(result), 3)
+  # Check attributes
+  expect_true(!is.null(attr(result, "coords")))
+  expect_true(!is.null(attr(result, "indices")))
+  expect_true(!is.null(attr(result, "hemi")))
+})
+
+
+# Tests for integer subscript in series ------------------------------------
+
+test_that("series with integer index works", {
+  geom <- example_surface_geometry()
+  n <- length(nodes(geom))
+  mat <- matrix(rnorm(n * 5), nrow = n, ncol = 5)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n), mat)
+
+  s <- series(nsv, as.integer(1:3))
+
+  expect_equal(ncol(s), 3)
+  expect_equal(nrow(s), 5)
+})
+
+
+# Tests for as coercion ----------------------------------------------------
+
+test_that("NeuroSurface to vector coercion works", {
+  geom <- example_surface_geometry()
+  n <- length(nodes(geom))
+  data <- rnorm(n)
+  ns <- NeuroSurface(geom, seq_len(n), data)
+
+  result <- as(ns, "vector")
+
+  expect_true(is.numeric(result))
+  expect_equal(length(result), n)
+})
+
+
+# Tests for ColorMappedNeuroSurface slots ----------------------------------
+
+test_that("ColorMappedNeuroSurface stores all slots correctly", {
+  geom <- example_surface_geometry()
+  n <- length(nodes(geom))
+  data <- rnorm(n)
+  cmap <- colorRampPalette(c("blue", "white", "red"))(100)
+  irange <- c(-3, 3)
+  thresh <- c(-1.5, 1.5)
+
+  cmns <- ColorMappedNeuroSurface(geom, seq_len(n), data, cmap, irange, thresh)
+
+  expect_equal(length(cmns@cmap), 100)
+  expect_equal(cmns@irange, irange)
+  expect_equal(cmns@thresh, thresh)
+  expect_equal(length(cmns@data), n)
+})
