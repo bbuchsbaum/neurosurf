@@ -718,15 +718,15 @@ test_that("series_roi works with ROISurface", {
   mat <- matrix(rnorm(n * 5), nrow = n, ncol = 5)
   nsv <- NeuroSurfaceVector(geom, seq_len(n), mat)
 
-  # Create an ROISurface
-  roi_indices <- 1:20
-  roi_surf <- ROISurface(geom, roi_indices)
+  # Create an ROISurface with valid indices (example geometry has only 4 vertices)
+  roi_indices <- seq_len(min(n, 3))
+  roi_surf <- ROISurface(geom, roi_indices, data = rep(1, length(roi_indices)))
 
   # Extract series using ROISurface
   roi_vec <- series_roi(nsv, roi_surf)
 
   expect_s4_class(roi_vec, "ROISurfaceVector")
-  expect_equal(length(indices(roi_vec)), 20)
+  expect_equal(length(indices(roi_vec)), length(roi_indices))
 })
 
 
@@ -740,7 +740,7 @@ test_that("series works with ROISurface index", {
 
   # Create an ROISurface using valid indices (n might be small for example geometry)
   roi_indices <- seq_len(min(n, 3))
-  roi_surf <- ROISurface(geom, roi_indices)
+  roi_surf <- ROISurface(geom, roi_indices, data = rep(1, length(roi_indices)))
 
   # Extract series
   s <- series(nsv, roi_surf)
