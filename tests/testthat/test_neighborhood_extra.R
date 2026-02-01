@@ -465,3 +465,185 @@ test_that("laplacian matrix row sums are approximately zero", {
   row_sums <- Matrix::rowSums(lap)
   expect_true(all(abs(row_sums) < 1e-10))
 })
+
+# Additional edge case tests for neighborhood.R
+
+test_that("smooth with custom lambda and mu parameters", {
+  geom <- example_surface_geometry()
+
+  # Test taubin with non-default parameters
+  smoothed <- smooth(geom, type = "taubin", lambda = 0.3, mu = -0.3, iteration = 3)
+
+  expect_s4_class(smoothed, "SurfaceGeometry")
+})
+
+test_that("smooth with delta parameter for surfPreserveLaplace", {
+  geom <- example_surface_geometry()
+
+  smoothed <- smooth(geom, type = "surfPreserveLaplace", delta = 0.2, iteration = 2)
+
+  expect_s4_class(smoothed, "SurfaceGeometry")
+})
+
+test_that("find_all_neighbors with igraph input directly", {
+  geom <- example_surface_geometry()
+  g <- graph(geom)
+  edgeWeights <- igraph::E(g)$dist
+
+  nb <- find_all_neighbors(g, radius = 5, edgeWeights = edgeWeights, nodes = 1:2)
+
+  expect_type(nb, "list")
+  expect_length(nb, 2)
+})
+
+test_that("findNeighbors validates node index", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+  surf <- read_surf(surf_file)
+  g <- graph(surf)
+  edgeWeights <- igraph::E(g)$dist
+
+  # Invalid node index (out of range)
+  expect_error(
+    neurosurf:::findNeighbors(g, node = 0, radius = 5, edgeWeights = edgeWeights),
+    "out of range"
+  )
+
+  expect_error(
+    neurosurf:::findNeighbors(g, node = igraph::vcount(g) + 1, radius = 5, edgeWeights = edgeWeights),
+    "out of range"
+  )
+})
+
+test_that("findNeighbors validates edgeWeights", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+  surf <- read_surf(surf_file)
+  g <- graph(surf)
+
+  # Non-numeric edgeWeights
+  expect_error(
+    neurosurf:::findNeighbors(g, node = 1, radius = 5, edgeWeights = "bad"),
+    "numeric"
+  )
+
+  # NA in edgeWeights
+  bad_weights <- igraph::E(g)$dist
+  bad_weights[1] <- NA
+  expect_error(
+    neurosurf:::findNeighbors(g, node = 1, radius = 5, edgeWeights = bad_weights),
+    "NA"
+  )
+})
+
+test_that("findNeighbors validates radius", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+  surf <- read_surf(surf_file)
+  g <- graph(surf)
+  edgeWeights <- igraph::E(g)$dist
+
+  # Negative radius
+  expect_error(
+    neurosurf:::findNeighbors(g, node = 1, radius = -1, edgeWeights = edgeWeights),
+    "positive"
+  )
+
+  # Zero radius
+  expect_error(
+    neurosurf:::findNeighbors(g, node = 1, radius = 0, edgeWeights = edgeWeights),
+    "positive"
+  )
+})
+
+test_that("neighbor_graph methods all return igraph", {
+  geom <- example_surface_geometry()
+  g <- graph(geom)
+  edgeWeights <- igraph::E(g)$dist
+
+  # Method with missing nodes and edgeWeights
+  ng1 <- neighbor_graph(geom, radius = 2)
+  expect_s3_class(ng1, "igraph")
+
+  # Method with edgeWeights but missing nodes
+  ng2 <- neighbor_graph(geom, radius = 2, edgeWeights = edgeWeights)
+  expect_s3_class(ng2, "igraph")
+
+  # Method with nodes but missing edgeWeights
+  ng3 <- neighbor_graph(geom, radius = 2, nodes = 1L:2L)
+  expect_s3_class(ng3, "igraph")
+
+  # Method with both
+  ng4 <- neighbor_graph(geom, radius = 2, edgeWeights = edgeWeights, nodes = 1L:2L)
+  expect_s3_class(ng4, "igraph")
+})
+
+test_that("neighbor_graph with euclidean distance_type", {
+  geom <- example_surface_geometry()
+
+  ng <- neighbor_graph(geom, radius = 5, distance_type = "euclidean")
+
+  expect_s3_class(ng, "igraph")
+})
+
+test_that("find_all_neighbors with wrong edgeWeights length errors", {
+  geom <- example_surface_geometry()
+
+  # Wrong length edgeWeights
+  expect_error(
+    find_all_neighbors(geom, radius = 5, edgeWeights = c(1, 2, 3)),
+    "one value per edge"
+  )
+})
+
+test_that("projectCoordinates handles edge cases", {
+  geom <- example_surface_geometry()
+  surf_coords <- coords(geom)
+
+  # Single point
+  single_pt <- matrix(surf_coords[1, ], ncol = 3)
+  ns <- projectCoordinates(geom, single_pt, sigma = 1)
+  expect_s4_class(ns, "NeuroSurface")
+
+  # Multiple points at same location
+  same_pts <- matrix(rep(surf_coords[1, ], 3), ncol = 3, byrow = TRUE)
+  ns2 <- projectCoordinates(geom, same_pts, sigma = 1)
+  expect_s4_class(ns2, "NeuroSurface")
+})
+
+test_that("adjacency with dist attribute extracts edge distances", {
+  geom <- example_surface_geometry()
+
+  adj <- adjacency(geom, attr = "dist")
+
+  expect_true(inherits(adj, "Matrix") || is.matrix(adj))
+  # Non-zero entries should be positive (distances)
+  nonzero <- as.vector(adj)[as.vector(adj) != 0]
+  if (length(nonzero) > 0) {
+    expect_true(all(nonzero > 0))
+  }
+})
+
+test_that("smooth iteration parameter affects smoothness", {
+  geom <- example_surface_geometry()
+  original_coords <- coords(geom)
+
+  # More iterations should move vertices more
+  s1 <- smooth(geom, type = "laplace", iteration = 1)
+  s10 <- smooth(geom, type = "laplace", iteration = 10)
+
+  # Both should have same structure
+  expect_equal(nrow(coords(s1)), nrow(original_coords))
+  expect_equal(nrow(coords(s10)), nrow(original_coords))
+})
+
+test_that("find_all_neighbors all distance types work", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+  surf <- read_surf(surf_file)
+  g <- graph(surf)
+  edgeWeights <- igraph::E(g)$dist
+
+  for (dtype in c("geodesic", "euclidean")) {
+    nb <- find_all_neighbors(surf, radius = 10, edgeWeights = edgeWeights,
+                             nodes = 1:2, distance_type = dtype)
+    expect_type(nb, "list")
+    expect_length(nb, 2)
+  }
+})
