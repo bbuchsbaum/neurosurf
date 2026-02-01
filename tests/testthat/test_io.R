@@ -141,3 +141,260 @@ test_that("readFreesurferAsciiHeader detects hemi from filename patterns", {
 
   expect_equal(header$hemi, "lh")
 })
+
+test_that("findSurfaceDescriptor identifies FreeSurfer ASCII format", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  desc <- neurosurf:::findSurfaceDescriptor(surf_file)
+
+  expect_s4_class(desc, "FreesurferAsciiSurfaceFileDescriptor")
+})
+
+test_that("findSurfaceDescriptor identifies multiple surface types", {
+  # Test .asc extension
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 inflated surface not available")
+
+  desc <- neurosurf:::findSurfaceDescriptor(surf_file)
+  expect_s4_class(desc, "FreesurferAsciiSurfaceFileDescriptor")
+})
+
+test_that("read_surf_geometry returns consistent coords and vertices", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  geom <- read_surf_geometry(surf_file)
+
+  # coords and vertices(geom) should return the same data
+  all_coords <- coords(geom)
+  all_verts <- vertices(geom)
+
+  expect_equal(all_coords, all_verts)
+})
+
+test_that("read_surf_geometry returns valid node sequence", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  geom <- read_surf_geometry(surf_file)
+  n <- nodes(geom)
+
+  expect_equal(n, seq_len(nrow(vertices(geom))))
+})
+
+test_that("read_surf can load different surface types", {
+  # Test with inflated surface
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 inflated surface not available")
+
+  geom <- read_surf(surf_file)
+
+  expect_s4_class(geom, "SurfaceGeometry")
+  expect_equal(nrow(vertices(geom)), 642)  # std.8 has 642 vertices
+})
+
+test_that("FreesurferSurfaceGeometryMetaInfo stores correct info", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  desc <- neurosurf:::findSurfaceDescriptor(surf_file)
+  header <- neurosurf:::readFreesurferAsciiHeader(surf_file)
+  meta <- neurosurf:::FreesurferSurfaceGeometryMetaInfo(desc, header)
+
+  expect_s4_class(meta, "FreesurferSurfaceGeometryMetaInfo")
+})
+
+test_that("write_surf_data creates correctly formatted output", {
+  # Test that indices are 0-based in output
+  geom <- example_surface_geometry()
+  idx <- c(1L, 2L, 4L)  # 1-based in R
+  vals <- c(1.5, 2.5, 4.5)
+  surf <- NeuroSurface(geometry = geom, indices = idx, data = vals)
+
+  outstem <- tempfile("surfdata_format")
+  fname <- paste0(outstem, ".1D.dset")
+  on.exit(unlink(fname), add = TRUE)
+
+  write_surf_data(surf, outstem = outstem, hemi = "")
+  tab <- read.table(fname, header = FALSE)
+
+  # Indices in file should be 0-based (0, 1, 3)
+  expect_equal(tab[, 1], c(0, 1, 3))
+  expect_equal(tab[, 2], vals)
+})
+
+
+# Tests for NIML parsing ---------------------------------------------------
+
+test_that(".parse_niml_element parses simple element", {
+  result <- neurosurf:::.parse_niml_element("SPARSE_DATA")
+  expect_equal(result$label, "SPARSE_DATA")
+  expect_null(result$attr)
+})
+
+test_that(".parse_niml_element parses element with attributes", {
+  result <- neurosurf:::.parse_niml_element("SPARSE_DATA ni_type=float ni_dimen=100")
+  expect_equal(result$label, "SPARSE_DATA")
+  expect_equal(result$attr$ni_type, "float")
+  expect_equal(result$attr$ni_dimen, "100")
+})
+
+test_that(".parse_niml_element handles empty input", {
+  result <- neurosurf:::.parse_niml_element("")
+  expect_null(result$label)
+  expect_null(result$attr)
+})
+
+
+# Tests for SurfaceGeometry transforms -------------------------------------
+
+test_that("SurfaceGeometry has identity surf_to_world by default", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  geom <- read_surf_geometry(surf_file)
+
+  # Check surf_to_world is a 4x4 identity matrix by default
+  xform <- surf_to_world(geom)
+  expect_true(is.matrix(xform))
+  expect_equal(dim(xform), c(4, 4))
+  expect_equal(xform, diag(4))
+})
+
+test_that("surf_to_world setter works", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  geom <- read_surf_geometry(surf_file)
+
+  # Set a custom transform
+  new_xform <- matrix(c(1, 0, 0, 0,
+                        0, 1, 0, 0,
+                        0, 0, 1, 0,
+                        10, 20, 30, 1), nrow = 4, byrow = TRUE)
+  surf_to_world(geom) <- new_xform
+
+  expect_equal(surf_to_world(geom), new_xform)
+})
+
+
+# Tests for show methods ---------------------------------------------------
+
+test_that("show method works for SurfaceGeometryMetaInfo", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  desc <- neurosurf:::findSurfaceDescriptor(surf_file)
+  header <- neurosurf:::readFreesurferAsciiHeader(surf_file)
+  meta <- neurosurf:::FreesurferSurfaceGeometryMetaInfo(desc, header)
+
+  output <- capture.output(show(meta))
+  expect_true(length(output) > 0)
+  expect_true(any(grepl("vertices", output)))
+  expect_true(any(grepl("faces", output)))
+})
+
+
+# Tests for loadFSSurface --------------------------------------------------
+
+test_that("loadFSSurface loads FreeSurfer ASCII surface", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  desc <- neurosurf:::findSurfaceDescriptor(surf_file)
+  header <- neurosurf:::readFreesurferAsciiHeader(surf_file)
+  meta <- neurosurf:::FreesurferSurfaceGeometryMetaInfo(desc, header)
+
+  geom <- loadFSSurface(meta)
+
+  expect_s4_class(geom, "SurfaceGeometry")
+  expect_equal(nrow(vertices(geom)), 642)
+})
+
+test_that("loadFSSurface rejects invalid surf_to_world", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  desc <- neurosurf:::findSurfaceDescriptor(surf_file)
+  header <- neurosurf:::readFreesurferAsciiHeader(surf_file)
+  meta <- neurosurf:::FreesurferSurfaceGeometryMetaInfo(desc, header)
+
+  # Wrong dimensions
+  bad_xform <- matrix(1:9, nrow = 3, ncol = 3)
+
+  expect_error(
+    loadFSSurface(meta, surf_to_world = bad_xform),
+    "4x4 matrix"
+  )
+})
+
+
+# Tests for reading different surface types --------------------------------
+
+test_that("all std.8 surface types can be read", {
+  surf_types <- c("smoothwm", "pial", "inflated", "white", "sphere")
+
+  for (surf_type in surf_types) {
+    surf_file <- system.file("extdata", paste0("std.8_lh.", surf_type, ".asc"),
+                             package = "neurosurf")
+    if (surf_file != "" && file.exists(surf_file)) {
+      geom <- read_surf_geometry(surf_file)
+      expect_s4_class(geom, "SurfaceGeometry")
+      expect_equal(nrow(vertices(geom)), 642)
+    }
+  }
+})
+
+
+# Tests for write_surf_data edge cases -------------------------------------
+
+test_that("write_surf_data rejects invalid input", {
+  expect_error(
+    write_surf_data("not_a_surface", "output"),
+    "inherit"
+  )
+})
+
+test_that("write_surf_data handles empty hemi string", {
+  geom <- example_surface_geometry()
+  idx <- c(1L, 2L)
+  vals <- c(1.0, 2.0)
+  surf <- NeuroSurface(geometry = geom, indices = idx, data = vals)
+
+  outstem <- tempfile("surfdata_nohemi")
+  fname <- paste0(outstem, ".1D.dset")
+  on.exit(unlink(fname), add = TRUE)
+
+  write_surf_data(surf, outstem = outstem, hemi = "")
+
+  expect_true(file.exists(fname))
+})
+
+
+# Tests for example_surface_geometry --------------------------------------
+
+test_that("example_surface_geometry returns valid geometry", {
+  geom <- example_surface_geometry()
+
+  expect_s4_class(geom, "SurfaceGeometry")
+  expect_gt(nrow(vertices(geom)), 0)
+  expect_gt(nrow(faces(geom)), 0)
+  expect_s3_class(graph(geom), "igraph")
+})
+
+
+# Tests for load_data methods ----------------------------------------------
+
+test_that("load_data on FreesurferSurfaceGeometryMetaInfo returns SurfaceGeometry", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  desc <- neurosurf:::findSurfaceDescriptor(surf_file)
+  header <- neurosurf:::readFreesurferAsciiHeader(surf_file)
+  meta <- neurosurf:::FreesurferSurfaceGeometryMetaInfo(desc, header)
+
+  geom <- load_data(meta)
+
+  expect_s4_class(geom, "SurfaceGeometry")
+})

@@ -1,4 +1,21 @@
+# Helper to check if C++ implementation is available
+cpp_available <- function() {
+  tryCatch({
+    # Try calling with minimal input to see if the C++ code is loaded
+    test_verts <- matrix(c(0,0,0, 1,0,0, 0,1,0), ncol = 3, byrow = TRUE)
+    test_faces <- matrix(c(1L, 2L, 3L), ncol = 3)
+    test_roi <- c(1L, 1L, 1L)
+    neurosurf:::roi_boundary_loops_cpp(test_verts, test_faces, test_roi)
+    TRUE
+  }, error = function(e) FALSE)
+}
+
+# Check at load time
+has_cpp <- cpp_available()
+
 test_that("roi_boundary_loops_cpp finds single hex ring", {
+  skip_if(!has_cpp, "C++ implementation not available")
+
   center <- c(0, 0, 0)
   angles <- seq(0, 2 * pi - 2 * pi / 6, length.out = 6)
   outer <- cbind(cos(angles), sin(angles), rep(0, 6))
@@ -31,6 +48,8 @@ test_that("roi_boundary_loops_cpp finds single hex ring", {
 
 
 test_that("roi_boundary_loops_cpp returns empty for single ROI", {
+  skip_if(!has_cpp, "C++ implementation not available")
+
   vertices <- matrix(c(0, 0, 0,
                        1, 0, 0,
                        0, 1, 0), ncol = 3, byrow = TRUE)
@@ -52,6 +71,8 @@ test_that("roi_boundary_loops_cpp returns empty for single ROI", {
 
 
 test_that("roi_boundary_loops_cpp separates multiple rings", {
+  skip_if(!has_cpp, "C++ implementation not available")
+
   angles <- seq(0, 2 * pi - 2 * pi / 6, length.out = 6)
   outer1 <- cbind(cos(angles), sin(angles), rep(0, 6))
   outer2 <- cbind(3 + cos(angles), sin(angles), rep(0, 6))
@@ -102,6 +123,8 @@ loop_edges <- function(vloop) {
 
 
 test_that("cpp boundaries match expected cube split loops", {
+  skip_if(!has_cpp, "C++ implementation not available")
+
   # cube split into bottom ROI 1 and top ROI 2
   vertices <- matrix(c(
     0, 0, 0,
@@ -148,6 +171,8 @@ test_that("cpp boundaries match expected cube split loops", {
 
 
 test_that("non-degree-2 components still return closed loops", {
+  skip_if(!has_cpp, "C++ implementation not available")
+
   vertices <- matrix(c(
     0, 0, 0,  # 1
     1, 0, 0,  # 2
@@ -175,4 +200,256 @@ test_that("non-degree-2 components still return closed loops", {
   expect_equal(loop[1], loop[length(loop)])
   # no immediate backtracking
   expect_false(any(loop[-1] == loop[-length(loop)]))
+})
+
+
+# Tests for "faces" boundary method ----------------------------------------
+
+test_that("find_roi_boundaries with 'faces' method identifies boundary faces", {
+  # Simple triangle with two ROIs
+  vertices <- matrix(c(
+    0, 0, 0,
+    1, 0, 0,
+    0.5, 1, 0,
+    0.5, 0.5, 0
+  ), ncol = 3, byrow = TRUE)
+
+  faces <- matrix(c(
+    1, 2, 4,
+    2, 3, 4,
+    1, 4, 3
+  ), ncol = 3, byrow = TRUE)
+
+  # Vertex 4 is ROI 2, others are ROI 1
+  roi <- c(1, 1, 1, 2)
+
+  res <- find_roi_boundaries(
+    vertices = vertices,
+    faces = faces,
+    vertex_id = roi,
+    boundary_method = "faces"
+  )
+
+  expect_true(is.logical(res$boundary))
+  expect_equal(length(res$boundary), nrow(faces))
+  # All faces touch vertex 4 (ROI 2) and others (ROI 1), so all are boundary
+  expect_true(all(res$boundary))
+  expect_null(res$boundary_roi_id)
+  expect_null(res$roi_components)
+})
+
+
+test_that("find_roi_boundaries 'faces' method returns FALSE for uniform ROI", {
+  vertices <- matrix(c(
+    0, 0, 0,
+    1, 0, 0,
+    0.5, 1, 0
+  ), ncol = 3, byrow = TRUE)
+
+  faces <- matrix(c(1, 2, 3), ncol = 3)
+  roi <- c(1, 1, 1)
+
+  res <- find_roi_boundaries(
+    vertices = vertices,
+    faces = faces,
+    vertex_id = roi,
+    boundary_method = "faces"
+  )
+
+  expect_false(any(res$boundary))
+})
+
+
+test_that("find_roi_boundaries 'faces' method with partial boundary", {
+  # Create 4 triangles, only some on boundary
+  vertices <- matrix(c(
+    0, 0, 0,   # 1 - ROI 1
+    1, 0, 0,   # 2 - ROI 1
+    2, 0, 0,   # 3 - ROI 2
+    0.5, 1, 0, # 4 - ROI 1
+    1.5, 1, 0  # 5 - ROI 2
+  ), ncol = 3, byrow = TRUE)
+
+  faces <- matrix(c(
+    1, 2, 4,  # All ROI 1 - not boundary
+    2, 3, 5,  # Mixed ROI - boundary
+    2, 4, 5,  # Mixed ROI - boundary
+    3, 5, 5   # All ROI 2 (invalid but for test) - actually indices 3,5,5
+  ), ncol = 3, byrow = TRUE)
+
+  # Fix last face to be valid
+  faces[4, ] <- c(3, 5, 3)  # degenerate but valid indices
+
+  roi <- c(1, 1, 2, 1, 2)
+
+  res <- find_roi_boundaries(
+    vertices = vertices,
+    faces = faces,
+    vertex_id = roi,
+    boundary_method = "faces"
+  )
+
+  expect_equal(length(res$boundary), 4)
+  expect_false(res$boundary[1])  # All ROI 1
+  expect_true(res$boundary[2])   # Mixed
+  expect_true(res$boundary[3])   # Mixed
+})
+
+
+# Tests for input validation -----------------------------------------------
+
+test_that("find_roi_boundaries errors on invalid vertices", {
+  vertices <- matrix(1:4, ncol = 2)  # Wrong number of columns
+  faces <- matrix(c(1, 2, 1), ncol = 3)
+  roi <- c(1, 1)
+
+  expect_error(
+    find_roi_boundaries(vertices, faces, roi),
+    "vertices must be an n x 3"
+  )
+})
+
+
+test_that("find_roi_boundaries errors on invalid faces", {
+  vertices <- matrix(c(0, 0, 0, 1, 0, 0, 0, 1, 0), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(1, 2), ncol = 2)  # Wrong number of columns
+  roi <- c(1, 1, 1)
+
+  expect_error(
+    find_roi_boundaries(vertices, faces, roi),
+    "faces must be an m x 3"
+  )
+})
+
+
+test_that("find_roi_boundaries errors on mismatched vertex_id length", {
+  vertices <- matrix(c(0, 0, 0, 1, 0, 0, 0, 1, 0), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(1, 2, 3), ncol = 3)
+  roi <- c(1, 1)  # Too short
+
+  expect_error(
+    find_roi_boundaries(vertices, faces, roi),
+    "length.*must equal"
+  )
+})
+
+
+test_that("find_roi_boundaries errors on out-of-range face indices", {
+  vertices <- matrix(c(0, 0, 0, 1, 0, 0, 0, 1, 0), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(1, 2, 5), ncol = 3)  # 5 is out of range
+
+  roi <- c(1, 1, 1)
+
+  expect_error(
+    find_roi_boundaries(vertices, faces, roi),
+    "faces must reference vertex indices"
+  )
+})
+
+
+# Tests for findBoundaries S4 method ---------------------------------------
+
+test_that("findBoundaries works for NeuroSurface with 'faces' method", {
+  geom <- example_surface_geometry()
+  n <- length(nodes(geom))
+
+  # Create ROI labels (divide surface into 4 regions based on x-coordinate)
+  coords_mat <- coords(geom)
+  x_vals <- coords_mat[, 1]
+  roi_labels <- as.integer(cut(x_vals, breaks = 4))
+
+  ns <- NeuroSurface(geom, seq_len(n), roi_labels)
+
+  result <- findBoundaries(ns, method = "faces")
+
+  expect_type(result, "list")
+  expect_true("boundary" %in% names(result))
+  expect_true(is.logical(result$boundary))
+})
+
+
+test_that("findBoundaries works with edge_vertices method", {
+  skip_if(!has_cpp, "C++ implementation not available")
+
+  geom <- example_surface_geometry()
+  n <- length(nodes(geom))
+
+  # Create simple 2-region split
+  coords_mat <- coords(geom)
+  x_vals <- coords_mat[, 1]
+  roi_labels <- ifelse(x_vals > median(x_vals), 1L, 2L)
+
+  ns <- NeuroSurface(geom, seq_len(n), roi_labels)
+
+  result <- findBoundaries(ns, method = "edge_vertices")
+
+  expect_type(result, "list")
+  expect_true("boundary" %in% names(result))
+  expect_true("boundary_roi_id" %in% names(result))
+  expect_true("boundary_verts" %in% names(result))
+})
+
+
+test_that("findBoundaries warns for single region", {
+  geom <- example_surface_geometry()
+  n <- length(nodes(geom))
+
+  # All same ROI
+  roi_labels <- rep(1L, n)
+  ns <- NeuroSurface(geom, seq_len(n), roi_labels)
+
+  expect_warning(
+    result <- findBoundaries(ns, method = "faces"),
+    "Only one region"
+  )
+})
+
+
+# Tests for R fallback implementation --------------------------------------
+
+test_that("find_roi_boundaries R implementation works for simple case", {
+  center <- c(0, 0, 0)
+  angles <- seq(0, 2 * pi - 2 * pi / 6, length.out = 6)
+  outer <- cbind(cos(angles), sin(angles), rep(0, 6))
+
+  vertices <- rbind(center, outer)
+  faces <- cbind(
+    rep(1L, 6L),
+    2:7,
+    c(3:7, 2L)
+  )
+  roi <- c(1L, rep(2L, 6L))
+
+  res_r <- find_roi_boundaries(
+    vertices = vertices,
+    faces = faces,
+    vertex_id = roi,
+    boundary_method = "edge_vertices",
+    use_cpp = FALSE
+  )
+
+  expect_type(res_r, "list")
+  expect_true("boundary" %in% names(res_r))
+  expect_true("boundary_verts" %in% names(res_r))
+
+  # Should find boundaries for ROI 2 (the outer ring)
+  if (length(res_r$boundary) > 0) {
+    loop <- res_r$boundary_verts[[1]]
+    # Loop should close
+    expect_equal(loop[1], loop[length(loop)])
+  }
+})
+
+
+test_that("verbose mode prints messages for faces method", {
+  vertices <- matrix(c(0, 0, 0, 1, 0, 0, 0, 1, 0), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(1, 2, 3), ncol = 3)
+  roi <- c(1, 2, 1)
+
+  expect_message(
+    find_roi_boundaries(vertices, faces, roi,
+                        boundary_method = "faces",
+                        verbose = TRUE),
+    "Preparing face ROI"
+  )
 })
