@@ -112,15 +112,12 @@ readGIFTIGZHeader <- function(file_name) {
 #' @noRd
 #' @keywords internal
 readFreesurferAsciiHeader <- function(file_name) {
-  has_hemi <- grep(".*\\.[lr]h\\..*", file_name)
-  hemi <- if (length(has_hemi) > 0) {
-    if (length(grep(".*\\.lh\\..*", file_name))>0) {
-      "lh"
-    } else if (length(grep(".*\\.rh\\..*", file_name)) > 0) {
-      "rh"
-    } else {
-      "unknown"
-    }
+  # Match .lh. or _lh. or _lh_ patterns (same as GIFTI)
+  bn <- basename(file_name)
+  hemi <- if (grepl("\\.lh\\.|_lh[._]|^lh\\.", bn)) {
+    "lh"
+  } else if (grepl("\\.rh\\.|_rh[._]|^rh\\.", bn)) {
+    "rh"
   } else {
     "unknown"
   }

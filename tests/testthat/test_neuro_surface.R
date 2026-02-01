@@ -14,14 +14,16 @@ test_that("NeuroSurface constructor works correctly", {
 test_that("NeuroSurface works with subset of indices", {
   geom <- example_surface_geometry()
   n_verts <- nrow(coords(geom))
-  subset_indices <- sample(seq_len(n_verts), 100)
-  data <- rnorm(100)
+  # Use smaller subset that fits the example geometry
+  subset_size <- min(3, n_verts)
+  subset_indices <- sample(seq_len(n_verts), subset_size)
+  data <- rnorm(subset_size)
 
   ns <- NeuroSurface(geom, subset_indices, data)
 
   expect_s4_class(ns, "NeuroSurface")
-  expect_equal(length(ns@indices), 100)
-  expect_equal(length(ns@data), 100)
+  expect_equal(length(ns@indices), subset_size)
+  expect_equal(length(ns@data), subset_size)
 })
 
 test_that("NeuroSurface coords method works", {
@@ -186,11 +188,12 @@ test_that("NeuroSurfaceVector series method works with numeric indices", {
   mat <- matrix(rnorm(n_verts * n_cols), nrow = n_verts, ncol = n_cols)
   nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
 
-  # Extract series for a few vertices
-  ser <- series(nsv, c(1, 5, 10))
+  # Extract series for valid vertices
+  valid_indices <- seq_len(min(3, n_verts))
+  ser <- series(nsv, valid_indices)
   expect_true(is.matrix(ser) || inherits(ser, "Matrix"))
-  expect_equal(ncol(ser), 3)  # 3 vertices
-  expect_equal(nrow(ser), n_cols)  # 10 time points
+  expect_equal(ncol(ser), length(valid_indices))
+  expect_equal(nrow(ser), n_cols)
 })
 
 test_that("NeuroSurfaceVector series method works with integer indices", {
@@ -200,8 +203,9 @@ test_that("NeuroSurfaceVector series method works with integer indices", {
   mat <- matrix(rnorm(n_verts * n_cols), nrow = n_verts, ncol = n_cols)
   nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
 
-  # Extract series for a few vertices
-  ser <- series(nsv, as.integer(c(1, 5, 10)))
+  # Extract series for valid vertices
+  valid_indices <- as.integer(seq_len(min(3, n_verts)))
+  ser <- series(nsv, valid_indices)
   expect_true(is.matrix(ser) || inherits(ser, "Matrix"))
 })
 
@@ -223,7 +227,11 @@ test_that("ColorMappedNeuroSurface constructor works", {
 })
 
 test_that("conn_comp works on NeuroSurface", {
-  geom <- example_surface_geometry()
+  # Use the std.8 surface for proper neighborhood testing
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  geom <- read_surf_geometry(surf_file)
   n_verts <- nrow(coords(geom))
   indices <- seq_len(n_verts)
 
@@ -251,7 +259,11 @@ test_that("conn_comp works on NeuroSurface", {
 })
 
 test_that("cluster_threshold works on NeuroSurface", {
-  geom <- example_surface_geometry()
+  # Use the std.8 surface for proper neighborhood testing
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  geom <- read_surf_geometry(surf_file)
   n_verts <- nrow(coords(geom))
   indices <- seq_len(n_verts)
 
@@ -273,7 +285,11 @@ test_that("cluster_threshold works on NeuroSurface", {
 })
 
 test_that("conn_comp works on NeuroSurfaceVector", {
-  geom <- example_surface_geometry()
+  # Use the std.8 surface for proper neighborhood testing
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  geom <- read_surf_geometry(surf_file)
   n_verts <- nrow(coords(geom))
   n_cols <- 5
 
@@ -296,7 +312,11 @@ test_that("conn_comp works on NeuroSurfaceVector", {
 })
 
 test_that("cluster_threshold works on NeuroSurfaceVector", {
-  geom <- example_surface_geometry()
+  # Use the std.8 surface for proper neighborhood testing
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  geom <- read_surf_geometry(surf_file)
   n_verts <- nrow(coords(geom))
   n_cols <- 5
 
