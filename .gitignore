@@ -17,3 +17,13 @@ inst/extdata/*.niml.dset
 inst/extdata/*.BRIK*
 inst/extdata/Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii
 inst/extdata/rscan01_lh.gii
+
+# Build artifacts
+*.o
+*.so
+*.gcda
+*.gcno
+*.Rcheck/
+Rplots.pdf
+tests/testthat/Rplots.pdf
+Rd2.pdf

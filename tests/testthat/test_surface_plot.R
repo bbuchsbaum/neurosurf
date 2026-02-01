@@ -433,7 +433,9 @@ test_that(".ns_split_vector_data handles matrix input", {
 
 # Tests for show_surface_plot
 test_that("show_surface_plot creates plot object", {
-  skip_if_not(interactive() || rgl::rgl.useNULL(), "Requires RGL device")
+  skip_if_not(interactive(), "Requires interactive session for RGL rendering")
+  skip_on_cran()
+
   geom <- example_surface_geometry()
   n <- nrow(coords(geom))
 

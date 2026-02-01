@@ -653,3 +653,147 @@ test_that("load_fsaverage_bundle returns SurfaceSet objects", {
   expect_s4_class(bundle$lh, "SurfaceSet")
   expect_s4_class(bundle$rh, "SurfaceSet")
 })
+
+
+# Tests for .readHeader internal function ----------------------------------
+
+test_that(".readHeader works with valid surface file", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  header <- neurosurf:::.readHeader(surf_file)
+
+  expect_s4_class(header, "FreesurferSurfaceGeometryMetaInfo")
+})
+
+test_that(".readHeader errors on invalid file", {
+  expect_error(
+    neurosurf:::.readHeader("nonexistent_file.xyz"),
+    "could not find reader"
+  )
+})
+
+
+# Tests for meshToGraph ----------------------------------------------------
+
+test_that("meshToGraph creates valid graph", {
+  # Create a simple triangle mesh
+  vertices <- matrix(c(0, 0, 0,
+                       1, 0, 0,
+                       0, 1, 0,
+                       1, 1, 0), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(1, 2, 3,
+                    2, 4, 3), ncol = 3, byrow = TRUE)
+
+  g <- neurosurf:::meshToGraph(vertices, faces)
+
+  expect_s3_class(g, "igraph")
+  expect_equal(igraph::vcount(g), 4)
+  # Each triangle has 3 edges, 2 triangles share 1 edge = 5 edges
+  expect_equal(igraph::ecount(g), 5)
+})
+
+
+# Tests for file descriptor matching ---------------------------------------
+
+test_that("NIML descriptor matches .niml.dset files", {
+  desc <- neurosurf:::findSurfaceDescriptor("test.niml.dset")
+  expect_s4_class(desc, "NIMLSurfaceFileDescriptor")
+})
+
+test_that("AFNI descriptor matches .1D.dset files", {
+  desc <- neurosurf:::findSurfaceDescriptor("test.1D.dset")
+  expect_s4_class(desc, "AFNISurfaceFileDescriptor")
+})
+
+test_that("GIFTI descriptor matches .gii files", {
+  desc <- neurosurf:::findSurfaceDescriptor("test.gii")
+  expect_s4_class(desc, "GIFTISurfaceFileDescriptor")
+})
+
+test_that("GIFTI descriptor matches .gii.gz files", {
+  desc <- neurosurf:::findSurfaceDescriptor("test.gii.gz")
+  expect_s4_class(desc, "GIFTISurfaceFileDescriptor")
+})
+
+test_that("FreeSurfer binary descriptor is default fallback", {
+  desc <- neurosurf:::findSurfaceDescriptor("lh.pial")
+  expect_s4_class(desc, "FreesurferBinarySurfaceFileDescriptor")
+})
+
+
+# Tests for extract_gifti_transform ----------------------------------------
+
+test_that(".extract_gifti_transform returns identity for missing transform", {
+  # Create mock gifti object without transform
+  mock_gii <- list(data_info = NULL)
+
+  xform <- neurosurf:::.extract_gifti_transform(mock_gii)
+
+  expect_equal(xform, diag(4))
+})
+
+
+# Tests for coords method --------------------------------------------------
+
+test_that("coords returns correct coordinate matrix", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  geom <- read_surf_geometry(surf_file)
+  crds <- coords(geom)
+
+  expect_true(is.matrix(crds))
+  expect_equal(ncol(crds), 3)
+  expect_equal(nrow(crds), 642)
+})
+
+
+# Tests for nodes method ---------------------------------------------------
+
+test_that("nodes returns correct node sequence", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "std.8 surface not available")
+
+  geom <- read_surf_geometry(surf_file)
+  n <- nodes(geom)
+
+  expect_equal(n, 1:642)
+})
+
+
+# Tests for is_surface_like ------------------------------------------------
+
+test_that("is_surface_like returns TRUE for SurfaceGeometry", {
+  geom <- example_surface_geometry()
+  expect_true(is_surface_like(geom))
+})
+
+test_that("is_surface_like returns FALSE for non-surface objects", {
+  expect_false(is_surface_like("not a surface"))
+  expect_false(is_surface_like(42))
+  expect_false(is_surface_like(list(a = 1)))
+})
+
+
+# Tests for write and read roundtrip ---------------------------------------
+
+test_that("write_surf_data and read roundtrip preserves data", {
+  geom <- example_surface_geometry()
+  n <- length(nodes(geom))
+  idx <- seq_len(min(100, n))
+  vals <- rnorm(length(idx))
+  surf <- NeuroSurface(geometry = geom, indices = idx, data = vals)
+
+  outstem <- tempfile("roundtrip")
+  fname <- paste0(outstem, ".1D.dset")
+  on.exit(unlink(fname), add = TRUE)
+
+  write_surf_data(surf, outstem = outstem, hemi = "")
+
+  # Read back and verify
+  tab <- read.table(fname, header = FALSE)
+  expect_equal(nrow(tab), length(idx))
+  expect_equal(tab[, 1], idx - 1)  # 0-indexed
+  expect_equal(tab[, 2], vals, tolerance = 1e-6)
+})

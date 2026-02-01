@@ -358,3 +358,226 @@ test_that("NeuroSurfaceVector vertices method works", {
   expect_true(is.matrix(v))
   expect_equal(ncol(v), 3)
 })
+
+# Additional tests for neuro_surface.R coverage
+
+test_that("VertexColoredNeuroSurface constructor works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  indices <- seq_len(n_verts)
+  colors <- rep("#FF0000", n_verts)
+
+  vcns <- VertexColoredNeuroSurface(geom, indices, colors)
+
+  expect_s4_class(vcns, "VertexColoredNeuroSurface")
+  expect_equal(vcns@colors, colors)
+})
+
+test_that("VertexColoredNeuroSurface uses default data when not provided", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  indices <- seq_len(n_verts)
+  colors <- rep("#00FF00", n_verts)
+
+  vcns <- VertexColoredNeuroSurface(geom, indices, colors)
+
+  expect_equal(vcns@data, rep(0, n_verts))
+})
+
+test_that("VertexColoredNeuroSurface accepts custom data", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  indices <- seq_len(n_verts)
+  colors <- rep("#0000FF", n_verts)
+  data <- rnorm(n_verts)
+
+  vcns <- VertexColoredNeuroSurface(geom, indices, colors, data = data)
+
+  expect_equal(vcns@data, data)
+})
+
+test_that("map_values with matrix lookup works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  indices <- seq_len(n_verts)
+  data <- c(1, 2, 3, 4)
+
+  ns <- NeuroSurface(geom, indices, data)
+
+  # Matrix: col1=key, col2=value
+  lookup <- matrix(c(1, 10, 2, 20, 3, 30, 4, 40), ncol = 2, byrow = TRUE)
+  mapped <- map_values(ns, lookup)
+
+  expect_s4_class(mapped, "NeuroSurface")
+  expect_equal(as.vector(mapped), c(10, 20, 30, 40))
+})
+
+test_that("map_values matrix lookup validates columns", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  ns <- NeuroSurface(geom, seq_len(n_verts), rnorm(n_verts))
+
+  # Matrix with wrong number of columns
+  bad_lookup <- matrix(1:9, ncol = 3)
+
+  expect_error(map_values(ns, bad_lookup), "two columns")
+})
+
+test_that("map_values matrix lookup validates rows", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  ns <- NeuroSurface(geom, seq_len(n_verts), rnorm(n_verts))
+
+  # Empty matrix
+  empty_lookup <- matrix(numeric(0), ncol = 2)
+
+  expect_error(map_values(ns, empty_lookup), "at least one row")
+})
+
+test_that("series_roi with numeric indices works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  n_cols <- 5
+  mat <- matrix(rnorm(n_verts * n_cols), nrow = n_verts, ncol = n_cols)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
+
+  roi_indices <- c(1L, 2L)
+  roi_vec <- series_roi(nsv, roi_indices)
+
+  expect_s4_class(roi_vec, "ROISurfaceVector")
+  expect_equal(length(indices(roi_vec)), 2)
+})
+
+test_that("series_roi with ROISurface works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  n_cols <- 5
+  mat <- matrix(rnorm(n_verts * n_cols), nrow = n_verts, ncol = n_cols)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
+
+  # Create an ROISurface
+  roi <- ROISurface(geom, indices = c(1L, 2L), data = c(1, 1))
+
+  roi_vec <- series_roi(nsv, roi)
+
+  expect_s4_class(roi_vec, "ROISurfaceVector")
+})
+
+test_that("series with ROISurface works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  n_cols <- 5
+  mat <- matrix(rnorm(n_verts * n_cols), nrow = n_verts, ncol = n_cols)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
+
+  roi <- ROISurface(geom, indices = c(1L, 2L), data = c(1, 1))
+
+  ser <- series(nsv, roi)
+
+  expect_true(is.matrix(ser) || inherits(ser, "Matrix"))
+  expect_equal(ncol(ser), 2)
+})
+
+test_that("series method works on NeuroSurface", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  data <- rnorm(n_verts)
+  ns <- NeuroSurface(geom, seq_len(n_verts), data)
+
+  ser <- series(ns, c(1, 2))
+
+  expect_true(is.matrix(ser) || inherits(ser, "Matrix"))
+})
+
+test_that("NeuroSurfaceVector [[ extraction works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  n_cols <- 5
+  mat <- matrix(rnorm(n_verts * n_cols), nrow = n_verts, ncol = n_cols)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
+
+  col1 <- nsv[[1]]
+
+  expect_equal(length(col1), n_verts)
+})
+
+test_that("NeuroSurfaceVector [i,j] subsetting works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  n_cols <- 5
+  mat <- matrix(rnorm(n_verts * n_cols), nrow = n_verts, ncol = n_cols)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
+
+  subset <- nsv[1:2, 1:3]
+
+  expect_equal(dim(subset), c(2, 3))
+})
+
+test_that("NeuroSurfaceVector [,j] column subsetting works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  n_cols <- 5
+  mat <- matrix(rnorm(n_verts * n_cols), nrow = n_verts, ncol = n_cols)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
+
+  cols <- nsv[, 1:2]
+
+  expect_equal(ncol(cols), 2)
+})
+
+test_that("NeuroSurfaceVector [i,] row subsetting works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  n_cols <- 5
+  mat <- matrix(rnorm(n_verts * n_cols), nrow = n_verts, ncol = n_cols)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
+
+  rows <- nsv[1:2, ]
+
+  expect_equal(nrow(rows), 2)
+})
+
+test_that("NeuroSurfaceVector [,] full extraction works", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  n_cols <- 5
+  mat <- matrix(rnorm(n_verts * n_cols), nrow = n_verts, ncol = n_cols)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
+
+  full <- nsv[, ]
+
+  expect_equal(dim(full), c(n_verts, n_cols))
+})
+
+test_that("show method works for NeuroSurface", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  ns <- NeuroSurface(geom, seq_len(n_verts), rnorm(n_verts))
+
+  output <- capture.output(show(ns))
+
+  expect_true(length(output) > 0)
+  expect_true(any(grepl("NeuroSurface", output)))
+})
+
+test_that("show method works for NeuroSurfaceVector", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  mat <- matrix(rnorm(n_verts * 5), nrow = n_verts, ncol = 5)
+  nsv <- NeuroSurfaceVector(geom, seq_len(n_verts), mat)
+
+  output <- capture.output(show(nsv))
+
+  expect_true(length(output) > 0)
+  expect_true(any(grepl("NeuroSurfaceVector", output)))
+})
+
+test_that("show method for NeuroSurface handles empty data", {
+  geom <- example_surface_geometry()
+
+  # Create with no indices/data
+  ns <- NeuroSurface(geom, integer(0), numeric(0))
+
+  # Should not error
+  expect_no_error(capture.output(show(ns)))
+})
