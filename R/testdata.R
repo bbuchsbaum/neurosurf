@@ -10,6 +10,8 @@
 #'     \item \code{"rscan01_lh.gii"} - GIFTI surface file (30 MB)
 #'     \item \code{"rscan01_lh.niml.dset"} - NIML surface dataset (22 MB)
 #'     \item \code{"rscan01_rh.niml.dset"} - NIML surface dataset (22 MB)
+#'     \item \code{"Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii"} - Schaefer atlas (28 MB)
+#'     \item \code{"fsaverage_SurfVol+orig.BRIK.gz"} - AFNI volume (5 MB)
 #'   }
 #' @param destdir Destination directory. Defaults to \code{extdata} within the
 #'   installed package location. If the package location is not writable,
@@ -46,7 +48,9 @@ neurosurf_download_testdata <- function(
   available_files <- c(
     "rscan01_lh.gii",
     "rscan01_lh.niml.dset",
-    "rscan01_rh.niml.dset"
+    "rscan01_rh.niml.dset",
+    "Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii",
+    "fsaverage_SurfVol+orig.BRIK.gz"
   )
 
 
