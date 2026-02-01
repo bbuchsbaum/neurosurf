@@ -3,8 +3,10 @@ title: Interactive Surface Visualization with surfwidget
 author: Bradley Buchsbaum
 date: '`r Sys.Date()`'
 output: rmarkdown::html_vignette
-vignette: '%\VignetteIndexEntry{Interactive Surface Visualization with surfwidget}
-  %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}'
+vignette: >
+  %\VignetteIndexEntry{Interactive Surface Visualization with surfwidget}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 params:
   family: red
 css: albers.css
@@ -24,6 +26,13 @@ multi-view, publication-style figures with shared colourbars and atlas
 outlines, see *Surfplot-style Figures with neurosurf*.
 
 ```{r setup, include = FALSE}
+# Check for required packages - skip vignette build if rgl unavailable
+has_rgl <- requireNamespace("rgl", quietly = TRUE)
+if (!has_rgl) {
+  knitr::opts_chunk$set(eval = FALSE)
+  message("Skipping vignette: rgl package not available")
+}
+
 if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(params$family))
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -36,14 +45,16 @@ knitr::opts_chunk$set(
 library(htmlwidgets)
 library(neurosurf)
 
-# Load example data
-white_lh_asc <- system.file("extdata", "std.8_lh.smoothwm.asc", package="neurosurf")
-white_lh <- read_surf(white_lh_asc)
-white_lh_smooth <- smooth(white_lh, type="HCLaplace", delta=.2, iteration=5)
+if (has_rgl) {
+  # Load example data
+  white_lh_asc <- system.file("extdata", "std.8_lh.smoothwm.asc", package="neurosurf")
+  white_lh <- read_surf(white_lh_asc)
+  white_lh_smooth <- smooth(white_lh, type="HCLaplace", delta=.2, iteration=5)
 
-# Prepare sample data
-set.seed(123)
-random_vals <- rnorm(length(nodes(white_lh_smooth)))
+  # Prepare sample data
+  set.seed(123)
+  random_vals <- rnorm(length(nodes(white_lh_smooth)))
+}
 ```
 
 ## Introduction

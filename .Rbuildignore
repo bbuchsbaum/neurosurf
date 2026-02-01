@@ -30,5 +30,7 @@ testshiny/test_shiny.R
 ^zz\.png$
 ^zz2\.png$
 ^\.claude
+^\.beads$
 ^PySurfer/\\..*
 ^experimental/\\.claude$
+^Rd2\.pdf$
