@@ -362,7 +362,7 @@ setMethod("series", signature(x="NeuroSurface", i="numeric"),
 #' @export
 setMethod("map_values", signature(x="NeuroSurface", lookup="list"),
           def=function(x,lookup) {
-            outv <- lookup[as.vector(x@data)]
+            outv <- unlist(lookup[as.vector(x@data)])
             NeuroSurface(geometry=x@geometry, indices=x@indices, data=outv)
 
           })
