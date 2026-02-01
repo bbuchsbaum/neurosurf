@@ -15,3 +15,9 @@ Character vector of labels
 \description{
 List available surface labels
 }
+\examples{
+geom <- example_surface_geometry()
+ss <- surface_set(inflated = geom, pial = geom)
+surface_labels(ss)
+
+}

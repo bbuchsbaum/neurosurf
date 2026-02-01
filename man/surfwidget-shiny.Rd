@@ -67,6 +67,9 @@ is useful if you want to save an expression in a variable.}
 \value{
 For \code{surfwidgetOutput}, a Shiny UI element for displaying the widget.
   For \code{renderSurfwidget}, a server-side render function.
+  For \code{updateSurfwidgetConfig}, \code{updateIRange}, \code{updateThreshold},
+  \code{updateVertexColors}, \code{updateAlpha}, \code{updateZoom}, and
+  \code{updateRotationSpeed}, the modified widget object (invisibly).
 }
 \description{
 Output and render functions for using surfwidget within Shiny

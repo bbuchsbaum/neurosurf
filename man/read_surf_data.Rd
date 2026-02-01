@@ -21,3 +21,11 @@ an instance of the class \code{\linkS4class{NeuroSurface}} or \code{\linkS4class
 \description{
 load surface data and link to \code{\linkS4class{SurfaceGeometry}}
 }
+\examples{
+\donttest{
+# Load geometry and surface data file
+# geom <- read_surf_geometry("lh.white")
+# surf_data <- read_surf_data(geom, "lh.thickness")
+}
+
+}

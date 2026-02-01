@@ -35,6 +35,13 @@
 #' @importFrom grDevices col2rgb rgb rainbow
 #'
 #' @return An HTMLWidget object
+#'
+#' @examples
+#' \donttest{
+#' geom <- example_surface_geometry()
+#' surfwidget(geom)
+#' }
+#'
 #' @rdname surfwidget-methods
 #' @export
 setMethod("surfwidget", signature(x = "SurfaceGeometry"),
@@ -375,6 +382,11 @@ show_surface_widget <- function(x, data = NULL, ...) {
 #' @param quoted Is \code{expr} a quoted expression (with \code{quote()})? This
 #'   is useful if you want to save an expression in a variable.
 #'
+#' @return For \code{surfwidgetOutput}, a Shiny UI element for displaying the widget.
+#'   For \code{renderSurfwidget}, a server-side render function.
+#'   For \code{updateSurfwidgetConfig}, \code{updateIRange}, \code{updateThreshold},
+#'   \code{updateVertexColors}, \code{updateAlpha}, \code{updateZoom}, and
+#'   \code{updateRotationSpeed}, the modified widget object (invisibly).
 #' @rdname surfwidget-shiny
 #'
 #' @export
@@ -418,6 +430,7 @@ updateSurfwidgetConfig <- function(session, id, config) {
 #' @param widget A surfwidget object as returned by \code{\link{surfwidget}}.
 #' @param colorMap A vector of colors defining the new color map.
 #'
+#' @return The modified surfwidget object (invisibly).
 #' @export
 updateColorMap <- function(widget, colorMap) {
   invoke_widget_method(widget, "setColorMap", colorMap)

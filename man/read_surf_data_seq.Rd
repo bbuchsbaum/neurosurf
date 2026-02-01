@@ -2,7 +2,7 @@
 % Please edit documentation in R/IO.R
 \name{read_surf_data_seq}
 \alias{read_surf_data_seq}
-\title{read_surf_data_seq}
+\title{Read Surface Data Sequence}
 \usage{
 read_surf_data_seq(leftGeometry, rightGeometry, leftDataNames, rightDataNames)
 }
@@ -15,6 +15,9 @@ read_surf_data_seq(leftGeometry, rightGeometry, leftDataNames, rightDataNames)
 
 \item{rightDataNames}{a \code{character} vector indicating names of right-hemisphere surface data files to be mapped to geometry.}
 }
+\value{
+A list of \code{BilatNeuroSurfaceVector} objects, one per pair of data files
+}
 \description{
-load one or more surface datasets for both left and right hemispheres
+Load one or more surface datasets for both left and right hemispheres.
 }

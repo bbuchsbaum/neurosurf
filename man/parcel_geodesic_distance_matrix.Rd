@@ -34,3 +34,11 @@ A numeric matrix with parcel-unit names as dimnames.
 \description{
 Parcel-to-parcel geodesic distances
 }
+\examples{
+\donttest{
+# Requires a LabeledNeuroSurface
+# lsurf <- read_freesurfer_annot("lh.aparc.annot", geom)
+# dmat <- parcel_geodesic_distance_matrix(lsurf)
+}
+
+}

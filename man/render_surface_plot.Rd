@@ -28,6 +28,14 @@ A list containing rendered panel images (with aspect ratios) and
 \description{
 Render a neurosurf plot using rgl
 }
+\examples{
+\donttest{
+geom <- example_surface_geometry()
+p <- surface_plot(geom)
+rendered <- render_surface_plot(p)
+}
+
+}
 \seealso{
 \code{\link{surface_plot}}, \code{\link{add_surface_layer}},
   \code{\link{view_surface}}

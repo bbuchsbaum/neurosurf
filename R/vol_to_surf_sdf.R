@@ -17,6 +17,17 @@
 #' @param ... passed through to \code{vol_to_surf()} (e.g., \code{fun}, \code{knn}, \code{sigma})
 #'
 #' @return A \code{NeuroSurface} with values mapped from \code{vol}
+#'
+#' @examples
+#' \donttest{
+#' # Requires surfaces and volumes in template space
+#' # wm <- read_surf_geometry("lh.white")
+#' # pial <- read_surf_geometry("lh.pial")
+#' # vol <- neuroim2::read_vol("mydata.nii")
+#' # sdf <- neuroim2::read_vol("template_sdf.nii")
+#' # result <- vol_to_surf_sdf(wm, pial, vol, sdf)
+#' }
+#'
 #' @export
 vol_to_surf_sdf <- function(surf_wm,
                             surf_pial,

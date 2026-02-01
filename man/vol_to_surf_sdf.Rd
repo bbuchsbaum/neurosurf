@@ -49,3 +49,14 @@ This wrapper estimates a rigid transform from the input volume to the
 template surface space using a signed distance field (SDF), then reuses
 \code{vol_to_surf()} for the actual sampling in volume space.
 }
+\examples{
+\donttest{
+# Requires surfaces and volumes in template space
+# wm <- read_surf_geometry("lh.white")
+# pial <- read_surf_geometry("lh.pial")
+# vol <- neuroim2::read_vol("mydata.nii")
+# sdf <- neuroim2::read_vol("template_sdf.nii")
+# result <- vol_to_surf_sdf(wm, pial, vol, sdf)
+}
+
+}

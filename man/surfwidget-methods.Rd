@@ -135,6 +135,13 @@ surface data, such as brain surfaces. The specific implementation depends
 on the class of the object provided, allowing for customized behavior
 for different types of surface representations.
 }
+\examples{
+\donttest{
+geom <- example_surface_geometry()
+surfwidget(geom)
+}
+
+}
 \seealso{
 \code{\link{plot_js}}, \code{\link{SurfaceGeometry}}, \code{\link{NeuroSurface}}
 }

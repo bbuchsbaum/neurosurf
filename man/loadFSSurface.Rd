@@ -23,3 +23,11 @@ load Freesurfer ascii surface
 \details{
 requires rgl library
 }
+\examples{
+\donttest{
+# Requires FreeSurfer surface file
+# meta <- read_meta_info(FreesurferAsciiSurfaceFileDescriptor(), "lh.pial.asc")
+# geom <- loadFSSurface(meta)
+}
+
+}

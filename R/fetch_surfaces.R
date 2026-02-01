@@ -76,6 +76,14 @@ load_fsaverage <- function(density = "std.8",
 #'
 #' @return A named list with elements \code{\"lh\"} and \code{\"rh\"}, each a
 #'   \code{\linkS4class{SurfaceSet}} containing the requested variants.
+#'
+#' @examples
+#' \donttest{
+#' bundle <- load_fsaverage_bundle()
+#' lh_set <- bundle$lh
+#' rh_set <- bundle$rh
+#' }
+#'
 #' @export
 load_fsaverage_bundle <- function(density = "std.8",
                                   surfs = c("smoothwm", "pial", "inflated", "white", "sphere"),

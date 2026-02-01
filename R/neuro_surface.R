@@ -786,13 +786,18 @@ setMethod(f="[", signature=signature(x = "NeuroSurfaceVector", i = "numeric", j 
             x@data[i,]
           })
 
-#' extractor
+#' Extract All Data from NeuroSurfaceVector
+#'
+#' @description
+#' Extracts all data from a NeuroSurfaceVector as a matrix.
+#'
 #' @export
 #' @param x the object
 #' @param i first index
 #' @param j second index
 #' @param ... additional args
 #' @param drop dimension
+#' @return A numeric matrix containing all data
 setMethod(f="[", signature=signature(x = "NeuroSurfaceVector", i = "missing", j = "missing", drop="ANY"),
           def=function (x, i, j, ..., drop=TRUE) {
             x@data[,]

@@ -21,6 +21,15 @@ The modified object with the updated transform.
 Sets the 4x4 affine transformation matrix that converts surface coordinates
 to world (scanner RAS) coordinates.
 }
+\examples{
+\donttest{
+surf_file <- system.file("extdata", "std.8_lh.white.asc", package = "neurosurf")
+geom <- read_surf_geometry(surf_file)
+new_xform <- diag(4)
+surf_to_world(geom) <- new_xform
+}
+
+}
 \seealso{
 \code{\link{surf_to_world}}, \code{\link{SurfaceGeometry-class}}
 }

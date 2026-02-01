@@ -561,11 +561,15 @@ view_surface <- function(surfgeom, vals=NA,
        "Provide a SurfaceGeometry, SurfaceSet, or file path.")
 }
 
-#' plot a surface
+#' Plot a Surface
+#'
+#' @description
+#' Renders a surface object using the interactive viewer.
 #'
 #' @rdname plot-methods
 #' @param x the surface to plot
 #' @param ... extra args to send to \code{view_surface}
+#' @return An htmlwidget object for interactive visualization
 #' @export
 #' @importFrom graphics plot
 #' @importFrom grDevices gray
@@ -591,6 +595,12 @@ setMethod("plot", signature=signature(x="SurfaceGeometry", y="missing"),
 #' @param ... Additional arguments passed to \code{\link{view_surface}}.
 #'
 #' @return Invisibly returns the object ID(s) from the RGL scene.
+#' @examples
+#' \donttest{
+#' geom <- example_surface_geometry()
+#' plot(geom)
+#' }
+#'
 #' @method plot SurfaceGeometry
 #' @export
 plot.SurfaceGeometry <- function(x, y, ...) {
@@ -604,6 +614,13 @@ plot.SurfaceGeometry <- function(x, y, ...) {
 #' @param label Optional surface label to display; defaults to the set's default.
 #' @param ... Additional arguments passed to \code{\link{view_surface}}.
 #' @return Invisibly returns the object ID(s) from the RGL scene.
+#' @examples
+#' \donttest{
+#' geom <- example_surface_geometry()
+#' ss <- surface_set(inflated = geom)
+#' plot(ss)
+#' }
+#'
 #' @method plot SurfaceSet
 #' @export
 plot.SurfaceSet <- function(x, y, label = NULL, ...) {

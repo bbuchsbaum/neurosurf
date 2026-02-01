@@ -33,3 +33,8 @@ Numeric vector if one source, otherwise a matrix.
 \description{
 Convenience wrapper returning a numeric vector/matrix.
 }
+\examples{
+geom <- example_surface_geometry()
+d <- geodesic_distances(geom, sources = 1, targets = 2:4)
+
+}

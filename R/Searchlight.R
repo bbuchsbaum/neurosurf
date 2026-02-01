@@ -237,6 +237,7 @@ SurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, distance_type=c
 #'
 #' @param x An object of class "Searchlight"
 #' @param ... Additional arguments (not used)
+#' @return Invisibly returns the Searchlight object (called for side effect).
 #' @method print Searchlight
 #' @export
 #' @importFrom crayon bold blue green red yellow style silver bgBlue white

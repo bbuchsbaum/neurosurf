@@ -339,6 +339,16 @@ vol_to_surf <- function(surf_wm, surf_pial, vol, mask = NULL,
 #'
 #' @return A list with class \code{"surface_sampler"} containing precomputed
 #'   neighbor indices and distances for each vertex.
+#'
+#' @examples
+#' \donttest{
+#' # Requires white and pial surfaces plus a template volume
+#' # wm <- read_surf_geometry("lh.white")
+#' # pial <- read_surf_geometry("lh.pial")
+#' # template_vol <- neuroim2::read_vol("template.nii")
+#' # sampler <- surface_sampler(wm, pial, template_vol)
+#' }
+#'
 #' @export
 surface_sampler <- function(surf_wm, surf_pial, vol_template,
                             mask = NULL,
@@ -439,6 +449,14 @@ surface_sampler <- function(surf_wm, surf_pial, vol_template,
 #' @param fill Value used when no valid voxels fall within \code{dthresh}.
 #'
 #' @return \code{NeuroSurface} with mapped data.
+#'
+#' @examples
+#' \donttest{
+#' # Requires surface sampler and volume data
+#' # sampler <- surface_sampler(geometry, vol)
+#' # result <- apply_surface_sampler(sampler, vol)
+#' }
+#'
 #' @export
 apply_surface_sampler <- function(sampler, vol, fun = c("avg", "nn", "mode"),
                                   sigma = 8, fill = 0) {
@@ -530,6 +548,14 @@ apply_surface_sampler <- function(sampler, vol, fun = c("avg", "nn", "mode"),
 #'                            dims = triplets$dims)}
 #'
 #' @seealso \code{\link{surface_sampler}}, \code{\link{apply_surface_sampler}}
+#'
+#' @examples
+#' \donttest{
+#' # Requires a surface sampler
+#' # sampler <- surface_sampler(wm, pial, template_vol)
+#' # triplets <- sampler_to_triplets(sampler)
+#' }
+#'
 #' @export
 sampler_to_triplets <- function(sampler, sigma = NULL, normalize = TRUE,
                                  min_weight = 1e-10) {

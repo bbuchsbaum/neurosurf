@@ -33,6 +33,13 @@ This function provides a high-level interface for finding boundaries between
 different regions on a surface mesh. It typically returns coordinates and metadata
 describing the boundaries between regions.
 }
+\examples{
+\donttest{
+# Requires surface with ROI labels
+# boundaries <- findBoundaries(labeled_surface)
+}
+
+}
 \seealso{
 \code{\link{find_roi_boundaries}}
 

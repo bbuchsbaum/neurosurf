@@ -25,3 +25,11 @@ A named list with elements \code{\"lh\"} and \code{\"rh\"}, each a
 \description{
 Load a bundle of fsaverage surface variants as a SurfaceSet
 }
+\examples{
+\donttest{
+bundle <- load_fsaverage_bundle()
+lh_set <- bundle$lh
+rh_set <- bundle$rh
+}
+
+}

@@ -37,6 +37,13 @@ NULL
 #'
 #' @return Invisibly returns the underlying \code{"neurosurf_plot"} object.
 #'   The plot is drawn as a side-effect.
+#'
+#' @examples
+#' \donttest{
+#' geom <- example_surface_geometry()
+#' show_surface_plot(geom, data = rnorm(nrow(coords(geom))))
+#' }
+#'
 #' @export
 show_surface_plot <- function(lh,
                               rh = NULL,
@@ -182,6 +189,14 @@ add_atlas_outline <- function(x,
 #' @return An object of class \code{"neurosurf_plot"} that can be further
 #'   modified with \code{add_surface_layer()} and rendered with
 #'   \code{render_surface_plot()} or \code{draw_surface_plot()}.
+#'
+#' @examples
+#' \donttest{
+#' geom <- example_surface_geometry()
+#' p <- surface_plot(geom)
+#' p <- add_surface_layer(p, data = rnorm(nrow(coords(geom))))
+#' }
+#'
 #' @export
 surface_plot <- function(lh,
                          rh = NULL,
@@ -285,6 +300,14 @@ surface_plot <- function(lh,
 #'   single numeric vector is given.
 #'
 #' @return A modified \code{"neurosurf_plot"} object.
+#'
+#' @examples
+#' \donttest{
+#' # Requires FreeSurfer-like surface files
+#' # sp <- surface_plot(left = "lh.pial", right = "rh.pial")
+#' # sp <- add_surface_layer(sp, data = rnorm(163842))
+#' }
+#'
 #' @export
 add_surface_layer <- function(x,
                               data,
@@ -385,6 +408,15 @@ add_surface_layer <- function(x,
 #'   single \code{vectors} matrix is provided.
 #'
 #' @return A modified \code{"neurosurf_plot"} object.
+#'
+#' @examples
+#' \donttest{
+#' # Requires FreeSurfer-like surface files
+#' # sp <- surface_plot(left = "lh.pial", right = "rh.pial")
+#' # vectors <- matrix(rnorm(163842 * 3), ncol = 3)
+#' # sp <- add_vector_layer(sp, vectors = vectors)
+#' }
+#'
 #' @export
 add_vector_layer <- function(x,
                              vectors,
@@ -458,6 +490,13 @@ add_vector_layer <- function(x,
 #' @return A list containing rendered panel images (with aspect ratios) and
 #'   layout information. This is a low-level helper intended to be wrapped by
 #'   higher-level figure drawing utilities.
+#'
+#' @examples
+#' \donttest{
+#' geom <- example_surface_geometry()
+#' p <- surface_plot(geom)
+#' rendered <- render_surface_plot(p)
+#' }
 #'
 #' @seealso \code{\link{surface_plot}}, \code{\link{add_surface_layer}},
 #'   \code{\link{view_surface}}
@@ -729,6 +768,15 @@ render_surface_plot <- function(x,
 #'   (e.g., \code{bar_height}, \code{title_cex}, \code{label_cex}, \code{n_ticks}).
 #'
 #' @return A \code{grob} object that can be drawn with \code{grid::grid.draw()}.
+#'
+#' @examples
+#' \donttest{
+#' # Requires FreeSurfer-like surface files
+#' # sp <- surface_plot(left = "lh.pial", right = "rh.pial")
+#' # g <- draw_surface_plot(sp)
+#' # grid::grid.draw(g)
+#' }
+#'
 #' @export
 draw_surface_plot <- function(x,
                               colorbar = TRUE,
@@ -848,6 +896,8 @@ draw_surface_plot <- function(x,
 #' @param x A \code{"neurosurf_plot"} object.
 #' @param ... Additional arguments passed to \code{\link{draw_surface_plot}}.
 #'
+#' @return Invisibly returns the input \code{neurosurf_plot} object.
+#'
 #' @method plot neurosurf_plot
 #' @export
 plot.neurosurf_plot <- function(x, ...) {
@@ -867,6 +917,9 @@ plot.neurosurf_plot <- function(x, ...) {
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
 #' Auto-crop a raster image (removes whitespace)
+#' @param img A raster image array
+#' @param border Number of pixels to preserve as border
+#' @return The cropped image array with whitespace removed
 #' @keywords internal
 .ns_autocrop <- function(img, border = 0) {
   if (length(dim(img)) < 3L) {
@@ -895,6 +948,9 @@ plot.neurosurf_plot <- function(x, ...) {
 }
 
 #' Supersample/Resize image for antialiasing (placeholder)
+#' @param img A raster image array
+#' @param scale_factor Scale factor for resizing (default 0.5)
+#' @return The resized image array
 #' @keywords internal
 .ns_resize_img <- function(img, scale_factor = 0.5) {
   # Placeholder: for now we rely on grid::rasterGrob interpolation.

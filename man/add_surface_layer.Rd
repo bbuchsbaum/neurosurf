@@ -113,3 +113,11 @@ A modified \code{"neurosurf_plot"} object.
 \description{
 Add a data layer to a surface plot
 }
+\examples{
+\donttest{
+# Requires FreeSurfer-like surface files
+# sp <- surface_plot(left = "lh.pial", right = "rh.pial")
+# sp <- add_surface_layer(sp, data = rnorm(163842))
+}
+
+}

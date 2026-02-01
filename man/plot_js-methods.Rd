@@ -21,3 +21,10 @@ An HTMLWidget object
 \description{
 Plot Surface as an HTMLWidget
 }
+\examples{
+\donttest{
+geom <- example_surface_geometry()
+widget <- plot_js(geom)
+}
+
+}

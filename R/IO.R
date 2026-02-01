@@ -554,6 +554,13 @@ read_surf  <- function(surface_name, surface_data_name=NULL, colind=NULL, nodein
 #' @param colind the subset column indices of surface dataset to load (optional)
 #' @param nodeind the subset node indices of surface dataset to include (optional)
 #' @return an instance of the class \code{\linkS4class{NeuroSurface}} or \code{\linkS4class{NeuroSurfaceVector}}
+#' @examples
+#' \donttest{
+#' # Load geometry and surface data file
+#' # geom <- read_surf_geometry("lh.white")
+#' # surf_data <- read_surf_data(geom, "lh.thickness")
+#' }
+#'
 #' @export
 read_surf_data  <- function(geometry, surface_data_name, colind=NULL, nodeind=NULL) {
   src <- NeuroSurfaceSource(geometry, surface_data_name, colind, nodeind)
@@ -561,14 +568,15 @@ read_surf_data  <- function(geometry, surface_data_name, colind=NULL, nodeind=NU
 }
 
 
-#' read_surf_data_seq
+#' Read Surface Data Sequence
 #'
-#' load one or more surface datasets for both left and right hemispheres
+#' Load one or more surface datasets for both left and right hemispheres.
 #'
 #' @param leftGeometry a \code{\linkS4class{SurfaceGeometry}} instance for the left hemisphere
 #' @param rightGeometry a \code{\linkS4class{SurfaceGeometry}} instance for the right hemisphere
 #' @param leftDataNames a \code{character} vector indicating names of left-hemisphere surface data files to be mapped to geometry.
 #' @param rightDataNames a \code{character} vector indicating names of right-hemisphere surface data files to be mapped to geometry.
+#' @return A list of \code{BilatNeuroSurfaceVector} objects, one per pair of data files
 #' @importFrom assertthat assert_that
 #' @export
 read_surf_data_seq <- function(leftGeometry, rightGeometry, leftDataNames, rightDataNames) {
@@ -609,6 +617,7 @@ read_surf_data_seq <- function(leftGeometry, rightGeometry, leftDataNames, right
 #'
 #' @param x the file descriptor object
 #' @param file_name the name of the file containing meta information.
+#' @return A metadata information object describing the surface file structure
 #' @export
 #' @rdname read_meta_info-methods
 #' @importMethodsFrom neuroim2 read_meta_info
@@ -741,6 +750,14 @@ setMethod(f="load_data", signature=c("GIFTISurfaceGeometryMetaInfo"),
 #' @param meta_info instance of type \code{GIFTISurfaceGeometryMetaInfo}
 #' @details requires rgl library
 #' @return a class of type \code{SurfaceGeometry}
+#'
+#' @examples
+#' \donttest{
+#' # Requires GIFTI surface file
+#' # meta <- read_meta_info(GIFTISurfaceFileDescriptor(), "surface.gii")
+#' # geom <- loadGIFTISurface(meta)
+#' }
+#'
 #' @export
 loadGIFTISurface <- function(meta_info) {
   if (!requireNamespace("rgl", quietly = TRUE)) {
@@ -829,6 +846,14 @@ loadGIFTISurface <- function(meta_info) {
 #'   matrix (available in orig.mgz or via mri_info --vox2ras-tkr).
 #' @details requires rgl library
 #' @return a class of type \code{SurfaceGeometry}
+#'
+#' @examples
+#' \donttest{
+#' # Requires FreeSurfer surface file
+#' # meta <- read_meta_info(FreesurferAsciiSurfaceFileDescriptor(), "lh.pial.asc")
+#' # geom <- loadFSSurface(meta)
+#' }
+#'
 #' @importFrom plyr rbind.fill.matrix
 #' @importFrom readr read_table
 #' @export
@@ -889,8 +914,13 @@ loadFSSurface <- function(meta_info, surf_to_world = diag(4)) {
 }
 
 
-#' data_reader
+#' Create a Column Reader for Surface Data
+#'
+#' @description
+#' Creates a column reader object for accessing surface data.
+#'
 #' @param x A SurfaceGeometryMetaInfo object
+#' @return A \code{ColumnReader} object for accessing surface data columns
 #' @rdname data_reader-methods
 #' @export
 #' @importClassesFrom neuroim2 ColumnReader

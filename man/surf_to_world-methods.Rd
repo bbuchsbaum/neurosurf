@@ -27,6 +27,15 @@ file formats (e.g., GIFTI CoordinateSystemTransformMatrix).
 To transform surface vertices to world coordinates:
 \code{world_coords = surf_to_world(geom) \%*\% rbind(t(vertices), 1)}
 }
+\examples{
+\donttest{
+surf_file <- system.file("extdata", "std.8_lh.white.asc", package = "neurosurf")
+geom <- read_surf_geometry(surf_file)
+xform <- surf_to_world(geom)
+print(xform)
+}
+
+}
 \seealso{
 \code{\link{surf_to_world<-}}, \code{\link{SurfaceGeometry-class}}
 }

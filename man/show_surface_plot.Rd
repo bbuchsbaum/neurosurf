@@ -55,3 +55,10 @@ This is a convenience wrapper around \code{\link{surface_plot}},
 \code{\link{add_surface_layer}}, and \code{\link{plot.neurosurf_plot}}.
 It is intended for quick inspection and simple publication-style plots.
 }
+\examples{
+\donttest{
+geom <- example_surface_geometry()
+show_surface_plot(geom, data = rnorm(nrow(coords(geom))))
+}
+
+}

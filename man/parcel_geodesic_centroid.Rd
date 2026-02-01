@@ -37,3 +37,11 @@ Data frame with one row per parcel unit:
 \description{
 Parcel centroids using geodesic medoids
 }
+\examples{
+\donttest{
+# Requires a LabeledNeuroSurface
+# lsurf <- read_freesurfer_annot("lh.aparc.annot", geom)
+# centroids <- parcel_geodesic_centroid(lsurf)
+}
+
+}

@@ -19,3 +19,10 @@ A `SurfaceSet` instance.
 \description{
 Construct a SurfaceSet
 }
+\examples{
+# Create a simple SurfaceSet with a single geometry
+geom <- example_surface_geometry()
+ss <- surface_set(inflated = geom)
+surface_labels(ss)
+
+}

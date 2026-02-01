@@ -44,3 +44,12 @@ A modified \code{"neurosurf_plot"} object.
 \description{
 Add a vector field overlay
 }
+\examples{
+\donttest{
+# Requires FreeSurfer-like surface files
+# sp <- surface_plot(left = "lh.pial", right = "rh.pial")
+# vectors <- matrix(rnorm(163842 * 3), ncol = 3)
+# sp <- add_vector_layer(sp, vectors = vectors)
+}
+
+}

@@ -18,3 +18,10 @@ Right hemisphere of the surface
 \description{
 Get Right Hemisphere
 }
+\examples{
+\donttest{
+# Requires bilateral surface data
+# rh <- right(bilat_surface)
+}
+
+}

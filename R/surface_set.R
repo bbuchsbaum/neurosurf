@@ -7,6 +7,8 @@
 #' @slot surfaces Named list of `SurfaceGeometry` objects keyed by their label.
 #' @slot default_label Character string giving the label to use by default.
 #'
+#' @return An S4 object of class \code{SurfaceSet}. Use \code{\link{surface_set}}
+#'   to construct instances.
 #' @export
 setClass("SurfaceSet",
   representation = representation(
@@ -53,6 +55,12 @@ setClass("SurfaceSet",
 #' @param default_label Optional default label; defaults to the first provided label.
 #'
 #' @return A `SurfaceSet` instance.
+#' @examples
+#' # Create a simple SurfaceSet with a single geometry
+#' geom <- example_surface_geometry()
+#' ss <- surface_set(inflated = geom)
+#' surface_labels(ss)
+#'
 #' @export
 surface_set <- function(..., hemi = NULL, default_label = NULL) {
   geoms <- list(...)
@@ -77,6 +85,11 @@ surface_set <- function(..., hemi = NULL, default_label = NULL) {
 #' @param label Label of the desired surface variant. Defaults to the set's default.
 #'
 #' @return A `SurfaceGeometry` object.
+#' @examples
+#' geom <- example_surface_geometry()
+#' ss <- surface_set(inflated = geom)
+#' get_surface(ss, "inflated")
+#'
 #' @export
 get_surface <- function(x, label = NULL) {
   stopifnot(is(x, "SurfaceSet"))
@@ -100,6 +113,11 @@ resolve_surface_geometry <- function(geom, label = NULL) {
 #' List available surface labels
 #' @param x SurfaceSet
 #' @return Character vector of labels
+#' @examples
+#' geom <- example_surface_geometry()
+#' ss <- surface_set(inflated = geom, pial = geom)
+#' surface_labels(ss)
+#'
 #' @export
 surface_labels <- function(x) {
   stopifnot(is(x, "SurfaceSet"))

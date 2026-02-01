@@ -21,6 +21,19 @@ A geometry object representing the surface structure
 \description{
 Extracts the geometric representation from a surface object.
 }
+\examples{
+\donttest{
+# Load a sample surface
+surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+surf <- read_surf_geometry(surf_file)
+# Create a NeuroSurface with some data
+ns <- NeuroSurface(surf, indices = 1:100, data = rnorm(100))
+# Extract the geometry
+geom <- geometry(ns)
+class(geom)
+}
+
+}
 \seealso{
 \code{\link{vertices}}, \code{\link{nodes}}
 }

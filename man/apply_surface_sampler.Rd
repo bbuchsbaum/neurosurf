@@ -30,3 +30,11 @@ build the sampler.}
 \description{
 Apply a precomputed surface sampler to a volume
 }
+\examples{
+\donttest{
+# Requires surface sampler and volume data
+# sampler <- surface_sampler(geometry, vol)
+# result <- apply_surface_sampler(sampler, vol)
+}
+
+}

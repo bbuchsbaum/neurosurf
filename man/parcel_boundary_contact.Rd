@@ -23,3 +23,11 @@ Matrix (logical or integer) indicating parcel-unit boundary contacts.
 \description{
 Parcel boundary contact matrix
 }
+\examples{
+\donttest{
+# Requires a LabeledNeuroSurface
+# lsurf <- read_freesurfer_annot("lh.aparc.annot", geom)
+# contact <- parcel_boundary_contact(lsurf)
+}
+
+}

@@ -47,6 +47,10 @@ NULL
 #' Clear geodesic cache
 #'
 #' @return TRUE (invisibly)
+#'
+#' @examples
+#' clear_geodesic_cache()
+#'
 #' @export
 clear_geodesic_cache <- function() {
   .ns_geodesic_cache$reset()
@@ -72,6 +76,10 @@ clear_geodesic_cache <- function() {
 #'
 #' @return A distance matrix (sparse or dense) of size
 #'   \code{length(vertices) x length(targets)}.
+#'
+#' @examples
+#' geom <- example_surface_geometry()
+#' dmat <- geodesic_distance_matrix(geom, vertices = 1:2)
 #'
 #' @export
 geodesic_distance_matrix <- function(geometry,
@@ -198,6 +206,11 @@ geodesic_distance_matrix <- function(geometry,
 #' @param targets Optional target vertices (defaults to \code{sources}).
 #'
 #' @return Numeric vector if one source, otherwise a matrix.
+#'
+#' @examples
+#' geom <- example_surface_geometry()
+#' d <- geodesic_distances(geom, sources = 1, targets = 2:4)
+#'
 #' @export
 geodesic_distances <- function(geometry,
                                sources,
@@ -325,6 +338,14 @@ geodesic_distances <- function(geometry,
 #' @return Data frame with one row per parcel unit:
 #'   \code{unit}, \code{parcel_id}, \code{component}, \code{size},
 #'   \code{centroid_vertex}, and Cartesian coordinates.
+#'
+#' @examples
+#' \donttest{
+#' # Requires a LabeledNeuroSurface
+#' # lsurf <- read_freesurfer_annot("lh.aparc.annot", geom)
+#' # centroids <- parcel_geodesic_centroid(lsurf)
+#' }
+#'
 #' @export
 parcel_geodesic_centroid <- function(labeled_surface,
                                      method = c("medoid", "euclidean"),
@@ -384,6 +405,14 @@ parcel_geodesic_centroid <- function(labeled_surface,
 #' @inheritParams geodesic_distance_matrix
 #'
 #' @return A numeric matrix with parcel-unit names as dimnames.
+#'
+#' @examples
+#' \donttest{
+#' # Requires a LabeledNeuroSurface
+#' # lsurf <- read_freesurfer_annot("lh.aparc.annot", geom)
+#' # dmat <- parcel_geodesic_distance_matrix(lsurf)
+#' }
+#'
 #' @export
 parcel_geodesic_distance_matrix <- function(labeled_surface,
                                             metric = c("centroid", "min"),
@@ -464,6 +493,14 @@ parcel_geodesic_distance_matrix <- function(labeled_surface,
 #' @param counts If TRUE, return edge counts; otherwise logical contact matrix.
 #'
 #' @return Matrix (logical or integer) indicating parcel-unit boundary contacts.
+#'
+#' @examples
+#' \donttest{
+#' # Requires a LabeledNeuroSurface
+#' # lsurf <- read_freesurfer_annot("lh.aparc.annot", geom)
+#' # contact <- parcel_boundary_contact(lsurf)
+#' }
+#'
 #' @export
 parcel_boundary_contact <- function(labeled_surface,
                                     component_policy = c("error", "largest",

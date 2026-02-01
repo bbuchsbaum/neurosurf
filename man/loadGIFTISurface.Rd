@@ -18,3 +18,11 @@ Load GIFTI surface geometry
 \details{
 requires rgl library
 }
+\examples{
+\donttest{
+# Requires GIFTI surface file
+# meta <- read_meta_info(GIFTISurfaceFileDescriptor(), "surface.gii")
+# geom <- loadGIFTISurface(meta)
+}
+
+}

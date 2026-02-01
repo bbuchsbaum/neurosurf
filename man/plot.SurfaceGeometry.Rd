@@ -19,3 +19,10 @@ Invisibly returns the object ID(s) from the RGL scene.
 \description{
 Plot method for SurfaceGeometry objects
 }
+\examples{
+\donttest{
+geom <- example_surface_geometry()
+plot(geom)
+}
+
+}

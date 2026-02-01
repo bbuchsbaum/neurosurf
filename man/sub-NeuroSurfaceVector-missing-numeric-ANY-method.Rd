@@ -2,7 +2,7 @@
 % Please edit documentation in R/neuro_surface.R
 \name{[,NeuroSurfaceVector,missing,numeric,ANY-method}
 \alias{[,NeuroSurfaceVector,missing,numeric,ANY-method}
-\title{extractor}
+\title{Subset NeuroSurfaceVector by Column}
 \usage{
 \S4method{[}{NeuroSurfaceVector,missing,numeric,ANY}(x, i, j, ..., drop = TRUE)
 }
@@ -17,6 +17,9 @@
 
 \item{drop}{dimension}
 }
+\value{
+A numeric matrix or vector of extracted column data
+}
 \description{
-extractor
+Extracts columns (time points) from a NeuroSurfaceVector.
 }

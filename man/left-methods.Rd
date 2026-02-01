@@ -18,3 +18,10 @@ Left hemisphere of the surface
 \description{
 Get Left Hemisphere
 }
+\examples{
+\donttest{
+# Requires bilateral surface data
+# lh <- left(bilat_surface)
+}
+
+}

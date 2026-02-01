@@ -12,4 +12,9 @@ A \code{SurfaceGeometry} tetrahedron useful for examples/tests.
 \description{
 Internal helper: tiny example SurfaceGeometry
 }
+\examples{
+geom <- example_surface_geometry()
+nodes(geom)
+
+}
 \keyword{internal}

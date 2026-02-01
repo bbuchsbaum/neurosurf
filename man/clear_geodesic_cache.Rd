@@ -12,3 +12,7 @@ TRUE (invisibly)
 \description{
 Clear geodesic cache
 }
+\examples{
+clear_geodesic_cache()
+
+}

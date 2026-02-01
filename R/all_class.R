@@ -38,6 +38,8 @@ is_surface_like <- function(x) {
 #'
 #' @seealso \code{\link[rgl]{mesh3d}}, \code{\link[igraph]{igraph}}, \code{\link{surf_to_world}}
 #'
+#' @return An object of class \code{SurfaceGeometry}.
+#'
 #' @examples
 #' \donttest{
 #' geometry <- example_surface_geometry()
@@ -96,6 +98,8 @@ setClass("SurfaceGeometry",
 #'                  hemi = "lh")
 #' }
 #'
+#' @return An object of class \code{SurfaceGeometryMetaInfo}.
+#'
 #' @importClassesFrom neuroim2 FileFormat
 #' @export
 setClass("SurfaceGeometryMetaInfo",
@@ -136,6 +140,8 @@ setClass("SurfaceGeometryMetaInfo",
 #'                hemi = "lh")
 #' }
 #'
+#' @return An object of class \code{FreesurferSurfaceGeometryMetaInfo}.
+#'
 #' @rdname FreesurferSurfaceGeometryMetaInfo-class
 #' @export
 setClass("FreesurferSurfaceGeometryMetaInfo", contains=c("SurfaceGeometryMetaInfo"))
@@ -165,6 +171,8 @@ setClass("FreesurferSurfaceGeometryMetaInfo", contains=c("SurfaceGeometryMetaInf
 #'                  nels = 1L,
 #'                  label = "thickness")
 #' }
+#'
+#' @return An object of class \code{SurfaceDataMetaInfo}.
 #'
 #' @export
 setClass("SurfaceDataMetaInfo",
@@ -210,6 +218,8 @@ setClass("SurfaceDataMetaInfo",
 #'                 data = surface_data,
 #'                 node_indices = seq_len(meta_info@node_count))
 #' }
+#'
+#' @return An object of class \code{NIMLSurfaceDataMetaInfo}.
 #'
 #' @export
 setClass("NIMLSurfaceDataMetaInfo",
@@ -933,6 +943,8 @@ setClass("NeuroSurface",
 #'
 #' @seealso \code{\link{view_surface}}, \code{\link{plot-methods}}
 #'
+#' @return An object of class \code{ColorMappedNeuroSurface}
+#'
 #' @examples
 #' \donttest{
 #' # First create a simple tetrahedron mesh
@@ -1300,6 +1312,8 @@ setClass("LabeledNeuroSurface",
 #' @note The number of rows in 'data' must match the number of nodes in 'geometry'.
 #'
 #' @seealso \code{\link{SurfaceGeometry}}, \code{\link{NeuroSurface}}
+#'
+#' @return An object of class \code{NeuroSurfaceVector}
 #'
 #' @export
 setClass("NeuroSurfaceVector",

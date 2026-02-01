@@ -2,7 +2,7 @@
 % Please edit documentation in R/neuro_surface.R
 \name{[,NeuroSurfaceVector,missing,missing,ANY-method}
 \alias{[,NeuroSurfaceVector,missing,missing,ANY-method}
-\title{extractor}
+\title{Extract All Data from NeuroSurfaceVector}
 \usage{
 \S4method{[}{NeuroSurfaceVector,missing,missing,ANY}(x, i, j, ..., drop = TRUE)
 }
@@ -17,6 +17,9 @@
 
 \item{drop}{dimension}
 }
+\value{
+A numeric matrix containing all data
+}
 \description{
-extractor
+Extracts all data from a NeuroSurfaceVector as a matrix.
 }

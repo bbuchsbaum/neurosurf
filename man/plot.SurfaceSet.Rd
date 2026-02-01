@@ -21,3 +21,11 @@ Invisibly returns the object ID(s) from the RGL scene.
 \description{
 Plot method for SurfaceSet objects
 }
+\examples{
+\donttest{
+geom <- example_surface_geometry()
+ss <- surface_set(inflated = geom)
+plot(ss)
+}
+
+}

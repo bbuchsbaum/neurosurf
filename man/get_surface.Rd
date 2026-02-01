@@ -17,3 +17,9 @@ A `SurfaceGeometry` object.
 \description{
 Retrieve a geometry from a SurfaceSet
 }
+\examples{
+geom <- example_surface_geometry()
+ss <- surface_set(inflated = geom)
+get_surface(ss, "inflated")
+
+}

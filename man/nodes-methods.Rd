@@ -24,6 +24,11 @@ A vector of node numbers.
 \description{
 Retrieves the node numbers from a surface object.
 }
+\examples{
+geom <- example_surface_geometry()
+nodes(geom)
+
+}
 \seealso{
 \code{\link{vertices}}
 }

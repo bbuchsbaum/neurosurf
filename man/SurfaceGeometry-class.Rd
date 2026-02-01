@@ -4,6 +4,9 @@
 \name{SurfaceGeometry-class}
 \alias{SurfaceGeometry-class}
 \title{SurfaceGeometry Class}
+\value{
+An object of class \code{SurfaceGeometry}.
+}
 \description{
 The `SurfaceGeometry` class represents a three-dimensional surface consisting of a set of triangle vertices.
 It encapsulates the mesh structure, graph representation, and hemisphere information of a brain surface.

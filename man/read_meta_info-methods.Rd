@@ -24,6 +24,11 @@
 
 \item{file_name}{the name of the file containing meta information.}
 }
+\value{
+A meta info object containing header information from the surface file
+
+A metadata information object describing the surface file structure
+}
 \description{
 Generic function to read image meta info given a file and a
 \code{\link[neuroim2:FileFormat-class]{FileFormat}} instance from \pkg{neuroim2}.

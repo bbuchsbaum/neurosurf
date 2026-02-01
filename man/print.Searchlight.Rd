@@ -11,6 +11,9 @@
 
 \item{...}{Additional arguments (not used)}
 }
+\value{
+Invisibly returns the Searchlight object (called for side effect).
+}
 \description{
 Print Method for Searchlight Iterator
 }

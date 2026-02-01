@@ -47,3 +47,8 @@ A distance matrix (sparse or dense) of size
 \description{
 All-pairs geodesic distance matrix (chunked)
 }
+\examples{
+geom <- example_surface_geometry()
+dmat <- geodesic_distance_matrix(geom, vertices = 1:2)
+
+}

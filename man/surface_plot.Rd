@@ -51,3 +51,11 @@ An object of class \code{"neurosurf_plot"} that can be further
 \description{
 Create a surface plot specification
 }
+\examples{
+\donttest{
+geom <- example_surface_geometry()
+p <- surface_plot(geom)
+p <- add_surface_layer(p, data = rnorm(nrow(coords(geom))))
+}
+
+}

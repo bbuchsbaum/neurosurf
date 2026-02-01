@@ -57,3 +57,13 @@ Precompute voxel neighbors and distances for each surface vertex so that
 repeated volume-to-surface projections (e.g., 4D time series) can be done
 quickly without rebuilding nearest-neighbor searches.
 }
+\examples{
+\donttest{
+# Requires white and pial surfaces plus a template volume
+# wm <- read_surf_geometry("lh.white")
+# pial <- read_surf_geometry("lh.pial")
+# template_vol <- neuroim2::read_vol("template.nii")
+# sampler <- surface_sampler(wm, pial, template_vol)
+}
+
+}

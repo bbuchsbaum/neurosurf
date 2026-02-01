@@ -32,3 +32,12 @@ arranges rendered panels into a single static figure using the \pkg{grid}
 graphics system. It supersamples, crops whitespace, and preserves per-panel
 aspect ratios to avoid tiny or distorted brains when assembled.
 }
+\examples{
+\donttest{
+# Requires FreeSurfer-like surface files
+# sp <- surface_plot(left = "lh.pial", right = "rh.pial")
+# g <- draw_surface_plot(sp)
+# grid::grid.draw(g)
+}
+
+}

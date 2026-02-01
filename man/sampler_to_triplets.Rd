@@ -51,6 +51,14 @@ for vertex i from voxel j. The actual volume voxel index is
 \code{Matrix::sparseMatrix(i = triplets$i, j = triplets$j, x = triplets$x,
                            dims = triplets$dims)}
 }
+\examples{
+\donttest{
+# Requires a surface sampler
+# sampler <- surface_sampler(wm, pial, template_vol)
+# triplets <- sampler_to_triplets(sampler)
+}
+
+}
 \seealso{
 \code{\link{surface_sampler}}, \code{\link{apply_surface_sampler}}
 }
