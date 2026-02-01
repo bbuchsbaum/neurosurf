@@ -622,7 +622,8 @@ test_that("BilatNeuroSurfaceVector as.matrix works", {
 
   result <- as.matrix(bilat)
 
-  expect_true(is.matrix(result))
+  # Result may be a Matrix or base matrix
+  expect_true(is.matrix(result) || inherits(result, "Matrix"))
   expect_equal(nrow(result), n_verts * 2)
   expect_equal(ncol(result), 3)
   expect_true(!is.null(attr(result, "coords")))
