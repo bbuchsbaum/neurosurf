@@ -18,9 +18,6 @@ download all available test files. Available files:
   \item \code{"rscan01_lh.gii"} - GIFTI surface file (30 MB)
   \item \code{"rscan01_lh.niml.dset"} - NIML surface dataset (22 MB)
   \item \code{"rscan01_rh.niml.dset"} - NIML surface dataset (22 MB)
-  \item \code{"Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii"} - Schaefer atlas (28 MB)
-  \item \code{"fsaverage_SurfVol+orig.BRIK.gz"} - AFNI volume BRIK (5 MB)
-  \item \code{"fsaverage_SurfVol+orig.HEAD.gz"} - AFNI volume HEAD (1 KB)
 }}
 
 \item{destdir}{Destination directory. Defaults to \code{extdata} within the
