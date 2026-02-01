@@ -242,3 +242,160 @@ test_that("SurfaceSearchlight validates nodeset length", {
   # nodeset with only 1 element should fail
   expect_error(SurfaceSearchlight(surf, radius = 12, nodeset = 1))
 })
+
+# Additional comprehensive tests
+
+test_that("SurfaceSearchlight throws StopIteration when exhausted", {
+  geom <- example_surface_geometry()  # Small geometry with 4 vertices
+
+  sl <- SurfaceSearchlight(geom, radius=100)  # Large radius
+
+  # Iterate through all nodes
+  n_nodes <- length(nodes(geom))
+  for (i in seq_len(n_nodes)) {
+    sl$nextElem()
+  }
+
+  expect_error(sl$nextElem(), "StopIteration")
+})
+
+test_that("Searchlight nodes have center.index attribute", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+
+  sl <- SurfaceSearchlight(surf, radius=12)
+  nodes_result <- sl$nextElem()
+
+  expect_false(is.null(attr(nodes_result, "center.index")))
+  expect_true(is.numeric(attr(nodes_result, "center.index")))
+  expect_equal(attr(nodes_result, "center"), attr(nodes_result, "center.index"))
+})
+
+test_that("Searchlight nodes have correct length attribute", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+
+  sl <- SurfaceSearchlight(surf, radius=12)
+  nodes_result <- sl$nextElem()
+
+  expect_equal(attr(nodes_result, "length"), length(nodes_result))
+})
+
+test_that("SurfaceSearchlight deflist works with nodeset", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+
+  nodeset <- 1:50
+  sl <- SurfaceSearchlight(surf, radius=12, nodeset=nodeset, as_deflist=TRUE)
+
+  expect_true(inherits(sl, "deflist"))
+  expect_equal(length(sl), length(nodeset))
+
+  # First element should have nodes from nodeset
+  nodes_result <- sl[[1]]
+  expect_true(all(nodes_result %in% nodeset))
+})
+
+test_that("RandomSurfaceSearchlight deflist works with nodeset", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+
+  nodeset <- 1:50
+  sl <- RandomSurfaceSearchlight(surf, radius=12, nodeset=nodeset, as_deflist=TRUE)
+
+  expect_true(inherits(sl, "deflist"))
+  expect_equal(length(sl), length(nodeset))
+
+  nodes_result <- sl[[1]]
+  expect_true(all(nodes_result %in% nodeset))
+})
+
+test_that("RandomSurfaceSearchlight is reproducible with set.seed", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+
+  set.seed(42)
+  sl1 <- RandomSurfaceSearchlight(surf, radius=12, as_deflist=TRUE)
+  centers1 <- vapply(1:5, function(i) attr(sl1[[i]], "center"), numeric(1))
+
+  set.seed(42)
+  sl2 <- RandomSurfaceSearchlight(surf, radius=12, as_deflist=TRUE)
+  centers2 <- vapply(1:5, function(i) attr(sl2[[i]], "center"), numeric(1))
+
+  expect_equal(centers1, centers2)
+})
+
+test_that("SurfaceSearchlight progress reflects iteration count", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+
+  sl <- SurfaceSearchlight(surf, radius=12)
+  n_nodes <- length(nodes(surf))
+
+  # Initial progress should be 0
+  expect_equal(sl$progress(), 0)
+
+  # After 3 iterations
+  sl$nextElem()
+  sl$nextElem()
+  sl$nextElem()
+  expect_equal(sl$progress(), 3 / n_nodes)
+})
+
+test_that("SurfaceSearchlight with spherical distance works", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+
+  sl <- SurfaceSearchlight(surf, radius=12, distance_type = "spherical")
+  expect_true(inherits(sl, "Searchlight"))
+
+  nodes_result <- sl$nextElem()
+  expect_true(is.numeric(nodes_result))
+  expect_true(length(nodes_result) >= 1)
+})
+
+test_that("SurfaceSearchlight deflist rejects out of bounds index", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+
+  sl <- SurfaceSearchlight(surf, radius=12, as_deflist=TRUE)
+  n <- length(sl)
+
+  expect_error(sl[[n + 1]])
+})
+
+test_that("RandomSurfaceSearchlight deflist rejects out of bounds index", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+
+  sl <- RandomSurfaceSearchlight(surf, radius=12, as_deflist=TRUE)
+  n <- length(sl)
+
+  expect_error(sl[[n + 1]])
+})
+
+test_that("Searchlight nodeset returns center in nodeset range", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+
+  nodeset <- 10:60
+  sl <- SurfaceSearchlight(surf, radius=12, nodeset=nodeset)
+
+  nodes_result <- sl$nextElem()
+  center <- attr(nodes_result, "center")
+
+  expect_true(center %in% nodeset)
+})
+
+test_that("RandomSurfaceSearchlight nodeset returns center in nodeset range", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
+  surf <- read_surf(surf_file)
+
+  nodeset <- 10:60
+  sl <- RandomSurfaceSearchlight(surf, radius=12, nodeset=nodeset)
+
+  nodes_result <- sl$nextElem()
+  center <- attr(nodes_result, "center")
+
+  expect_true(center %in% nodeset)
+})

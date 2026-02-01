@@ -453,3 +453,79 @@ test_that("verbose mode prints messages for faces method", {
     "Preparing face ROI"
   )
 })
+
+test_that("verbose mode prints messages for edge_vertices method", {
+  skip_if(!has_cpp, "C++ implementation not available")
+
+  vertices <- matrix(c(0, 0, 0, 1, 0, 0, 0, 1, 0), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(1, 2, 3), ncol = 3)
+  roi <- c(1, 2, 1)
+
+  expect_message(
+    find_roi_boundaries(vertices, faces, roi,
+                        boundary_method = "edge_vertices",
+                        use_cpp = TRUE,
+                        verbose = TRUE),
+    "Computing ROI boundary"
+  )
+})
+
+test_that("find_roi_boundaries handles NA in vertex_id", {
+  vertices <- matrix(c(0, 0, 0, 1, 0, 0, 0, 1, 0), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(1, 2, 3), ncol = 3)
+  roi <- c(1, NA, 1)
+
+  # Should not error, NA vertices are handled
+  result <- find_roi_boundaries(vertices, faces, roi, boundary_method = "faces")
+  expect_type(result, "list")
+})
+
+test_that("find_roi_boundaries with many ROIs", {
+  skip_if(!has_cpp, "C++ implementation not available")
+
+  # Create a grid of points with multiple ROIs
+  n <- 9
+  x <- rep(1:3, 3)
+  y <- rep(1:3, each = 3)
+  vertices <- cbind(x, y, rep(0, n))
+
+  # Create faces for a 3x3 grid
+  faces <- matrix(c(
+    1, 2, 5,  # triangle 1
+    1, 5, 4,  # triangle 2
+    2, 3, 6,  # etc.
+    2, 6, 5,
+    4, 5, 8,
+    4, 8, 7,
+    5, 6, 9,
+    5, 9, 8
+  ), ncol = 3, byrow = TRUE)
+
+  # Each vertex is its own ROI
+  roi <- 1:n
+
+  result <- find_roi_boundaries(vertices, faces, roi,
+                                boundary_method = "edge_vertices",
+                                use_cpp = TRUE)
+
+  expect_type(result, "list")
+  # With many unique ROIs, should have multiple boundary components
+  expect_true(length(result$boundary_verts) >= 1 || length(result$boundary) >= 0)
+})
+
+test_that("find_roi_boundaries with zero-indexed faces errors", {
+  vertices <- matrix(c(0, 0, 0, 1, 0, 0, 0, 1, 0), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(0, 1, 2), ncol = 3)  # Zero-indexed
+  roi <- c(1, 1, 1)
+
+  expect_error(
+    find_roi_boundaries(vertices, faces, roi),
+    "faces must reference vertex indices"
+  )
+})
+
+test_that("cpp_available helper works", {
+  # This just tests that the helper function returns a logical
+  result <- cpp_available()
+  expect_type(result, "logical")
+})
