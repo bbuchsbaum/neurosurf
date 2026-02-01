@@ -392,3 +392,77 @@ test_that("neighbor_graph distance types produce different results", {
   expect_s3_class(ng_geo, "igraph")
   expect_s3_class(ng_euc, "igraph")
 })
+
+test_that("findNeighbors returns correct node indices", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+  surf <- read_surf(surf_file)
+  g <- graph(surf)
+  edgeWeights <- igraph::E(g)$dist
+
+  neighbors <- neurosurf:::findNeighbors(g, node = 1, radius = 5, edgeWeights = edgeWeights)
+
+  expect_type(neighbors, "list")
+  expect_true("i" %in% names(neighbors))
+  expect_true("j" %in% names(neighbors))
+  expect_true("d" %in% names(neighbors))
+
+  # All j values should be valid node indices
+  if (length(neighbors$j) > 0) {
+    expect_true(all(neighbors$j >= 1))
+    expect_true(all(neighbors$j <= igraph::vcount(g)))
+  }
+})
+
+test_that("findNeighbors respects max_order parameter", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+  surf <- read_surf(surf_file)
+  g <- graph(surf)
+  edgeWeights <- igraph::E(g)$dist
+
+  # With max_order=1, should only find immediate neighbors
+  neighbors_1 <- neurosurf:::findNeighbors(g, node = 1, radius = 100,
+                                           edgeWeights = edgeWeights, max_order = 1)
+
+  # With max_order=2, could find more neighbors
+  neighbors_2 <- neurosurf:::findNeighbors(g, node = 1, radius = 100,
+                                           edgeWeights = edgeWeights, max_order = 2)
+
+  # max_order=2 should find at least as many as max_order=1
+  expect_true(length(neighbors_2$j) >= length(neighbors_1$j))
+})
+
+test_that("smooth NeuroSurface with larger sigma", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  data_vec <- rnorm(n_verts)
+  ns <- NeuroSurface(geom, indices = seq_len(n_verts), data = data_vec)
+
+  # Larger sigma should produce more smoothing
+  smoothed_1 <- smooth(ns, sigma = 1)
+  smoothed_5 <- smooth(ns, sigma = 5)
+
+  expect_s4_class(smoothed_1, "NeuroSurface")
+  expect_s4_class(smoothed_5, "NeuroSurface")
+
+  # Smoothed data should have smaller variance than original
+  expect_true(var(smoothed_5@data) <= var(data_vec) + 0.1)  # Allow small tolerance
+})
+
+test_that("adjacency matrix has correct dimensions", {
+  geom <- example_surface_geometry()
+  n_nodes <- length(nodes(geom))
+
+  adj <- adjacency(geom)
+
+  expect_equal(dim(adj), c(n_nodes, n_nodes))
+})
+
+test_that("laplacian matrix row sums are approximately zero", {
+  geom <- example_surface_geometry()
+
+  lap <- laplacian(geom)
+
+  # Row sums of Laplacian should be close to zero
+  row_sums <- Matrix::rowSums(lap)
+  expect_true(all(abs(row_sums) < 1e-10))
+})
