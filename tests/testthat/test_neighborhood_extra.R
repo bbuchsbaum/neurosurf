@@ -393,7 +393,7 @@ test_that("neighbor_graph distance types produce different results", {
   expect_s3_class(ng_euc, "igraph")
 })
 
-test_that("findNeighbors returns correct node indices", {
+test_that("findNeighbors returns valid node indices", {
   surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
   surf <- read_surf(surf_file)
   g <- graph(surf)
@@ -401,15 +401,14 @@ test_that("findNeighbors returns correct node indices", {
 
   neighbors <- neurosurf:::findNeighbors(g, node = 1, radius = 5, edgeWeights = edgeWeights)
 
-  expect_type(neighbors, "list")
-  expect_true("i" %in% names(neighbors))
-  expect_true("j" %in% names(neighbors))
-  expect_true("d" %in% names(neighbors))
+  # findNeighbors returns a vector of neighbor node indices
+  expect_true(is.numeric(neighbors) || inherits(neighbors, "igraph.vs"))
 
-  # All j values should be valid node indices
-  if (length(neighbors$j) > 0) {
-    expect_true(all(neighbors$j >= 1))
-    expect_true(all(neighbors$j <= igraph::vcount(g)))
+  # All values should be valid node indices
+  if (length(neighbors) > 0) {
+    neighbor_ids <- as.integer(neighbors)
+    expect_true(all(neighbor_ids >= 1))
+    expect_true(all(neighbor_ids <= igraph::vcount(g)))
   }
 })
 
@@ -428,7 +427,7 @@ test_that("findNeighbors respects max_order parameter", {
                                            edgeWeights = edgeWeights, max_order = 2)
 
   # max_order=2 should find at least as many as max_order=1
-  expect_true(length(neighbors_2$j) >= length(neighbors_1$j))
+  expect_true(length(neighbors_2) >= length(neighbors_1))
 })
 
 test_that("smooth NeuroSurface with larger sigma", {
