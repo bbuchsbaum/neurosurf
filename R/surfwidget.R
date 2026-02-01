@@ -141,6 +141,14 @@ setMethod("surfwidget", signature(x = "VertexColoredNeuroSurface"),
   }
 )
 
+#' @rdname plot_js-methods
+#' @export
+setMethod("plot_js", signature(x = "SurfaceGeometry"),
+  function(x, width = NULL, height = NULL, ...) {
+    surfwidget(x, width = width, height = height, ...)
+  }
+)
+
 # Helper function to prepare surface data
 #' @noRd
 prepare_surface_data <- function(x, thresh, vertexColors, alpha, config,
