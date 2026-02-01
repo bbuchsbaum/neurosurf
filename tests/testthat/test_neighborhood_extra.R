@@ -647,3 +647,181 @@ test_that("find_all_neighbors all distance types work", {
     expect_length(nb, 2)
   }
 })
+
+
+# Additional tests for uncovered paths in neighborhood.R
+
+test_that("findNeighbors internal function works", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "Surface file not available")
+
+  surf <- read_surf_geometry(surf_file)
+  g <- graph(surf)
+  edgeWeights <- igraph::E(g)$dist
+
+  neighbors <- neurosurf:::findNeighbors(g, node = 1, radius = 5, edgeWeights = edgeWeights)
+
+  expect_true(is.numeric(neighbors) || inherits(neighbors, "igraph.vs"))
+})
+
+test_that("findNeighbors validates edgeWeights type", {
+  geom <- example_surface_geometry()
+  g <- graph(geom)
+
+  expect_error(
+    neurosurf:::findNeighbors(g, node = 1, radius = 5, edgeWeights = "not_numeric"),
+    "edgeWeights must be numeric"
+  )
+})
+
+test_that("findNeighbors validates edgeWeights no NA", {
+  geom <- example_surface_geometry()
+  g <- graph(geom)
+  bad_weights <- c(1, NA, 1, 1, 1, 1)
+
+  expect_error(
+    neurosurf:::findNeighbors(g, node = 1, radius = 5, edgeWeights = bad_weights),
+    "cannot contain NA"
+  )
+})
+
+test_that("findNeighbors validates radius", {
+  geom <- example_surface_geometry()
+  g <- graph(geom)
+  edgeWeights <- igraph::E(g)$dist
+
+  expect_error(
+    neurosurf:::findNeighbors(g, node = 1, radius = -1, edgeWeights = edgeWeights),
+    "positive number"
+  )
+})
+
+test_that("findNeighbors validates node parameter", {
+  geom <- example_surface_geometry()
+  g <- graph(geom)
+  edgeWeights <- igraph::E(g)$dist
+
+  expect_error(
+    neurosurf:::findNeighbors(g, node = 1.5, radius = 5, edgeWeights = edgeWeights),
+    "single integer"
+  )
+})
+
+test_that("findNeighbors validates node in range", {
+  geom <- example_surface_geometry()
+  g <- graph(geom)
+  edgeWeights <- igraph::E(g)$dist
+
+  expect_error(
+    neurosurf:::findNeighbors(g, node = 1000, radius = 5, edgeWeights = edgeWeights),
+    "out of range"
+  )
+})
+
+test_that("find_all_neighbors validates edgeWeights length", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "Surface file not available")
+
+  surf <- read_surf_geometry(surf_file)
+  g <- graph(surf)
+
+  # Wrong length edgeWeights
+  expect_error(
+    find_all_neighbors(surf, radius = 5, edgeWeights = c(1, 2, 3)),
+    "one value per edge"
+  )
+})
+
+test_that("find_all_neighbors validates nodes no NA", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "Surface file not available")
+
+  surf <- read_surf_geometry(surf_file)
+  g <- graph(surf)
+  edgeWeights <- igraph::E(g)$dist
+
+  expect_error(
+    find_all_neighbors(surf, radius = 5, edgeWeights = edgeWeights, nodes = c(1, NA, 3)),
+    "cannot contain NA"
+  )
+})
+
+test_that("find_all_neighbors validates nodes are integers", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "Surface file not available")
+
+  surf <- read_surf_geometry(surf_file)
+  g <- graph(surf)
+  edgeWeights <- igraph::E(g)$dist
+
+  expect_error(
+    find_all_neighbors(surf, radius = 5, edgeWeights = edgeWeights, nodes = c(1.5, 2.5)),
+    "integer indices"
+  )
+})
+
+test_that("find_all_neighbors validates nodes in range", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "Surface file not available")
+
+  surf <- read_surf_geometry(surf_file)
+  g <- graph(surf)
+  edgeWeights <- igraph::E(g)$dist
+
+  expect_error(
+    find_all_neighbors(surf, radius = 5, edgeWeights = edgeWeights, nodes = c(1, 10000)),
+    "out of range"
+  )
+})
+
+test_that("find_all_neighbors with spherical distance type works", {
+  surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+  skip_if(surf_file == "", "Surface file not available")
+
+  surf <- read_surf_geometry(surf_file)
+  g <- graph(surf)
+  edgeWeights <- igraph::E(g)$dist
+
+  # Spherical distance should work on inflated surface
+  nb <- find_all_neighbors(surf, radius = 10, edgeWeights = edgeWeights,
+                           nodes = 1:3, distance_type = "spherical")
+
+  expect_type(nb, "list")
+  expect_length(nb, 3)
+})
+
+test_that("find_all_neighbors handles zero/negative edgeWeights", {
+  surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
+  skip_if(surf_file == "", "Surface file not available")
+
+  surf <- read_surf_geometry(surf_file)
+  g <- graph(surf)
+
+  # All zero weights should error
+  zero_weights <- rep(0, igraph::ecount(g))
+  expect_error(
+    find_all_neighbors(surf, radius = 5, edgeWeights = zero_weights),
+    "positive values"
+  )
+})
+
+test_that("neighbor_graph works with nodes subset and custom weights", {
+  geom <- example_surface_geometry()
+  g <- graph(geom)
+  n <- length(nodes(geom))
+
+  # Use specific nodes with missing edgeWeights (will use default dist)
+  ng <- neighbor_graph(geom, radius = 2, nodes = 1L:min(2L, n))
+
+  expect_s3_class(ng, "igraph")
+})
+
+test_that("smooth SurfaceGeometry with different smoothing types", {
+  geom <- example_surface_geometry()
+
+  # Test each smoothing type
+  for (stype in c("taubin", "laplace", "HClaplace")) {
+    smoothed <- smooth(geom, type = stype, iteration = 2)
+    expect_s4_class(smoothed, "SurfaceGeometry")
+  }
+})
