@@ -12,18 +12,18 @@
 #'
 #' @return numeric matrix (n_points x 3) of (x,y,z) in world coords
 compute_hull_world_cpp <- function(vol, dims, grid2world, thresh, n_points, mask) {
-    .Call('_neurosurf_compute_hull_world_cpp', PACKAGE = 'neurosurf', vol, dims, grid2world, thresh, n_points, mask)
+    .Call(`_neurosurf_compute_hull_world_cpp`, vol, dims, grid2world, thresh, n_points, mask)
 }
 
 estimate_sdf_rigid_cpp <- function(hull_world, sdf, sdf_dim, world2grid_sdf, init_par, outside_penalty = 20.0, method = "L-BFGS-B") {
-    .Call('_neurosurf_estimate_sdf_rigid_cpp', PACKAGE = 'neurosurf', hull_world, sdf, sdf_dim, world2grid_sdf, init_par, outside_penalty, method)
+    .Call(`_neurosurf_estimate_sdf_rigid_cpp`, hull_world, sdf, sdf_dim, world2grid_sdf, init_par, outside_penalty, method)
 }
 
 find_roi_boundaries_cpp <- function(faces, vertex_id) {
-    .Call('_neurosurf_find_roi_boundaries_cpp', PACKAGE = 'neurosurf', faces, vertex_id)
+    .Call(`_neurosurf_find_roi_boundaries_cpp`, faces, vertex_id)
 }
 
 roi_boundary_loops_cpp <- function(vertices, faces, vertex_id) {
-    .Call('_neurosurf_roi_boundary_loops_cpp', PACKAGE = 'neurosurf', vertices, faces, vertex_id)
+    .Call(`_neurosurf_roi_boundary_loops_cpp`, vertices, faces, vertex_id)
 }
 
