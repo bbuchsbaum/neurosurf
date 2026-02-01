@@ -3,6 +3,9 @@
 \name{geodesic_utils}
 \alias{geodesic_utils}
 \title{Geodesic Distance Utilities}
+\value{
+NULL (documentation block only)
+}
 \description{
 Core helpers for vertex- and parcel-level geodesic computations
   on neurosurf surfaces. Distances are computed on the surface graph using

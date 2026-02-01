@@ -4,6 +4,9 @@
 \name{BilatNeuroSurfaceVector-class}
 \alias{BilatNeuroSurfaceVector-class}
 \title{Bilateral NeuroSurface Vector Class}
+\value{
+An object of class \code{BilatNeuroSurfaceVector}.
+}
 \description{
 Represents surface data for both left and right hemispheres.
 }

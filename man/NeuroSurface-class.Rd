@@ -4,6 +4,9 @@
 \name{NeuroSurface-class}
 \alias{NeuroSurface-class}
 \title{NeuroSurface}
+\value{
+An object of class \code{NeuroSurface}.
+}
 \description{
 a three-dimensional surface consisting of a set of triangle vertices with one value per vertex.
 }

@@ -67,11 +67,12 @@ Collate:
     'surface_plot.R'
     'surface_set.R'
     'surfwidget.R'
+    'testdata.R'
     'view_surface.R'
     'vol_to_surf.R'
     'vol_to_surf_sdf.R'
     'zzz.R'
-Suggests: 
+Suggests:
     testthat,
     covr,
     bench,
@@ -80,7 +81,8 @@ Suggests:
     webshot2,
     ggplot2,
     viridis,
-    albersdown
+    albersdown,
+    rappdirs
 URL: https://github.com/bbuchsbaum/neurosurf
 BugReports: https://github.com/bbuchsbaum/neurosurf/issues
 VignetteBuilder: knitr

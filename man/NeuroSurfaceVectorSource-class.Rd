@@ -4,6 +4,9 @@
 \name{NeuroSurfaceVectorSource-class}
 \alias{NeuroSurfaceVectorSource-class}
 \title{NeuroSurfaceVectorSource}
+\value{
+An object of class \code{NeuroSurfaceVectorSource}.
+}
 \description{
 A class that is used to produce a \code{\linkS4class{NeuroSurfaceVector}} instance
 }

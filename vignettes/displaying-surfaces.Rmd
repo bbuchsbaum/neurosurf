@@ -33,6 +33,13 @@ For high-level, surfplot-style multi-view layouts with shared colourbars and atl
 First, we set up `knitr` options to embed `rgl` plots directly into the HTML output using WebGL and prevent standalone `rgl` windows from popping up during knitting. We then load example left and right hemisphere white matter surfaces included with the package and prepare some data (smoothed geometry, curvature, random values) for the examples.
 
 ```{r setup, include = FALSE}
+# Check for required packages - skip vignette build if rgl unavailable
+has_rgl <- requireNamespace("rgl", quietly = TRUE)
+if (!has_rgl) {
+  knitr::opts_chunk$set(eval = FALSE)
+  message("Skipping vignette: rgl package not available")
+}
+
 if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(params$family))
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -41,21 +48,23 @@ knitr::opts_chunk$set(
   fig.height = 5        # Default figure height
 )
 
-# Use the NULL device to suppress external windows and embed widgets
-options(rgl.useNULL = TRUE, rgl.printRglwidget = TRUE)
+if (has_rgl) {
+  # Use the NULL device to suppress external windows and embed widgets
+  options(rgl.useNULL = TRUE, rgl.printRglwidget = TRUE)
 
-# Let rgl autoprint widgets into the document (>= 0.102.21)
-rgl::setupKnitr(autoprint = TRUE)
+  # Let rgl autoprint widgets into the document (>= 0.102.21)
+  rgl::setupKnitr(autoprint = TRUE)
 
-# Additional knitr defaults for figure sizing in vignettes
-knitr::opts_chunk$set(
-  dev = 'png',
-  out.width = "100%",
-  out.height = "400px"
-)
-options(rgl.max.lights = 2)
-library(rgl)
-options(rgl.useNULL = TRUE)
+  # Additional knitr defaults for figure sizing in vignettes
+  knitr::opts_chunk$set(
+    dev = 'png',
+    out.width = "100%",
+    out.height = "400px"
+  )
+  options(rgl.max.lights = 2)
+  library(rgl)
+  options(rgl.useNULL = TRUE)
+}
 library(neuroim2)
 library(neurosurf)
 

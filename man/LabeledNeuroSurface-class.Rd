@@ -4,6 +4,9 @@
 \name{LabeledNeuroSurface-class}
 \alias{LabeledNeuroSurface-class}
 \title{LabeledNeuroSurface Class}
+\value{
+An object of class \code{LabeledNeuroSurface}.
+}
 \description{
 Represents a 3D surface with labeled vertices, extending NeuroSurface.
 }

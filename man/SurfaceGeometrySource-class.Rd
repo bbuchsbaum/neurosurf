@@ -4,6 +4,9 @@
 \name{SurfaceGeometrySource-class}
 \alias{SurfaceGeometrySource-class}
 \title{SurfaceGeometrySource Class}
+\value{
+An object of class \code{SurfaceGeometrySource}.
+}
 \description{
 The `SurfaceGeometrySource` class serves as a factory for creating
 \code{\linkS4class{SurfaceGeometry}} instances. It encapsulates the

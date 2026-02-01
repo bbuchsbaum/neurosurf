@@ -4,6 +4,9 @@
 \name{ROISurface-class}
 \alias{ROISurface-class}
 \title{ROISurface}
+\value{
+An object of class \code{ROISurface}.
+}
 \description{
 A class that respresents a surface-based region of interest
 }

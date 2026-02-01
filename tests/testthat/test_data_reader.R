@@ -1,5 +1,8 @@
 test_that("data_reader works for SurfaceDataMetaInfo", {
-  niml_file <- system.file("extdata", "rscan01_lh.niml.dset", package = "neurosurf")
+  niml_file <- neurosurf_testdata_path("rscan01_lh.niml.dset")
+
+  skip_if(niml_file == "", "Test data not available. Run neurosurf_download_testdata() to download.")
+  skip_on_cran()
 
   # Try to read the header; skip test if parsing fails (compatibility issue with neuroim2)
   header <- tryCatch(

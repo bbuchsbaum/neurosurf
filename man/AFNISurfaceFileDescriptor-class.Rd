@@ -4,6 +4,9 @@
 \name{AFNISurfaceFileDescriptor-class}
 \alias{AFNISurfaceFileDescriptor-class}
 \title{AFNISurfaceFileDescriptor}
+\value{
+An object of class \code{AFNISurfaceFileDescriptor}.
+}
 \description{
 This class supports the AFNI 1D file format for surface-based data
 }

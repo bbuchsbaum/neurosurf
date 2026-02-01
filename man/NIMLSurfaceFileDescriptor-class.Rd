@@ -4,6 +4,9 @@
 \name{NIMLSurfaceFileDescriptor-class}
 \alias{NIMLSurfaceFileDescriptor-class}
 \title{NIMLSurfaceFileDescriptor}
+\value{
+An object of class \code{NIMLSurfaceFileDescriptor}.
+}
 \description{
 This class supports the NIML file format for surface-based data
 }

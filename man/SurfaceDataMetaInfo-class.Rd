@@ -4,6 +4,9 @@
 \name{SurfaceDataMetaInfo-class}
 \alias{SurfaceDataMetaInfo-class}
 \title{SurfaceDataMetaInfo}
+\value{
+An object of class \code{SurfaceDataMetaInfo}.
+}
 \description{
 This class contains meta information for surface-based data (the values that map to a surface geometry)
 }

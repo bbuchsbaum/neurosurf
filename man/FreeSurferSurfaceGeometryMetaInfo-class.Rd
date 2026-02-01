@@ -4,6 +4,9 @@
 \name{FreesurferSurfaceGeometryMetaInfo-class}
 \alias{FreesurferSurfaceGeometryMetaInfo-class}
 \title{FreesurferSurfaceGeometryMetaInfo Class}
+\value{
+An object of class \code{FreesurferSurfaceGeometryMetaInfo}.
+}
 \description{
 The `FreesurferSurfaceGeometryMetaInfo` class extends `SurfaceGeometryMetaInfo` to specifically
 handle meta information for Freesurfer-formatted brain surface geometries.

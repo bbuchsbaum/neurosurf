@@ -272,6 +272,8 @@ setClass("NIMLSurfaceDataMetaInfo",
 #' }
 #' }
 #'
+#' @return An object of class \code{GIFTISurfaceGeometryMetaInfo}.
+#'
 #' @import gifti
 #' @export
 setClass("GIFTISurfaceGeometryMetaInfo",
@@ -317,6 +319,8 @@ setClass("GIFTISurfaceGeometryMetaInfo",
 #'                         info = gifti_obj)
 #' }
 #' }
+#'
+#' @return An object of class \code{GIFTISurfaceDataMetaInfo}.
 #'
 #' @import gifti
 #' @export
@@ -368,6 +372,8 @@ setClass("GIFTISurfaceDataMetaInfo",
 #' # Use geom_source to create a SurfaceGeometry object (hypothetical function)
 #' # surface_geometry <- createSurfaceGeometry(geom_source)
 #' }
+#'
+#' @return An object of class \code{SurfaceGeometrySource}.
 #'
 #' @export
 setClass("SurfaceGeometrySource",
@@ -466,6 +472,9 @@ setClass("NeuroSurfaceSource",
 #' @slot geometry a \code{\linkS4class{SurfaceGeometry}} instance
 #' @slot data_meta_info a \code{\linkS4class{SurfaceDataMetaInfo}} instance
 #' @slot colind the column indices vector of the surface maps to be loaded
+#'
+#' @return An object of class \code{NeuroSurfaceVectorSource}.
+#'
 #' @export
 setClass("NeuroSurfaceVectorSource", representation=
            representation(geometry="SurfaceGeometry",
@@ -484,6 +493,8 @@ setClass("NeuroSurfaceVectorSource", representation=
 #'
 #' This class supports the NIML file format for surface-based data
 #'
+#' @return An object of class \code{NIMLSurfaceFileDescriptor}.
+#'
 #' @rdname NIMLSurfaceFileDescriptor-class
 #' @export
 setClass("NIMLSurfaceFileDescriptor", contains=c("FileFormat"))
@@ -492,6 +503,9 @@ setClass("NIMLSurfaceFileDescriptor", contains=c("FileFormat"))
 #' AFNISurfaceFileDescriptor
 #'
 #' This class supports the AFNI 1D file format for surface-based data
+#'
+#' @return An object of class \code{AFNISurfaceFileDescriptor}.
+#'
 #' @rdname AFNISurfaceFileDescriptor-class
 #' @export
 setClass("AFNISurfaceFileDescriptor", contains=c("FileFormat"))
@@ -499,6 +513,9 @@ setClass("AFNISurfaceFileDescriptor", contains=c("FileFormat"))
 #' GIFTISurfaceFileDescriptor
 #'
 #' This class supports the GIFTI file format for surface-based data
+#'
+#' @return An object of class \code{GIFTISurfaceFileDescriptor}.
+#'
 #' @rdname GIFTISurfaceFileDescriptor-class
 #' @export
 setClass("GIFTISurfaceFileDescriptor", contains=c("FileFormat"))
@@ -523,6 +540,8 @@ setClass("GIFTISurfaceFileDescriptor", contains=c("FileFormat"))
 #' # surface_geo <- loadSurfaceGeometry(fs_ascii_file, descriptor = fs_ascii_descriptor)
 #' }
 #'
+#' @return An object of class \code{FreesurferAsciiSurfaceFileDescriptor}.
+#'
 #' @export
 setClass("FreesurferAsciiSurfaceFileDescriptor", contains=c("FileFormat"))
 
@@ -544,6 +563,8 @@ setClass("FreesurferAsciiSurfaceFileDescriptor", contains=c("FileFormat"))
 #' # In practice, this descriptor would be used in code like:
 #' # surface_geo <- loadSurfaceGeometry(fs_binary_file, descriptor = fs_binary_descriptor)
 #' }
+#'
+#' @return An object of class \code{FreesurferBinarySurfaceFileDescriptor}.
 #'
 #' @export
 setClass("FreesurferBinarySurfaceFileDescriptor", contains=c("FileFormat"))
@@ -631,6 +652,8 @@ setClass("FreesurferBinarySurfaceFileDescriptor", contains=c("FileFormat"))
 #'           coords = roi_coords,
 #'           indices = roi_indices)
 #' }
+#'
+#' @return An object of class \code{ROISurface}.
 #'
 #' @importClassesFrom neuroim2 ROI
 #' @exportClass ROISurface
@@ -735,6 +758,8 @@ setClass("ROISurface",
 #'                  indices = roi_indices)
 #' }
 #'
+#' @return An object of class \code{ROISurfaceVector}.
+#'
 #' @exportClass ROISurfaceVector
 #' @rdname ROISurfaceVector-class
 setClass("ROISurfaceVector",
@@ -804,6 +829,8 @@ setClass("ROISurfaceVector",
 #' # vd@data$label[vd@data$significant]
 #' # vd@indices[vd@data$label == "A"]
 #' }
+#'
+#' @return An object of class \code{VertexData}.
 #'
 #' @export
 setClass("VertexData",
@@ -895,6 +922,8 @@ setClass("VertexData",
 #' # The data values are now mapped to the surface vertices
 #' # and can be visualized or analyzed
 #' }
+#'
+#' @return An object of class \code{NeuroSurface}.
 #'
 #' @export
 setClass("NeuroSurface",
@@ -1114,6 +1143,8 @@ setClass("ColorMappedNeuroSurface",
 #'
 #' @seealso \code{\link{view_surface}}
 #'
+#' @return An object of class \code{VertexColoredNeuroSurface}.
+#'
 #' @export
 setClass("VertexColoredNeuroSurface",
          slots = c(
@@ -1210,6 +1241,8 @@ setClass("VertexColoredNeuroSurface",
 #' algorithms on the brain surface.
 #'
 #' @seealso \code{\link{NeuroSurface}}
+#'
+#' @return An object of class \code{LabeledNeuroSurface}.
 #'
 #' @export
 setClass("LabeledNeuroSurface",
@@ -1444,6 +1477,8 @@ setClass("NeuroSurfaceVector",
 #' }
 #'
 #' @seealso \code{\link{NeuroSurfaceVector}}
+#'
+#' @return An object of class \code{BilatNeuroSurfaceVector}.
 #'
 #' @export
 setClass("BilatNeuroSurfaceVector",

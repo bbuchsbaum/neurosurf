@@ -4,6 +4,9 @@
 \name{VertexData-class}
 \alias{VertexData-class}
 \title{VertexData}
+\value{
+An object of class \code{VertexData}.
+}
 \description{
 A set of arbitary vertices associated with a data table
 }

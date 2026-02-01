@@ -4,6 +4,7 @@
 #'   on neurosurf surfaces. Distances are computed on the surface graph using
 #'   weighted shortest paths (Dijkstra). Results can be chunked to control
 #'   memory and optionally cached for repeated queries.
+#' @return NULL (documentation block only)
 #' @keywords internal
 #' @importFrom fastmap fastmap
 NULL

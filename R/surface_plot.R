@@ -5,6 +5,7 @@
 #' classes and plotting utilities.
 #'
 #' @name surface_plot_helpers
+#' @return NULL (documentation block only)
 #' @keywords internal
 NULL
 

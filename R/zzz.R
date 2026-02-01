@@ -1,3 +1,7 @@
+#' @useDynLib neurosurf, .registration = TRUE
+#' @importFrom Rcpp sourceCpp
+NULL
+
 .onLoad <- function(libname, pkgname) {
   # Force NULL device on headless systems (including CRAN)
   # This prevents segfaults when rgl tries to access OpenGL in environments

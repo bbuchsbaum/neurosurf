@@ -4,6 +4,9 @@
 \name{FreesurferBinarySurfaceFileDescriptor-class}
 \alias{FreesurferBinarySurfaceFileDescriptor-class}
 \title{FresurferBinarySurfaceFileDescriptor}
+\value{
+An object of class \code{FreesurferBinarySurfaceFileDescriptor}.
+}
 \description{
 This class supports the Freesurfer binary file format for surface geometry
 }

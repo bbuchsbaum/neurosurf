@@ -4,6 +4,9 @@
 \name{VertexColoredNeuroSurface-class}
 \alias{VertexColoredNeuroSurface-class}
 \title{VertexColoredNeuroSurface}
+\value{
+An object of class \code{VertexColoredNeuroSurface}.
+}
 \description{
 A three-dimensional surface consisting of a set of triangle vertices with one color per vertex.
 }

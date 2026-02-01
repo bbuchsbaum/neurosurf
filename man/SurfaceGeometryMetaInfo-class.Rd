@@ -4,6 +4,9 @@
 \name{SurfaceGeometryMetaInfo-class}
 \alias{SurfaceGeometryMetaInfo-class}
 \title{SurfaceGeometryMetaInfo Class}
+\value{
+An object of class \code{SurfaceGeometryMetaInfo}.
+}
 \description{
 The `SurfaceGeometryMetaInfo` class encapsulates meta information for brain surface geometry.
 It stores details about the file locations, surface properties, and spatial characteristics.

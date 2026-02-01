@@ -4,6 +4,9 @@
 \name{ROISurfaceVector-class}
 \alias{ROISurfaceVector-class}
 \title{ROISurfaceVector}
+\value{
+An object of class \code{ROISurfaceVector}.
+}
 \description{
 A class that respresents a surface-based region of interest
 }

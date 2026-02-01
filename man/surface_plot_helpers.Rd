@@ -3,6 +3,9 @@
 \name{surface_plot_helpers}
 \alias{surface_plot_helpers}
 \title{High-level surface plotting helpers}
+\value{
+NULL (documentation block only)
+}
 \description{
 These functions provide an idiomatic R interface for building complex
 multi-view, multi-hemisphere surface plots on top of neurosurf's core

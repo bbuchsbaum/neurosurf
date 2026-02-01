@@ -405,8 +405,12 @@ setMethod("map_values", signature(x="NeuroSurface", lookup="matrix"),
 #' @rdname as.vector-methods
 setMethod(f="as.vector", signature=signature(x = "NeuroSurface"), def=function(x) as(x, "vector"))
 
-#' as
+#' Coercion Methods for NeuroSurface Objects
+#'
+#' Methods to convert NeuroSurface objects to other types.
+#'
 #' @name as
+#' @return The converted object (e.g., a numeric vector when converting to "vector").
 #'
 #' @export
 #' @rdname as-methods

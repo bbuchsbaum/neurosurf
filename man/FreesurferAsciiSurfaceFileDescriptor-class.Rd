@@ -4,6 +4,9 @@
 \name{FreesurferAsciiSurfaceFileDescriptor-class}
 \alias{FreesurferAsciiSurfaceFileDescriptor-class}
 \title{FresurferAsciiSurfaceFileDescriptor}
+\value{
+An object of class \code{FreesurferAsciiSurfaceFileDescriptor}.
+}
 \description{
 This class supports the Freesurfer Ascii file format for surface geometry
 }

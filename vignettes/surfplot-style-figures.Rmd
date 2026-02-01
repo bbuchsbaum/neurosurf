@@ -32,6 +32,13 @@ We will:
 - add atlas outlines and colourbars to produce a surfplot-style figure.
 
 ```{r setup, include=FALSE}
+# Check for required packages - skip vignette build if rgl unavailable
+has_rgl <- requireNamespace("rgl", quietly = TRUE)
+if (!has_rgl) {
+  knitr::opts_chunk$set(eval = FALSE)
+  message("Skipping vignette: rgl package not available")
+}
+
 if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(params$family))
 knitr::opts_chunk$set(
   collapse = TRUE,

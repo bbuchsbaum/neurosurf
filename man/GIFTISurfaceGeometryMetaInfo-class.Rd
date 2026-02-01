@@ -4,6 +4,9 @@
 \name{GIFTISurfaceGeometryMetaInfo-class}
 \alias{GIFTISurfaceGeometryMetaInfo-class}
 \title{GIFTISurfaceGeometryMetaInfo}
+\value{
+An object of class \code{GIFTISurfaceGeometryMetaInfo}.
+}
 \description{
 This class contains meta information for surface-based geometry for the GIFTI data format
 }

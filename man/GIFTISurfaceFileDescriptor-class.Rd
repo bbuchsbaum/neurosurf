@@ -4,6 +4,9 @@
 \name{GIFTISurfaceFileDescriptor-class}
 \alias{GIFTISurfaceFileDescriptor-class}
 \title{GIFTISurfaceFileDescriptor}
+\value{
+An object of class \code{GIFTISurfaceFileDescriptor}.
+}
 \description{
 This class supports the GIFTI file format for surface-based data
 }

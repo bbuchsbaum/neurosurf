@@ -2,7 +2,10 @@
 % Please edit documentation in R/neuro_surface.R
 \name{as}
 \alias{as}
-\title{as}
+\title{Coercion Methods for NeuroSurface Objects}
+\value{
+The converted object (e.g., a numeric vector when converting to "vector").
+}
 \description{
-as
+Methods to convert NeuroSurface objects to other types.
 }

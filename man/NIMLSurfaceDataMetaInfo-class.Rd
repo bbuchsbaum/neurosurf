@@ -4,6 +4,9 @@
 \name{NIMLSurfaceDataMetaInfo-class}
 \alias{NIMLSurfaceDataMetaInfo-class}
 \title{NIMLSurfaceDataMetaInfo}
+\value{
+An object of class \code{NIMLSurfaceDataMetaInfo}.
+}
 \description{
 This class contains meta information for surface-based data for the NIML data format
 }
