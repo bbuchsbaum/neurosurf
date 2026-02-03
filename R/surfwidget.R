@@ -100,10 +100,14 @@ setMethod("surfwidget", signature(x = "NeuroSurface"),
 #' @rdname surfwidget-methods
 #' @export
 setMethod("surfwidget", signature(x = "ColorMappedNeuroSurface"),
-  function(x, width = NULL, height = NULL, thresh = c(0,0), vertexColors = NULL,
+  function(x, width = NULL, height = NULL, thresh = NULL, vertexColors = NULL,
            alpha = 1, curvature = NULL, colorbar = TRUE,
            colorbar_label = NULL, layers = NULL,
            config = list(), ...) {
+
+    if (is.null(thresh)) {
+      thresh <- x@thresh
+    }
 
     curv_vals <- curvature
     if (is.null(curv_vals)) {

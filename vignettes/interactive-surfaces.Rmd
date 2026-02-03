@@ -26,12 +26,9 @@ multi-view, publication-style figures with shared colourbars and atlas
 outlines, see *Surfplot-style Figures with neurosurf*.
 
 ```{r setup, include = FALSE}
-# Check for required packages - skip vignette build if rgl unavailable
-has_rgl <- requireNamespace("rgl", quietly = TRUE)
-if (!has_rgl) {
-  knitr::opts_chunk$set(eval = FALSE)
-  message("Skipping vignette: rgl package not available")
-}
+# Ensure rgl uses a NULL device when knitting (prevents OpenGL segfaults on headless)
+Sys.setenv(RGL_USE_NULL = "TRUE")
+options(rgl.useNULL = TRUE)
 
 if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(params$family))
 knitr::opts_chunk$set(
@@ -45,16 +42,24 @@ knitr::opts_chunk$set(
 library(htmlwidgets)
 library(neurosurf)
 
-if (has_rgl) {
-  # Load example data
-  white_lh_asc <- system.file("extdata", "std.8_lh.smoothwm.asc", package="neurosurf")
-  white_lh <- read_surf(white_lh_asc)
-  white_lh_smooth <- smooth(white_lh, type="HCLaplace", delta=.2, iteration=5)
+# Load example data
+white_lh_asc <- system.file("extdata", "std.8_lh.smoothwm.asc", package="neurosurf")
+white_lh <- read_surf(white_lh_asc)
+white_lh_smooth <- smooth(white_lh, type="HCLaplace", delta=.2, iteration=5)
 
-  # Prepare sample data
-  set.seed(123)
-  random_vals <- rnorm(length(nodes(white_lh_smooth)))
-}
+# Prepare sample data
+set.seed(123)
+random_vals <- rnorm(length(nodes(white_lh_smooth)))
+
+# Curvature underlay: provides subtle anatomical texture (gyri/sulci shading)
+curv_vals <- curvature(white_lh_smooth)
+curv_range <- as.numeric(stats::quantile(
+  curv_vals,
+  probs = c(0.02, 0.98),
+  na.rm = TRUE,
+  names = FALSE
+))
+curv_cmap <- grDevices::colorRampPalette(c("#404040", "#B3B3B3"))(256)
 ```
 
 ## Introduction
@@ -70,8 +75,9 @@ surfwidget(
   white_lh_smooth,
   width  = "100%",
   height = "420px",
+  curvature = curv_vals,
   config = list(
-    ambientLightColor = "#f0f0f0",
+    ambientLightColor = "#404040",
     initialZoom = 2,
     showControls = FALSE   # keep the panel hidden for the quick preview
   )
@@ -88,8 +94,9 @@ basic_widget <- surfwidget(
   white_lh_smooth,
   width  = "100%",
   height = "400px",
+  curvature = curv_vals,
   config = list(
-    ambientLightColor = "#f0f0f0",
+    ambientLightColor = "#404040",
     initialZoom = 2
   )
 )
@@ -110,8 +117,9 @@ data_widget <- surfwidget(nsurf,
                          irange = c(-2, 2),
                          width = "100%", 
                          height = "400px",
+                         curvature = curv_vals,
                          config = list(
-                           ambientLightColor = "#f0f0f0",
+                           ambientLightColor = "#404040",
                            initialZoom = 2
                          ))
 
@@ -137,13 +145,29 @@ color_mapped_surf <- ColorMappedNeuroSurface(
 advanced_config <- list(
   shininess = 60,
   specularColor = "#ffffff",
-  ambientLightColor = "#f0f0f0",
+  ambientLightColor = "#404040",
   directionalLightColor = "#ffffff",
   directionalLightIntensity = 0.7,
   flatShading = FALSE
 )
 
+# Add a subtle anatomical underlay using curvature so thresholded data doesn't
+# "float" on a blank white surface.
+underlay_layer <- list(
+  label = "curvature",
+  data = curv_vals,
+  cmap = curv_cmap,
+  color_range = curv_range,
+  alpha = 1
+)
+
+# Keep the main data layer on top (inherits data/cmap/range/threshold from the
+# ColorMappedNeuroSurface object).
+data_layer <- list(label = "data")
+
 advanced_widget <- surfwidget(color_mapped_surf, 
+                             layers = list(underlay_layer, data_layer),
+                             curvature = curv_vals,
                              config = c(advanced_config, list(initialZoom = 2)), 
                              alpha = 0.9,
                              width = "100%", 
@@ -172,10 +196,11 @@ vertex_surf <- VertexColoredNeuroSurface(
 material_config <- list(
   shininess = 20,
   specularColor = "#333333",
-  ambientLightColor = "#f0f0f0"
+  ambientLightColor = "#404040"
 )
 
 vertex_widget <- surfwidget(vertex_surf, 
+                           curvature = curv_vals,
                            config = c(material_config, list(initialZoom = 2)), 
                            alpha = 0.8,
                            width = "100%", 

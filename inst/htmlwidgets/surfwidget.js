@@ -6,10 +6,15 @@ HTMLWidgets.widget({
 
   type: 'output',
 
-	  factory: function(el, width, height) {
-	    let viewer;
-	    let viewerContainer;
-	    let colorbarCanvas;
+		  factory: function(el, width, height) {
+		    if (typeof window !== 'undefined' &&
+		        typeof window.neurosurface === 'undefined' &&
+		        typeof window.surfview !== 'undefined') {
+		      window.neurosurface = window.surfview;
+		    }
+		    let viewer;
+		    let viewerContainer;
+		    let colorbarCanvas;
 	    let colorbarWrapper;
 	    let tweakpanePromise = null;
 	    const surfaceId = 'main'; // Default ID for single surface
@@ -27,30 +32,80 @@ HTMLWidgets.widget({
 	      }
 	    };
 
-	    // Load Tweakpane from CDN for environments without import maps (e.g. file:// pkgdown pages)
-	    // and cache the module on window so surfviewjs can pick it up without bare-module imports.
-	    const ensureTweakpane = function() {
-	      try {
-	        if (typeof window === 'undefined') return Promise.resolve(null);
-	        const existing = window.Tweakpane || window.tweakpane;
-	        if (existing && existing.Pane) return Promise.resolve(existing);
-	        if (tweakpanePromise) return tweakpanePromise;
+		    // Load Tweakpane from CDN for environments without import maps (e.g. file:// pkgdown pages)
+		    // and cache the module on window so surfviewjs can pick it up without bare-module imports.
+		    const ensureTweakpane = function() {
+		      try {
+		        if (typeof window === 'undefined') return Promise.resolve(null);
+		        if (typeof document === 'undefined') return Promise.resolve(null);
 
-	        tweakpanePromise = import('https://cdn.jsdelivr.net/npm/tweakpane@4.0.4/dist/tweakpane.min.js')
-	          .then((mod) => {
-	            window.Tweakpane = mod;
-	            window.tweakpane = mod;
-	            return mod;
-	          })
-	          .catch((e) => {
-	            console.warn('Failed to load tweakpane from CDN:', e);
-	            return null;
-	          });
-	        return tweakpanePromise;
-	      } catch (e) {
-	        return Promise.resolve(null);
-	      }
-	    };
+		        const existing = window.Tweakpane || window.tweakpane;
+		        if (existing && existing.Pane) return Promise.resolve(existing);
+		        if (tweakpanePromise) return tweakpanePromise;
+
+		        const ensureScript = function(id, src) {
+		          return new Promise((resolve, reject) => {
+		            const existingScript = document.getElementById(id);
+		            if (existingScript) {
+		              if (existingScript.getAttribute('data-loaded') === 'true') return resolve();
+		              if (existingScript.getAttribute('data-error') === 'true') {
+		                return reject(new Error(`Script failed to load: ${src}`));
+		              }
+		              existingScript.addEventListener('load', () => resolve());
+		              existingScript.addEventListener('error', (e) => reject(e));
+		              return;
+		            }
+
+		            const s = document.createElement('script');
+		            s.id = id;
+		            s.src = src;
+		            s.async = true;
+		            s.crossOrigin = 'anonymous';
+		            s.addEventListener('load', () => {
+		              s.setAttribute('data-loaded', 'true');
+		              resolve();
+		            });
+		            s.addEventListener('error', (e) => {
+		              s.setAttribute('data-error', 'true');
+		              reject(e);
+		            });
+
+		            const parent = document.head || document.body || document.documentElement;
+		            if (!parent) return reject(new Error('No document head/body available'));
+		            parent.appendChild(s);
+		          });
+		        };
+
+		        tweakpanePromise = ensureScript(
+		          'neurosurf-tweakpane',
+		          'https://cdn.jsdelivr.net/npm/tweakpane@4.0.4/dist/tweakpane.min.js'
+		        )
+		          .then(() => {
+		            const tp = window.Tweakpane || window.tweakpane;
+		            if (tp && tp.Pane) {
+		              if (!window.tweakpane) window.tweakpane = tp;
+		              if (!window.Tweakpane) window.Tweakpane = tp;
+		              return tp;
+		            }
+
+		            // Some builds may expose Pane directly; wrap for surfviewjs expectations.
+		            if (typeof window.Pane === 'function') {
+		              const wrapped = { Pane: window.Pane };
+		              window.Tweakpane = wrapped;
+		              window.tweakpane = wrapped;
+		              return wrapped;
+		            }
+		            return null;
+		          })
+		          .catch((e) => {
+		            console.warn('Failed to load tweakpane from CDN:', e);
+		            return null;
+		          });
+		        return tweakpanePromise;
+		      } catch (e) {
+		        return Promise.resolve(null);
+		      }
+		    };
 
 	    const safeToggleControls = function(show) {
 	      if (!viewer || typeof viewer.toggleControls !== 'function') return;
