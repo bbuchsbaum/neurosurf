@@ -37,7 +37,6 @@
 <li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul>
 </li>
@@ -64,7 +63,7 @@
                         <h4 data-toc-skip class="author">neurosurf
 authors</h4>
             
-            <h4 data-toc-skip class="date">2025-11-22</h4>
+            <h4 data-toc-skip class="date">2026-02-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bbuchsbaum/neurosurf/blob/HEAD/vignettes/surfplot-style-figures.Rmd" class="external-link"><code>vignettes/surfplot-style-figures.Rmd</code></a></small>
       <div class="d-none name"><code>surfplot-style-figures.Rmd</code></div>
@@ -93,8 +92,8 @@ surfaces for visualization.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Geometry for plotting</span></span>
 <span><span class="va">fs_infl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_fsaverage_std8.html">load_fsaverage_std8</a></span><span class="op">(</span><span class="st">"inflated"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.inflated.asc</span></span>
-<span><span class="co">#&gt; loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_rh.inflated.asc</span></span>
+<span><span class="co">#&gt; loading /Users/bbuchsbaum/code/neurosurf/inst/extdata/std.8_lh.inflated.asc</span></span>
+<span><span class="co">#&gt; loading /Users/bbuchsbaum/code/neurosurf/inst/extdata/std.8_rh.inflated.asc</span></span>
 <span><span class="va">lh</span> <span class="op">&lt;-</span> <span class="va">fs_infl</span><span class="op">$</span><span class="va">lh</span></span>
 <span><span class="va">rh</span> <span class="op">&lt;-</span> <span class="va">fs_infl</span><span class="op">$</span><span class="va">rh</span></span>
 <span></span>
@@ -102,44 +101,43 @@ surfaces for visualization.</p>
 <span><span class="va">lh_white</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_surf_geometry.html">read_surf_geometry</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8_lh.white.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.white.asc</span></span>
+<span><span class="co">#&gt; loading /Users/bbuchsbaum/code/neurosurf/inst/extdata/std.8_lh.white.asc</span></span>
 <span><span class="va">lh_pial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_surf_geometry.html">read_surf_geometry</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8_lh.pial.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.pial.asc</span></span>
+<span><span class="co">#&gt; loading /Users/bbuchsbaum/code/neurosurf/inst/extdata/std.8_lh.pial.asc</span></span>
 <span><span class="va">rh_white</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_surf_geometry.html">read_surf_geometry</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8_rh.white.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_rh.white.asc</span></span>
+<span><span class="co">#&gt; loading /Users/bbuchsbaum/code/neurosurf/inst/extdata/std.8_rh.white.asc</span></span>
 <span><span class="va">rh_pial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_surf_geometry.html">read_surf_geometry</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8_rh.pial.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_rh.pial.asc</span></span></code></pre></div>
+<span><span class="co">#&gt; loading /Users/bbuchsbaum/code/neurosurf/inst/extdata/std.8_rh.pial.asc</span></span></code></pre></div>
 <p>For this example we assume that the Schaefer 200-parcel, 7-network
 atlas in MNI152 space is available under <code>inst/extdata</code>. We
 use neuroim2 to load the volume and <code><a href="../reference/vol_to_surf.html">vol_to_surf()</a></code> to map
 parcel labels to the surface vertices.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">atlas_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
+<span>  <span class="st">"extdata"</span>,</span>
 <span>  <span class="st">"Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii.gz"</span>,</span>
 <span>  package <span class="op">=</span> <span class="st">"neurosurf"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="va">atlas_path</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">atlas_img</span> <span class="op">&lt;-</span> <span class="fu">neuroim2</span><span class="fu">::</span><span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/read_vol.html" class="external-link">read_vol</a></span><span class="op">(</span><span class="va">atlas_path</span><span class="op">)</span></span>
+<span>  <span class="va">atlas_img</span> <span class="op">&lt;-</span> <span class="fu">neuroim2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/neuroim2/man/read_vol.html" class="external-link">read_vol</a></span><span class="op">(</span><span class="va">atlas_path</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="co"># Project volume labels to surface vertices (mode of nearby voxels)</span></span>
 <span>  <span class="va">lh_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/vol_to_surf.html">vol_to_surf</a></span><span class="op">(</span><span class="va">lh_white</span>, <span class="va">lh_pial</span>, <span class="va">atlas_img</span>, fun <span class="op">=</span> <span class="st">"mode"</span><span class="op">)</span></span>
 <span>  <span class="va">rh_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/vol_to_surf.html">vol_to_surf</a></span><span class="op">(</span><span class="va">rh_white</span>, <span class="va">rh_pial</span>, <span class="va">atlas_img</span>, fun <span class="op">=</span> <span class="st">"mode"</span><span class="op">)</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning</a></span><span class="op">(</span><span class="st">"Schaefer atlas file not found in inst/extdata; using placeholder zeros for vignette build."</span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning</a></span><span class="op">(</span><span class="st">"Schaefer atlas file not found in extdata; using placeholder zeros for vignette build."</span><span class="op">)</span></span>
 <span>  <span class="va">lh_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/NeuroSurface.html">NeuroSurface</a></span><span class="op">(</span><span class="va">lh_white</span>, indices <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">lh_white</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                            data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">lh_white</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">rh_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/NeuroSurface.html">NeuroSurface</a></span><span class="op">(</span><span class="va">rh_white</span>, indices <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">rh_white</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                            data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">rh_white</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; Warning: Schaefer atlas file not found in inst/extdata; using placeholder zeros</span></span>
-<span><span class="co">#&gt; for vignette build.</span></span></code></pre></div>
+<span><span class="op">}</span></span></code></pre></div>
 <p>The helper <code><a href="../reference/vol_to_surf.html">vol_to_surf()</a></code> returns a
 <code>NeuroSurface</code> with per-vertex labels for the mapping
 geometry. We extract those labels and reuse them on the inflated
@@ -182,8 +180,6 @@ outlines.</p>
 <span>  label        <span class="op">=</span> <span class="st">"Network index"</span>,</span>
 <span>  alpha        <span class="op">=</span> <span class="fl">0.9</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span></span>
-<span><span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span></span>
 <span></span>
 <span><span class="co"># Add parcel outlines with tasteful defaults</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_atlas_outline.html">add_atlas_outline</a></span><span class="op">(</span></span>
@@ -214,18 +210,26 @@ compact layout.</p>
 <span>    bar_spacing <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="st">"lines"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in findBoundaries(ns_obj, method = "edge_vertices"): Only one region</span></span>
-<span><span class="co">#&gt; present; no boundaries to detect.</span></span>
-<span><span class="co">#&gt; Warning in findBoundaries(ns_obj, method = "edge_vertices"): Only one region</span></span>
-<span><span class="co">#&gt; present; no boundaries to detect.</span></span>
-<span><span class="co">#&gt; Warning in findBoundaries(ns_obj, method = "edge_vertices"): Only one region</span></span>
-<span><span class="co">#&gt; present; no boundaries to detect.</span></span>
-<span><span class="co">#&gt; Warning in findBoundaries(ns_obj, method = "edge_vertices"): Only one region</span></span>
-<span><span class="co">#&gt; present; no boundaries to detect.</span></span>
+<span><span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span></span>
+<span><span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span></span>
+<span><span class="co">#&gt; Warning in rgl::rgl.snapshot(filename = tmpfile): this build of rgl does not</span></span>
+<span><span class="co">#&gt; support snapshots</span></span>
+<span><span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span></span>
+<span><span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span></span>
+<span><span class="co">#&gt; Warning in rgl::rgl.snapshot(filename = tmpfile): this build of rgl does not</span></span>
+<span><span class="co">#&gt; support snapshots</span></span>
+<span><span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span></span>
+<span><span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span></span>
+<span><span class="co">#&gt; Warning in rgl::rgl.snapshot(filename = tmpfile): this build of rgl does not</span></span>
+<span><span class="co">#&gt; support snapshots</span></span>
+<span><span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span></span>
+<span><span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span></span>
+<span><span class="co">#&gt; Warning in rgl::rgl.snapshot(filename = tmpfile): this build of rgl does not</span></span>
+<span><span class="co">#&gt; support snapshots</span></span>
 <span></span>
 <span><span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.newpage.html" class="external-link">grid.newpage</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.draw.html" class="external-link">grid.draw</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span></span></code></pre></div>
-<p><img src="surfplot-style-figures_files/figure-html/render-figure-1.png" class="r-plt" width="768"></p>
+<p><img src="surfplot-style-figures_files/figure-html/render-figure-1.png" class="r-plt" alt="" width="768"></p>
 <p>The resulting figure shows:</p>
 <ul>
 <li>left and right inflated fsaverage surfaces;</li>

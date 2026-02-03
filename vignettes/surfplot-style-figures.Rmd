@@ -85,6 +85,7 @@ volume and `vol_to_surf()` to map parcel labels to the surface vertices.
 
 ```{r load-schaefer}
 atlas_path <- system.file(
+  "extdata",
   "Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii.gz",
   package = "neurosurf"
 )
@@ -96,7 +97,7 @@ if (atlas_path != "") {
   lh_labels <- vol_to_surf(lh_white, lh_pial, atlas_img, fun = "mode")
   rh_labels <- vol_to_surf(rh_white, rh_pial, atlas_img, fun = "mode")
 } else {
-  warning("Schaefer atlas file not found in inst/extdata; using placeholder zeros for vignette build.")
+  warning("Schaefer atlas file not found in extdata; using placeholder zeros for vignette build.")
   lh_labels <- NeuroSurface(lh_white, indices = seq_len(length(nodes(lh_white))),
                             data = integer(length(nodes(lh_white))))
   rh_labels <- NeuroSurface(rh_white, indices = seq_len(length(nodes(rh_white))),
