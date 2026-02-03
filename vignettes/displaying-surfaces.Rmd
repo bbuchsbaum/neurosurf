@@ -403,18 +403,27 @@ vals <- rnorm(length(nodes(white_lh_base)))
 surf <- NeuroSurface(white_lh_base, indices = 1:length(vals), data = vals)
 ssurf <- smooth(surf)
 
+# Generate proper figure paths
+.render_counter$n <- .render_counter$n + 1
+act_file1 <- knitr::fig_path(paste0("-actmap-", .render_counter$n, ".png"))
+.render_counter$n <- .render_counter$n + 1
+act_file2 <- knitr::fig_path(paste0("-actmap-", .render_counter$n, ".png"))
+.render_counter$n <- .render_counter$n + 1
+act_file3 <- knitr::fig_path(paste0("-actmap-", .render_counter$n, ".png"))
+dir.create(dirname(act_file1), recursive = TRUE, showWarnings = FALSE)
+
 # Panel 1: All values
-img1 <- try(snapshot_surface(geometry(ssurf), vals = values(ssurf), cmap = rainbow(100),
+img1 <- try(snapshot_surface(geometry(ssurf), file = act_file1, vals = values(ssurf), cmap = rainbow(100),
                               irange = c(-2, 2), width = 600, height = 450), silent = TRUE)
 
 # Panel 2: Thresholded (values between -0.2 and 0.2 transparent)
 comp <- conn_comp(ssurf, threshold = c(-0.2, 0.2))
-img2 <- try(snapshot_surface(geometry(ssurf), vals = values(ssurf), cmap = rainbow(100),
+img2 <- try(snapshot_surface(geometry(ssurf), file = act_file2, vals = values(ssurf), cmap = rainbow(100),
                               irange = c(-2, 2), thresh = c(-0.2, 0.2), width = 600, height = 450), silent = TRUE)
 
 # Panel 3: Cluster thresholded (minimum cluster size of 30)
 csurf <- cluster_threshold(ssurf, size = 30, threshold = c(-0.2, 0.2))
-img3 <- try(snapshot_surface(geometry(csurf), vals = values(csurf), cmap = rainbow(100),
+img3 <- try(snapshot_surface(geometry(csurf), file = act_file3, vals = values(csurf), cmap = rainbow(100),
                               irange = c(-2, 2), thresh = c(-0.2, 0.2), width = 600, height = 450), silent = TRUE)
 
 # Check if all snapshots succeeded
@@ -442,8 +451,12 @@ if (all(valid)) {
 
 ```{r two-hemi-posterior, results='asis', fig.width=6, fig.height=5}
 # Two hemispheres shown from posterior viewpoint
+.render_counter$n <- .render_counter$n + 1
+posterior_file <- knitr::fig_path(paste0("-posterior-", .render_counter$n, ".png"))
+dir.create(dirname(posterior_file), recursive = TRUE, showWarnings = FALSE)
+
 img_path <- try({
-  file <- tempfile(fileext = ".png")
+  file <- posterior_file
   rgl::open3d()
   rgl::par3d(windowRect = c(0, 0, 1200, 600))
   rgl::bg3d(color = "white")
