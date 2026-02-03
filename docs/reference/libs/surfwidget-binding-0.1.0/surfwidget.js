@@ -11,6 +11,7 @@ HTMLWidgets.widget({
     let viewerContainer;
     let colorbarCanvas;
     let colorbarWrapper;
+    let tweakpanePromise = null;
     const surfaceId = 'main'; // Default ID for single surface
     let lastPayload = null;   // Remember last data for resize redraw
     const COLORBAR_WIDTH = 68; // px reserved for colorbar
@@ -23,6 +24,43 @@ HTMLWidgets.widget({
       } catch (e) { /* ignore */ }
       if (typeof console !== 'undefined' && console.debug) {
         console.debug(...args);
+      }
+    };
+
+    // Load Tweakpane from CDN for environments without import maps (e.g. file:// pkgdown pages)
+    // and cache the module on window so surfviewjs can pick it up without bare-module imports.
+    const ensureTweakpane = function() {
+      try {
+        if (typeof window === 'undefined') return Promise.resolve(null);
+        const existing = window.Tweakpane || window.tweakpane;
+        if (existing && existing.Pane) return Promise.resolve(existing);
+        if (tweakpanePromise) return tweakpanePromise;
+
+        tweakpanePromise = import('https://cdn.jsdelivr.net/npm/tweakpane@4.0.4/dist/tweakpane.min.js')
+          .then((mod) => {
+            window.Tweakpane = mod;
+            window.tweakpane = mod;
+            return mod;
+          })
+          .catch((e) => {
+            console.warn('Failed to load tweakpane from CDN:', e);
+            return null;
+          });
+        return tweakpanePromise;
+      } catch (e) {
+        return Promise.resolve(null);
+      }
+    };
+
+    const safeToggleControls = function(show) {
+      if (!viewer || typeof viewer.toggleControls !== 'function') return;
+      try {
+        const out = viewer.toggleControls(!!show);
+        if (out && typeof out.catch === 'function') {
+          out.catch((e) => console.warn('toggleControls failed:', e));
+        }
+      } catch (e) {
+        console.warn('toggleControls failed:', e);
       }
     };
 
@@ -220,6 +258,7 @@ HTMLWidgets.widget({
             config.useControls = x.config && x.config.useControls === false ? false : true;
             config.showControls = x.config && x.config.showControls === false ? false : true;
             if (!('controlType' in config)) config.controlType = 'trackball'; // Use trackball controls
+            if (!('allowCDNFallback' in config)) config.allowCDNFallback = true;
 
             // Normalize any color strings coming from R to numeric hex values expected by surfviewjs
             const colorKeys = ['ambientLightColor', 'directionalLightColor', 'specularColor', 'color'];
@@ -248,8 +287,8 @@ HTMLWidgets.widget({
 
             try {
               viewer = makeViewer(config);
-              if (viewer.toggleControls && config.showControls !== false && config.useControls !== false) {
-                viewer.toggleControls(true);
+              if (config.showControls !== false && config.useControls !== false) {
+                ensureTweakpane().finally(() => safeToggleControls(true));
               }
             } catch (initErr) {
               console.warn('Viewer init failed with controls; retrying without controls:', initErr);

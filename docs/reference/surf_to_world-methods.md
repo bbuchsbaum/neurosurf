@@ -42,7 +42,7 @@ To transform surface vertices to world coordinates:
 # \donttest{
 surf_file <- system.file("extdata", "std.8_lh.white.asc", package = "neurosurf")
 geom <- read_surf_geometry(surf_file)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.white.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e31f94425b/neurosurf/extdata/std.8_lh.white.asc
 xform <- surf_to_world(geom)
 print(xform)
 #>      [,1] [,2] [,3] [,4]

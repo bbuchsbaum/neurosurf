@@ -144,7 +144,7 @@ if (FALSE) { # \dontrun{
 # Load a surface file from the extdata directory
 surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 surface <- read_surf_geometry(surf_file)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e31f94425b/neurosurf/extdata/std.8_lh.inflated.asc
 
 # Apply Taubin smoothing to the brain surface
 smoothed_surface1 <- smooth(surface, type = "taubin", lambda = 0.5, mu = -0.5, iteration = 10)

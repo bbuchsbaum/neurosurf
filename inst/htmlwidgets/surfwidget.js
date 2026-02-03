@@ -6,15 +6,16 @@ HTMLWidgets.widget({
 
   type: 'output',
 
-  factory: function(el, width, height) {
-    let viewer;
-    let viewerContainer;
-    let colorbarCanvas;
-    let colorbarWrapper;
-    const surfaceId = 'main'; // Default ID for single surface
-    let lastPayload = null;   // Remember last data for resize redraw
-    const COLORBAR_WIDTH = 68; // px reserved for colorbar
-    const dbg = function(...args) {
+	  factory: function(el, width, height) {
+	    let viewer;
+	    let viewerContainer;
+	    let colorbarCanvas;
+	    let colorbarWrapper;
+	    let tweakpanePromise = null;
+	    const surfaceId = 'main'; // Default ID for single surface
+	    let lastPayload = null;   // Remember last data for resize redraw
+	    const COLORBAR_WIDTH = 68; // px reserved for colorbar
+	    const dbg = function(...args) {
       try {
         if (typeof neurosurface !== 'undefined' &&
             typeof neurosurface.debugLog === 'function') {
@@ -23,12 +24,49 @@ HTMLWidgets.widget({
       } catch (e) { /* ignore */ }
       if (typeof console !== 'undefined' && console.debug) {
         console.debug(...args);
-      }
-    };
+	      }
+	    };
 
-    // Build a side-by-side layout: viewer + colorbar
-    const ensureLayout = function() {
-      if (viewerContainer) return viewerContainer;
+	    // Load Tweakpane from CDN for environments without import maps (e.g. file:// pkgdown pages)
+	    // and cache the module on window so surfviewjs can pick it up without bare-module imports.
+	    const ensureTweakpane = function() {
+	      try {
+	        if (typeof window === 'undefined') return Promise.resolve(null);
+	        const existing = window.Tweakpane || window.tweakpane;
+	        if (existing && existing.Pane) return Promise.resolve(existing);
+	        if (tweakpanePromise) return tweakpanePromise;
+
+	        tweakpanePromise = import('https://cdn.jsdelivr.net/npm/tweakpane@4.0.4/dist/tweakpane.min.js')
+	          .then((mod) => {
+	            window.Tweakpane = mod;
+	            window.tweakpane = mod;
+	            return mod;
+	          })
+	          .catch((e) => {
+	            console.warn('Failed to load tweakpane from CDN:', e);
+	            return null;
+	          });
+	        return tweakpanePromise;
+	      } catch (e) {
+	        return Promise.resolve(null);
+	      }
+	    };
+
+	    const safeToggleControls = function(show) {
+	      if (!viewer || typeof viewer.toggleControls !== 'function') return;
+	      try {
+	        const out = viewer.toggleControls(!!show);
+	        if (out && typeof out.catch === 'function') {
+	          out.catch((e) => console.warn('toggleControls failed:', e));
+	        }
+	      } catch (e) {
+	        console.warn('toggleControls failed:', e);
+	      }
+	    };
+
+	    // Build a side-by-side layout: viewer + colorbar
+	    const ensureLayout = function() {
+	      if (viewerContainer) return viewerContainer;
 
       el.innerHTML = '';
       const root = document.createElement('div');
@@ -209,20 +247,21 @@ HTMLWidgets.widget({
             if (!('cmap' in config)) config.cmap = x.cmap;
             if (!('rotationSpeed' in config)) config.rotationSpeed = 2.5; // default rotation
 
-            // Compatibility defaults for surfviewjs integration
-            // These maintain the visual appearance of the previous version
-            if (!('materialType' in config)) config.materialType = 'phong'; // Match old Phong material
+	            // Compatibility defaults for surfviewjs integration
+	            // These maintain the visual appearance of the previous version
+	            if (!('materialType' in config)) config.materialType = 'phong'; // Match old Phong material
             // Slightly brighter defaults to avoid overly dark scene
             if (!('ambientLightColor' in config)) config.ambientLightColor = 0x666666;
             if (!('ambientLightIntensity' in config)) config.ambientLightIntensity = 0.7;
             if (!('directionalLightIntensity' in config)) config.directionalLightIntensity = 0.7;
             // Force controls on to ensure Tweakpane is rendered
-            config.useControls = x.config && x.config.useControls === false ? false : true;
-            config.showControls = x.config && x.config.showControls === false ? false : true;
-            if (!('controlType' in config)) config.controlType = 'trackball'; // Use trackball controls
+	            config.useControls = x.config && x.config.useControls === false ? false : true;
+	            config.showControls = x.config && x.config.showControls === false ? false : true;
+	            if (!('controlType' in config)) config.controlType = 'trackball'; // Use trackball controls
+	            if (!('allowCDNFallback' in config)) config.allowCDNFallback = true;
 
-            // Normalize any color strings coming from R to numeric hex values expected by surfviewjs
-            const colorKeys = ['ambientLightColor', 'directionalLightColor', 'specularColor', 'color'];
+	            // Normalize any color strings coming from R to numeric hex values expected by surfviewjs
+	            const colorKeys = ['ambientLightColor', 'directionalLightColor', 'specularColor', 'color'];
             const normalizeColor = (val) => {
               if (typeof val === 'string') {
                 try {
@@ -246,15 +285,15 @@ HTMLWidgets.widget({
               x.viewpoint
             );
 
-            try {
-              viewer = makeViewer(config);
-              if (viewer.toggleControls && config.showControls !== false && config.useControls !== false) {
-                viewer.toggleControls(true);
-              }
-            } catch (initErr) {
-              console.warn('Viewer init failed with controls; retrying without controls:', initErr);
-              const cfgNoControls = { ...config, showControls: false, useControls: false };
-              viewer = makeViewer(cfgNoControls);
+	            try {
+	              viewer = makeViewer(config);
+	              if (config.showControls !== false && config.useControls !== false) {
+	                ensureTweakpane().finally(() => safeToggleControls(true));
+	              }
+	            } catch (initErr) {
+	              console.warn('Viewer init failed with controls; retrying without controls:', initErr);
+	              const cfgNoControls = { ...config, showControls: false, useControls: false };
+	              viewer = makeViewer(cfgNoControls);
             }
 
             // Use the new methods to set rotation speed and initial zoom
