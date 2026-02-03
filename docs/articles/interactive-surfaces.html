@@ -37,7 +37,6 @@
 <li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul>
 </li>
@@ -63,7 +62,7 @@
                         <h4 data-toc-skip class="author">Bradley
 Buchsbaum</h4>
             
-            <h4 data-toc-skip class="date">2025-11-22</h4>
+            <h4 data-toc-skip class="date">2026-02-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bbuchsbaum/neurosurf/blob/HEAD/vignettes/interactive-surfaces.Rmd" class="external-link"><code>vignettes/interactive-surfaces.Rmd</code></a></small>
       <div class="d-none name"><code>interactive-surfaces.Rmd</code></div>
@@ -188,7 +187,7 @@ directly:</p>
 <p>Create surfaces with direct vertex coloring:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create vertex colors based on coordinates</span></span>
-<span><span class="va">x_coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/coords.html" class="external-link">coords</a></span><span class="op">(</span><span class="va">white_lh_smooth</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span>
+<span><span class="va">x_coords</span> <span class="op">&lt;-</span> <span class="fu">coords</span><span class="op">(</span><span class="va">white_lh_smooth</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">vertex_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">x_coords</span> <span class="op">&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">x_coords</span><span class="op">)</span>, <span class="st">"#FF6B6B"</span>, <span class="st">"#4ECDC4"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create VertexColoredNeuroSurface</span></span>

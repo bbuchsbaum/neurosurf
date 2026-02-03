@@ -53652,7 +53652,7 @@ var neurosurface = (function (exports) {
 	  }
 	}
 
-	class ColorMap$1 extends EventEmitter {
+	class ColorMap extends EventEmitter {
 	  constructor(colors, options = {}) {
 	    super();
 	    if (!Array.isArray(colors) || colors.length === 0) {
@@ -53809,19 +53809,19 @@ var neurosurface = (function (exports) {
 	  }
 
 	  static presetMaps = {
-	    jet: ColorMap$1.generatePreset('jet'),
-	    density: ColorMap$1.generatePreset('density'),
-	    freesurfaceBlue: ColorMap$1.generatePreset('freesurface-blue'),
-	    freesurfaceRed: ColorMap$1.generatePreset('freesurface-red'),
-	    oxygen: ColorMap$1.generatePreset('oxygen'),
-	    par: ColorMap$1.generatePreset('par'),
-	    phase: ColorMap$1.generatePreset('phase'),
-	    salinity: ColorMap$1.generatePreset('salinity'),
-	    temperature: ColorMap$1.generatePreset('temperature'),
-	    turbidity: ColorMap$1.generatePreset('turbidity'),
-	    velocityBlue: ColorMap$1.generatePreset('velocity-blue'),
-	    velocityGreen: ColorMap$1.generatePreset('velocity-green'),
-	    cubehelix: ColorMap$1.generatePreset('cubehelix')
+	    jet: ColorMap.generatePreset('jet'),
+	    density: ColorMap.generatePreset('density'),
+	    freesurfaceBlue: ColorMap.generatePreset('freesurface-blue'),
+	    freesurfaceRed: ColorMap.generatePreset('freesurface-red'),
+	    oxygen: ColorMap.generatePreset('oxygen'),
+	    par: ColorMap.generatePreset('par'),
+	    phase: ColorMap.generatePreset('phase'),
+	    salinity: ColorMap.generatePreset('salinity'),
+	    temperature: ColorMap.generatePreset('temperature'),
+	    turbidity: ColorMap.generatePreset('turbidity'),
+	    velocityBlue: ColorMap.generatePreset('velocity-blue'),
+	    velocityGreen: ColorMap.generatePreset('velocity-green'),
+	    cubehelix: ColorMap.generatePreset('cubehelix')
 	  };
 
 	  static generatePreset(name) {
@@ -53834,20 +53834,20 @@ var neurosurface = (function (exports) {
 	  }
 
 	  static getAvailableMaps() {
-	    return Object.keys(ColorMap$1.presetMaps);
+	    return Object.keys(ColorMap.presetMaps);
 	  }
 
 	  static fromPreset(name, options = {}) {
-	    if (!ColorMap$1.presetMaps.hasOwnProperty(name)) {
+	    if (!ColorMap.presetMaps.hasOwnProperty(name)) {
 	      throw new Error(`Preset "${name}" not found`);
 	    }
-	    const presetColors = ColorMap$1.presetMaps[name];
+	    const presetColors = ColorMap.presetMaps[name];
 	    
-	    if (options.existingColorMap instanceof ColorMap$1) {
+	    if (options.existingColorMap instanceof ColorMap) {
 	      return options.existingColorMap.copy(presetColors);
 	    }
 	    
-	    return new ColorMap$1(presetColors, options);
+	    return new ColorMap(presetColors, options);
 	  }
 
 	  copy(newColors) {
@@ -53857,7 +53857,7 @@ var neurosurface = (function (exports) {
 	      alpha: this._hasAlpha ? this.colors.map(color => color[3]) : undefined
 	    };
 
-	    return new ColorMap$1(newColors, options);
+	    return new ColorMap(newColors, options);
 	  }
 	}
 
@@ -54100,14 +54100,14 @@ var neurosurface = (function (exports) {
 	    // Clean up old listeners if they exist
 	    this.removeColorMapListeners();
 
-	    if (!(colorMap instanceof ColorMap$1)) {
+	    if (!(colorMap instanceof ColorMap)) {
 	      if (typeof colorMap === 'string') {
-	        this.colorMap = ColorMap$1.fromPreset(colorMap);
+	        this.colorMap = ColorMap.fromPreset(colorMap);
 	      } else if (Array.isArray(colorMap)) {
-	        this.colorMap = new ColorMap$1(colorMap);
+	        this.colorMap = new ColorMap(colorMap);
 	      } else {
 	        console.error('Invalid colorMap provided. Using default.');
-	        this.colorMap = ColorMap$1.fromPreset('jet');
+	        this.colorMap = ColorMap.fromPreset('jet');
 	      }
 	    } else {
 	      this.colorMap = colorMap;
@@ -71092,6 +71092,7 @@ var neurosurface = (function (exports) {
 	    // Store reference to the folder for dynamic control recreation
 	    this.colorMapFolder = colorMapFolder;
 
+	    // Colormap preset selector
 	    const presetList = ColorMap.getAvailableMaps();
 	    const presetOptions = presetList.reduce((acc, name) => {
 	      acc[name] = name;
@@ -71099,7 +71100,9 @@ var neurosurface = (function (exports) {
 	    }, {});
 
 	    this.colorMapState = {
-	      preset: this.config.colorMapPreset && presetList.includes(this.config.colorMapPreset) ? this.config.colorMapPreset : presetList[0]
+	      preset: (this.config.colorMapPreset && presetList.includes(this.config.colorMapPreset))
+	        ? this.config.colorMapPreset
+	        : presetList[0]
 	    };
 
 	    this.colorMapPresetControl = colorMapFolder.addBinding(this.colorMapState, 'preset', {
@@ -71109,6 +71112,7 @@ var neurosurface = (function (exports) {
 	      this.updateColormap(ev.value);
 	    });
 
+	    // Apply initial preset so viewer and UI stay in sync
 	    this.updateColormap(this.colorMapState.preset);
 
 	    // Create initial range controls

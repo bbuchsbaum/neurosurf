@@ -68,8 +68,68 @@ HTMLWidgets.widget({
       return viewerContainer;
     };
 
+    const clamp01 = function(x) {
+      if (typeof x !== 'number' || !isFinite(x)) return 0;
+      return Math.max(0, Math.min(1, x));
+    };
+
+    const toCssColorStop = function(c) {
+      if (typeof c === 'string') return c;
+      if (Array.isArray(c) && c.length >= 3) {
+        const r = Math.round(clamp01(c[0]) * 255);
+        const g = Math.round(clamp01(c[1]) * 255);
+        const b = Math.round(clamp01(c[2]) * 255);
+        const a = c.length >= 4 ? clamp01(c[3]) : 1;
+        return `rgba(${r},${g},${b},${a})`;
+      }
+      return null;
+    };
+
+    const resolveCmapStops = function(cmap) {
+      if (!cmap) return null;
+
+      // If passed a ColorMap-like object with `.colors`, use that directly.
+      if (!Array.isArray(cmap) && typeof cmap === 'object' && Array.isArray(cmap.colors)) {
+        cmap = cmap.colors;
+      }
+
+      // If passed a preset name, try to resolve to a preset.
+      if (typeof cmap === 'string') {
+        try {
+          if (typeof neurosurface !== 'undefined' &&
+              neurosurface.ColorMap &&
+              typeof neurosurface.ColorMap.fromPreset === 'function') {
+            const cm = neurosurface.ColorMap.fromPreset(cmap);
+            if (cm && Array.isArray(cm.colors)) {
+              cmap = cm.colors;
+            } else {
+              return null;
+            }
+          } else {
+            return null;
+          }
+        } catch (e) {
+          return null;
+        }
+      }
+
+      if (!Array.isArray(cmap) || cmap.length === 0) return null;
+
+      // Hex strings (from R) are already valid CSS color stops.
+      if (typeof cmap[0] === 'string') return cmap;
+
+      // Numeric RGBA arrays from surfviewjs presets.
+      if (Array.isArray(cmap[0])) {
+        const stops = cmap.map(toCssColorStop).filter((x) => !!x);
+        return stops.length ? stops : null;
+      }
+
+      return null;
+    };
+
     const drawColorbar = function(cmap, irange, label, heightPx, show = true) {
-      if (!colorbarCanvas || !show || !Array.isArray(cmap) || !cmap.length) {
+      const stops = resolveCmapStops(cmap);
+      if (!colorbarCanvas || !show || !Array.isArray(stops) || !stops.length) {
         if (colorbarWrapper) colorbarWrapper.style.display = 'none';
         return;
       }
@@ -87,9 +147,9 @@ HTMLWidgets.widget({
 
       // gradient
       const grad = ctx.createLinearGradient(0, h, 0, 0);
-      const nStops = cmap.length;
+      const nStops = stops.length;
       for (let i = 0; i < nStops; i++) {
-        grad.addColorStop(i / (nStops - 1), cmap[i]);
+        grad.addColorStop(i / (nStops - 1), stops[i]);
       }
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w - 22, h);
@@ -129,7 +189,7 @@ HTMLWidgets.widget({
         // Compute sizes up front (function scope) so they are visible in both try blocks
         const primaryLayer = (x.layers || []).find(l => !l.as_outline);
         const barCmap = x.cmap || (primaryLayer && primaryLayer.cmap);
-        const colorbarEnabled = !(x.colorbar && x.colorbar.show === false) && Array.isArray(barCmap);
+        const colorbarEnabled = !(x.colorbar && x.colorbar.show === false) && !!resolveCmapStops(barCmap);
         const wNum = typeof width === 'number' ? width : parseFloat(width) || el.clientWidth || 400;
         const hNum = typeof height === 'number' ? height : parseFloat(height) || el.clientHeight || 300;
         const reservedWidth = colorbarEnabled ? COLORBAR_WIDTH + 8 : 0;
@@ -341,7 +401,7 @@ HTMLWidgets.widget({
           const barCmap = x.cmap || (primaryLayer && primaryLayer.cmap);
           const barRange = x.irange || (primaryLayer && (primaryLayer.color_range || primaryLayer.irange));
           const barState = {
-            cmap: barCmap,
+            cmap: resolveCmapStops(barCmap) || barCmap,
             irange: barRange || [0, 1],
             label: x.colorbar ? x.colorbar.label : null
           };
@@ -364,10 +424,18 @@ HTMLWidgets.widget({
           if (viewer && typeof viewer.on === 'function' && !viewer._nsColorbarBound) {
             viewer._nsColorbarBound = true;
 
-            viewer.on('layer:colormap', ({ colormap }) => {
-              barState.cmap = colormap && colormap.colors ? colormap.colors : colormap;
+            const setBarCmap = (cm) => {
+              barState.cmap = resolveCmapStops(cm) || cm;
               viewer._nsBarState = barState;
               repaintColorbar();
+            };
+
+            viewer.on('layer:colormap', (payload) => {
+              setBarCmap(payload && payload.colormap);
+            });
+
+            viewer.on('surface:colormap', (payload) => {
+              setBarCmap(payload && payload.colormap);
             });
 
             viewer.on('layer:intensity', ({ range }) => {

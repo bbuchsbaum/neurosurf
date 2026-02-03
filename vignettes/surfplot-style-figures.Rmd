@@ -32,6 +32,11 @@ We will:
 - add atlas outlines and colourbars to produce a surfplot-style figure.
 
 ```{r setup, include=FALSE}
+# Prefer rgl's NULL device for non-interactive builds (avoids headless crashes)
+if (!interactive()) {
+  options(rgl.useNULL = TRUE)
+}
+
 # Check for required packages - skip vignette build if rgl unavailable
 has_rgl <- requireNamespace("rgl", quietly = TRUE)
 if (!has_rgl) {
