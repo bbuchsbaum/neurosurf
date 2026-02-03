@@ -23,7 +23,6 @@ common problems and providing debugging information."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -75,7 +74,7 @@ common problems and providing debugging information.</p>
 <span class="r-in"><span><span class="co"># Load a surface and check it</span></span></span>
 <span class="r-in"><span><span class="va">surf_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8_lh.smoothwm.asc"</span>, package<span class="op">=</span><span class="st">"neurosurf"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">surf</span> <span class="op">&lt;-</span> <span class="fu"><a href="read_surf.html">read_surf</a></span><span class="op">(</span><span class="va">surf_file</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.smoothwm.asc</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e3794b996d/neurosurf/extdata/std.8_lh.smoothwm.asc</span>
 <span class="r-in"><span><span class="fu">debug_surfwidget</span><span class="op">(</span><span class="va">surf</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> === surfwidget Diagnostic Report ===</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -84,7 +83,7 @@ common problems and providing debugging information.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Faces: 1280 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Hemisphere: lh </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ✅ Basic structure looks good</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> OK: Basic structure looks good</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> === JavaScript Debugging ===</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1. Open browser developer tools (F12)</span>
@@ -94,10 +93,10 @@ common problems and providing debugging information.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5. Look for error messages in red</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> === Common Solutions ===</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • If widget is blank: Check JavaScript console for errors</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • If data doesn't show: Verify data ranges and color mapping</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • If widget doesn't load: Check if WebGL is supported</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Try with a simpler surface first</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - If widget is blank: Check JavaScript console for errors</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - If data doesn't show: Verify data ranges and color mapping</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - If widget doesn't load: Check if WebGL is supported</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Try with a simpler surface first</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

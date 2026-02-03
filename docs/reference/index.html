@@ -21,7 +21,6 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -67,7 +66,7 @@
           <code><a href="read_surf_data_seq.html">read_surf_data_seq()</a></code>
 
         </dt>
-        <dd>read_surf_data_seq</dd>
+        <dd>Read Surface Data Sequence</dd>
 
         <dt>
 
@@ -448,6 +447,13 @@
 
         <dt>
 
+          <code><a href="SurfaceSet-class.html">geometry(<i>&lt;SurfaceSet&gt;</i>)</a></code> <code><a href="SurfaceSet-class.html">vertices(<i>&lt;SurfaceSet&gt;</i>)</a></code> <code><a href="SurfaceSet-class.html">faces(<i>&lt;SurfaceSet&gt;</i>)</a></code> <code><a href="SurfaceSet-class.html">nodes(<i>&lt;SurfaceSet&gt;</i>)</a></code> <code><a href="SurfaceSet-class.html">graph(<i>&lt;SurfaceSet&gt;</i>)</a></code> <code><a href="SurfaceSet-class.html">curvature(<i>&lt;SurfaceSet&gt;</i>)</a></code>
+
+        </dt>
+        <dd>SurfaceSet: bundle multiple surface variants for one hemisphere</dd>
+
+        <dt>
+
           <code><a href="VertexColoredNeuroSurface-class.html">VertexColoredNeuroSurface-class</a></code>
 
         </dt>
@@ -483,6 +489,13 @@
 
         <dt>
 
+          <code><a href="add_vector_layer.html">add_vector_layer()</a></code>
+
+        </dt>
+        <dd>Add a vector field overlay</dd>
+
+        <dt>
+
           <code><a href="adjacency-methods.html">adjacency()</a></code>
 
         </dt>
@@ -490,24 +503,38 @@
 
         <dt>
 
+          <code><a href="apply_surface_sampler.html">apply_surface_sampler()</a></code>
+
+        </dt>
+        <dd>Apply a precomputed surface sampler to a volume</dd>
+
+        <dt>
+
           <code><a href="as-methods.html">as</a></code>
 
         </dt>
-        <dd>as</dd>
+        <dd>Coercion Methods for NeuroSurface Objects</dd>
 
         <dt>
 
           <code><a href="as.matrix-methods.html">as.matrix(<i>&lt;ROISurfaceVector&gt;</i>)</a></code> <code><a href="as.matrix-methods.html">as.matrix(<i>&lt;NeuroSurfaceVector&gt;</i>)</a></code> <code><a href="as.matrix-methods.html">as.matrix(<i>&lt;BilatNeuroSurfaceVector&gt;</i>)</a></code>
 
         </dt>
-        <dd>as.matrix</dd>
+        <dd>Convert Surface Data to Matrix</dd>
 
         <dt>
 
           <code><a href="as.vector-methods.html">as.vector(<i>&lt;NeuroSurface&gt;</i>)</a></code>
 
         </dt>
-        <dd>as.vector</dd>
+        <dd>Convert Surface Data to Vector</dd>
+
+        <dt>
+
+          <code><a href="clear_geodesic_cache.html">clear_geodesic_cache()</a></code>
+
+        </dt>
+        <dd>Clear geodesic cache</dd>
 
         <dt>
 
@@ -515,6 +542,13 @@
 
         </dt>
         <dd>Apply Cluster-Extent Threshold to Surface Data</dd>
+
+        <dt>
+
+          <code><a href="compute_hull_world_cpp.html">compute_hull_world_cpp()</a></code>
+
+        </dt>
+        <dd>Compute boundary hull points in world space (C++)</dd>
 
         <dt>
 
@@ -528,7 +562,7 @@
           <code><a href="coords-methods.html">coords(<i>&lt;ROISurface&gt;</i>)</a></code> <code><a href="coords-methods.html">coords(<i>&lt;SurfaceGeometry&gt;</i>)</a></code> <code><a href="coords-methods.html">coords(<i>&lt;igraph&gt;</i>)</a></code> <code><a href="coords-methods.html">coords(<i>&lt;NeuroSurfaceVector&gt;</i>)</a></code> <code><a href="coords-methods.html">coords(<i>&lt;NeuroSurface&gt;</i>)</a></code>
 
         </dt>
-        <dd>coords</dd>
+        <dd>Extract Vertex Coordinates</dd>
 
         <dt>
 
@@ -549,7 +583,7 @@
           <code><a href="data_reader-methods.html">data_reader(<i>&lt;SurfaceGeometryMetaInfo&gt;</i>)</a></code> <code><a href="data_reader-methods.html">data_reader(<i>&lt;NIMLSurfaceDataMetaInfo&gt;</i>)</a></code>
 
         </dt>
-        <dd>data_reader</dd>
+        <dd>Create a Column Reader for Surface Data</dd>
 
         <dt>
 
@@ -567,6 +601,13 @@
 
         <dt>
 
+          <code><a href="faces-methods.html">faces()</a></code>
+
+        </dt>
+        <dd>Extract Faces from a Surface Object</dd>
+
+        <dt>
+
           <code><a href="findBoundaries-methods.html">findBoundaries()</a></code>
 
         </dt>
@@ -581,6 +622,13 @@
 
         <dt>
 
+          <code><a href="find_nearest_vertex.html">find_nearest_vertex()</a></code>
+
+        </dt>
+        <dd>Find the nearest surface vertex to a 3D point</dd>
+
+        <dt>
+
           <code><a href="find_roi_boundaries.html">find_roi_boundaries()</a></code>
 
         </dt>
@@ -588,10 +636,38 @@
 
         <dt>
 
+          <code><a href="gaussian_splat.html">gaussian_splat()</a></code> <code><a href="gaussian_splat.html">gaussian_splat_vertex()</a></code> <code><a href="gaussian_splat.html">gaussian_splat_multi()</a></code>
+
+        </dt>
+        <dd>Gaussian splats on surface meshes</dd>
+
+        <dt>
+
+          <code><a href="geodesic_distance_matrix.html">geodesic_distance_matrix()</a></code>
+
+        </dt>
+        <dd>All-pairs geodesic distance matrix (chunked)</dd>
+
+        <dt>
+
+          <code><a href="geodesic_distances.html">geodesic_distances()</a></code>
+
+        </dt>
+        <dd>Geodesic distances from sources to targets</dd>
+
+        <dt>
+
           <code><a href="geometry-methods.html">geometry()</a></code>
 
         </dt>
         <dd>Extract Geometry from Surface Object</dd>
+
+        <dt>
+
+          <code><a href="get_surface.html">get_surface()</a></code>
+
+        </dt>
+        <dd>Retrieve a geometry from a SurfaceSet</dd>
 
         <dt>
 
@@ -605,7 +681,7 @@
           <code><a href="indices-methods.html">indices(<i>&lt;ROISurface&gt;</i>)</a></code> <code><a href="indices-methods.html">indices(<i>&lt;ROISurfaceVector&gt;</i>)</a></code> <code><a href="indices-methods.html">indices(<i>&lt;NeuroSurfaceVector&gt;</i>)</a></code> <code><a href="indices-methods.html">indices(<i>&lt;NeuroSurface&gt;</i>)</a></code>
 
         </dt>
-        <dd>indices</dd>
+        <dd>Extract Vertex Indices</dd>
 
         <dt>
 
@@ -626,7 +702,7 @@
           <code><a href="length-methods.html">length(<i>&lt;ROISurface&gt;</i>)</a></code>
 
         </dt>
-        <dd>length</dd>
+        <dd>Get Length of Surface Object</dd>
 
         <dt>
 
@@ -637,7 +713,14 @@
 
         <dt>
 
-          <code><a href="load_data-methods.html">load_data(<i>&lt;NeuroSurfaceVectorSource&gt;</i>)</a></code> <code><a href="load_data-methods.html">load_data(<i>&lt;NeuroSurfaceSource&gt;</i>)</a></code> <code><a href="load_data-methods.html">load_data(<i>&lt;FreesurferSurfaceGeometryMetaInfo&gt;</i>)</a></code> <code><a href="load_data-methods.html">load_data(<i>&lt;SurfaceGeometrySource&gt;</i>)</a></code>
+          <code><a href="loadGIFTISurface.html">loadGIFTISurface()</a></code>
+
+        </dt>
+        <dd>Load GIFTI surface geometry</dd>
+
+        <dt>
+
+          <code><a href="load_data-methods.html">load_data(<i>&lt;NeuroSurfaceVectorSource&gt;</i>)</a></code> <code><a href="load_data-methods.html">load_data(<i>&lt;NeuroSurfaceSource&gt;</i>)</a></code> <code><a href="load_data-methods.html">load_data(<i>&lt;FreesurferSurfaceGeometryMetaInfo&gt;</i>)</a></code> <code><a href="load_data-methods.html">load_data(<i>&lt;GIFTISurfaceGeometryMetaInfo&gt;</i>)</a></code> <code><a href="load_data-methods.html">load_data(<i>&lt;SurfaceGeometrySource&gt;</i>)</a></code>
 
         </dt>
         <dd>load_data</dd>
@@ -648,6 +731,13 @@
 
         </dt>
         <dd>Fetch fsaverage surfaces</dd>
+
+        <dt>
+
+          <code><a href="load_fsaverage_bundle.html">load_fsaverage_bundle()</a></code>
+
+        </dt>
+        <dd>Load a bundle of fsaverage surface variants as a SurfaceSet</dd>
 
         <dt>
 
@@ -693,6 +783,13 @@
 
         <dt>
 
+          <code><a href="neurosurf_download_testdata.html">neurosurf_download_testdata()</a></code>
+
+        </dt>
+        <dd>Download optional test data for neurosurf</dd>
+
+        <dt>
+
           <code><a href="nodes-methods.html">nodes()</a></code>
 
         </dt>
@@ -700,10 +797,31 @@
 
         <dt>
 
+          <code><a href="parcel_boundary_contact.html">parcel_boundary_contact()</a></code>
+
+        </dt>
+        <dd>Parcel boundary contact matrix</dd>
+
+        <dt>
+
+          <code><a href="parcel_geodesic_centroid.html">parcel_geodesic_centroid()</a></code>
+
+        </dt>
+        <dd>Parcel centroids using geodesic medoids</dd>
+
+        <dt>
+
+          <code><a href="parcel_geodesic_distance_matrix.html">parcel_geodesic_distance_matrix()</a></code>
+
+        </dt>
+        <dd>Parcel-to-parcel geodesic distances</dd>
+
+        <dt>
+
           <code><a href="plot-methods.html">plot(<i>&lt;SurfaceGeometry&gt;</i>,<i>&lt;missing&gt;</i>)</a></code> <code><a href="plot-methods.html">plot(<i>&lt;NeuroSurface&gt;</i>,<i>&lt;missing&gt;</i>)</a></code> <code><a href="plot-methods.html">plot(<i>&lt;LabeledNeuroSurface&gt;</i>,<i>&lt;missing&gt;</i>)</a></code> <code><a href="plot-methods.html">plot(<i>&lt;ColorMappedNeuroSurface&gt;</i>,<i>&lt;missing&gt;</i>)</a></code> <code><a href="plot-methods.html">plot(<i>&lt;VertexColoredNeuroSurface&gt;</i>,<i>&lt;missing&gt;</i>)</a></code>
 
         </dt>
-        <dd>plot a surface</dd>
+        <dd>Plot a Surface</dd>
 
         <dt>
 
@@ -711,6 +829,13 @@
 
         </dt>
         <dd>Plot method for SurfaceGeometry objects</dd>
+
+        <dt>
+
+          <code><a href="plot.SurfaceSet.html">plot(<i>&lt;SurfaceSet&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Plot method for SurfaceSet objects</dd>
 
         <dt>
 
@@ -773,7 +898,7 @@
           <code><a href="read_surf_data_seq.html">read_surf_data_seq()</a></code>
 
         </dt>
-        <dd>read_surf_data_seq</dd>
+        <dd>Read Surface Data Sequence</dd>
 
         <dt>
 
@@ -805,17 +930,24 @@
 
         <dt>
 
+          <code><a href="sampler_to_triplets.html">sampler_to_triplets()</a></code>
+
+        </dt>
+        <dd>Extract sparse matrix triplets from a surface sampler</dd>
+
+        <dt>
+
           <code><a href="series-methods.html">series(<i>&lt;NeuroSurfaceVector&gt;</i>,<i>&lt;numeric&gt;</i>)</a></code> <code><a href="series-methods.html">series(<i>&lt;NeuroSurfaceVector&gt;</i>,<i>&lt;integer&gt;</i>)</a></code> <code><a href="series-methods.html">series(<i>&lt;NeuroSurfaceVector&gt;</i>,<i>&lt;ROISurface&gt;</i>)</a></code> <code><a href="series-methods.html">series(<i>&lt;NeuroSurface&gt;</i>,<i>&lt;numeric&gt;</i>)</a></code>
 
         </dt>
-        <dd>series</dd>
+        <dd>Extract Time Series from Surface Vector</dd>
 
         <dt>
 
           <code><a href="series_roi-methods.html">series_roi(<i>&lt;NeuroSurfaceVector&gt;</i>,<i>&lt;numeric&gt;</i>)</a></code> <code><a href="series_roi-methods.html">series_roi(<i>&lt;NeuroSurfaceVector&gt;</i>,<i>&lt;ROISurface&gt;</i>)</a></code>
 
         </dt>
-        <dd>series_roi</dd>
+        <dd>Extract ROI Time Series from Surface Vector</dd>
 
         <dt>
 
@@ -864,28 +996,28 @@
           <code><a href="sub-NeuroSurfaceVector-missing-missing-ANY-method.html">`[`(<i>&lt;NeuroSurfaceVector&gt;</i>,<i>&lt;missing&gt;</i>,<i>&lt;missing&gt;</i>,<i>&lt;ANY&gt;</i>)</a></code>
 
         </dt>
-        <dd>extractor</dd>
+        <dd>Extract All Data from NeuroSurfaceVector</dd>
 
         <dt>
 
           <code><a href="sub-NeuroSurfaceVector-missing-numeric-ANY-method.html">`[`(<i>&lt;NeuroSurfaceVector&gt;</i>,<i>&lt;missing&gt;</i>,<i>&lt;numeric&gt;</i>,<i>&lt;ANY&gt;</i>)</a></code>
 
         </dt>
-        <dd>extractor</dd>
+        <dd>Subset NeuroSurfaceVector by Column</dd>
 
         <dt>
 
           <code><a href="sub-NeuroSurfaceVector-numeric-missing-ANY-method.html">`[`(<i>&lt;NeuroSurfaceVector&gt;</i>,<i>&lt;numeric&gt;</i>,<i>&lt;missing&gt;</i>,<i>&lt;ANY&gt;</i>)</a></code>
 
         </dt>
-        <dd>extractor</dd>
+        <dd>Subset NeuroSurfaceVector by Row</dd>
 
         <dt>
 
           <code><a href="sub-NeuroSurfaceVector-numeric-numeric-ANY-method.html">`[`(<i>&lt;NeuroSurfaceVector&gt;</i>,<i>&lt;numeric&gt;</i>,<i>&lt;numeric&gt;</i>,<i>&lt;ANY&gt;</i>)</a></code>
 
         </dt>
-        <dd>extractor</dd>
+        <dd>Subset NeuroSurfaceVector</dd>
 
         <dt>
 
@@ -899,7 +1031,28 @@
           <code><a href="sub-sub-NeuroSurfaceVector-numeric-method.html">`[[`(<i>&lt;NeuroSurfaceVector&gt;</i>,<i>&lt;numeric&gt;</i>)</a></code>
 
         </dt>
-        <dd>extractor</dd>
+        <dd>Extract Data from NeuroSurfaceVector</dd>
+
+        <dt>
+
+          <code><a href="surf_to_world-methods.html">surf_to_world()</a></code>
+
+        </dt>
+        <dd>Get Surface-to-World Transform</dd>
+
+        <dt>
+
+          <code><a href="surf_to_world-set-methods.html">`surf_to_world&lt;-`()</a></code>
+
+        </dt>
+        <dd>Set Surface-to-World Transform</dd>
+
+        <dt>
+
+          <code><a href="surface_labels.html">surface_labels()</a></code>
+
+        </dt>
+        <dd>List available surface labels</dd>
 
         <dt>
 
@@ -907,6 +1060,20 @@
 
         </dt>
         <dd>Create a surface plot specification</dd>
+
+        <dt>
+
+          <code><a href="surface_sampler.html">surface_sampler()</a></code>
+
+        </dt>
+        <dd>Build a reusable surface sampler for multi-frame volumes</dd>
+
+        <dt>
+
+          <code><a href="surface_set.html">surface_set()</a></code>
+
+        </dt>
+        <dd>Construct a SurfaceSet</dd>
 
         <dt>
 
@@ -927,7 +1094,7 @@
           <code><a href="values-methods.html">values(<i>&lt;ROISurface&gt;</i>)</a></code> <code><a href="values-methods.html">values(<i>&lt;ROISurfaceVector&gt;</i>)</a></code> <code><a href="values-methods.html">values(<i>&lt;NeuroSurface&gt;</i>)</a></code>
 
         </dt>
-        <dd>values</dd>
+        <dd>Extract Data Values from Surface Objects</dd>
 
         <dt>
 
@@ -949,6 +1116,13 @@
 
         </dt>
         <dd>Map values from a 3D volume to a surface in the same coordinate space</dd>
+
+        <dt>
+
+          <code><a href="vol_to_surf_sdf.html">vol_to_surf_sdf()</a></code>
+
+        </dt>
+        <dd>Map a volume to surface after SDF-based rigid alignment</dd>
 
         <dt>
 

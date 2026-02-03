@@ -23,7 +23,6 @@ mapped to colors using a specified colormap and range."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -49,6 +48,10 @@ mapped to colors using a specified colormap and range.</p>
 
 
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>An object of class <code>ColorMappedNeuroSurface</code></p>
+    </div>
+    <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This class extends <code>NeuroSurface</code> by adding color mapping functionality.
 The <code>cmap</code> slot contains a vector of hex color codes that define the colormap.
@@ -67,7 +70,7 @@ significance thresholds.</p>
 
 
 <dl><dt><code>geometry</code></dt>
-<dd><p>The surface geometry, an instance of <code>SurfaceGeometry</code></p></dd>
+<dd><p>The surface geometry, an instance of <code>SurfaceGeometry</code> or <code>SurfaceSet</code></p></dd>
 
 
 <dt><code>indices</code></dt>

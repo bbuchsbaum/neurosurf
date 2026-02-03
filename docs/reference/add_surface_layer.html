@@ -21,7 +21,6 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -52,6 +51,9 @@
 <span>  cmap <span class="op">=</span> <span class="st">"viridis"</span>,</span>
 <span>  alpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  color_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  vertices <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  smoothing <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"nearest"</span><span class="op">)</span>,</span>
+<span>  smoothing_steps <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  as_outline <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  zero_transparent <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  show_colorbar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -97,6 +99,24 @@ through to <code><a href="https://rdrr.io/r/grDevices/colorRamp.html" class="ext
 <dd><p>Optional numeric vector of length 2 giving the minimum
 and maximum data values to map to the colour scale. If <code>NULL</code>, the
 range of <code>data</code> (ignoring <code>NA</code>) is used.</p></dd>
+
+
+<dt id="arg-vertices">vertices<a class="anchor" aria-label="anchor" href="#arg-vertices"></a></dt>
+<dd><p>Optional vector or list of vertex ids corresponding to the
+supplied <code>data</code> when it is defined on a subset of vertices. Use a list
+with elements <code>left</code>/<code>right</code> for hemisphere-specific subsets.</p></dd>
+
+
+<dt id="arg-smoothing">smoothing<a class="anchor" aria-label="anchor" href="#arg-smoothing"></a></dt>
+<dd><p>One of <code>"auto"</code> (default) or <code>"nearest"</code> when
+using sparse data. <code>"auto"</code> fills missing vertices by nearest
+neighbour then applies smoothing iterations; <code>"nearest"</code> performs only
+nearest-neighbour fill.</p></dd>
+
+
+<dt id="arg-smoothing-steps">smoothing_steps<a class="anchor" aria-label="anchor" href="#arg-smoothing-steps"></a></dt>
+<dd><p>Integer number of smoothing iterations applied when
+<code>smoothing = "auto"</code>. Ignored otherwise.</p></dd>
 
 
 <dt id="arg-as-outline">as_outline<a class="anchor" aria-label="anchor" href="#arg-as-outline"></a></dt>
@@ -179,6 +199,16 @@ single numeric vector is given.</p></dd>
     <p>A modified <code>"neurosurf_plot"</code> object.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># Requires FreeSurfer-like surface files</span></span></span>
+<span class="r-in"><span><span class="co"># sp &lt;- surface_plot(left = "lh.pial", right = "rh.pial")</span></span></span>
+<span class="r-in"><span><span class="co"># sp &lt;- add_surface_layer(sp, data = rnorm(163842))</span></span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

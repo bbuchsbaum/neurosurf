@@ -35,7 +35,7 @@ COLOR_RESET := \033[0m
 all: surfview
 
 .PHONY: surfview
-surfview: $(NEUROSURFACE_JS) update-yaml
+surfview: sync-surfviewjs update-yaml
 	@echo "$(COLOR_GREEN)✓ surfview build complete$(COLOR_RESET)"
 	@echo "$(COLOR_BLUE)JavaScript library: $(NEUROSURFACE_JS)$(COLOR_RESET)"
 	@$(MAKE) --no-print-directory show-version
@@ -92,12 +92,20 @@ $(NEUROSURFACE_LIB):
 	mkdir -p $(NEUROSURFACE_LIB)
 
 # Copy built files to neurosurf
-$(NEUROSURFACE_JS): $(SURFVIEWJS_BUILD) | $(NEUROSURFACE_LIB)
+.PHONY: sync-surfviewjs
+sync-surfviewjs: $(SURFVIEWJS_BUILD) | $(NEUROSURFACE_LIB)
 	@echo "$(COLOR_BLUE)Copying built files to neurosurf...$(COLOR_RESET)"
 	cp $(SURFVIEWJS_DIR)/dist/neurosurface.umd.js $(NEUROSURFACE_JS)
 	@if [ -f "$(SURFVIEWJS_DIR)/dist/neurosurface.umd.js.map" ]; then \
 		cp $(SURFVIEWJS_DIR)/dist/neurosurface.umd.js.map $(NEUROSURFACE_MAP); \
 		echo "$(COLOR_GREEN)✓ Copied source map$(COLOR_RESET)"; \
+	fi
+	@if [ -f "$(SURFVIEWJS_DIR)/dist/surfview.umd.js.map" ]; then \
+		cp $(SURFVIEWJS_DIR)/dist/surfview.umd.js.map $(NEUROSURFACE_LIB)/surfview.umd.js.map; \
+		echo "$(COLOR_GREEN)✓ Copied surfview source map$(COLOR_RESET)"; \
+	elif [ -f "$(SURFVIEWJS_DIR)/dist/neurosurface.umd.js.map" ]; then \
+		cp $(SURFVIEWJS_DIR)/dist/neurosurface.umd.js.map $(NEUROSURFACE_LIB)/surfview.umd.js.map; \
+		echo "$(COLOR_GREEN)✓ Duplicated source map as surfview.umd.js.map$(COLOR_RESET)"; \
 	fi
 	@echo "$(COLOR_GREEN)✓ Files copied successfully$(COLOR_RESET)"
 
@@ -106,7 +114,7 @@ $(NEUROSURFACE_JS): $(SURFVIEWJS_BUILD) | $(NEUROSURFACE_LIB)
 # ============================================================================
 
 .PHONY: update-yaml
-update-yaml: $(NEUROSURFACE_JS)
+update-yaml: sync-surfviewjs
 	@echo "$(COLOR_BLUE)Updating surfwidget.yaml with version from package.json...$(COLOR_RESET)"
 	@VERSION=$$(node -p "require('$(SURFVIEWJS_PKG)').version" 2>/dev/null); \
 	if [ -z "$$VERSION" ]; then \

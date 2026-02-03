@@ -21,7 +21,6 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -87,35 +86,23 @@ broader smoothing because more neighbours are included in the average.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load a surface file from the extdata directory</span></span></span>
-<span class="r-in"><span><span class="va">surf_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"sample_surface.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">surface</span> <span class="op">&lt;-</span> <span class="fu">readAsc</span><span class="op">(</span><span class="va">surf_file</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in readAsc(surf_file):</span> could not find function "readAsc"</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Create some random data for the surface vertices</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a tiny example surface and data</span></span></span>
+<span class="r-in"><span><span class="va">surface</span> <span class="op">&lt;-</span> <span class="fu"><a href="example_surface_geometry.html">example_surface_geometry</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">n_vertices</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu">coords</span><span class="op">(</span><span class="va">surface</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'coords': object 'surface' not found</span>
 <span class="r-in"><span><span class="va">random_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_vertices</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'n_vertices' not found</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Create a NeuroSurface object with the surface and data</span></span></span>
 <span class="r-in"><span><span class="va">neuro_surf</span> <span class="op">&lt;-</span> <span class="fu"><a href="NeuroSurface.html">NeuroSurface</a></span><span class="op">(</span>geometry <span class="op">=</span> <span class="va">surface</span>,</span></span>
-<span class="r-in"><span>                          indices <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n_vertices</span>,</span></span>
+<span class="r-in"><span>                          indices <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_vertices</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                          data <span class="op">=</span> <span class="va">random_data</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'surface' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Apply smoothing with different radii</span></span></span>
-<span class="r-in"><span><span class="va">smoothed_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="smooth-methods.html">smooth</a></span><span class="op">(</span><span class="va">neuro_surf</span>, sigma <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'smooth': object 'neuro_surf' not found</span>
-<span class="r-in"><span><span class="va">smoothed_large</span> <span class="op">&lt;-</span> <span class="fu"><a href="smooth-methods.html">smooth</a></span><span class="op">(</span><span class="va">neuro_surf</span>, sigma <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'smooth': object 'neuro_surf' not found</span>
+<span class="r-in"><span><span class="va">smoothed_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="smooth-methods.html">smooth</a></span><span class="op">(</span><span class="va">neuro_surf</span>, sigma <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">smoothed_large</span> <span class="op">&lt;-</span> <span class="fu"><a href="smooth-methods.html">smooth</a></span><span class="op">(</span><span class="va">neuro_surf</span>, sigma <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The original geometry is preserved, but the data is smoothed</span></span></span>
-<span class="r-in"><span><span class="co"># Compare a small section of data before and after smoothing</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">random_data</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'head': object 'random_data' not found</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">series</span><span class="op">(</span><span class="va">smoothed_large</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'head': error in evaluating the argument 'x' in selecting a method for function 'series': object 'smoothed_large' not found</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">series</span><span class="op">(</span><span class="va">smoothed_large</span>, <span class="fu">indices</span><span class="op">(</span><span class="va">smoothed_large</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             [,1]        [,2]        [,3]        [,4]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.05213988 -0.05213988 -0.05213988 -0.05213988</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

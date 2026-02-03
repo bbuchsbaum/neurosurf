@@ -37,7 +37,6 @@ Change the automatic rotation speed of a surfwidget widget."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -156,6 +155,14 @@ is useful if you want to save an expression in a variable.</p></dd>
 <dd><p>Numeric rotation speed.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>For <code>surfwidgetOutput</code>, a Shiny UI element for displaying the widget.
+  For <code>renderSurfwidget</code>, a server-side render function.
+  For <code>updateSurfwidgetConfig</code>, <code>updateIRange</code>, <code>updateThreshold</code>,
+  <code>updateVertexColors</code>, <code>updateAlpha</code>, <code>updateZoom</code>, and
+  <code>updateRotationSpeed</code>, the modified widget object (invisibly).</p>
+    </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Sends a custom message of type <code>"neurosurf-surfwidget-config"</code> to update the widget configuration on the client.</p>

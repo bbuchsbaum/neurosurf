@@ -21,7 +21,6 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -103,30 +102,33 @@ requesting more neighbors than exist in the graph.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load a sample inflated surface from the package</span></span></span>
-<span class="r-in"><span><span class="va">surf_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8.lh.inflated.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">surf</span> <span class="op">&lt;-</span> <span class="fu">readAsc</span><span class="op">(</span><span class="va">surf_file</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in readAsc(surf_file):</span> could not find function "readAsc"</span>
+<span class="r-in"><span><span class="va">surf_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8_lh.inflated.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">surf</span> <span class="op">&lt;-</span> <span class="fu"><a href="read_surf_geometry.html">read_surf_geometry</a></span><span class="op">(</span><span class="va">surf_file</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e3794b996d/neurosurf/extdata/std.8_lh.inflated.asc</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create edge weights (using uniform weights for simplicity)</span></span></span>
 <span class="r-in"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="graph-methods.html">graph</a></span><span class="op">(</span><span class="va">surf</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'graph': object 'surf' not found</span>
-<span class="r-in"><span><span class="va">edge_weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu">E</span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in E(g):</span> could not find function "E"</span>
+<span class="r-in"><span><span class="va">edge_weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/E.html" class="external-link">E</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Find neighbors within a 10mm radius for the first 5 vertices</span></span></span>
 <span class="r-in"><span><span class="va">neighbors</span> <span class="op">&lt;-</span> <span class="fu">find_all_neighbors</span><span class="op">(</span><span class="va">surf</span>, radius <span class="op">=</span> <span class="fl">10</span>,</span></span>
 <span class="r-in"><span>                               edgeWeights <span class="op">=</span> <span class="va">edge_weights</span>,</span></span>
 <span class="r-in"><span>                               nodes <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,</span></span>
 <span class="r-in"><span>                               distance_type <span class="op">=</span> <span class="st">"geodesic"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'surf' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Check the number of neighbors found for the first vertex</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">neighbors</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'neighbors' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 221</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Look at the first few neighbors of the first vertex</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">neighbors</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'head': object 'neighbors' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      i   j d</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 1   1 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 1  55 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 1  27 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 1 125 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 1  13 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 1  90 1</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

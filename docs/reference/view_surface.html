@@ -27,7 +27,6 @@ overlaying spherical markers."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -64,7 +63,7 @@ overlaying spherical markers.</p>
 <span>  alpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  add_normals <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  thresh <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  irange <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">vals</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  irange <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  specular <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  lit <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  viewpoint <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lateral"</span>, <span class="st">"medial"</span>, <span class="st">"ventral"</span>, <span class="st">"dorsal"</span>, <span class="st">"anterior"</span>, <span class="st">"posterior"</span><span class="op">)</span>,</span>
@@ -72,6 +71,19 @@ overlaying spherical markers.</p>
 <span>  offset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span>
 <span>  zoom <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  spheres <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  spheres_map_surface <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  spheres_map_label <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  spheres_as_vertices <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  vectors <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  vector_vertices <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  vector_scale <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  vector_color <span class="op">=</span> <span class="st">"red"</span>,</span>
+<span>  vector_alpha <span class="op">=</span> <span class="fl">0.8</span>,</span>
+<span>  vector_lwd <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  vals_vertices <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  vals_smoothing <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"nearest"</span><span class="op">)</span>,</span>
+<span>  vals_smoothing_steps <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  label <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -82,7 +94,8 @@ overlaying spherical markers.</p>
 
 <dl><dt id="arg-surfgeom">surfgeom<a class="anchor" aria-label="anchor" href="#arg-surfgeom"></a></dt>
 <dd><p>A <code><a href="SurfaceGeometry-class.html">SurfaceGeometry</a></code> object representing the
-3D brain surface mesh to be displayed.</p></dd>
+3D brain surface mesh to be displayed, or a <code><a href="SurfaceSet-class.html">SurfaceSet</a></code>
+containing multiple variants.</p></dd>
 
 
 <dt id="arg-vals">vals<a class="anchor" aria-label="anchor" href="#arg-vals"></a></dt>
@@ -172,7 +185,74 @@ Values &gt; 1 zoom in, &lt; 1 zoom out.</p></dd>
 <dd><p>An optional data frame to draw spheres at specific locations on
 or near the surface. Must contain columns `x`, `y`, `z` (coordinates), and
 `radius`. Can optionally include a `color` column (hex codes or color names)
-for individual sphere colors (defaults to black).</p></dd>
+for individual sphere colors (defaults to black). Alternatively, supply a
+`vertex` column (1-based vertex ids) and set <code>spheres_as_vertices = TRUE</code>
+to position foci by vertex.</p></dd>
+
+
+<dt id="arg-spheres-map-surface">spheres_map_surface<a class="anchor" aria-label="anchor" href="#arg-spheres-map-surface"></a></dt>
+<dd><p>Optional <code>SurfaceGeometry</code>, <code>SurfaceSet</code>,
+or file path used to map sphere coordinates to the nearest vertex on that
+surface before snapping to <code>surfgeom</code>. Assumes both surfaces share the
+same vertex ordering (e.g., white -&gt; inflated).</p></dd>
+
+
+<dt id="arg-spheres-map-label">spheres_map_label<a class="anchor" aria-label="anchor" href="#arg-spheres-map-label"></a></dt>
+<dd><p>Optional surface label to use when
+<code>spheres_map_surface</code> is a <code>SurfaceSet</code>.</p></dd>
+
+
+<dt id="arg-spheres-as-vertices">spheres_as_vertices<a class="anchor" aria-label="anchor" href="#arg-spheres-as-vertices"></a></dt>
+<dd><p>Logical; if <code>TRUE</code>, interpret the `vertex`
+column of <code>spheres</code> as 1-based vertex ids on <code>surfgeom</code> rather
+than raw coordinates.</p></dd>
+
+
+<dt id="arg-vectors">vectors<a class="anchor" aria-label="anchor" href="#arg-vectors"></a></dt>
+<dd><p>Optional matrix (n x 3) of XYZ vectors to draw as line glyphs.</p></dd>
+
+
+<dt id="arg-vector-vertices">vector_vertices<a class="anchor" aria-label="anchor" href="#arg-vector-vertices"></a></dt>
+<dd><p>Optional vertex ids matching rows of <code>vectors</code>
+when they are defined on a subset of vertices.</p></dd>
+
+
+<dt id="arg-vector-scale">vector_scale<a class="anchor" aria-label="anchor" href="#arg-vector-scale"></a></dt>
+<dd><p>Optional numeric scale factor for vectors. If <code>NULL</code>,
+a heuristic scale based on mesh extent and vector magnitudes is used.</p></dd>
+
+
+<dt id="arg-vector-color">vector_color<a class="anchor" aria-label="anchor" href="#arg-vector-color"></a></dt>
+<dd><p>Colour for the vectors (single value or vector).</p></dd>
+
+
+<dt id="arg-vector-alpha">vector_alpha<a class="anchor" aria-label="anchor" href="#arg-vector-alpha"></a></dt>
+<dd><p>Opacity for the vectors (0–1).</p></dd>
+
+
+<dt id="arg-vector-lwd">vector_lwd<a class="anchor" aria-label="anchor" href="#arg-vector-lwd"></a></dt>
+<dd><p>Numeric line width for vector glyphs.</p></dd>
+
+
+<dt id="arg-vals-vertices">vals_vertices<a class="anchor" aria-label="anchor" href="#arg-vals-vertices"></a></dt>
+<dd><p>Optional integer vector of 1-based vertex ids corresponding
+to `vals` when `length(vals) &lt; n_vertices`. Enables sparse data inputs.</p></dd>
+
+
+<dt id="arg-vals-smoothing">vals_smoothing<a class="anchor" aria-label="anchor" href="#arg-vals-smoothing"></a></dt>
+<dd><p>One of `"auto"` (default) or `"nearest"`. When using
+sparse data, `"auto"` diffuses values with neighbor averaging after nearest
+fill; `"nearest"` performs nearest-neighbour fill only.</p></dd>
+
+
+<dt id="arg-vals-smoothing-steps">vals_smoothing_steps<a class="anchor" aria-label="anchor" href="#arg-vals-smoothing-steps"></a></dt>
+<dd><p>Integer number of smoothing iterations applied
+when `vals_smoothing = "auto"`. Ignored otherwise.</p></dd>
+
+
+<dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>
+<dd><p>Optional surface label to select when `surfgeom` is a
+<code>SurfaceSet</code>. Defaults to the set's `default_label`.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -211,30 +291,16 @@ control over rendering (e.g., `lit`, `smooth`).</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="co"># Assume 'surf_geom' is a SurfaceGeometry object loaded previously</span></span></span>
-<span class="r-in"><span><span class="co"># e.g., surf_geom &lt;- read_surf_geometry("path/to/surface.gii")</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Load a surface geometry</span></span></span>
+<span class="r-in"><span><span class="va">surf_geom</span> <span class="op">&lt;-</span> <span class="fu"><a href="example_surface_geometry.html">example_surface_geometry</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Simple display with default background color</span></span></span>
 <span class="r-in"><span><span class="fu">view_surface</span><span class="op">(</span><span class="va">surf_geom</span>, viewpoint <span class="op">=</span> <span class="st">"lateral"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'surf_geom' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Display with curvature coloring (assuming you have curvature data)</span></span></span>
-<span class="r-in"><span><span class="co"># curv_vals &lt;- curvature(surf_geom) # Calculate curvature if needed</span></span></span>
-<span class="r-in"><span><span class="co"># view_surface(surf_geom, vals = curv_vals, cmap = gray.colors(256), viewpoint = "medial")</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Display with specific vertex colors (e.g., based on labels)</span></span></span>
-<span class="r-in"><span><span class="co"># num_verts &lt;- length(nodes(surf_geom))</span></span></span>
-<span class="r-in"><span><span class="co"># colors_for_verts &lt;- sample(c("red", "blue", "green"), num_verts, replace = TRUE)</span></span></span>
-<span class="r-in"><span><span class="co"># view_surface(surf_geom, vert_clrs = colors_for_verts, viewpoint = "ventral")</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Display with thresholding and custom color map</span></span></span>
-<span class="r-in"><span><span class="co"># random_data &lt;- rnorm(length(nodes(surf_geom)))</span></span></span>
-<span class="r-in"><span><span class="co"># view_surface(surf_geom, vals = random_data,</span></span></span>
-<span class="r-in"><span><span class="co">#              cmap = colorRampPalette(c("blue", "white", "red"))(256),</span></span></span>
-<span class="r-in"><span><span class="co">#              thresh = c(-1.5, 1.5), # Make values between -1.5 and 1.5 transparent</span></span></span>
-<span class="r-in"><span><span class="co">#              irange = c(-3, 3),     # Map values from -3 to 3 onto the cmap</span></span></span>
-<span class="r-in"><span><span class="co">#              viewpoint = "posterior")</span></span></span>
+<span class="r-in"><span><span class="va">curv_vals</span> <span class="op">&lt;-</span> <span class="fu"><a href="curvature-methods.html">curvature</a></span><span class="op">(</span><span class="va">surf_geom</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">view_surface</span><span class="op">(</span><span class="va">surf_geom</span>, vals <span class="op">=</span> <span class="va">curv_vals</span>, cmap <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/gray.colors.html" class="external-link">gray.colors</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>, viewpoint <span class="op">=</span> <span class="st">"medial"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Display with spheres marking specific coordinates</span></span></span>
 <span class="r-in"><span><span class="va">sphere_coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
@@ -245,12 +311,7 @@ control over rendering (e.g., `lit`, `smooth`).</p></dd>
 <span class="r-in"><span>  color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"yellow"</span>, <span class="st">"cyan"</span>, <span class="st">"magenta"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">view_surface</span><span class="op">(</span><span class="va">surf_geom</span>, viewpoint <span class="op">=</span> <span class="st">"lateral"</span>, spheres <span class="op">=</span> <span class="va">sphere_coords</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'surf_geom' not found</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Plot in the current rgl window without opening a new one</span></span></span>
-<span class="r-in"><span><span class="co"># rgl::open3d() # Open window first</span></span></span>
-<span class="r-in"><span><span class="co"># view_surface(surf_geom, new_window = FALSE)</span></span></span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

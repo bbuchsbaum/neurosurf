@@ -23,7 +23,6 @@ allowing for different mapping strategies."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -58,7 +57,12 @@ allowing for different mapping strategies.</p>
 <span>  knn <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>  sigma <span class="op">=</span> <span class="fl">8</span>,</span>
 <span>  dthresh <span class="op">=</span> <span class="va">sigma</span> <span class="op">*</span> <span class="fl">2</span>,</span>
-<span>  fill <span class="op">=</span> <span class="fl">0</span></span>
+<span>  fill <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  sampling <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"midpoint"</span>, <span class="st">"normal_line"</span>, <span class="st">"thickness"</span><span class="op">)</span>,</span>
+<span>  n_samples <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  depth <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  radius <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  sampler <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -104,6 +108,33 @@ allowing for different mapping strategies.</p>
 <dt id="arg-fill">fill<a class="anchor" aria-label="anchor" href="#arg-fill"></a></dt>
 <dd><p>Value used when no nearby voxels are found (default: 0 to preserve previous behavior).</p></dd>
 
+
+<dt id="arg-sampling">sampling<a class="anchor" aria-label="anchor" href="#arg-sampling"></a></dt>
+<dd><p>How to place sample points relative to the white/pial pair.
+Options are:</p><ul><li><p>"midpoint" (default): original behaviour, samples at the midpoint between white and pial.</p></li>
+<li><p>"thickness": samples along the white→pial line at fractions given by <code>depth</code> or evenly spaced.</p></li>
+<li><p>"normal_line": samples along the vertex normal centred on the midpoint, spanning <code>radius</code> in both directions (or using <code>depth</code> offsets).</p></li>
+</ul></dd>
+
+
+<dt id="arg-n-samples">n_samples<a class="anchor" aria-label="anchor" href="#arg-n-samples"></a></dt>
+<dd><p>Number of samples per vertex for <code>sampling != "midpoint"</code> when <code>depth</code> is not supplied.</p></dd>
+
+
+<dt id="arg-depth">depth<a class="anchor" aria-label="anchor" href="#arg-depth"></a></dt>
+<dd><p>Optional numeric vector controlling sampling positions; interpreted as fractions of thickness (for "thickness") or multiples of <code>radius</code> (for "normal_line").</p></dd>
+
+
+<dt id="arg-radius">radius<a class="anchor" aria-label="anchor" href="#arg-radius"></a></dt>
+<dd><p>Radius (in voxel units) for normal-line sampling when
+<code>sampling = "normal_line"</code>; also used as the distance scale when
+interpreting <code>depth</code> offsets for that mode.</p></dd>
+
+
+<dt id="arg-sampler">sampler<a class="anchor" aria-label="anchor" href="#arg-sampler"></a></dt>
+<dd><p>Optional surface sampler object created by <code><a href="surface_sampler.html">surface_sampler()</a></code>.
+When provided, the sampler is reused and other sampling-related arguments are ignored.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -114,45 +145,39 @@ allowing for different mapping strategies.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co"># Load standard white and pial surfaces from the package</span></span></span>
-<span class="r-in"><span><span class="va">wm_surf_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8.lh.white.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pial_surf_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8.lh.pial.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">wm_surf_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8_lh.white.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pial_surf_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8_lh.pial.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">surf_wm</span> <span class="op">&lt;-</span> <span class="fu"><a href="read_surf_geometry.html">read_surf_geometry</a></span><span class="op">(</span><span class="va">wm_surf_file</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in SurfaceGeometrySource(surface_name):</span> file.exists(surface_name) is not TRUE</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e3794b996d/neurosurf/extdata/std.8_lh.white.asc</span>
 <span class="r-in"><span><span class="va">surf_pial</span> <span class="op">&lt;-</span> <span class="fu"><a href="read_surf_geometry.html">read_surf_geometry</a></span><span class="op">(</span><span class="va">pial_surf_file</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in SurfaceGeometrySource(surface_name):</span> file.exists(surface_name) is not TRUE</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e3794b996d/neurosurf/extdata/std.8_lh.pial.asc</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Load an example volume (replace with actual loading code later)</span></span></span>
-<span class="r-in"><span><span class="co"># vol &lt;- neuroim2::read_vol("path/to/volume.nii")</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Example: Create a dummy volume for demonstration purposes</span></span></span>
-<span class="r-in"><span><span class="co"># This should be replaced with real volume data</span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bbuchsbaum/neuroim2" class="external-link">neuroim2</a></span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘neuroim2’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:base’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     scale</span>
-<span class="r-in"><span><span class="co"># Assume the surfaces are in a space roughly covered by this bounding box</span></span></span>
-<span class="r-in"><span><span class="co"># Adjust dimensions and origin based on your actual data alignment</span></span></span>
+<span class="r-in"><span><span class="co"># Create a dummy volume for demonstration purposes</span></span></span>
 <span class="r-in"><span><span class="va">bb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">80</span>, <span class="fl">80</span>, <span class="op">-</span><span class="fl">120</span>, <span class="fl">80</span>, <span class="op">-</span><span class="fl">60</span>, <span class="fl">90</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">2</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">spacing</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">bb</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">bb</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span> <span class="va">spacing</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">origin</span> <span class="op">&lt;-</span> <span class="va">bb</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">sp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/NeuroSpace.html" class="external-link">NeuroSpace</a></span><span class="op">(</span><span class="va">dims</span>, <span class="va">spacing</span>, <span class="va">origin</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">vol</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/NeuroVol.html" class="external-link">NeuroVol</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/prod.html" class="external-link">prod</a></span><span class="op">(</span><span class="va">dims</span><span class="op">)</span><span class="op">)</span>, <span class="va">sp</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">sp</span> <span class="op">&lt;-</span> <span class="fu">neuroim2</span><span class="fu">::</span><span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/NeuroSpace.html" class="external-link">NeuroSpace</a></span><span class="op">(</span><span class="va">dims</span>, <span class="va">spacing</span>, <span class="va">origin</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">vol</span> <span class="op">&lt;-</span> <span class="fu">neuroim2</span><span class="fu">::</span><span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/NeuroVol.html" class="external-link">NeuroVol</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/prod.html" class="external-link">prod</a></span><span class="op">(</span><span class="va">dims</span><span class="op">)</span><span class="op">)</span>, <span class="va">sp</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Map volume to surface using average mapping</span></span></span>
 <span class="r-in"><span><span class="va">mapped_surf</span> <span class="op">&lt;-</span> <span class="fu">vol_to_surf</span><span class="op">(</span><span class="va">surf_wm</span>, <span class="va">surf_pial</span>, <span class="va">vol</span>, fun <span class="op">=</span> <span class="st">"avg"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'vertices': object 'surf_wm' not found</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/series-methods.html" class="external-link">series</a></span><span class="op">(</span><span class="va">mapped_surf</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'print': error in evaluating the argument 'object' in selecting a method for function 'summary': error in evaluating the argument 'x' in selecting a method for function 'series': object 'mapped_surf' not found</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Map volume to surface using nearest neighbor mapping</span></span></span>
-<span class="r-in"><span><span class="va">mapped_surf_nn</span> <span class="op">&lt;-</span> <span class="fu">vol_to_surf</span><span class="op">(</span><span class="va">surf_wm</span>, <span class="va">surf_pial</span>, <span class="va">vol</span>, fun <span class="op">=</span> <span class="st">"nn"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'vertices': object 'surf_wm' not found</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/series-methods.html" class="external-link">series</a></span><span class="op">(</span><span class="va">mapped_surf_nn</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'print': error in evaluating the argument 'object' in selecting a method for function 'summary': error in evaluating the argument 'x' in selecting a method for function 'series': object 'mapped_surf_nn' not found</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">mapped_surf</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BBBBBB; background-color: #0000BB; font-weight: bold;"> NeuroSurface </span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB; font-weight: bold;">  Geometry &amp; Data Mapping:</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Hemisphere:</span>         <span style="color: #BBBB00;">lh</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Total Vertices:</span>   <span style="color: #BBBB00;">642</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Vertices w/ Data:</span><span style="color: #BBBB00;">642</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB; font-weight: bold;">  Data Summary:</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Min:</span>    <span style="color: #BBBB00;">-1.066</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Median:</span><span style="color: #BBBB00;">0.008907</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Mean:</span>  <span style="color: #BBBB00;">0.008469</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Max:</span>    <span style="color: #BBBB00;">1.264</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

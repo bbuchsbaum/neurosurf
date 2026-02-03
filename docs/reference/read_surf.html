@@ -21,7 +21,6 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -98,46 +97,16 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Check if the file exists</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">surf_file</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="co"># Read the surface data</span></span></span>
+<span class="r-in"><span>  <span class="co"># Read the surface geometry (returns SurfaceGeometry for geometry-only files)</span></span></span>
 <span class="r-in"><span>  <span class="va">surf</span> <span class="op">&lt;-</span> <span class="fu">read_surf</span><span class="op">(</span><span class="va">surf_file</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># Display basic information about the surface</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">surf</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co"># Get summary statistics of the surface data</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">surf</span><span class="op">@</span><span class="va">data</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co"># Visualize the surface if rgl is available</span></span></span>
-<span class="r-in"><span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"rgl"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>    <span class="co"># Plot the surface mesh</span></span></span>
-<span class="r-in"><span>    <span class="fu">rgl</span><span class="fu">::</span><span class="fu"><a href="https://dmurdoch.github.io/rgl/dev/reference/open3d.html" class="external-link">open3d</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span>    <span class="fu">rgl</span><span class="fu">::</span><span class="fu"><a href="https://dmurdoch.github.io/rgl/dev/reference/shade3d.html" class="external-link">shade3d</a></span><span class="op">(</span><span class="va">surf</span><span class="op">@</span><span class="va">geometry</span><span class="op">@</span><span class="va">mesh</span>, col <span class="op">=</span> <span class="st">"lightblue"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>    <span class="fu">rgl</span><span class="fu">::</span><span class="fu"><a href="https://dmurdoch.github.io/rgl/dev/reference/axes3d.html" class="external-link">title3d</a></span><span class="op">(</span>main <span class="op">=</span> <span class="st">"Example Surface"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span>    <span class="co"># If the surface has data values, color the mesh by these values</span></span></span>
-<span class="r-in"><span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">surf</span><span class="op">@</span><span class="va">data</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>      <span class="co"># Normalize data to [0,1] for coloring</span></span></span>
-<span class="r-in"><span>      <span class="va">norm_data</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">surf</span><span class="op">@</span><span class="va">data</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">surf</span><span class="op">@</span><span class="va">data</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">surf</span><span class="op">@</span><span class="va">data</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">surf</span><span class="op">@</span><span class="va">data</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span>      <span class="co"># Create a color palette</span></span></span>
-<span class="r-in"><span>      <span class="va">colors</span> <span class="op">&lt;-</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/colorRamp.html" class="external-link">colorRampPalette</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blue"</span>, <span class="st">"cyan"</span>, <span class="st">"green"</span>,</span></span>
-<span class="r-in"><span>                                             <span class="st">"yellow"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span>      <span class="co"># Map data values to colors</span></span></span>
-<span class="r-in"><span>      <span class="va">col_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="va">norm_data</span> <span class="op">*</span> <span class="fl">99</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span>      <span class="va">vertex_colors</span> <span class="op">&lt;-</span> <span class="va">colors</span><span class="op">[</span><span class="va">col_idx</span><span class="op">]</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span>      <span class="co"># Plot colored mesh</span></span></span>
-<span class="r-in"><span>      <span class="fu">rgl</span><span class="fu">::</span><span class="fu"><a href="https://dmurdoch.github.io/rgl/dev/reference/open3d.html" class="external-link">open3d</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span>      <span class="fu">rgl</span><span class="fu">::</span><span class="fu"><a href="https://dmurdoch.github.io/rgl/dev/reference/shade3d.html" class="external-link">shade3d</a></span><span class="op">(</span><span class="va">surf</span><span class="op">@</span><span class="va">geometry</span><span class="op">@</span><span class="va">mesh</span>, col <span class="op">=</span> <span class="va">vertex_colors</span><span class="op">)</span></span></span>
-<span class="r-in"><span>      <span class="fu">rgl</span><span class="fu">::</span><span class="fu"><a href="https://dmurdoch.github.io/rgl/dev/reference/axes3d.html" class="external-link">title3d</a></span><span class="op">(</span>main <span class="op">=</span> <span class="st">"Surface Colored by Data Values"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>    <span class="op">}</span></span></span>
-<span class="r-in"><span>  <span class="op">}</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Example surface file not found. This may occur if the package "</span>,</span></span>
-<span class="r-in"><span>          <span class="st">"was installed without the example data."</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># Get vertex coordinates</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">coords</span><span class="op">(</span><span class="va">surf</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.smoothwm.asc</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e3794b996d/neurosurf/extdata/std.8_lh.smoothwm.asc</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  SurfaceGeometry </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -159,7 +128,13 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Surface Area:</span>        <span style="color: #BBBB00;">36956</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Avg Edge Length:</span>     <span style="color: #BBBB00;">10.31</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'object' in selecting a method for function 'summary': no slot of name "data" for this object of class "SurfaceGeometry"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           [,1]       [,2]       [,3]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -32.43124  -5.756156 -26.852390</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -38.78497  10.942583  52.546612</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] -26.23813 -35.324768  58.413246</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] -29.04933 -73.917900 -10.296215</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] -39.65442  20.463083   9.974921</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] -44.23693 -70.911591  28.850304</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

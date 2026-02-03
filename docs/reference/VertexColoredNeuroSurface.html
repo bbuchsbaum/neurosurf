@@ -23,7 +23,6 @@ with explicit colors assigned to each vertex."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -75,6 +74,11 @@ used for coloring (colors are specified directly via the <code>colors</code> par
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>A <code>VertexColoredNeuroSurface</code> object containing the surface geometry
+  with explicit vertex colors.</p>
+    </div>
+    <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This object represents a surface where each vertex has an explicitly assigned color,
   bypassing any data-to-color mapping. This is useful when you want direct control over
@@ -89,31 +93,39 @@ used for coloring (colors are specified directly via the <code>colors</code> par
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co"># Load a sample surface geometry</span></span></span>
-<span class="r-in"><span><span class="va">surf_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8.lh.inflated.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">surf_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8_lh.inflated.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">surf_geom</span> <span class="op">&lt;-</span> <span class="fu"><a href="read_surf_geometry.html">read_surf_geometry</a></span><span class="op">(</span><span class="va">surf_file</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in SurfaceGeometrySource(surface_name):</span> file.exists(surface_name) is not TRUE</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e3794b996d/neurosurf/extdata/std.8_lh.inflated.asc</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Get first 100 vertices for this example</span></span></span>
 <span class="r-in"><span><span class="va">n_verts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu">coords</span><span class="op">(</span><span class="va">surf_geom</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'coords': object 'surf_geom' not found</span>
 <span class="r-in"><span><span class="va">vertex_indices</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="va">n_verts</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'n_verts' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create colors based on vertex coordinates (x-position)</span></span></span>
 <span class="r-in"><span><span class="va">x_coords</span> <span class="op">&lt;-</span> <span class="fu">coords</span><span class="op">(</span><span class="va">surf_geom</span><span class="op">)</span><span class="op">[</span><span class="va">vertex_indices</span>, <span class="fl">1</span><span class="op">]</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'coords': object 'surf_geom' not found</span>
 <span class="r-in"><span><span class="va">vertex_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">x_coords</span> <span class="op">&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">x_coords</span><span class="op">)</span>, <span class="st">"#FF6B6B"</span>, <span class="st">"#4ECDC4"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'x_coords' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create the VertexColoredNeuroSurface object</span></span></span>
 <span class="r-in"><span><span class="va">colored_surf</span> <span class="op">&lt;-</span> <span class="fu">VertexColoredNeuroSurface</span><span class="op">(</span>geometry <span class="op">=</span> <span class="va">surf_geom</span>,</span></span>
 <span class="r-in"><span>                                          indices <span class="op">=</span> <span class="va">vertex_indices</span>,</span></span>
 <span class="r-in"><span>                                          colors <span class="op">=</span> <span class="va">vertex_colors</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'vertex_indices' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Print the object summary</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">colored_surf</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'print': object 'colored_surf' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BBBBBB; background-color: #0000BB; font-weight: bold;"> NeuroSurface </span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB; font-weight: bold;">  Geometry &amp; Data Mapping:</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Hemisphere:</span>         <span style="color: #BBBB00;">lh</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Total Vertices:</span>   <span style="color: #BBBB00;">642</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Vertices w/ Data:</span><span style="color: #BBBB00;">100</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB; font-weight: bold;">  Data Summary:</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Min:</span>    <span style="color: #BBBB00;">0</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Median:</span><span style="color: #BBBB00;">0</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Mean:</span>  <span style="color: #BBBB00;">0</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">Max:</span>    <span style="color: #BBBB00;">0</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The object can now be plotted with the specified colors</span></span></span>
 <span class="r-in"><span><span class="co"># plot(colored_surf) # Requires rgl package</span></span></span>

@@ -68,9 +68,18 @@ if (has_rgl) {
 library(neuroim2)
 library(neurosurf)
 
+# Counter for unique figure names
+.render_counter <- new.env(parent = emptyenv())
+.render_counter$n <- 0
+
 # Helper function: try snapshot_surface first, fall back to rglwidget
 render_surface <- function(surfgeom, ..., width = 800, height = 600) {
-  img_path <- try(snapshot_surface(surfgeom, width = width, height = height, ...), silent = TRUE)
+  # Use knitr's figure path to ensure proper asset tracking
+  .render_counter$n <- .render_counter$n + 1
+  fig_file <- knitr::fig_path(paste0("-render-", .render_counter$n, ".png"))
+  dir.create(dirname(fig_file), recursive = TRUE, showWarnings = FALSE)
+
+  img_path <- try(snapshot_surface(surfgeom, file = fig_file, width = width, height = height, ...), silent = TRUE)
   if (!inherits(img_path, "try-error") && length(img_path) > 0 && file.exists(img_path)) {
     knitr::include_graphics(img_path)
   } else {
@@ -86,8 +95,12 @@ render_surface <- function(surfgeom, ..., width = 800, height = 600) {
 # Helper function: render multiple viewpoints in a grid
 render_multi_view <- function(surfgeom, viewpoints = c("lateral", "medial", "ventral", "posterior"),
                               ..., width = 600, height = 450) {
-  paths <- lapply(viewpoints, function(vp) {
-    try(snapshot_surface(surfgeom, viewpoint = vp, width = width, height = height, ...), silent = TRUE)
+  paths <- lapply(seq_along(viewpoints), function(i) {
+    vp <- viewpoints[i]
+    .render_counter$n <- .render_counter$n + 1
+    fig_file <- knitr::fig_path(paste0("-multiview-", .render_counter$n, ".png"))
+    dir.create(dirname(fig_file), recursive = TRUE, showWarnings = FALSE)
+    try(snapshot_surface(surfgeom, file = fig_file, viewpoint = vp, width = width, height = height, ...), silent = TRUE)
   })
 
   valid <- sapply(paths, function(p) !inherits(p, "try-error") && length(p) > 0 && file.exists(p))
@@ -263,7 +276,12 @@ render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = topo.
 Use \code{snapshot_surface()} to render an off-screen PNG and include it directly:
 
 ```{r snapshot-example}
+.render_counter$n <- .render_counter$n + 1
+snapshot_file <- knitr::fig_path(paste0("-snapshot-", .render_counter$n, ".png"))
+dir.create(dirname(snapshot_file), recursive = TRUE, showWarnings = FALSE)
+
 img_path <- try(snapshot_surface(white_lh_display,
+                                 file = snapshot_file,
                                  vals = random_vals_display_smooth,
                                  cmap = viridis::viridis(256),
                                  viewpoint = "lateral",
@@ -297,8 +315,12 @@ white_rh_smooth <- smooth(white_rh, type = "HCLaplace", delta = 0.2, iteration =
 curv_rh <- curvature(white_rh_smooth)
 
 # Try snapshot approach for two hemispheres
+.render_counter$n <- .render_counter$n + 1
+two_hemi_file <- knitr::fig_path(paste0("-twohemi-", .render_counter$n, ".png"))
+dir.create(dirname(two_hemi_file), recursive = TRUE, showWarnings = FALSE)
+
 img_path <- try({
-  file <- tempfile(fileext = ".png")
+  file <- two_hemi_file
   rgl::open3d()
   rgl::par3d(windowRect = c(0, 0, 1200, 600))
   rgl::bg3d(color = "white")

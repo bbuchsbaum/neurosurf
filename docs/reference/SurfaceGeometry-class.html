@@ -23,7 +23,6 @@ It encapsulates the mesh structure, graph representation, and hemisphere informa
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -49,11 +48,18 @@ It encapsulates the mesh structure, graph representation, and hemisphere informa
 
 
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>An object of class <code>SurfaceGeometry</code>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This class is fundamental for representing brain surface geometries in neuroimaging analyses.
 The mesh slot contains the vertex and face information, while the graph slot provides
 a network representation of the surface topology. The hemi slot specifies which
 hemisphere the surface represents.</p>
+<p>The <code>surf_to_world</code> transform enables proper projection between surface and volume spaces:
+<code>world_pos = surf_to_world %*% c(vertex_pos, 1)</code>, then
+<code>voxel_ijk = world_to_vox %*% world_pos</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="slots">Slots<a class="anchor" aria-label="anchor" href="#slots"></a></h2>
@@ -71,45 +77,28 @@ hemisphere the surface represents.</p>
 <dd><p>A character string indicating the hemisphere of the surface ("left", "right", or "both").</p></dd>
 
 
+<dt><code>label</code></dt>
+<dd><p>A character string describing the surface type (e.g., "pial", "white", "inflated", "sphere").</p></dd>
+
+
+<dt><code>surf_to_world</code></dt>
+<dd><p>A 4x4 numeric matrix representing the affine transformation from surface
+coordinates to world (scanner RAS) coordinates. This handles coordinate system conventions
+(e.g., RAS vs LPI), reference space alignment (e.g., MNI305 vs MNI152), and any embedded
+transforms from file formats (e.g., GIFTI CoordinateSystemTransformMatrix). Defaults to
+the identity matrix (surface coordinates are assumed to be in world space).</p></dd>
+
+
 </dl></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="https://dmurdoch.github.io/rgl/dev/reference/mesh3d.html" class="external-link">mesh3d</a></code>, <code><a href="https://r.igraph.org/reference/aaa-igraph-package.html" class="external-link">igraph</a></code></p></div>
+    <div class="dont-index"><p><code><a href="https://dmurdoch.github.io/rgl/dev/reference/mesh3d.html" class="external-link">mesh3d</a></code>, <code><a href="https://r.igraph.org/reference/aaa-igraph-package.html" class="external-link">igraph</a></code>, <code><a href="surf_to_world-methods.html">surf_to_world</a></code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="co"># Create a simple tetrahedron mesh</span></span></span>
-<span class="r-in"><span><span class="va">vertices</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">triangles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">4</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Create mesh3d object</span></span></span>
-<span class="r-in"><span><span class="va">mesh</span> <span class="op">&lt;-</span> <span class="fu">rgl</span><span class="fu">::</span><span class="fu"><a href="https://dmurdoch.github.io/rgl/dev/reference/mesh3d.html" class="external-link">mesh3d</a></span><span class="op">(</span>vertices <span class="op">=</span> <span class="va">vertices</span>, triangles <span class="op">=</span> <span class="va">triangles</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Create a graph representation</span></span></span>
-<span class="r-in"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">4</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">4</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">4</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/graph_from_edgelist.html" class="external-link">graph_from_edgelist</a></span><span class="op">(</span><span class="va">edges</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Create a SurfaceGeometry object</span></span></span>
-<span class="r-in"><span><span class="va">surface</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/methods/new.html" class="external-link">new</a></span><span class="op">(</span><span class="st">"SurfaceGeometry"</span>,</span></span>
-<span class="r-in"><span>               mesh <span class="op">=</span> <span class="va">mesh</span>,</span></span>
-<span class="r-in"><span>               graph <span class="op">=</span> <span class="va">graph</span>,</span></span>
-<span class="r-in"><span>               hemi <span class="op">=</span> <span class="st">"left"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">geometry</span> <span class="op">&lt;-</span> <span class="fu"><a href="example_surface_geometry.html">example_surface_geometry</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
