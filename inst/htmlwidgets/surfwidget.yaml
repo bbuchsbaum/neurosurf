@@ -8,5 +8,5 @@ dependencies:
     version: 2.1.0
     src: htmlwidgets/lib/neurosurface
     script:
+      - three-controls-polyfill.js
       - neurosurface.umd.js
-
