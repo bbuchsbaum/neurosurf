@@ -31,3 +31,7 @@ adjacency(x)
 - ...:
 
   Additional arguments
+
+## Value
+
+A sparse adjacency matrix of class `dgCMatrix`

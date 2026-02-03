@@ -1,6 +1,6 @@
-# values
+# Extract Data Values from Surface Objects
 
-values
+Extracts the data values associated with vertices in a surface object.
 
 ## Usage
 
@@ -24,3 +24,7 @@ values(x, ...)
 - ...:
 
   additional arguments
+
+## Value
+
+A numeric vector or matrix of data values

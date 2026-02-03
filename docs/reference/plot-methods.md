@@ -1,6 +1,6 @@
-# plot a surface
+# Plot a Surface
 
-plot a surface
+Renders a surface object using the interactive viewer.
 
 ## Usage
 
@@ -120,3 +120,7 @@ plot(x, alpha = 1, specular = "black", bgcol = "lightgray", ...)
 - ...:
 
   extra args to send to `view_surface`
+
+## Value
+
+An htmlwidget object for interactive visualization

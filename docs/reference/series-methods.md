@@ -1,6 +1,6 @@
-# series
+# Extract Time Series from Surface Vector
 
-series
+Extracts time series data from specific vertices in a surface vector.
 
 ## Usage
 
@@ -27,3 +27,7 @@ series(x, i)
 - i:
 
   the indices of the series to extract
+
+## Value
+
+A matrix where columns are time points and rows are vertex indices

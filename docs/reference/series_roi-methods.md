@@ -1,6 +1,6 @@
-# series_roi
+# Extract ROI Time Series from Surface Vector
 
-series_roi
+Extracts time series data from a region of interest in a surface vector.
 
 ## Usage
 
@@ -21,3 +21,8 @@ series_roi(x, i)
 - i:
 
   the indices of the series to extract
+
+## Value
+
+An [`ROISurfaceVector`](ROISurfaceVector-class.md) containing the
+extracted time series

@@ -92,8 +92,8 @@ A modified `"neurosurf_plot"` object.
 ``` r
 # \donttest{
 fs <- load_fsaverage_std8("inflated")
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.inflated.asc
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_rh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_rh.inflated.asc
 p  <- surface_plot(fs$lh, fs$rh)
 # roi_labels <- ... # per-vertex ROI ids
 # p <- add_atlas_outline(p, roi_labels)

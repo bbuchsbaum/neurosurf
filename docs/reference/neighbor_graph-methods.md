@@ -102,19 +102,17 @@ connectivity on brain surfaces.
 
 ``` r
 # \donttest{
-# Assuming 'surface_mesh' is a pre-defined surface mesh object
-graph <- neighbor_graph(surface_mesh, radius = 5,
-                        edgeWeights = runif(nrow(surface_mesh$vertices)),
-                        nodes = 1:1000)
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'neighbor_graph': object 'surface_mesh' not found
+geom <- example_surface_geometry()
+graph <- neighbor_graph(geom, radius = 1)
+igraph::vcount(graph)
+#> [1] 4
 # }
 
 # \donttest{
-g <- make_graph("Zachary")
-#> Error in make_graph("Zachary"): could not find function "make_graph"
-E(g)$dist <- runif(ecount(g))
-#> Error in ecount(g): could not find function "ecount"
-neighbor_g <- neighbor_graph(g, radius = 0.5, distance_type = "geodesic")
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'neighbor_graph': object 'g' not found
+# Build a neighbor graph from a simple SurfaceGeometry
+geom <- example_surface_geometry()
+g_geom <- neighbor_graph(geom, radius = 1)
+igraph::vcount(g_geom)
+#> [1] 4
 # }
 ```

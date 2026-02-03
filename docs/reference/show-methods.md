@@ -1,6 +1,6 @@
 # show
 
-show
+Prints a human-readable summary of surface objects to the console.
 
 ## Usage
 
@@ -28,4 +28,8 @@ show(object)
 
 - object:
 
-  A SurfaceGeometryMetaInfo object
+  The surface object to display
+
+## Value
+
+Invisibly returns `NULL`. Called for its side effect of printing.

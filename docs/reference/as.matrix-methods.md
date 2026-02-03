@@ -1,6 +1,6 @@
-# as.matrix
+# Convert Surface Data to Matrix
 
-as.matrix
+Converts surface data to a matrix representation.
 
 ## Usage
 
@@ -20,3 +20,8 @@ as.matrix(x)
 - x:
 
   the object to convert to a matrix
+
+## Value
+
+A numeric matrix with vertices as rows and time points/features as
+columns

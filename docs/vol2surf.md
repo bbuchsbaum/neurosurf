@@ -82,9 +82,10 @@ surf_vals  <- vol2surf_sample(vol, fsavg_surf, T = T_vol2surf, delta = 2, n_step
 - `compute_hull_world()` → thin wrapper over C++ hull extractor.
 - `estimate_sdf_rigid()` → thin wrapper over roptim functor.
 - `transform_surface_geometry()` → apply 4×4 to vertex coords.
-- `vol_to_surf_sdf()` → high-level: hull → rigid align → transform
-  surfaces → call existing [`vol_to_surf()`](reference/vol_to_surf.md);
-  no mapping rewrite required.
+- [`vol_to_surf_sdf()`](reference/vol_to_surf_sdf.md) → high-level: hull
+  → rigid align → transform surfaces → call existing
+  [`vol_to_surf()`](reference/vol_to_surf.md); no mapping rewrite
+  required.
 
 ## Performance notes
 
@@ -98,11 +99,12 @@ surf_vals  <- vol2surf_sample(vol, fsavg_surf, T = T_vol2surf, delta = 2, n_step
 
 ## Next implementation steps (if/when)
 
-- Finalize `compute_hull_world_cpp()` with correct 0/1-based index
-  convention for neuroim2.
+- Finalize
+  [`compute_hull_world_cpp()`](reference/compute_hull_world_cpp.md) with
+  correct 0/1-based index convention for neuroim2.
 - Add `estimate_sdf_rigid_cpp` (with trilinear sampler + roptim) to
   src/.
-- Wire `vol_to_surf_sdf()` and expose a precomputed fsaverage SDF
-  dataset.
+- Wire [`vol_to_surf_sdf()`](reference/vol_to_surf_sdf.md) and expose a
+  precomputed fsaverage SDF dataset.
 - Optional: C++ normal-sampling mapper for a parallel
   `vol_to_surf_normals_sdf()`.

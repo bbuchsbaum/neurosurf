@@ -3,11 +3,16 @@
 This class contains meta information for surface-based geometry for the
 GIFTI data format
 
+## Value
+
+An object of class `GIFTISurfaceGeometryMetaInfo`.
+
 ## Slots
 
 - `info`:
 
-  the underlying `gifti` object returned by `readgii`
+  the underlying `gifti` object returned by
+  [`readgii`](https://rdrr.io/pkg/gifti/man/readgii.html)
 
 ## Examples
 

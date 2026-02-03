@@ -20,8 +20,8 @@ volume space to the surface, and inflated surfaces for visualization.
 ``` r
 # Geometry for plotting
 fs_infl <- load_fsaverage_std8("inflated")
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.inflated.asc
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_rh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_rh.inflated.asc
 lh <- fs_infl$lh
 rh <- fs_infl$rh
 
@@ -29,19 +29,19 @@ rh <- fs_infl$rh
 lh_white <- read_surf_geometry(
   system.file("extdata", "std.8_lh.white.asc", package = "neurosurf")
 )
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.white.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.white.asc
 lh_pial <- read_surf_geometry(
   system.file("extdata", "std.8_lh.pial.asc", package = "neurosurf")
 )
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.pial.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.pial.asc
 rh_white <- read_surf_geometry(
   system.file("extdata", "std.8_rh.white.asc", package = "neurosurf")
 )
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_rh.white.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_rh.white.asc
 rh_pial <- read_surf_geometry(
   system.file("extdata", "std.8_rh.pial.asc", package = "neurosurf")
 )
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_rh.pial.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_rh.pial.asc
 ```
 
 For this example we assume that the Schaefer 200-parcel, 7-network atlas
@@ -51,6 +51,7 @@ map parcel labels to the surface vertices.
 
 ``` r
 atlas_path <- system.file(
+  "extdata",
   "Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii.gz",
   package = "neurosurf"
 )
@@ -62,14 +63,12 @@ if (atlas_path != "") {
   lh_labels <- vol_to_surf(lh_white, lh_pial, atlas_img, fun = "mode")
   rh_labels <- vol_to_surf(rh_white, rh_pial, atlas_img, fun = "mode")
 } else {
-  warning("Schaefer atlas file not found in inst/extdata; using placeholder zeros for vignette build.")
+  warning("Schaefer atlas file not found in extdata; using placeholder zeros for vignette build.")
   lh_labels <- NeuroSurface(lh_white, indices = seq_len(length(nodes(lh_white))),
                             data = integer(length(nodes(lh_white))))
   rh_labels <- NeuroSurface(rh_white, indices = seq_len(length(nodes(rh_white))),
                             data = integer(length(nodes(rh_white))))
 }
-#> Warning: Schaefer atlas file not found in inst/extdata; using placeholder zeros
-#> for vignette build.
 ```
 
 The helper [`vol_to_surf()`](../reference/vol_to_surf.md) returns a
@@ -115,8 +114,6 @@ p <- add_surface_layer(
   label        = "Network index",
   alpha        = 0.9
 )
-#> Warning in min(x): no non-missing arguments to min; returning Inf
-#> Warning in max(x): no non-missing arguments to max; returning -Inf
 
 # Add parcel outlines with tasteful defaults
 p <- add_atlas_outline(
@@ -148,14 +145,22 @@ g <- draw_surface_plot(
     bar_spacing = grid::unit(0.4, "lines")
   )
 )
-#> Warning in findBoundaries(ns_obj, method = "edge_vertices"): Only one region
-#> present; no boundaries to detect.
-#> Warning in findBoundaries(ns_obj, method = "edge_vertices"): Only one region
-#> present; no boundaries to detect.
-#> Warning in findBoundaries(ns_obj, method = "edge_vertices"): Only one region
-#> present; no boundaries to detect.
-#> Warning in findBoundaries(ns_obj, method = "edge_vertices"): Only one region
-#> present; no boundaries to detect.
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in max(x): no non-missing arguments to max; returning -Inf
+#> Warning in rgl::rgl.snapshot(filename = tmpfile): this build of rgl does not
+#> support snapshots
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in max(x): no non-missing arguments to max; returning -Inf
+#> Warning in rgl::rgl.snapshot(filename = tmpfile): this build of rgl does not
+#> support snapshots
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in max(x): no non-missing arguments to max; returning -Inf
+#> Warning in rgl::rgl.snapshot(filename = tmpfile): this build of rgl does not
+#> support snapshots
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in max(x): no non-missing arguments to max; returning -Inf
+#> Warning in rgl::rgl.snapshot(filename = tmpfile): this build of rgl does not
+#> support snapshots
 
 grid::grid.newpage()
 grid::grid.draw(g)

@@ -18,3 +18,7 @@ print(x, ...)
 - ...:
 
   Additional arguments (not used)
+
+## Value
+
+Invisibly returns the Searchlight object (called for side effect).

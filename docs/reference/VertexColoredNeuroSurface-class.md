@@ -3,6 +3,10 @@
 A three-dimensional surface consisting of a set of triangle vertices
 with one color per vertex.
 
+## Value
+
+An object of class `VertexColoredNeuroSurface`.
+
 ## Details
 
 This class extends `NeuroSurface` by adding per-vertex coloring
@@ -15,7 +19,7 @@ specifies colors for each vertex.
 
 - `geometry`:
 
-  The surface geometry, an instance of `SurfaceGeometry`
+  The surface geometry, an instance of `SurfaceGeometry` or `SurfaceSet`
 
 - `indices`:
 

@@ -38,6 +38,10 @@ ColorMappedNeuroSurface(geometry, indices, data, cmap, irange, thresh)
 
   A numeric value specifying the threshold for the colormap.
 
+## Value
+
+An instance of class `ColorMappedNeuroSurface`.
+
 ## Details
 
 This object bundles the surface geometry, data, and specific color
@@ -55,20 +59,17 @@ rendering (e.g., when using 'plot()”).
 
 ``` r
 # Load a sample surface geometry
-surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
+surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 surf_geom <- read_surf_geometry(surf_file)
-#> Error in SurfaceGeometrySource(surface_name): file.exists(surface_name) is not TRUE
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.inflated.asc
 
 # Get vertex count and generate some random data
 n_verts <- nrow(coords(surf_geom))
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'coords': object 'surf_geom' not found
 set.seed(123)
 vertex_data <- rnorm(n_verts)
-#> Error: object 'n_verts' not found
 
 # Define indices (all vertices in this case)
 vertex_indices <- 1:n_verts
-#> Error: object 'n_verts' not found
 
 # Define color mapping parameters
 my_cmap <- colorRampPalette(c("blue", "white", "red"))(256) # Blue-white-red colormap
@@ -82,11 +83,23 @@ mapped_surf <- ColorMappedNeuroSurface(geometry = surf_geom,
                                        cmap = my_cmap,
                                        irange = my_irange,
                                        thresh = my_thresh)
-#> Error: object 'surf_geom' not found
 
 # Print the object summary
 print(mapped_surf)
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'print': object 'mapped_surf' not found
+#> 
+#>  NeuroSurface  
+#> 
+#>   Geometry & Data Mapping: 
+#>   Hemisphere:         lh
+#>   Total Vertices:   642
+#>   Vertices w/ Data:642
+#> 
+#>   Data Summary: 
+#>   Min:    -2.81
+#>   Median:-0.02167
+#>   Mean:  0.004774
+#>   Max:    3.241
+#> 
 
 # The object can now be plotted, and the plotting function will use
 # the stored cmap, irange, and thresh parameters by default.

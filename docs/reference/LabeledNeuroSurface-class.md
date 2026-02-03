@@ -2,6 +2,10 @@
 
 Represents a 3D surface with labeled vertices, extending NeuroSurface.
 
+## Value
+
+An object of class `LabeledNeuroSurface`.
+
 ## Details
 
 The LabeledNeuroSurface class provides a way to represent anatomical

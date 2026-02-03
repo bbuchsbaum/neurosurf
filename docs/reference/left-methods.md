@@ -20,3 +20,12 @@ left(x)
 ## Value
 
 Left hemisphere of the surface
+
+## Examples
+
+``` r
+# \donttest{
+# Requires bilateral surface data
+# lh <- left(bilat_surface)
+# }
+```

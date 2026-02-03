@@ -2,6 +2,10 @@
 
 Represents a 3D surface with multiple values per vertex.
 
+## Value
+
+An object of class `NeuroSurfaceVector`
+
 ## Details
 
 The NeuroSurfaceVector class extends the concept of NeuroSurface to

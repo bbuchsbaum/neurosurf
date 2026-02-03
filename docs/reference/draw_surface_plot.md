@@ -42,3 +42,14 @@ draw_surface_plot(
 
 A `grob` object that can be drawn with
 [`grid::grid.draw()`](https://rdrr.io/r/grid/grid.draw.html).
+
+## Examples
+
+``` r
+# \donttest{
+# Requires FreeSurfer-like surface files
+# sp <- surface_plot(left = "lh.pial", right = "rh.pial")
+# g <- draw_surface_plot(sp)
+# grid::grid.draw(g)
+# }
+```

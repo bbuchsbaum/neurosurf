@@ -19,3 +19,7 @@ map_values(x, lookup)
 
   a `matrix` with two columns: the first column is the key, and the
   second column is the value
+
+## Value
+
+A `NeuroSurface` object with remapped values

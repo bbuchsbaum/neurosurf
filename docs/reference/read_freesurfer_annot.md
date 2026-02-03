@@ -50,10 +50,8 @@ with the provided surface geometry.
 
 ``` r
 # \donttest{
-geom <- readSurfaceGeometry("path/to/surface.gii")
-#> Error in readSurfaceGeometry("path/to/surface.gii"): could not find function "readSurfaceGeometry"
-labeled_surface <- read_freesurfer_annot("path/to/labels.annot", geom)
-#> Warning: cannot open file 'path/to/labels.annot': No such file or directory
-#> Error in file(file_name, "rb"): cannot open the connection
+# Read a FreeSurfer annotation file (requires actual annotation file)
+geom <- example_surface_geometry()
+# labeled_surface <- read_freesurfer_annot("lh.aparc.annot", geom)
 # }
 ```

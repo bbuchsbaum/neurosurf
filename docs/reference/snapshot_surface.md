@@ -43,12 +43,9 @@ returned.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 fs <- load_fsaverage_std8("inflated")
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.inflated.asc
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_rh.inflated.asc
 img <- snapshot_surface(fs$lh, viewpoint = "lateral", specular = "black")
-#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpbC7ZcQ/filec6ee2824d50d.html screenshot completed
 # knitr::include_graphics(img)
-# }
+} # }
 ```

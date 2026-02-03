@@ -18,3 +18,7 @@ map_values(x, lookup)
 - lookup:
 
   a list of values to map
+
+## Value
+
+A `NeuroSurface` object with remapped values

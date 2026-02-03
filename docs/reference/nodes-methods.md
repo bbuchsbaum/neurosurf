@@ -30,3 +30,11 @@ A vector of node numbers.
 ## See also
 
 [`vertices`](vertices-methods.md)
+
+## Examples
+
+``` r
+geom <- example_surface_geometry()
+nodes(geom)
+#> [1] 1 2 3 4
+```

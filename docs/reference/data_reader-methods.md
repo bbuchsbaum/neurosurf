@@ -1,6 +1,6 @@
-# data_reader
+# Create a Column Reader for Surface Data
 
-data_reader
+Creates a column reader object for accessing surface data.
 
 ## Usage
 
@@ -17,3 +17,7 @@ data_reader(x)
 - x:
 
   A SurfaceGeometryMetaInfo object
+
+## Value
+
+A `ColumnReader` object for accessing surface data columns

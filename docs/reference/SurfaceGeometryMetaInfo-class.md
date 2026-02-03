@@ -4,6 +4,10 @@ The \`SurfaceGeometryMetaInfo\` class encapsulates meta information for
 brain surface geometry. It stores details about the file locations,
 surface properties, and spatial characteristics.
 
+## Value
+
+An object of class `SurfaceGeometryMetaInfo`.
+
 ## Details
 
 This class is crucial for maintaining metadata about brain surface

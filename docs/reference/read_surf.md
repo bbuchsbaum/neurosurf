@@ -64,46 +64,16 @@ surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosur
 
 # Check if the file exists
 if (file.exists(surf_file)) {
-  # Read the surface data
+  # Read the surface geometry (returns SurfaceGeometry for geometry-only files)
   surf <- read_surf(surf_file)
 
   # Display basic information about the surface
   print(surf)
 
-  # Get summary statistics of the surface data
-  summary(surf@data)
-
-  # Visualize the surface if rgl is available
-  if (requireNamespace("rgl", quietly = TRUE)) {
-    # Plot the surface mesh
-    rgl::open3d()
-    rgl::shade3d(surf@geometry@mesh, col = "lightblue")
-    rgl::title3d(main = "Example Surface")
-
-    # If the surface has data values, color the mesh by these values
-    if (length(surf@data) > 0) {
-      # Normalize data to [0,1] for coloring
-      norm_data <- (surf@data - min(surf@data)) / (max(surf@data) - min(surf@data))
-
-      # Create a color palette
-      colors <- grDevices::colorRampPalette(c("blue", "cyan", "green",
-                                             "yellow", "red"))(100)
-
-      # Map data values to colors
-      col_idx <- ceiling(norm_data * 99) + 1
-      vertex_colors <- colors[col_idx]
-
-      # Plot colored mesh
-      rgl::open3d()
-      rgl::shade3d(surf@geometry@mesh, col = vertex_colors)
-      rgl::title3d(main = "Surface Colored by Data Values")
-    }
-  }
-} else {
-  message("Example surface file not found. This may occur if the package ",
-          "was installed without the example data.")
+  # Get vertex coordinates
+  head(coords(surf))
 }
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.smoothwm.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.smoothwm.asc
 #> 
 #>  SurfaceGeometry 
 #> 
@@ -125,6 +95,12 @@ if (file.exists(surf_file)) {
 #>   Surface Area:        36956
 #>   Avg Edge Length:     10.31
 #> 
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'object' in selecting a method for function 'summary': no slot of name "data" for this object of class "SurfaceGeometry"
+#>           [,1]       [,2]       [,3]
+#> [1,] -32.43124  -5.756156 -26.852390
+#> [2,] -38.78497  10.942583  52.546612
+#> [3,] -26.23813 -35.324768  58.413246
+#> [4,] -29.04933 -73.917900 -10.296215
+#> [5,] -39.65442  20.463083   9.974921
+#> [6,] -44.23693 -70.911591  28.850304
 # }
 ```

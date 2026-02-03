@@ -12,7 +12,7 @@ NeuroSurfaceVector(geometry, indices, mat)
 
 - geometry:
 
-  a `SurfaceGeometry` instance
+  a `SurfaceGeometry` or `SurfaceSet` instance
 
 - indices:
 
@@ -21,3 +21,8 @@ NeuroSurfaceVector(geometry, indices, mat)
 - mat:
 
   a `matrix` of data values (rows=nodes, columns=variables)
+
+## Value
+
+A [`NeuroSurfaceVector`](NeuroSurfaceVector-class.md) object containing
+the geometry, node indices, and data matrix.

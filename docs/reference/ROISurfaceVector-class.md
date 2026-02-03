@@ -2,6 +2,10 @@
 
 A class that respresents a surface-based region of interest
 
+## Value
+
+An object of class `ROISurfaceVector`.
+
 ## Details
 
 The ROISurfaceVector class extends the concept of ROISurface to handle

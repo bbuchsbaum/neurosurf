@@ -3,6 +3,10 @@
 This class supports the Freesurfer binary file format for surface
 geometry
 
+## Value
+
+An object of class `FreesurferBinarySurfaceFileDescriptor`.
+
 ## Examples
 
 ``` r

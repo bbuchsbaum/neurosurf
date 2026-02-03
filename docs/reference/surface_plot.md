@@ -68,3 +68,13 @@ An object of class `"neurosurf_plot"` that can be further modified with
 [`add_surface_layer()`](add_surface_layer.md) and rendered with
 [`render_surface_plot()`](render_surface_plot.md) or
 [`draw_surface_plot()`](draw_surface_plot.md).
+
+## Examples
+
+``` r
+# \donttest{
+geom <- example_surface_geometry()
+p <- surface_plot(geom)
+p <- add_surface_layer(p, data = rnorm(nrow(coords(geom))))
+# }
+```

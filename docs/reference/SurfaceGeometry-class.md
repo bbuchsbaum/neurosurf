@@ -5,6 +5,10 @@ consisting of a set of triangle vertices. It encapsulates the mesh
 structure, graph representation, and hemisphere information of a brain
 surface.
 
+## Value
+
+An object of class `SurfaceGeometry`.
+
 ## Details
 
 This class is fundamental for representing brain surface geometries in
@@ -12,6 +16,10 @@ neuroimaging analyses. The mesh slot contains the vertex and face
 information, while the graph slot provides a network representation of
 the surface topology. The hemi slot specifies which hemisphere the
 surface represents.
+
+The `surf_to_world` transform enables proper projection between surface
+and volume spaces: `world_pos = surf_to_world %*% c(vertex_pos, 1)`,
+then `voxel_ijk = world_to_vox %*% world_pos`.
 
 ## Slots
 
@@ -30,44 +38,31 @@ surface represents.
   A character string indicating the hemisphere of the surface ("left",
   "right", or "both").
 
+- `label`:
+
+  A character string describing the surface type (e.g., "pial", "white",
+  "inflated", "sphere").
+
+- `surf_to_world`:
+
+  A 4x4 numeric matrix representing the affine transformation from
+  surface coordinates to world (scanner RAS) coordinates. This handles
+  coordinate system conventions (e.g., RAS vs LPI), reference space
+  alignment (e.g., MNI305 vs MNI152), and any embedded transforms from
+  file formats (e.g., GIFTI CoordinateSystemTransformMatrix). Defaults
+  to the identity matrix (surface coordinates are assumed to be in world
+  space).
+
 ## See also
 
 [`mesh3d`](https://dmurdoch.github.io/rgl/dev/reference/mesh3d.html),
-[`igraph`](https://r.igraph.org/reference/aaa-igraph-package.html)
+[`igraph`](https://r.igraph.org/reference/aaa-igraph-package.html),
+[`surf_to_world`](surf_to_world-methods.md)
 
 ## Examples
 
 ``` r
 # \donttest{
-# Create a simple tetrahedron mesh
-vertices <- c(
-  0, 0, 0,
-  1, 0, 0,
-  0, 1, 0,
-  0, 0, 1
-)
-triangles <- c(
-  1, 2, 3,
-  1, 2, 4,
-  1, 3, 4,
-  2, 3, 4
-)
-
-# Create mesh3d object
-mesh <- rgl::mesh3d(vertices = vertices, triangles = triangles)
-
-# Create a graph representation
-edges <- rbind(
-  c(1,2), c(1,3), c(1,4),
-  c(2,3), c(2,4),
-  c(3,4)
-)
-graph <- igraph::graph_from_edgelist(edges)
-
-# Create a SurfaceGeometry object
-surface <- new("SurfaceGeometry",
-               mesh = mesh,
-               graph = graph,
-               hemi = "left")
+geometry <- example_surface_geometry()
 # }
 ```

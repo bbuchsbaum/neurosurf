@@ -1,6 +1,6 @@
-# extractor
+# Subset NeuroSurfaceVector by Column
 
-extractor
+Extracts columns (time points) from a NeuroSurfaceVector.
 
 ## Usage
 
@@ -30,3 +30,7 @@ x[i, j, ..., drop = TRUE]
 - drop:
 
   dimension
+
+## Value
+
+A numeric matrix or vector of extracted column data

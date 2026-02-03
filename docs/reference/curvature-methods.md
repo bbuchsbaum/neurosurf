@@ -22,3 +22,7 @@ curvature(x)
 - ...:
 
   Additional arguments
+
+## Value
+
+A numeric vector of curvature values, one per vertex

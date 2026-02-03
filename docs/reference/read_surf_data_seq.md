@@ -1,6 +1,6 @@
-# read_surf_data_seq
+# Read Surface Data Sequence
 
-load one or more surface datasets for both left and right hemispheres
+Load one or more surface datasets for both left and right hemispheres.
 
 ## Usage
 
@@ -29,3 +29,7 @@ read_surf_data_seq(leftGeometry, rightGeometry, leftDataNames, rightDataNames)
 
   a `character` vector indicating names of right-hemisphere surface data
   files to be mapped to geometry.
+
+## Value
+
+A list of `BilatNeuroSurfaceVector` objects, one per pair of data files

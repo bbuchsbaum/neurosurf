@@ -53,7 +53,7 @@ sequences.
 # \donttest{
 file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 geom <- read_surf(file)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.smoothwm.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.smoothwm.asc
 searchlight <- RandomSurfaceSearchlight(geom, 12)
 set.seed(42)
 dl <- RandomSurfaceSearchlight(geom, 12, as_deflist=TRUE)

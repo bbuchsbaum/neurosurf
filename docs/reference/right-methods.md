@@ -20,3 +20,12 @@ right(x)
 ## Value
 
 Right hemisphere of the surface
+
+## Examples
+
+``` r
+# \donttest{
+# Requires bilateral surface data
+# rh <- right(bilat_surface)
+# }
+```

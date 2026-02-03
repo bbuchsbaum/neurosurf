@@ -10,7 +10,8 @@ read different surface files into R
 
   load surface data and link to `SurfaceGeometry`
 
-- [`read_surf_data_seq()`](read_surf_data_seq.md) : read_surf_data_seq
+- [`read_surf_data_seq()`](read_surf_data_seq.md) : Read Surface Data
+  Sequence
 
 - [`read_freesurfer_annot()`](read_freesurfer_annot.md) : Read
   Freesurfer Annotation File
@@ -171,6 +172,14 @@ Catch-all index to include any remaining topics.
 
 - [`SurfaceSearchlight()`](SurfaceSearchlight.md) : SurfaceSearchlight
 
+- [`geometry(`*`<SurfaceSet>`*`)`](SurfaceSet-class.md)
+  [`vertices(`*`<SurfaceSet>`*`)`](SurfaceSet-class.md)
+  [`faces(`*`<SurfaceSet>`*`)`](SurfaceSet-class.md)
+  [`nodes(`*`<SurfaceSet>`*`)`](SurfaceSet-class.md)
+  [`graph(`*`<SurfaceSet>`*`)`](SurfaceSet-class.md)
+  [`curvature(`*`<SurfaceSet>`*`)`](SurfaceSet-class.md) : SurfaceSet:
+  bundle multiple surface variants for one hemisphere
+
 - [`VertexColoredNeuroSurface-class`](VertexColoredNeuroSurface-class.md)
   : VertexColoredNeuroSurface
 
@@ -185,19 +194,32 @@ Catch-all index to include any remaining topics.
 - [`add_surface_layer()`](add_surface_layer.md) : Add a data layer to a
   surface plot
 
+- [`add_vector_layer()`](add_vector_layer.md) : Add a vector field
+  overlay
+
 - [`adjacency()`](adjacency-methods.md) : Get Adjacency Graph
 
-- [`as`](as-methods.md) : as
+- [`apply_surface_sampler()`](apply_surface_sampler.md) : Apply a
+  precomputed surface sampler to a volume
+
+- [`as`](as-methods.md) : Coercion Methods for NeuroSurface Objects
 
 - [`as.matrix(`*`<ROISurfaceVector>`*`)`](as.matrix-methods.md)
   [`as.matrix(`*`<NeuroSurfaceVector>`*`)`](as.matrix-methods.md)
   [`as.matrix(`*`<BilatNeuroSurfaceVector>`*`)`](as.matrix-methods.md) :
-  as.matrix
+  Convert Surface Data to Matrix
 
-- [`as.vector(`*`<NeuroSurface>`*`)`](as.vector-methods.md) : as.vector
+- [`as.vector(`*`<NeuroSurface>`*`)`](as.vector-methods.md) : Convert
+  Surface Data to Vector
+
+- [`clear_geodesic_cache()`](clear_geodesic_cache.md) : Clear geodesic
+  cache
 
 - [`cluster_threshold()`](cluster_threshold-methods.md) : Apply
   Cluster-Extent Threshold to Surface Data
+
+- [`compute_hull_world_cpp()`](compute_hull_world_cpp.md) : Compute
+  boundary hull points in world space (C++)
 
 - [`conn_comp(`*`<NeuroSurfaceVector>`*`)`](conn_comp-methods.md)
   [`conn_comp(`*`<NeuroSurface>`*`)`](conn_comp-methods.md) : Compute
@@ -207,7 +229,8 @@ Catch-all index to include any remaining topics.
   [`coords(`*`<SurfaceGeometry>`*`)`](coords-methods.md)
   [`coords(`*`<igraph>`*`)`](coords-methods.md)
   [`coords(`*`<NeuroSurfaceVector>`*`)`](coords-methods.md)
-  [`coords(`*`<NeuroSurface>`*`)`](coords-methods.md) : coords
+  [`coords(`*`<NeuroSurface>`*`)`](coords-methods.md) : Extract Vertex
+  Coordinates
 
 - [`curv_cols()`](curv_cols.md) : Convert Curvature Values to Binary
   Colors for Visualization
@@ -217,7 +240,7 @@ Catch-all index to include any remaining topics.
 
 - [`data_reader(`*`<SurfaceGeometryMetaInfo>`*`)`](data_reader-methods.md)
   [`data_reader(`*`<NIMLSurfaceDataMetaInfo>`*`)`](data_reader-methods.md)
-  : data_reader
+  : Create a Column Reader for Surface Data
 
 - [`debug_surfwidget()`](debug_surfwidget.md) : Debugging Helper for
   surfwidget
@@ -225,17 +248,36 @@ Catch-all index to include any remaining topics.
 - [`draw_surface_plot()`](draw_surface_plot.md) : Draw a static
   multi-panel surface figure
 
+- [`faces()`](faces-methods.md) : Extract Faces from a Surface Object
+
 - [`findBoundaries()`](findBoundaries-methods.md) : Find Boundaries
   Between Regions on a Surface
 
 - [`find_all_neighbors()`](find_all_neighbors.md) : Find Node Neighbors
   in a Surface Mesh
 
+- [`find_nearest_vertex()`](find_nearest_vertex.md) : Find the nearest
+  surface vertex to a 3D point
+
 - [`find_roi_boundaries()`](find_roi_boundaries.md) : Find boundaries of
   ROIs on a surface mesh
 
+- [`gaussian_splat()`](gaussian_splat.md)
+  [`gaussian_splat_vertex()`](gaussian_splat.md)
+  [`gaussian_splat_multi()`](gaussian_splat.md) : Gaussian splats on
+  surface meshes
+
+- [`geodesic_distance_matrix()`](geodesic_distance_matrix.md) :
+  All-pairs geodesic distance matrix (chunked)
+
+- [`geodesic_distances()`](geodesic_distances.md) : Geodesic distances
+  from sources to targets
+
 - [`geometry()`](geometry-methods.md) : Extract Geometry from Surface
   Object
+
+- [`get_surface()`](get_surface.md) : Retrieve a geometry from a
+  SurfaceSet
 
 - [`graph()`](graph-methods.md) :
 
@@ -244,23 +286,32 @@ Catch-all index to include any remaining topics.
 - [`indices(`*`<ROISurface>`*`)`](indices-methods.md)
   [`indices(`*`<ROISurfaceVector>`*`)`](indices-methods.md)
   [`indices(`*`<NeuroSurfaceVector>`*`)`](indices-methods.md)
-  [`indices(`*`<NeuroSurface>`*`)`](indices-methods.md) : indices
+  [`indices(`*`<NeuroSurface>`*`)`](indices-methods.md) : Extract Vertex
+  Indices
 
 - [`laplacian()`](laplacian-methods.md) : Compute Graph Laplacian
 
 - [`left()`](left-methods.md) : Get Left Hemisphere
 
-- [`length(`*`<ROISurface>`*`)`](length-methods.md) : length
+- [`length(`*`<ROISurface>`*`)`](length-methods.md) : Get Length of
+  Surface Object
 
 - [`loadFSSurface()`](loadFSSurface.md) : load Freesurfer ascii surface
+
+- [`loadGIFTISurface()`](loadGIFTISurface.md) : Load GIFTI surface
+  geometry
 
 - [`load_data(`*`<NeuroSurfaceVectorSource>`*`)`](load_data-methods.md)
   [`load_data(`*`<NeuroSurfaceSource>`*`)`](load_data-methods.md)
   [`load_data(`*`<FreesurferSurfaceGeometryMetaInfo>`*`)`](load_data-methods.md)
+  [`load_data(`*`<GIFTISurfaceGeometryMetaInfo>`*`)`](load_data-methods.md)
   [`load_data(`*`<SurfaceGeometrySource>`*`)`](load_data-methods.md) :
   load_data
 
 - [`load_fsaverage()`](load_fsaverage.md) : Fetch fsaverage surfaces
+
+- [`load_fsaverage_bundle()`](load_fsaverage_bundle.md) : Load a bundle
+  of fsaverage surface variants as a SurfaceSet
 
 - [`load_fsaverage_std8()`](load_fsaverage_std8.md) : Load fsaverage
   std.8 surfaces packaged with neurosurf
@@ -280,17 +331,32 @@ Catch-all index to include any remaining topics.
 - [`neurosurf-package`](neurosurf.md) [`neurosurf`](neurosurf.md) :
   neurosurf: Data structures and IO for surface-based neuroimaging data.
 
+- [`neurosurf_download_testdata()`](neurosurf_download_testdata.md) :
+  Download optional test data for neurosurf
+
 - [`nodes()`](nodes-methods.md) : Extract Surface Node Numbers
+
+- [`parcel_boundary_contact()`](parcel_boundary_contact.md) : Parcel
+  boundary contact matrix
+
+- [`parcel_geodesic_centroid()`](parcel_geodesic_centroid.md) : Parcel
+  centroids using geodesic medoids
+
+- [`parcel_geodesic_distance_matrix()`](parcel_geodesic_distance_matrix.md)
+  : Parcel-to-parcel geodesic distances
 
 - [`plot(`*`<SurfaceGeometry>`*`,`*`<missing>`*`)`](plot-methods.md)
   [`plot(`*`<NeuroSurface>`*`,`*`<missing>`*`)`](plot-methods.md)
   [`plot(`*`<LabeledNeuroSurface>`*`,`*`<missing>`*`)`](plot-methods.md)
   [`plot(`*`<ColorMappedNeuroSurface>`*`,`*`<missing>`*`)`](plot-methods.md)
   [`plot(`*`<VertexColoredNeuroSurface>`*`,`*`<missing>`*`)`](plot-methods.md)
-  : plot a surface
+  : Plot a Surface
 
 - [`plot(`*`<SurfaceGeometry>`*`)`](plot.SurfaceGeometry.md) : Plot
   method for SurfaceGeometry objects
+
+- [`plot(`*`<SurfaceSet>`*`)`](plot.SurfaceSet.md) : Plot method for
+  SurfaceSet objects
 
 - [`plot(`*`<neurosurf_plot>`*`)`](plot.neurosurf_plot.md) : Plot method
   for neurosurf_plot objects
@@ -319,7 +385,8 @@ Catch-all index to include any remaining topics.
 
   load surface data and link to `SurfaceGeometry`
 
-- [`read_surf_data_seq()`](read_surf_data_seq.md) : read_surf_data_seq
+- [`read_surf_data_seq()`](read_surf_data_seq.md) : Read Surface Data
+  Sequence
 
 - [`read_surf_geometry()`](read_surf_geometry.md) : Read Surface
   Geometry from File
@@ -332,15 +399,18 @@ Catch-all index to include any remaining topics.
 
 - [`right()`](right-methods.md) : Get Right Hemisphere
 
+- [`sampler_to_triplets()`](sampler_to_triplets.md) : Extract sparse
+  matrix triplets from a surface sampler
+
 - [`series(`*`<NeuroSurfaceVector>`*`,`*`<numeric>`*`)`](series-methods.md)
   [`series(`*`<NeuroSurfaceVector>`*`,`*`<integer>`*`)`](series-methods.md)
   [`series(`*`<NeuroSurfaceVector>`*`,`*`<ROISurface>`*`)`](series-methods.md)
   [`series(`*`<NeuroSurface>`*`,`*`<numeric>`*`)`](series-methods.md) :
-  series
+  Extract Time Series from Surface Vector
 
 - [`series_roi(`*`<NeuroSurfaceVector>`*`,`*`<numeric>`*`)`](series_roi-methods.md)
   [`series_roi(`*`<NeuroSurfaceVector>`*`,`*`<ROISurface>`*`)`](series_roi-methods.md)
-  : series_roi
+  : Extract ROI Time Series from Surface Vector
 
 - [`show(`*`<SurfaceGeometryMetaInfo>`*`)`](show-methods.md)
   [`show(`*`<SurfaceDataMetaInfo>`*`)`](show-methods.md)
@@ -365,25 +435,39 @@ Catch-all index to include any remaining topics.
   PNG
 
 - [`` `[`( ``*`<NeuroSurfaceVector>`*`,`*`<missing>`*`,`*`<missing>`*`,`*`<ANY>`*`)`](sub-NeuroSurfaceVector-missing-missing-ANY-method.md)
-  : extractor
+  : Extract All Data from NeuroSurfaceVector
 
 - [`` `[`( ``*`<NeuroSurfaceVector>`*`,`*`<missing>`*`,`*`<numeric>`*`,`*`<ANY>`*`)`](sub-NeuroSurfaceVector-missing-numeric-ANY-method.md)
-  : extractor
+  : Subset NeuroSurfaceVector by Column
 
 - [`` `[`( ``*`<NeuroSurfaceVector>`*`,`*`<numeric>`*`,`*`<missing>`*`,`*`<ANY>`*`)`](sub-NeuroSurfaceVector-numeric-missing-ANY-method.md)
-  : extractor
+  : Subset NeuroSurfaceVector by Row
 
 - [`` `[`( ``*`<NeuroSurfaceVector>`*`,`*`<numeric>`*`,`*`<numeric>`*`,`*`<ANY>`*`)`](sub-NeuroSurfaceVector-numeric-numeric-ANY-method.md)
-  : extractor
+  : Subset NeuroSurfaceVector
 
 - [`` `[`( ``*`<ROISurface>`*`,`*`<numeric>`*`,`*`<missing>`*`,`*`<ANY>`*`)`](sub-ROISurface.md)
   : Subset an ROISurface Object
 
 - [`` `[[`( ``*`<NeuroSurfaceVector>`*`,`*`<numeric>`*`)`](sub-sub-NeuroSurfaceVector-numeric-method.md)
-  : extractor
+  : Extract Data from NeuroSurfaceVector
+
+- [`surf_to_world()`](surf_to_world-methods.md) : Get Surface-to-World
+  Transform
+
+- [`` `surf_to_world<-`() ``](surf_to_world-set-methods.md) : Set
+  Surface-to-World Transform
+
+- [`surface_labels()`](surface_labels.md) : List available surface
+  labels
 
 - [`surface_plot()`](surface_plot.md) : Create a surface plot
   specification
+
+- [`surface_sampler()`](surface_sampler.md) : Build a reusable surface
+  sampler for multi-frame volumes
+
+- [`surface_set()`](surface_set.md) : Construct a SurfaceSet
 
 - [`surfwidget()`](surfwidget-methods.md) : Create a Surface Widget
 
@@ -391,7 +475,8 @@ Catch-all index to include any remaining topics.
 
 - [`values(`*`<ROISurface>`*`)`](values-methods.md)
   [`values(`*`<ROISurfaceVector>`*`)`](values-methods.md)
-  [`values(`*`<NeuroSurface>`*`)`](values-methods.md) : values
+  [`values(`*`<NeuroSurface>`*`)`](values-methods.md) : Extract Data
+  Values from Surface Objects
 
 - [`vertices()`](vertices-methods.md) : Extract Vertices from a Surface
   Object
@@ -401,5 +486,8 @@ Catch-all index to include any remaining topics.
 
 - [`vol_to_surf()`](vol_to_surf.md) : Map values from a 3D volume to a
   surface in the same coordinate space
+
+- [`vol_to_surf_sdf()`](vol_to_surf_sdf.md) : Map a volume to surface
+  after SDF-based rigid alignment
 
 - [`write_surf_data()`](write_surf_data.md) : Write Surface Data to File

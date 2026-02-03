@@ -2,6 +2,10 @@
 
 Represents surface data for both left and right hemispheres.
 
+## Value
+
+An object of class `BilatNeuroSurfaceVector`.
+
 ## Details
 
 The BilatNeuroSurfaceVector class provides a convenient container for

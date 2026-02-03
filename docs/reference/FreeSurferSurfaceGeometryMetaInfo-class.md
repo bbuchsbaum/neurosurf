@@ -4,6 +4,10 @@ The \`FreesurferSurfaceGeometryMetaInfo\` class extends
 \`SurfaceGeometryMetaInfo\` to specifically handle meta information for
 Freesurfer-formatted brain surface geometries.
 
+## Value
+
+An object of class `FreesurferSurfaceGeometryMetaInfo`.
+
 ## Details
 
 This class inherits all slots from the parent

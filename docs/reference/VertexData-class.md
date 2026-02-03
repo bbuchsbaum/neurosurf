@@ -2,6 +2,10 @@
 
 A set of arbitary vertices associated with a data table
 
+## Value
+
+An object of class `VertexData`.
+
 ## Details
 
 The VertexData class provides a flexible way to associate arbitrary data

@@ -3,6 +3,10 @@
 This class supports the Freesurfer Ascii file format for surface
 geometry
 
+## Value
+
+An object of class `FreesurferAsciiSurfaceFileDescriptor`.
+
 ## Examples
 
 ``` r

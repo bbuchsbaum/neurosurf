@@ -11,6 +11,9 @@ add_surface_layer(
   cmap = "viridis",
   alpha = 1,
   color_range = NULL,
+  vertices = NULL,
+  smoothing = c("auto", "nearest"),
+  smoothing_steps = 20,
   as_outline = FALSE,
   zero_transparent = TRUE,
   show_colorbar = TRUE,
@@ -56,6 +59,24 @@ add_surface_layer(
   Optional numeric vector of length 2 giving the minimum and maximum
   data values to map to the colour scale. If `NULL`, the range of `data`
   (ignoring `NA`) is used.
+
+- vertices:
+
+  Optional vector or list of vertex ids corresponding to the supplied
+  `data` when it is defined on a subset of vertices. Use a list with
+  elements `left`/`right` for hemisphere-specific subsets.
+
+- smoothing:
+
+  One of `"auto"` (default) or `"nearest"` when using sparse data.
+  `"auto"` fills missing vertices by nearest neighbour then applies
+  smoothing iterations; `"nearest"` performs only nearest-neighbour
+  fill.
+
+- smoothing_steps:
+
+  Integer number of smoothing iterations applied when
+  `smoothing = "auto"`. Ignored otherwise.
 
 - as_outline:
 
@@ -134,3 +155,13 @@ add_surface_layer(
 ## Value
 
 A modified `"neurosurf_plot"` object.
+
+## Examples
+
+``` r
+# \donttest{
+# Requires FreeSurfer-like surface files
+# sp <- surface_plot(left = "lh.pial", right = "rh.pial")
+# sp <- add_surface_layer(sp, data = rnorm(163842))
+# }
+```

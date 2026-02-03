@@ -38,7 +38,7 @@ A matrix or data structure containing vertex information.
 
 ## See also
 
-[`nodes`](nodes-methods.md)
+[`nodes`](nodes-methods.md), [`faces`](faces-methods.md)
 
 ## Examples
 

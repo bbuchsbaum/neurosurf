@@ -1,6 +1,6 @@
-# indices
+# Extract Vertex Indices
 
-extract indices
+Extracts the vertex indices from surface objects.
 
 ## Usage
 
@@ -23,3 +23,7 @@ indices(x)
 - x:
 
   the object to extract indices from
+
+## Value
+
+An integer vector of vertex indices

@@ -36,6 +36,10 @@ cluster_threshold(x, threshold, size = 10)
 
   the index/column of the underlying data matrix to cluster
 
+## Value
+
+A thresholded surface object of the same class as `x`
+
 ## See also
 
-`conn_comp`
+[`conn_comp`](https://bbuchsbaum.github.io/neuroim2/reference/conn_comp-methods.html)

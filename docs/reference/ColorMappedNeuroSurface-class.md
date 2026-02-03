@@ -4,6 +4,10 @@ A three-dimensional surface consisting of a set of triangle vertices
 with one value per vertex, mapped to colors using a specified colormap
 and range.
 
+## Value
+
+An object of class `ColorMappedNeuroSurface`
+
 ## Details
 
 This class extends `NeuroSurface` by adding color mapping functionality.
@@ -32,7 +36,7 @@ highlighting values above or below certain significance thresholds.
 
 - `geometry`:
 
-  The surface geometry, an instance of `SurfaceGeometry`
+  The surface geometry, an instance of `SurfaceGeometry` or `SurfaceSet`
 
 - `indices`:
 

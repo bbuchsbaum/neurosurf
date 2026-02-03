@@ -1,6 +1,6 @@
-# extractor
+# Extract Data from NeuroSurfaceVector
 
-extractor
+Extracts data from a NeuroSurfaceVector using bracket notation.
 
 ## Usage
 
@@ -18,3 +18,7 @@ x[[i]]
 - i:
 
   first index
+
+## Value
+
+A numeric vector of data values for the specified column

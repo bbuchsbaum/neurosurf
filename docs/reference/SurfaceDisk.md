@@ -29,6 +29,12 @@ SurfaceDisk(surf, index, radius, max_order = NULL)
   maximum number of edges to traverse. default is computed based on
   average edge length.
 
+## Value
+
+An `ROISurfaceVector` if `surf` is a `BrainSurface` or
+`BrainSurfaceVector`, otherwise an `ROISurface` containing the vertices
+within the specified geodesic radius.
+
 ## Details
 
 The igraph associated with `surf` must have an edge attribute named

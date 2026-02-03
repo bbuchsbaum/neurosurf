@@ -28,10 +28,14 @@ default, it renders the surface with a light gray background. We can
 specify a `viewpoint`.
 
 ``` r
-
 # Plot the smoothed left hemisphere from a lateral viewpoint
-plot(white_lh_display, viewpoint="lateral", lit=TRUE)
+render_surface(white_lh_display, viewpoint = "lateral", lit = TRUE)
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in max(x): no non-missing arguments to max; returning -Inf
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd25b1e3cc.html screenshot completed
 ```
+
+![](displaying-surfaces_files/figure-html/basic-plot-1.-render-1.png)
 
 ## Coloring Based on Curvature
 
@@ -49,8 +53,13 @@ surface background.
 curv_colors <- curv_cols(curv_lh_display)
 
 # Plot with curvature background from a medial viewpoint
-plot(white_lh_display, bgcol = curv_colors, viewpoint="medial", specular="black")
+render_surface(white_lh_display, bgcol = curv_colors, viewpoint = "medial", specular = "black")
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in max(x): no non-missing arguments to max; returning -Inf
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cde9528a8.html screenshot completed
 ```
+
+![](displaying-surfaces_files/figure-html/curvature-plot-1.-render-2.png)
 
 ## Overlaying Data Values
 
@@ -63,9 +72,12 @@ activation values, thickness). We can pass a vector of values to the
 ``` r
 # Overlay random data using a rainbow colormap
 # Map data range from -2 to 2 onto the colormap
-plot(white_lh_display, vals = random_vals_display_smooth, cmap = rainbow(256),
-     irange = c(-2, 2), thresh = NULL, viewpoint="lateral", specular="gray")
+render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = rainbow(256),
+               irange = c(-2, 2), thresh = NULL, viewpoint = "lateral", specular = "gray")
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd2edd21d7.html screenshot completed
 ```
+
+![](displaying-surfaces_files/figure-html/data-overlay-1.-render-3.png)
 
 ## Thresholding Data Visualization
 
@@ -77,9 +89,12 @@ opaque. This is useful for masking out a band of values.
 
 ``` r
 # Same data overlay as above, but make values between -1 and 1 transparent
-plot(white_lh_display, vals = random_vals_display_smooth, cmap = rainbow(256),
-     irange = c(-2, 2), thresh = c(-1, 1), viewpoint="lateral", lit=TRUE)
+render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = rainbow(256),
+               irange = c(-2, 2), thresh = c(-1, 1), viewpoint = "lateral", lit = TRUE)
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd40483c0f.html screenshot completed
 ```
+
+![](displaying-surfaces_files/figure-html/threshold-plot-1.-render-4.png)
 
 ## Direct Vertex Coloring
 
@@ -93,8 +108,13 @@ vertices.
 x_coords <- coords(white_lh_display)[, 1]
 vertex_colors <- ifelse(x_coords > median(x_coords), "#FF0000", "#0000FF") # Red/Blue
 
-plot(white_lh_display, vert_clrs = vertex_colors, viewpoint="ventral", lit=TRUE)
+render_surface(white_lh_display, vert_clrs = vertex_colors, viewpoint = "ventral", lit = TRUE)
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in max(x): no non-missing arguments to max; returning -Inf
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd44e067d6.html screenshot completed
 ```
+
+![](displaying-surfaces_files/figure-html/vertex-color-plot-1.-render-5.png)
 
 ## Controlling Transparency
 
@@ -103,9 +123,12 @@ ranging from 0 (fully transparent) to 1 (fully opaque).
 
 ``` r
 # Plot the surface with 60% opacity (40% transparent)
-plot(white_lh_display, vals = random_vals_display_smooth, cmap = heat.colors(256),
-     irange = c(-2, 2), alpha = 0.6, viewpoint="posterior")
+render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = heat.colors(256),
+               irange = c(-2, 2), alpha = 0.6, viewpoint = "posterior")
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd5600f01d.html screenshot completed
 ```
+
+![](displaying-surfaces_files/figure-html/alpha-plot-1.-render-6.png)
 
 ## Adjusting Lighting and Material
 
@@ -115,36 +138,40 @@ it to `"black"` creates a matte appearance.
 
 ``` r
 # Plot with a matte finish (no specular highlights)
-plot(white_lh_display, vals = random_vals_display_smooth, cmap = topo.colors(256),
-     irange = c(-2, 2), specular = "black", viewpoint="lateral", lit=TRUE)
+render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = topo.colors(256),
+               irange = c(-2, 2), specular = "black", viewpoint = "lateral", lit = TRUE)
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd4dd62225.html screenshot completed
 ```
+
+![](displaying-surfaces_files/figure-html/lighting-plot-1.-render-7.png)
 
 ## Snapshotting to an image (for knitr/CI)
 
 Use to render an off-screen PNG and include it directly:
 
 ``` r
+.render_counter$n <- .render_counter$n + 1
+snapshot_file <- knitr::fig_path(paste0("-snapshot-", .render_counter$n, ".png"))
+dir.create(dirname(snapshot_file), recursive = TRUE, showWarnings = FALSE)
+
 img_path <- try(snapshot_surface(white_lh_display,
+                                 file = snapshot_file,
                                  vals = random_vals_display_smooth,
                                  cmap = viridis::viridis(256),
                                  viewpoint = "lateral",
                                  specular = "black",
                                  width = 1200, height = 900),
                 silent = TRUE)
-#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpbkMZ37/filed90b764f3164.html screenshot completed
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd5cb71839.html screenshot completed
 
-if (!inherits(img_path, "try-error") &&
-    is.character(img_path) &&
-    length(img_path) == 1 &&
-    nzchar(img_path) &&
-    file.exists(img_path)) {
+if (!inherits(img_path, "try-error") && is.character(img_path) && file.exists(img_path)) {
   knitr::include_graphics(img_path)
 } else {
-  cat("*(Snapshot unavailable in this build environment. Install `webshot2` for headless captures.)*")
+  cat("*(Snapshot unavailable in this build environment)*")
 }
 ```
 
-![](displaying-surfaces_files/figure-html/snapshot-example-1.png)
+![](displaying-surfaces_files/figure-html/snapshot-example-1.-snapshot-8.png)
 
 ## Changing Viewpoints
 
@@ -154,13 +181,23 @@ automatically selects the correct left/right version based on the
 surface’s hemisphere information (`surf@hemi`).
 
 ``` r
-# Display multiple viewpoints using rgl's layout functions
-mfrow3d(2, 2, sharedMouse = TRUE)
-plot(white_lh_display, viewpoint="lateral")
-plot(white_lh_display, viewpoint="medial")
-plot(white_lh_display, viewpoint="ventral")
-plot(white_lh_display, viewpoint="posterior")
+# Display multiple viewpoints
+render_multi_view(white_lh_display, viewpoints = c("lateral", "medial", "ventral", "posterior"))
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in max(x): no non-missing arguments to max; returning -Inf
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd12473174.html screenshot completed
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in min(x): no non-missing arguments to max; returning -Inf
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd7fffc00b.html screenshot completed
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in min(x): no non-missing arguments to max; returning -Inf
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd6f9953d3.html screenshot completed
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in min(x): no non-missing arguments to max; returning -Inf
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd3b4e7ae2.html screenshot completed
 ```
+
+![](displaying-surfaces_files/figure-html/viewpoints-plot-1.-multiview-9.png)![](displaying-surfaces_files/figure-html/viewpoints-plot-1.-multiview-10.png)![](displaying-surfaces_files/figure-html/viewpoints-plot-1.-multiview-11.png)![](displaying-surfaces_files/figure-html/viewpoints-plot-1.-multiview-12.png)
 
 ## Displaying Two Hemispheres
 
@@ -171,23 +208,56 @@ second hemisphere correctly relative to the first.
 
 ``` r
 # Smooth the right hemisphere and get its curvature
-white_rh_smooth <- smooth(white_rh, type="HCLaplace", delta=.2, iteration=5)
+white_rh_smooth <- smooth(white_rh, type = "HCLaplace", delta = 0.2, iteration = 5)
 curv_rh <- curvature(white_rh_smooth)
 
-# Plot LH with curvature background (opens the scene)
-plot(white_lh_display, bgcol = curv_cols(curv_lh_display), viewpoint="lateral")
+# Try snapshot approach for two hemispheres
+.render_counter$n <- .render_counter$n + 1
+two_hemi_file <- knitr::fig_path(paste0("-twohemi-", .render_counter$n, ".png"))
+dir.create(dirname(two_hemi_file), recursive = TRUE, showWarnings = FALSE)
 
-# Plot RH in the same scene, slightly offset along the x-axis
-# Use new_window=FALSE to add to the current plot
-plot(white_rh_smooth, bgcol = curv_cols(curv_rh), viewpoint="lateral",
-     new_window = FALSE, offset = c(5, 0, 0))
+img_path <- try({
+  file <- two_hemi_file
+  rgl::open3d()
+  rgl::par3d(windowRect = c(0, 0, 1200, 600))
+  rgl::bg3d(color = "white")
+
+  # Plot LH with curvature background
+
+  view_surface(white_lh_display, bgcol = curv_cols(curv_lh_display),
+               viewpoint = "lateral", new_window = FALSE)
+  # Plot RH offset to the right
+  view_surface(white_rh_smooth, bgcol = curv_cols(curv_rh),
+               viewpoint = "lateral", new_window = FALSE, offset = c(100, 0, 0))
+
+  if (rgl::rgl.useNULL() && requireNamespace("webshot2", quietly = TRUE)) {
+    rgl::snapshot3d(file, webshot = TRUE)
+  } else {
+    rgl::rgl.snapshot(file)
+  }
+  rgl::close3d()
+  file
+}, silent = TRUE)
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in max(x): no non-missing arguments to max; returning -Inf
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in max(x): no non-missing arguments to max; returning -Inf
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd4473f805.html screenshot completed
+
+if (!inherits(img_path, "try-error") && file.exists(img_path)) {
+  knitr::include_graphics(img_path)
+} else {
+  # Fallback to rglwidget
+  rgl::open3d()
+  view_surface(white_lh_display, bgcol = curv_cols(curv_lh_display),
+               viewpoint = "lateral", new_window = FALSE)
+  view_surface(white_rh_smooth, bgcol = curv_cols(curv_rh),
+               viewpoint = "lateral", new_window = FALSE, offset = c(100, 0, 0))
+  rgl::rglwidget()
+}
 ```
 
-``` r
-
-# Adjust the overall view if needed (optional)
-# view3d(theta = 0, phi = 0, zoom = 0.8)
-```
+![](displaying-surfaces_files/figure-html/two-hemispheres-plot-1.-twohemi-13.png)
 
 ## Adding Spheres to the Surface
 
@@ -203,15 +273,20 @@ sample_indices <- sample(1:n_vertices, size = min(3, n_vertices))
 
 peak_coords <- data.frame(
   x = coords(white_lh_display)[sample_indices, 1],
-  y = coords(white_lh_display)[sample_indices, 2], 
+  y = coords(white_lh_display)[sample_indices, 2],
   z = coords(white_lh_display)[sample_indices, 3],
   radius = c(3, 4, 2.5)[1:length(sample_indices)],
   color = c("yellow", "cyan", "magenta")[1:length(sample_indices)]
 )
 
 # Plot the surface and add the spheres
-plot(white_lh_display, viewpoint = "lateral", spheres = peak_coords)
+render_surface(white_lh_display, viewpoint = "lateral", spheres = peak_coords)
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in max(x): no non-missing arguments to max; returning -Inf
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd503ccc7d.html screenshot completed
 ```
+
+![](displaying-surfaces_files/figure-html/spheres-plot-1.-render-14.png)
 
 ## Plotting Other NeuroSurface Objects
 
@@ -225,12 +300,16 @@ function.
 
 ``` r
 # Create a NeuroSurface object with the random data
-nsurf <- NeuroSurface(white_lh_display, indices=1:length(random_vals_display), data=random_vals_display)
+nsurf <- NeuroSurface(white_lh_display, indices = 1:length(random_vals_display), data = random_vals_display)
 
 # Plot the NeuroSurface - uses data stored within the object
 # We can still override or add parameters like cmap, irange, thresh, alpha etc.
-plot(nsurf, cmap=heat.colors(128), irange=c(-2.5, 2.5), viewpoint="lateral")
+render_surface(geometry(nsurf), vals = values(nsurf), cmap = heat.colors(128),
+               irange = c(-2.5, 2.5), viewpoint = "lateral")
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd26e90e99.html screenshot completed
 ```
+
+![](displaying-surfaces_files/figure-html/neurosurface-plot-1.-render-15.png)
 
 ## Showing an activation map overlaid on a surface mesh
 
@@ -243,49 +322,106 @@ threshold all values between (-2,2). In the last panel we additionally
 add a cluster size threshold of 30 nodes.
 
 ``` r
-
-open3d()
-#> null 
-#>   16
-mfrow3d(1, 3, byrow = TRUE)
 vals <- rnorm(length(nodes(white_lh_base)))
-surf <- NeuroSurface(white_lh_base, indices=1:length(vals), data=vals)
+surf <- NeuroSurface(white_lh_base, indices = 1:length(vals), data = vals)
 ssurf <- smooth(surf)
-p <- plot(geometry(ssurf), vals=values(ssurf), cmap=rainbow(100),
-          irange=c(-2,2), new_window = FALSE)
 
-next3d()
-comp <- conn_comp(ssurf, threshold=c(-.2,.2))
-p2 <- plot(geometry(ssurf), vals=values(ssurf), cmap=rainbow(100),
-           irange=c(-2,2), thresh=c(-.2, .2), new_window = FALSE)
+# Generate proper figure paths
+.render_counter$n <- .render_counter$n + 1
+act_file1 <- knitr::fig_path(paste0("-actmap-", .render_counter$n, ".png"))
+.render_counter$n <- .render_counter$n + 1
+act_file2 <- knitr::fig_path(paste0("-actmap-", .render_counter$n, ".png"))
+.render_counter$n <- .render_counter$n + 1
+act_file3 <- knitr::fig_path(paste0("-actmap-", .render_counter$n, ".png"))
+dir.create(dirname(act_file1), recursive = TRUE, showWarnings = FALSE)
 
-next3d()
+# Panel 1: All values
+img1 <- try(snapshot_surface(geometry(ssurf), file = act_file1, vals = values(ssurf), cmap = rainbow(100),
+                              irange = c(-2, 2), width = 600, height = 450), silent = TRUE)
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd7e21cc61.html screenshot completed
+
+# Panel 2: Thresholded (values between -0.2 and 0.2 transparent)
+comp <- conn_comp(ssurf, threshold = c(-0.2, 0.2))
+img2 <- try(snapshot_surface(geometry(ssurf), file = act_file2, vals = values(ssurf), cmap = rainbow(100),
+                              irange = c(-2, 2), thresh = c(-0.2, 0.2), width = 600, height = 450), silent = TRUE)
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd5cf134f8.html screenshot completed
+
+# Panel 3: Cluster thresholded (minimum cluster size of 30)
+csurf <- cluster_threshold(ssurf, size = 30, threshold = c(-0.2, 0.2))
+img3 <- try(snapshot_surface(geometry(csurf), file = act_file3, vals = values(csurf), cmap = rainbow(100),
+                              irange = c(-2, 2), thresh = c(-0.2, 0.2), width = 600, height = 450), silent = TRUE)
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd5fccb573.html screenshot completed
+
+# Check if all snapshots succeeded
+valid <- sapply(list(img1, img2, img3), function(p) !inherits(p, "try-error") && length(p) > 0 && file.exists(p))
+
+if (all(valid)) {
+  knitr::include_graphics(c(img1, img2, img3))
+} else {
+  # Fallback to rglwidget
+  rgl::open3d()
+  rgl::mfrow3d(1, 3, byrow = TRUE)
+  view_surface(geometry(ssurf), vals = values(ssurf), cmap = rainbow(100),
+               irange = c(-2, 2), new_window = FALSE)
+  rgl::next3d()
+  view_surface(geometry(ssurf), vals = values(ssurf), cmap = rainbow(100),
+               irange = c(-2, 2), thresh = c(-0.2, 0.2), new_window = FALSE)
+  rgl::next3d()
+  view_surface(geometry(csurf), vals = values(csurf), cmap = rainbow(100),
+               irange = c(-2, 2), thresh = c(-0.2, 0.2), new_window = FALSE)
+  rgl::rglwidget()
+}
 ```
 
-``` r
-csurf <- cluster_threshold(ssurf, size=30, threshold=c(-.2,.2))
-p2 <- plot(csurf, cmap=rainbow(100), irange=c(-2,2),
-           thresh=c(-.2, .2), new_window = FALSE)
-```
+![](displaying-surfaces_files/figure-html/activation-map-1.-actmap-16.png)![](displaying-surfaces_files/figure-html/activation-map-1.-actmap-17.png)![](displaying-surfaces_files/figure-html/activation-map-1.-actmap-18.png)
 
 ## Showing two hemispheres in same scene
 
 ``` r
+# Two hemispheres shown from posterior viewpoint
+.render_counter$n <- .render_counter$n + 1
+posterior_file <- knitr::fig_path(paste0("-posterior-", .render_counter$n, ".png"))
+dir.create(dirname(posterior_file), recursive = TRUE, showWarnings = FALSE)
 
-open3d()
-#> null 
-#>   18
+img_path <- try({
+  file <- posterior_file
+  rgl::open3d()
+  rgl::par3d(windowRect = c(0, 0, 1200, 600))
+  rgl::bg3d(color = "white")
 
-white_rh_smooth <- smooth(white_rh, type="HCLaplace", delta=.2, iteration=5)
-curv_rh <- curvature(white_rh_smooth)
+  view_surface(white_lh_display, bgcol = curv_cols(curv_lh_display),
+               viewpoint = "posterior", new_window = FALSE)
+  view_surface(white_rh_smooth, bgcol = curv_cols(curv_rh),
+               viewpoint = "posterior", new_window = FALSE, offset = c(100, 0, 0))
 
-p <- plot(white_lh_display, bgcol=curv_cols(curv_lh_display), viewpoint="posterior")
-p <- plot(white_rh_smooth, bgcol=curv_cols(curv_rh), viewpoint="posterior",
-          new_window = FALSE, offset = c(5, 0, 0))
+  if (rgl::rgl.useNULL() && requireNamespace("webshot2", quietly = TRUE)) {
+    rgl::snapshot3d(file, webshot = TRUE)
+  } else {
+    rgl::rgl.snapshot(file)
+  }
+  rgl::close3d()
+  file
+}, silent = TRUE)
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in max(x): no non-missing arguments to max; returning -Inf
+#> Warning in min(x): no non-missing arguments to min; returning Inf
+#> Warning in max(x): no non-missing arguments to max; returning -Inf
+#> file:////private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpoVZ6ts/file102cd5c07129a.html screenshot completed
 
-# Render the combined scene in the vignette output
-rgl::rglwidget()
+if (!inherits(img_path, "try-error") && file.exists(img_path)) {
+  knitr::include_graphics(img_path)
+} else {
+  # Fallback to rglwidget
+  rgl::open3d()
+  view_surface(white_lh_display, bgcol = curv_cols(curv_lh_display),
+               viewpoint = "posterior", new_window = FALSE)
+  view_surface(white_rh_smooth, bgcol = curv_cols(curv_rh),
+               viewpoint = "posterior", new_window = FALSE, offset = c(100, 0, 0))
+  rgl::rglwidget()
+}
 ```
+
+![](displaying-surfaces_files/figure-html/two-hemi-posterior-1.-posterior-19.png)
 
 ## Next Steps
 

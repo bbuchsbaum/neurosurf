@@ -1,7 +1,8 @@
 # Read Meta Information
 
-Generic function to read image meta info given a file and a `FileFormat`
-instance.
+Generic function to read image meta info given a file and a
+[`FileFormat`](https://bbuchsbaum.github.io/neuroim2/reference/FileFormat-class.html)
+instance from neuroim2.
 
 ## Usage
 
@@ -31,3 +32,9 @@ read_meta_info(x, file_name)
 - file_name:
 
   the name of the file containing meta information.
+
+## Value
+
+A meta info object containing header information from the surface file
+
+A metadata information object describing the surface file structure

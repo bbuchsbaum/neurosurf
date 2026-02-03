@@ -49,3 +49,12 @@ coordinates and metadata describing the boundaries between regions.
 [`find_roi_boundaries`](find_roi_boundaries.md)
 
 [`find_roi_boundaries`](find_roi_boundaries.md)
+
+## Examples
+
+``` r
+# \donttest{
+# Requires surface with ROI labels
+# boundaries <- findBoundaries(labeled_surface)
+# }
+```

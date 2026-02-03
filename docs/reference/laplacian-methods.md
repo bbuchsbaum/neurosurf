@@ -31,3 +31,7 @@ laplacian(x, weights)
 - ...:
 
   Additional arguments
+
+## Value
+
+A sparse Laplacian matrix of class `dgCMatrix`

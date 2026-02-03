@@ -3,6 +3,10 @@
 A class that is used to produce a
 [`NeuroSurfaceVector`](NeuroSurfaceVector-class.md) instance
 
+## Value
+
+An object of class `NeuroSurfaceVectorSource`.
+
 ## Slots
 
 - `geometry`:

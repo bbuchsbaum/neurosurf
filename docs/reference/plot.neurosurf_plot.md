@@ -20,3 +20,7 @@ plot(x, ...)
 
   Additional arguments passed to
   [`draw_surface_plot`](draw_surface_plot.md).
+
+## Value
+
+Invisibly returns the input `neurosurf_plot` object.

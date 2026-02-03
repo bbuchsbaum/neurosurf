@@ -3,6 +3,10 @@
 This class contains meta information for surface-based data (the values
 that map to a surface geometry)
 
+## Value
+
+An object of class `SurfaceDataMetaInfo`.
+
 ## Slots
 
 - `header_file`:
@@ -35,12 +39,11 @@ that map to a surface geometry)
 
 ``` r
 # \donttest{
-# Create a SurfaceDataMetaInfo object
 meta_info <- new("SurfaceDataMetaInfo",
                  header_file = "data_header.txt",
                  data_file = "surface_data.1D",
                  file_descriptor = new("FileFormat"),
-                 node_count = 10000L,
+                 node_count = length(nodes(geometry)),
                  nels = 1L,
                  label = "thickness")
 # }

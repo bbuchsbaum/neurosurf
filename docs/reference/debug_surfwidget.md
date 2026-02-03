@@ -30,7 +30,7 @@ Invisibly returns a list of diagnostic information
 # Load a surface and check it
 surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package="neurosurf")
 surf <- read_surf(surf_file)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.smoothwm.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.smoothwm.asc
 debug_surfwidget(surf)
 #> === surfwidget Diagnostic Report ===
 #> 
@@ -39,7 +39,7 @@ debug_surfwidget(surf)
 #> Faces: 1280 
 #> Hemisphere: lh 
 #> 
-#> ✅ Basic structure looks good
+#> OK: Basic structure looks good
 #> 
 #> === JavaScript Debugging ===
 #> 1. Open browser developer tools (F12)
@@ -49,9 +49,9 @@ debug_surfwidget(surf)
 #> 5. Look for error messages in red
 #> 
 #> === Common Solutions ===
-#> • If widget is blank: Check JavaScript console for errors
-#> • If data doesn't show: Verify data ranges and color mapping
-#> • If widget doesn't load: Check if WebGL is supported
-#> • Try with a simpler surface first
+#> - If widget is blank: Check JavaScript console for errors
+#> - If data doesn't show: Verify data ranges and color mapping
+#> - If widget doesn't load: Check if WebGL is supported
+#> - Try with a simpler surface first
 # }
 ```

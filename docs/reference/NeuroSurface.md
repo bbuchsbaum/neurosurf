@@ -13,8 +13,8 @@ NeuroSurface(geometry, indices, data)
 
 - geometry:
 
-  A `SurfaceGeometry` object representing the underlying surface
-  structure.
+  A `SurfaceGeometry` or `SurfaceSet` object representing the underlying
+  surface structure.
 
 - indices:
 
@@ -60,10 +60,9 @@ have no data or to be invalid.
 
 ``` r
 # \donttest{
-# Assuming 'surf_geom' is a pre-existing SurfaceGeometry object
-indices <- 1:1000  # Example indices
-data_values <- rnorm(1000)  # Example data
+surf_geom <- example_surface_geometry()
+indices <- seq_len(nrow(coords(surf_geom)))  # all vertices
+data_values <- rnorm(length(indices))        # Example data
 neuro_surf <- NeuroSurface(surf_geom, indices, data_values)
-#> Error: object 'surf_geom' not found
 # }
 ```

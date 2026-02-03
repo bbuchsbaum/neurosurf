@@ -1,8 +1,6 @@
 # load_data
 
-load_data
-
-load_data
+Loads surface geometry data from a source object.
 
 ## Usage
 
@@ -16,6 +14,9 @@ load_data(x)
 # S4 method for class 'FreesurferSurfaceGeometryMetaInfo'
 load_data(x)
 
+# S4 method for class 'GIFTISurfaceGeometryMetaInfo'
+load_data(x)
+
 # S4 method for class 'SurfaceGeometrySource'
 load_data(x)
 ```
@@ -25,3 +26,7 @@ load_data(x)
 - x:
 
   the object to load data from
+
+## Value
+
+A `SurfaceGeometry` object containing the loaded mesh data

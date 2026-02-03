@@ -58,33 +58,21 @@ geometry of a surface.
 ## Examples
 
 ``` r
-# Load a surface file from the extdata directory
-surf_file <- system.file("extdata", "sample_surface.asc", package = "neurosurf")
-surface <- readAsc(surf_file)
-#> Error in readAsc(surf_file): could not find function "readAsc"
-
-# Create some random data for the surface vertices
+# Create a tiny example surface and data
+surface <- example_surface_geometry()
 n_vertices <- nrow(coords(surface))
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'coords': object 'surface' not found
 random_data <- rnorm(n_vertices)
-#> Error: object 'n_vertices' not found
 
-# Create a NeuroSurface object with the surface and data
 neuro_surf <- NeuroSurface(geometry = surface,
-                          indices = 1:n_vertices,
+                          indices = seq_len(n_vertices),
                           data = random_data)
-#> Error: object 'surface' not found
 
 # Apply smoothing with different radii
-smoothed_small <- smooth(neuro_surf, sigma = 2)
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'smooth': object 'neuro_surf' not found
-smoothed_large <- smooth(neuro_surf, sigma = 6)
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'smooth': object 'neuro_surf' not found
+smoothed_small <- smooth(neuro_surf, sigma = 1)
+smoothed_large <- smooth(neuro_surf, sigma = 2)
 
 # The original geometry is preserved, but the data is smoothed
-# Compare a small section of data before and after smoothing
-head(random_data)
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': object 'random_data' not found
-head(series(smoothed_large))
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': error in evaluating the argument 'x' in selecting a method for function 'series': object 'smoothed_large' not found
+head(series(smoothed_large, indices(smoothed_large)))
+#>             [,1]        [,2]        [,3]        [,4]
+#> [1,] -0.05213988 -0.05213988 -0.05213988 -0.05213988
 ```

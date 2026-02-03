@@ -1,6 +1,6 @@
-# length
+# Get Length of Surface Object
 
-length
+Returns the number of vertices in a surface object.
 
 ## Usage
 
@@ -14,3 +14,7 @@ length(x)
 - x:
 
   the object to extract the length from
+
+## Value
+
+An integer giving the number of vertices

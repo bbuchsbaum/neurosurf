@@ -32,3 +32,13 @@ read_surf_data(geometry, surface_data_name, colind = NULL, nodeind = NULL)
 
 an instance of the class [`NeuroSurface`](NeuroSurface-class.md) or
 [`NeuroSurfaceVector`](NeuroSurfaceVector-class.md)
+
+## Examples
+
+``` r
+# \donttest{
+# Load geometry and surface data file
+# geom <- read_surf_geometry("lh.white")
+# surf_data <- read_surf_data(geom, "lh.thickness")
+# }
+```

@@ -1,6 +1,6 @@
-# extractor
+# Subset NeuroSurfaceVector
 
-extractor
+Extracts a subset of data from a NeuroSurfaceVector.
 
 ## Usage
 
@@ -17,11 +17,11 @@ x[i, j, ..., drop = TRUE]
 
 - i:
 
-  first index
+  first index (rows/vertices)
 
 - j:
 
-  second index
+  second index (columns/time points)
 
 - ...:
 
@@ -29,4 +29,8 @@ x[i, j, ..., drop = TRUE]
 
 - drop:
 
-  dimension
+  whether to drop dimensions
+
+## Value
+
+A numeric matrix or vector of the extracted data subset

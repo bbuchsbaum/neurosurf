@@ -26,3 +26,7 @@ graph(x, ...)
 - ...:
 
   extra args
+
+## Value
+
+An `igraph` object representing the surface mesh connectivity

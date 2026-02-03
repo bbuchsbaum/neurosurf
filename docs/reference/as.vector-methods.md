@@ -1,6 +1,6 @@
-# as.vector
+# Convert Surface Data to Vector
 
-as.vector
+Converts surface data to a numeric vector.
 
 ## Usage
 
@@ -14,3 +14,7 @@ as.vector(x)
 - x:
 
   the object to convert to a vector
+
+## Value
+
+A numeric vector of surface data values

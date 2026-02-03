@@ -51,29 +51,26 @@ further analysis or visualization.
 
 ``` r
 # Load a sample surface from the package
-surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
-surfgeom <- readAsc(surf_file)
-#> Error in readAsc(surf_file): could not find function "readAsc"
+surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+surfgeom <- read_surf_geometry(surf_file)
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.inflated.asc
 
 # Get the surface coordinates
 surf_coords <- coords(surfgeom)
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'coords': object 'surfgeom' not found
 
 # Create some sample 3D coordinates to project
 # We'll use a subset of the surface vertices with small random offsets
 set.seed(123)
 sample_indices <- sample(1:nrow(surf_coords), 50)
-#> Error: object 'surf_coords' not found
 sample_coords <- surf_coords[sample_indices, ] + matrix(rnorm(150, 0, 0.5), ncol = 3)
-#> Error: object 'surf_coords' not found
 
 # Project these coordinates onto the surface
 projected_surface <- projectCoordinates(surfgeom, sample_coords, sigma = 3)
-#> Error: object 'surfgeom' not found
 
 # Check the result
-max(series(projected_surface))  # Maximum density value
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'series': object 'projected_surface' not found
-sum(series(projected_surface) > 0)  # Number of vertices with non-zero values
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'series': object 'projected_surface' not found
+vals <- series(projected_surface, indices(projected_surface))
+max(vals)        # Maximum density value
+#> [1] 1
+sum(vals > 0)    # Number of vertices with non-zero values
+#> [1] 50
 ```

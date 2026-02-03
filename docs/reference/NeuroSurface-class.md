@@ -3,6 +3,10 @@
 a three-dimensional surface consisting of a set of triangle vertices
 with one value per vertex.
 
+## Value
+
+An object of class `NeuroSurface`.
+
 ## Details
 
 The NeuroSurface class is a fundamental representation of surface-based
@@ -31,7 +35,7 @@ spatial processing of surface-based neuroimaging data.
 
 - `geometry`:
 
-  the surface geometry, an instance of `SurfaceGeometry`
+  the surface geometry, an instance of `SurfaceGeometry` or `SurfaceSet`
 
 - `indices`:
 

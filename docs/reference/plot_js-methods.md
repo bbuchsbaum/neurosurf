@@ -6,6 +6,9 @@ Plot Surface as an HTMLWidget
 
 ``` r
 plot_js(x, width = NULL, height = NULL, ...)
+
+# S4 method for class 'SurfaceGeometry'
+plot_js(x, width = NULL, height = NULL, ...)
 ```
 
 ## Arguments
@@ -29,3 +32,12 @@ plot_js(x, width = NULL, height = NULL, ...)
 ## Value
 
 An HTMLWidget object
+
+## Examples
+
+``` r
+# \donttest{
+geom <- example_surface_geometry()
+widget <- plot_js(geom)
+# }
+```

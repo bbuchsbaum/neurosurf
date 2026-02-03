@@ -18,3 +18,7 @@ updateColorMap(widget, colorMap)
 - colorMap:
 
   A vector of colors defining the new color map.
+
+## Value
+
+The modified surfwidget object (invisibly).

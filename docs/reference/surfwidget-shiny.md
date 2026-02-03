@@ -106,6 +106,14 @@ updateRotationSpeed(widget, speed)
 
   Numeric rotation speed.
 
+## Value
+
+For `surfwidgetOutput`, a Shiny UI element for displaying the widget.
+For `renderSurfwidget`, a server-side render function. For
+`updateSurfwidgetConfig`, `updateIRange`, `updateThreshold`,
+`updateVertexColors`, `updateAlpha`, `updateZoom`, and
+`updateRotationSpeed`, the modified widget object (invisibly).
+
 ## Details
 
 Sends a custom message of type `"neurosurf-surfwidget-config"` to update

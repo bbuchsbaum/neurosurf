@@ -12,7 +12,9 @@ find_roi_boundaries(
   vertices,
   faces,
   vertex_id,
-  boundary_method = c("faces", "edge_vertices")
+  boundary_method = c("faces", "edge_vertices"),
+  verbose = FALSE,
+  use_cpp = TRUE
 )
 ```
 
@@ -33,6 +35,14 @@ find_roi_boundaries(
 - boundary_method:
 
   One of `"faces"` or `"edge_vertices"`.
+
+- verbose:
+
+  Logical; if `TRUE`, print progress messages.
+
+- use_cpp:
+
+  Logical; if `TRUE`, use optimized C++ implementation.
 
 ## Value
 
@@ -92,8 +102,9 @@ faces <- matrix(c(
 roi <- c(1,1,1,1, 2,2,2,2)
 
 b <- find_roi_boundaries(vertices, faces, roi, boundary_method = "edge_vertices")
-#> Error in igraph::get.edge.ids(g, c(start_node, end_node)): Only two-column data.frames and matrices, and vectors are allowed for vp
 str(b$boundary)
-#> Error: object 'b' not found
+#> List of 2
+#>  $ : num [1:5, 1:3] 0 1 1 0 0 0 0 1 1 0 ...
+#>  $ : num [1:5, 1:3] 0 1 1 0 0 0 0 1 1 0 ...
 # }
 ```

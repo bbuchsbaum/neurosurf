@@ -33,18 +33,22 @@ an instance of class `ROISurface`
 verts <- matrix(c(0,0,0,
                   1,0,0,
                   0,1,0), ncol=3, byrow=TRUE)
-faces <- matrix(c(1,2,3), ncol=3, byrow=TRUE)
+faces <- matrix(c(0L,1L,2L), ncol=3, byrow=TRUE)
 geom <- SurfaceGeometry(verts, faces, "lh")
-#> Error in igraph::graph_from_edgelist(edges, directed = FALSE): graph_from_edgelist expects a matrix with two columns.
 
 ROISurface(geom, 1L, 1)
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'nodes': object 'geom' not found
+#> 
+#> 
+#>  ROISurface 
+#>  size:  1 
+#>  data type: vector 
+#>  data dim: 1 
+#>  vertex center of mass:  0 0 0 
 
 try(ROISurface(geom, 4L, 1))      # out of range
-#> Error in h(simpleError(msg, call)) : 
-#>   error in evaluating the argument 'x' in selecting a method for function 'nodes': object 'geom' not found
+#> Error in ROISurface(geom, 4L, 1) : 
+#>   'indices' are out of bounds for provided 'geometry'
 try(ROISurface(geom, 1.5, 1))     # non-integer
-#> Error in h(simpleError(msg, call)) : 
-#>   error in evaluating the argument 'x' in selecting a method for function 'nodes': object 'geom' not found
+#> Error in ROISurface(geom, 1.5, 1) : 'indices' must be integer
 # }
 ```

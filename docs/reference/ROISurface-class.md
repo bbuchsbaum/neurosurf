@@ -2,6 +2,10 @@
 
 A class that respresents a surface-based region of interest
 
+## Value
+
+An object of class `ROISurface`.
+
 ## Details
 
 The ROISurface class provides a way to represent a specific subset of

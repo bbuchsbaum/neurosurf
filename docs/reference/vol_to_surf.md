@@ -15,7 +15,12 @@ vol_to_surf(
   knn = 6,
   sigma = 8,
   dthresh = sigma * 2,
-  fill = 0
+  fill = 0,
+  sampling = c("midpoint", "normal_line", "thickness"),
+  n_samples = NULL,
+  depth = NULL,
+  radius = 3,
+  sampler = NULL
 )
 ```
 
@@ -70,6 +75,44 @@ vol_to_surf(
   Value used when no nearby voxels are found (default: 0 to preserve
   previous behavior).
 
+- sampling:
+
+  How to place sample points relative to the white/pial pair. Options
+  are:
+
+  - "midpoint" (default): original behaviour, samples at the midpoint
+    between white and pial.
+
+  - "thickness": samples along the white→pial line at fractions given by
+    `depth` or evenly spaced.
+
+  - "normal_line": samples along the vertex normal centred on the
+    midpoint, spanning `radius` in both directions (or using `depth`
+    offsets).
+
+- n_samples:
+
+  Number of samples per vertex for `sampling != "midpoint"` when `depth`
+  is not supplied.
+
+- depth:
+
+  Optional numeric vector controlling sampling positions; interpreted as
+  fractions of thickness (for "thickness") or multiples of `radius` (for
+  "normal_line").
+
+- radius:
+
+  Radius (in voxel units) for normal-line sampling when
+  `sampling = "normal_line"`; also used as the distance scale when
+  interpreting `depth` offsets for that mode.
+
+- sampler:
+
+  Optional surface sampler object created by
+  [`surface_sampler()`](surface_sampler.md). When provided, the sampler
+  is reused and other sampling-related arguments are ignored.
+
 ## Value
 
 A `NeuroSurface` object containing the mapped values.
@@ -79,44 +122,38 @@ A `NeuroSurface` object containing the mapped values.
 ``` r
 # \donttest{
 # Load standard white and pial surfaces from the package
-wm_surf_file <- system.file("extdata", "std.8.lh.white.asc", package = "neurosurf")
-pial_surf_file <- system.file("extdata", "std.8.lh.pial.asc", package = "neurosurf")
+wm_surf_file <- system.file("extdata", "std.8_lh.white.asc", package = "neurosurf")
+pial_surf_file <- system.file("extdata", "std.8_lh.pial.asc", package = "neurosurf")
 
 surf_wm <- read_surf_geometry(wm_surf_file)
-#> Error in SurfaceGeometrySource(surface_name): file.exists(surface_name) is not TRUE
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.white.asc
 surf_pial <- read_surf_geometry(pial_surf_file)
-#> Error in SurfaceGeometrySource(surface_name): file.exists(surface_name) is not TRUE
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.pial.asc
 
-# Load an example volume (replace with actual loading code later)
-# vol <- neuroim2::read_vol("path/to/volume.nii")
-
-# Example: Create a dummy volume for demonstration purposes
-# This should be replaced with real volume data
-library(neuroim2)
-#> 
-#> Attaching package: ‘neuroim2’
-#> The following object is masked from ‘package:base’:
-#> 
-#>     scale
-# Assume the surfaces are in a space roughly covered by this bounding box
-# Adjust dimensions and origin based on your actual data alignment
+# Create a dummy volume for demonstration purposes
 bb <- matrix(c(-80, 80, -120, 80, -60, 90), 3, 2, byrow = TRUE)
 spacing <- c(1, 1, 1)
 dims <- ceiling(abs(bb[,2] - bb[,1]) / spacing)
 origin <- bb[,1]
-sp <- NeuroSpace(dims, spacing, origin)
-vol <- NeuroVol(rnorm(prod(dims)), sp)
+sp <- neuroim2::NeuroSpace(dims, spacing, origin)
+vol <- neuroim2::NeuroVol(rnorm(prod(dims)), sp)
 
 # Map volume to surface using average mapping
 mapped_surf <- vol_to_surf(surf_wm, surf_pial, vol, fun = "avg")
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'vertices': object 'surf_wm' not found
-print(summary(series(mapped_surf)))
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'print': error in evaluating the argument 'object' in selecting a method for function 'summary': error in evaluating the argument 'x' in selecting a method for function 'series': object 'mapped_surf' not found
-
-# Map volume to surface using nearest neighbor mapping
-mapped_surf_nn <- vol_to_surf(surf_wm, surf_pial, vol, fun = "nn")
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'vertices': object 'surf_wm' not found
-print(summary(series(mapped_surf_nn)))
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'print': error in evaluating the argument 'object' in selecting a method for function 'summary': error in evaluating the argument 'x' in selecting a method for function 'series': object 'mapped_surf_nn' not found
+print(mapped_surf)
+#> 
+#>  NeuroSurface  
+#> 
+#>   Geometry & Data Mapping: 
+#>   Hemisphere:         lh
+#>   Total Vertices:   642
+#>   Vertices w/ Data:642
+#> 
+#>   Data Summary: 
+#>   Min:    -1.066
+#>   Median:0.008907
+#>   Mean:  0.008469
+#>   Max:    1.264
+#> 
 # }
 ```

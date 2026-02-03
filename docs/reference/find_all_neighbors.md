@@ -69,28 +69,31 @@ graph.
 
 ``` r
 # Load a sample inflated surface from the package
-surf_file <- system.file("extdata", "std.8.lh.inflated.asc", package = "neurosurf")
-surf <- readAsc(surf_file)
-#> Error in readAsc(surf_file): could not find function "readAsc"
+surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+surf <- read_surf_geometry(surf_file)
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.inflated.asc
 
 # Create edge weights (using uniform weights for simplicity)
 g <- graph(surf)
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'graph': object 'surf' not found
-edge_weights <- rep(1, length(E(g)))
-#> Error in E(g): could not find function "E"
+edge_weights <- rep(1, length(igraph::E(g)))
 
 # Find neighbors within a 10mm radius for the first 5 vertices
 neighbors <- find_all_neighbors(surf, radius = 10,
                                edgeWeights = edge_weights,
                                nodes = 1:5,
                                distance_type = "geodesic")
-#> Error: object 'surf' not found
 
 # Check the number of neighbors found for the first vertex
 nrow(neighbors[[1]])
-#> Error: object 'neighbors' not found
+#> [1] 221
 
 # Look at the first few neighbors of the first vertex
 head(neighbors[[1]])
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': object 'neighbors' not found
+#>      i   j d
+#> [1,] 1   1 0
+#> [2,] 1  55 1
+#> [3,] 1  27 1
+#> [4,] 1 125 1
+#> [5,] 1  13 1
+#> [6,] 1  90 1
 ```

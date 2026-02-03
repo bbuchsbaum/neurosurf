@@ -4,6 +4,10 @@ The \`SurfaceGeometrySource\` class serves as a factory for creating
 [`SurfaceGeometry`](SurfaceGeometry-class.md) instances. It encapsulates
 the meta information required to construct a surface geometry.
 
+## Value
+
+An object of class `SurfaceGeometrySource`.
+
 ## Details
 
 This class is designed to facilitate the creation of

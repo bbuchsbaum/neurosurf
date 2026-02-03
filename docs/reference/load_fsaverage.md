@@ -37,9 +37,17 @@ instance.
 ``` r
 # \donttest{
 fs <- load_fsaverage(density = "std.8", surf = "inflated")
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.inflated.asc
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_rh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_rh.inflated.asc
 show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
+#> Warning: no non-missing arguments to min; returning Inf
+#> Warning: no non-missing arguments to max; returning -Inf
+#> Warning: no non-missing arguments to min; returning Inf
+#> Warning: no non-missing arguments to max; returning -Inf
+#> Warning: no non-missing arguments to min; returning Inf
+#> Warning: no non-missing arguments to max; returning -Inf
+#> Warning: no non-missing arguments to min; returning Inf
+#> Warning: no non-missing arguments to max; returning -Inf
 
 # }
 ```

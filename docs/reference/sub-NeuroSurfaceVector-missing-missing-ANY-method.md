@@ -1,6 +1,6 @@
-# extractor
+# Extract All Data from NeuroSurfaceVector
 
-extractor
+Extracts all data from a NeuroSurfaceVector as a matrix.
 
 ## Usage
 
@@ -30,3 +30,7 @@ x[i, j, ..., drop = TRUE]
 - drop:
 
   dimension
+
+## Value
+
+A numeric matrix containing all data

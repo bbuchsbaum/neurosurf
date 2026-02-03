@@ -37,7 +37,6 @@
 <li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/rgl-lighting-bug.html">Reproducing rgl WebGL lighting uniform error</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul>
 </li>
@@ -64,7 +63,7 @@
                         <h4 data-toc-skip class="author">Bradley
 Buchsbaum</h4>
             
-            <h4 data-toc-skip class="date">2025-11-22</h4>
+            <h4 data-toc-skip class="date">2026-02-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bbuchsbaum/neurosurf/blob/HEAD/vignettes/introduction-to-neurosurf.Rmd" class="external-link"><code>vignettes/introduction-to-neurosurf.Rmd</code></a></small>
       <div class="d-none name"><code>introduction-to-neurosurf.Rmd</code></div>
@@ -124,7 +123,7 @@ using the <code><a href="../reference/read_surf_geometry.html">read_surf_geometr
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load the example left hemisphere white matter surface (.asc format)</span></span>
 <span><span class="va">lh_geom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_surf_geometry.html">read_surf_geometry</a></span><span class="op">(</span><span class="va">white_lh_asc</span><span class="op">)</span></span>
-<span><span class="co">#&gt; loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.smoothwm.asc</span></span>
+<span><span class="co">#&gt; loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.smoothwm.asc</span></span>
 <span></span>
 <span><span class="co"># Display summary information about the loaded geometry</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/methods/show.html" class="external-link">show</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
@@ -161,7 +160,7 @@ using the <code><a href="../reference/read_surf_geometry.html">read_surf_geometr
 <span><span class="co">#&gt; Number of vertices: 642</span></span>
 <span></span>
 <span><span class="co"># Get the coordinates of all vertices as a matrix (N x 3)</span></span>
-<span><span class="va">vertex_coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/coords.html" class="external-link">coords</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
+<span><span class="va">vertex_coords</span> <span class="op">&lt;-</span> <span class="fu">coords</span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Dimensions of coordinate matrix:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">vertex_coords</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Dimensions of coordinate matrix: 642 3</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Coordinates of the first 3 vertices:\n"</span><span class="op">)</span></span>
@@ -177,9 +176,9 @@ using the <code><a href="../reference/read_surf_geometry.html">read_surf_geometr
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Graph summary:"</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Graph summary:</span></span>
 <span><span class="va">g</span></span>
-<span><span class="co">#&gt; IGRAPH 5e2340c U--- 642 1920 -- </span></span>
+<span><span class="co">#&gt; IGRAPH 138fc9d U--- 642 1920 -- </span></span>
 <span><span class="co">#&gt; + attr: x (v/n), y (v/n), z (v/n), dist (e/n)</span></span>
-<span><span class="co">#&gt; + edges from 5e2340c:</span></span>
+<span><span class="co">#&gt; + edges from 138fc9d:</span></span>
 <span><span class="co">#&gt;  [1]  1-- 13  1-- 27  1-- 55  1-- 90  1--125  2--188  2--195  2--223  2--258</span></span>
 <span><span class="co">#&gt; [10]  2--293  3--264  3--271  3--300  3--356  3--391  4-- 96  4--103  4--132</span></span>
 <span><span class="co">#&gt; [19]  4--517  4--545  5-- 19  5-- 26  5-- 62  5--201  5--334  6--397  6--404</span></span>
@@ -233,7 +232,7 @@ constructor, providing the geometry, indices, and data.</p>
 <code class="sourceCode R"><span><span class="co"># Generate some example data (e.g., based on x-coordinate)</span></span>
 <span><span class="co"># Use all vertices from lh_geom</span></span>
 <span><span class="va">vertex_indices</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
-<span><span class="va">example_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/coords.html" class="external-link">coords</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="co"># Use x-coordinate as data</span></span>
+<span><span class="va">example_data</span> <span class="op">&lt;-</span> <span class="fu">coords</span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="co"># Use x-coordinate as data</span></span>
 <span></span>
 <span><span class="co"># Create the NeuroSurface object</span></span>
 <span><span class="va">lh_surf_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/NeuroSurface.html">NeuroSurface</a></span><span class="op">(</span>geometry <span class="op">=</span> <span class="va">lh_geom</span>, </span>
@@ -283,7 +282,7 @@ temporary <code>.1D.dset</code> file for demonstration.</p>
 <span><span class="co">#    read_surf will match nodes in the file to the geometry</span></span>
 <span><span class="va">lh_surf_loaded</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_surf.html">read_surf</a></span><span class="op">(</span>surface_name <span class="op">=</span> <span class="va">white_lh_asc</span>, </span>
 <span>                                surface_data_name <span class="op">=</span> <span class="va">temp_dset_file</span><span class="op">)</span></span>
-<span><span class="co">#&gt; loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpwYGE4M/temp_libpathbf0a5b9dbd99/neurosurf/extdata/std.8_lh.smoothwm.asc</span></span>
+<span><span class="co">#&gt; loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e357118cac/neurosurf/extdata/std.8_lh.smoothwm.asc</span></span>
 <span></span>
 <span><span class="co"># Display summary of the loaded NeuroSurface</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/methods/show.html" class="external-link">show</a></span><span class="op">(</span><span class="va">lh_surf_loaded</span><span class="op">)</span></span>
@@ -329,7 +328,7 @@ temporary <code>.1D.dset</code> file for demonstration.</p>
 <span><span class="co">#&gt; First 5 data values: -32.43124 -38.78497 -26.23813 -29.04933 -39.65442</span></span>
 <span></span>
 <span><span class="co"># Access the associated indices</span></span>
-<span><span class="va">index_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/indices.html" class="external-link">indices</a></span><span class="op">(</span><span class="va">lh_surf_data</span><span class="op">)</span></span>
+<span><span class="va">index_vec</span> <span class="op">&lt;-</span> <span class="fu">indices</span><span class="op">(</span><span class="va">lh_surf_data</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Length of index vector:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">index_vec</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Length of index vector: 642</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"First 5 indices:"</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">index_vec</span>, <span class="fl">5</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
@@ -369,7 +368,7 @@ correspond to vertices (matching <code>indices</code>) and
 <span><span class="va">vertex_indices_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create a dense matrix first</span></span>
-<span><span class="va">example_matrix_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/coords.html" class="external-link">coords</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span> </span>
+<span><span class="va">example_matrix_data</span> <span class="op">&lt;-</span> <span class="fu">coords</span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span> </span>
 <span></span>
 <span><span class="co"># Convert to a Matrix object (can be sparse or dense)</span></span>
 <span><span class="va">example_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/Matrix.html" class="external-link">Matrix</a></span><span class="op">(</span><span class="va">example_matrix_data</span><span class="op">)</span></span>
@@ -421,7 +420,7 @@ correspond to vertices (matching <code>indices</code>) and
 <span><span class="co">#&gt; [1]  -5.756156  10.942583 -35.324768 -73.917900  20.463083 -70.911591</span></span>
 <span></span>
 <span><span class="co"># Access the associated indices</span></span>
-<span><span class="va">index_vec_nsv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/indices.html" class="external-link">indices</a></span><span class="op">(</span><span class="va">lh_surf_vec</span><span class="op">)</span></span>
+<span><span class="va">index_vec_nsv</span> <span class="op">&lt;-</span> <span class="fu">indices</span><span class="op">(</span><span class="va">lh_surf_vec</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Length of index vector:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">index_vec_nsv</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Length of index vector: 642</span></span></code></pre></div>
 </div>
