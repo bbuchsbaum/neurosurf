@@ -20,8 +20,6 @@ volume space to the surface, and inflated surfaces for visualization.
 ``` r
 # Geometry for plotting
 fs_infl <- load_fsaverage_std8("inflated")
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e31f94425b/neurosurf/extdata/std.8_lh.inflated.asc
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e31f94425b/neurosurf/extdata/std.8_rh.inflated.asc
 lh <- fs_infl$lh
 rh <- fs_infl$rh
 
@@ -29,19 +27,15 @@ rh <- fs_infl$rh
 lh_white <- read_surf_geometry(
   system.file("extdata", "std.8_lh.white.asc", package = "neurosurf")
 )
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e31f94425b/neurosurf/extdata/std.8_lh.white.asc
 lh_pial <- read_surf_geometry(
   system.file("extdata", "std.8_lh.pial.asc", package = "neurosurf")
 )
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e31f94425b/neurosurf/extdata/std.8_lh.pial.asc
 rh_white <- read_surf_geometry(
   system.file("extdata", "std.8_rh.white.asc", package = "neurosurf")
 )
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e31f94425b/neurosurf/extdata/std.8_rh.white.asc
 rh_pial <- read_surf_geometry(
   system.file("extdata", "std.8_rh.pial.asc", package = "neurosurf")
 )
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e31f94425b/neurosurf/extdata/std.8_rh.pial.asc
 ```
 
 For this example we assume that the Schaefer 200-parcel, 7-network atlas
@@ -145,22 +139,6 @@ g <- draw_surface_plot(
     bar_spacing = grid::unit(0.4, "lines")
   )
 )
-#> Warning in min(x): no non-missing arguments to min; returning Inf
-#> Warning in max(x): no non-missing arguments to max; returning -Inf
-#> Warning in rgl::rgl.snapshot(filename = tmpfile): this build of rgl does not
-#> support snapshots
-#> Warning in min(x): no non-missing arguments to min; returning Inf
-#> Warning in max(x): no non-missing arguments to max; returning -Inf
-#> Warning in rgl::rgl.snapshot(filename = tmpfile): this build of rgl does not
-#> support snapshots
-#> Warning in min(x): no non-missing arguments to min; returning Inf
-#> Warning in max(x): no non-missing arguments to max; returning -Inf
-#> Warning in rgl::rgl.snapshot(filename = tmpfile): this build of rgl does not
-#> support snapshots
-#> Warning in min(x): no non-missing arguments to min; returning Inf
-#> Warning in max(x): no non-missing arguments to max; returning -Inf
-#> Warning in rgl::rgl.snapshot(filename = tmpfile): this build of rgl does not
-#> support snapshots
 
 grid::grid.newpage()
 grid::grid.draw(g)

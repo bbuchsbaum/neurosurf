@@ -48,6 +48,8 @@ if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown"
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  warning = FALSE,
+  message = FALSE,
   fig.width = 7,
   fig.height = 5
 )
@@ -195,3 +197,9 @@ The resulting figure shows:
 
 This pattern can be adapted to any surface + atlas combination that can be
 loaded into neurosurf as `SurfaceGeometry` and per-vertex ROI labels.
+
+## Next Steps
+
+- `vignette("displaying-surfaces")` — lower-level RGL rendering with curvature shading, data overlays, thresholds, and PNG snapshots.
+- `vignette("interactive-surfaces")` — interactive HTML widgets with `surfwidget()` for exploratory analysis.
+- `vignette("introduction-to-neurosurf")` — the data structures (`SurfaceGeometry`, `NeuroSurface`, `NeuroSurfaceVector`) that underpin these workflows.

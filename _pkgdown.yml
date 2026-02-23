@@ -1,3 +1,7 @@
+code:
+  # Disable example evaluation: rgl rendering crashes on headless/Metal macOS
+  run_dont_run: false
+
 reference:
 - title: read surfaces
   desc: |

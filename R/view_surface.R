@@ -98,6 +98,61 @@ curv_cols <- function(vals, incol="#B3B3B3", outcol="#404040") {
 }
 
 
+#' Convert Curvature Values to Smooth Gradient Colors
+#'
+#' @description
+#' Maps surface curvature values to a continuous grayscale gradient, producing
+#' a FreeSurfer-style sulcal shading that is visually smoother than the binary
+#' mapping of \code{\link{curv_cols}}.
+#'
+#' @param vals A numeric vector of curvature values for each vertex.
+#' @param light Hex color for the lightest shade (gyral crowns).
+#'   Default \code{"#D4D4D4"}.
+#' @param dark Hex color for the darkest shade (sulcal fundi).
+#'   Default \code{"#3A3A3A"}.
+#' @param quantiles Length-2 numeric vector of lower and upper quantiles used
+#'   to clamp extreme values before rescaling.  Default \code{c(0.05, 0.95)}.
+#'
+#' @return A character vector of hex color codes the same length as \code{vals}.
+#'
+#' @details
+#' Values are clamped to the range defined by \code{quantiles} to prevent
+#' outliers from washing out the colour map.
+#' The clamped values are linearly interpolated between \code{dark} (most
+#' negative / sulcal) and \code{light} (most positive / gyral).
+#'
+#' @examples
+#' set.seed(1)
+#' curv <- rnorm(500, sd = 0.1)
+#' cols <- curv_cols_smooth(curv)
+#' head(cols)
+#'
+#' @seealso \code{\link{curv_cols}}, \code{\link{curvature}}, \code{\link{view_surface}}
+#' @importFrom grDevices col2rgb rgb
+#' @export
+curv_cols_smooth <- function(vals, light = "#D4D4D4", dark = "#3A3A3A",
+                             quantiles = c(0.05, 0.95)) {
+  qr <- stats::quantile(vals, probs = quantiles, na.rm = TRUE)
+  clamped <- pmin(pmax(vals, qr[1]), qr[2])
+
+  rng <- range(clamped, na.rm = TRUE)
+  if (diff(rng) == 0) {
+    t <- rep(0.5, length(clamped))
+  } else {
+    t <- (clamped - rng[1]) / diff(rng)
+  }
+
+  dark_rgb  <- grDevices::col2rgb(dark)[, 1]  / 255
+  light_rgb <- grDevices::col2rgb(light)[, 1] / 255
+
+  r <- dark_rgb[1] + t * (light_rgb[1] - dark_rgb[1])
+  g <- dark_rgb[2] + t * (light_rgb[2] - dark_rgb[2])
+  b <- dark_rgb[3] + t * (light_rgb[3] - dark_rgb[3])
+
+  grDevices::rgb(r, g, b)
+}
+
+
 #' @noRd
 #' @keywords internal
 surface_views <- list(

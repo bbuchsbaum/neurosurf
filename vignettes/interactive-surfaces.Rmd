@@ -21,9 +21,9 @@ includes:
 ---
 
 This vignette focuses on interactive 3D visualization using `surfwidget()`.
-For static RGL-based plots, see *Displaying Surfaces with RGL*. For
+For RGL-based 3D plots, see `vignette("displaying-surfaces")`. For
 multi-view, publication-style figures with shared colourbars and atlas
-outlines, see *Surfplot-style Figures with neurosurf*.
+outlines, see `vignette("surfplot-style-figures")`.
 
 ```{r setup, include = FALSE}
 # Ensure rgl uses a NULL device when knitting (prevents OpenGL segfaults on headless)
@@ -34,6 +34,8 @@ if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown"
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  warning = FALSE,
+  message = FALSE,
   out.width = "100%",
   fig.height = 6
 )
@@ -268,4 +270,10 @@ Interactive widgets offer several advantages:
 - **Data exploration**: Click on vertices to see coordinate and data values
 - **Multiple viewpoints**: Easily switch between anatomical orientations
 
-These interactive capabilities make `surfwidget()` ideal for exploratory data analysis and interactive presentations. 
+These interactive capabilities make `surfwidget()` ideal for exploratory data analysis and interactive presentations.
+
+## Next Steps
+
+- `vignette("displaying-surfaces")` — RGL-based 3D rendering with curvature shading, data overlays, and PNG snapshots.
+- `vignette("surfplot-style-figures")` — publication-ready multi-view layouts with shared colourbars and atlas outlines.
+- `vignette("introduction-to-neurosurf")` — the data structures (`SurfaceGeometry`, `NeuroSurface`, `NeuroSurfaceVector`) behind these visualizations.

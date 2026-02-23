@@ -25,8 +25,8 @@ includes:
 
 This vignette demonstrates how to display 3D brain surface meshes using the `rgl` plotting tools provided by the `neurosurf` package, primarily through the `plot()` method which utilizes the `view_surface()` function internally.
 
-For interactive HTML widgets, see *Interactive Surface Visualization with surfwidget*.
-For high-level, surfplot-style multi-view layouts with shared colourbars and atlas outlines, see *Surfplot-style Figures with neurosurf*.
+For interactive HTML widgets, see `vignette("interactive-surfaces")`.
+For high-level, surfplot-style multi-view layouts with shared colourbars and atlas outlines, see `vignette("surfplot-style-figures")`.
 
 ## Setup and Loading Data
 
@@ -44,6 +44,8 @@ if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown"
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  warning = FALSE,
+  message = FALSE,
   fig.width = 7,        # Default figure width
   fig.height = 5        # Default figure height
 )
@@ -94,7 +96,7 @@ render_surface <- function(surfgeom, ..., width = 800, height = 600) {
 
 # Helper function: render multiple viewpoints in a grid
 render_multi_view <- function(surfgeom, viewpoints = c("lateral", "medial", "ventral", "posterior"),
-                              ..., width = 600, height = 450) {
+                              ..., width = 800, height = 600) {
   paths <- lapply(seq_along(viewpoints), function(i) {
     vp <- viewpoints[i]
     .render_counter$n <- .render_counter$n + 1
@@ -145,15 +147,15 @@ random_vals_display_smooth <- random_vals_display
 
 ```
 
-```{r upsample-hidden, echo=FALSE, message=FALSE, warning=FALSE}
+```{r upsample-hidden, echo=FALSE}
 # Gently refine the std8 mesh to reduce faceting in the vignette visuals
 if (requireNamespace("Rvcg", quietly = TRUE)) {
   try({
     white_lh_hi <- white_lh_base
     if (is.function(Rvcg::vcgSubdivide)) {
-      white_lh_hi@mesh <- Rvcg::vcgSubdivide(white_lh_hi@mesh, type = "loop", iterations = 1, silent = TRUE)
+      white_lh_hi@mesh <- Rvcg::vcgSubdivide(white_lh_hi@mesh, type = "loop", iterations = 2, silent = TRUE)
     }
-    white_lh_hi <- smooth(white_lh_hi, type = "HCLaplace", delta = 0.12, iteration = 3)
+    white_lh_hi <- smooth(white_lh_hi, type = "HCLaplace", delta = 0.15, iteration = 8)
     white_lh_display <- white_lh_hi
     curv_lh_display <- curvature(white_lh_display)
     random_vals_display <- rnorm(length(nodes(white_lh_display))) # regenerate to match new vertex count
@@ -191,8 +193,17 @@ if (length(random_vals_display_smooth) != nv_display ||
   random_vals_display_smooth <- random_vals_display
 }
 
-# Recompute curvature for the current display mesh
-curv_lh_display <- curvature(white_lh_display)
+# Recompute curvature for the current display mesh and smooth it repeatedly
+# to remove the lattice artifact that subdivision introduces
+curv_lh_display <- tryCatch({
+  raw_curv <- curvature(white_lh_display)
+  curv_surf <- NeuroSurface(white_lh_display,
+                            indices = seq_len(length(raw_curv)),
+                            data = raw_curv)
+  # Multiple smoothing passes to fully diffuse the subdivision lattice
+  for (i in seq_len(3)) curv_surf <- smooth(curv_surf)
+  values(curv_surf)
+}, error = function(e) curvature(white_lh_display))
 ```
 
 ## Basic Surface Plotting
@@ -208,11 +219,11 @@ render_surface(white_lh_display, viewpoint = "lateral", lit = TRUE)
 
 ## Coloring Based on Curvature
 
-Surface curvature helps distinguish gyri (outward folds) from sulci (inward folds). The `curvature()` function calculates this, and `curv_cols()` provides a simple binary color mapping (default: light gray for positive/gyri, dark gray for negative/sulci). We can pass these colors to the `bgcol` argument of `plot()` to color the surface background.
+Surface curvature helps distinguish gyri (outward folds) from sulci (inward folds). The `curvature()` function calculates this, and `curv_cols_smooth()` maps the values to a continuous grayscale gradient (dark in sulci, light on gyri) for natural-looking shading. For a simpler binary split, see `curv_cols()`. Either way, pass the resulting colors to the `bgcol` argument of `plot()`.
 
 ```{r curvature-plot, results='asis'}
 # Calculate curvature colors
-curv_colors <- curv_cols(curv_lh_display)
+curv_colors <- curv_cols_smooth(curv_lh_display)
 
 # Plot with curvature background from a medial viewpoint
 render_surface(white_lh_display, bgcol = curv_colors, viewpoint = "medial", specular = "black")
@@ -273,7 +284,7 @@ render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = topo.
 
 ## Snapshotting to an image (for knitr/CI)
 
-Use \code{snapshot_surface()} to render an off-screen PNG and include it directly:
+Use `snapshot_surface()` to render an off-screen PNG and include it directly:
 
 ```{r snapshot-example}
 .render_counter$n <- .render_counter$n + 1
@@ -300,59 +311,28 @@ if (!inherits(img_path, "try-error") && is.character(img_path) && file.exists(im
 
 The `viewpoint` argument can be set to common anatomical views like `"lateral"`, `"medial"`, `"ventral"`, or `"posterior"`. The function automatically selects the correct left/right version based on the surface's hemisphere information (`surf@hemi`).
 
-```{r viewpoints-plot, results='asis', fig.height=8, out.width="50%", fig.show='hold'}
-# Display multiple viewpoints
-render_multi_view(white_lh_display, viewpoints = c("lateral", "medial", "ventral", "posterior"))
+```{r viewpoints-plot, results='asis', fig.height=8, out.width="48%", fig.show='hold'}
+# Display multiple viewpoints with curvature shading
+render_multi_view(white_lh_display,
+                  viewpoints = c("lateral", "medial", "ventral", "posterior"),
+                  bgcol = curv_cols_smooth(curv_lh_display), specular = "black")
 ```
 
 ## Displaying Two Hemispheres
 
-You can plot multiple surfaces in the same `rgl` scene. When plotting the second surface, use `new_window = FALSE` to add it to the existing window. You might need to use the `offset` argument to position the second hemisphere correctly relative to the first.
+For lateral views, each hemisphere is best rendered separately since the camera can only face one direction. We render the left and right lateral views side by side.
 
-```{r two-hemispheres-plot, results='asis'}
+```{r two-hemispheres-plot, results='asis', out.width="50%", fig.show='hold'}
 # Smooth the right hemisphere and get its curvature
 white_rh_smooth <- smooth(white_rh, type = "HCLaplace", delta = 0.2, iteration = 5)
 curv_rh <- curvature(white_rh_smooth)
 
-# Try snapshot approach for two hemispheres
-.render_counter$n <- .render_counter$n + 1
-two_hemi_file <- knitr::fig_path(paste0("-twohemi-", .render_counter$n, ".png"))
-dir.create(dirname(two_hemi_file), recursive = TRUE, showWarnings = FALSE)
-
-img_path <- try({
-  file <- two_hemi_file
-  rgl::open3d()
-  rgl::par3d(windowRect = c(0, 0, 1200, 600))
-  rgl::bg3d(color = "white")
-
-  # Plot LH with curvature background
-
-  view_surface(white_lh_display, bgcol = curv_cols(curv_lh_display),
-               viewpoint = "lateral", new_window = FALSE)
-  # Plot RH offset to the right
-  view_surface(white_rh_smooth, bgcol = curv_cols(curv_rh),
-               viewpoint = "lateral", new_window = FALSE, offset = c(100, 0, 0))
-
-  if (rgl::rgl.useNULL() && requireNamespace("webshot2", quietly = TRUE)) {
-    rgl::snapshot3d(file, webshot = TRUE)
-  } else {
-    rgl::rgl.snapshot(file)
-  }
-  rgl::close3d()
-  file
-}, silent = TRUE)
-
-if (!inherits(img_path, "try-error") && file.exists(img_path)) {
-  knitr::include_graphics(img_path)
-} else {
-  # Fallback to rglwidget
-  rgl::open3d()
-  view_surface(white_lh_display, bgcol = curv_cols(curv_lh_display),
-               viewpoint = "lateral", new_window = FALSE)
-  view_surface(white_rh_smooth, bgcol = curv_cols(curv_rh),
-               viewpoint = "lateral", new_window = FALSE, offset = c(100, 0, 0))
-  rgl::rglwidget()
-}
+# LH lateral
+render_surface(white_lh_display, bgcol = curv_cols_smooth(curv_lh_display),
+               viewpoint = "lateral", specular = "black")
+# RH lateral
+render_surface(white_rh_smooth, bgcol = curv_cols_smooth(curv_rh),
+               viewpoint = "lateral", specular = "black")
 ```
 
 ## Adding Spheres to the Surface
@@ -373,8 +353,9 @@ peak_coords <- data.frame(
   color = c("yellow", "cyan", "magenta")[1:length(sample_indices)]
 )
 
-# Plot the surface and add the spheres
-render_surface(white_lh_display, viewpoint = "lateral", spheres = peak_coords)
+# Plot the surface with curvature shading and add the spheres
+render_surface(white_lh_display, bgcol = curv_cols_smooth(curv_lh_display),
+               viewpoint = "lateral", specular = "black", spheres = peak_coords)
 ```
 
 ## Plotting Other NeuroSurface Objects
@@ -449,7 +430,9 @@ if (all(valid)) {
 
 ## Showing two hemispheres in same scene
 
-```{r two-hemi-posterior, results='asis', fig.width=6, fig.height=5}
+For views where the left-right axis maps to the screen (posterior, anterior, dorsal), both hemispheres can share a single scene since their coordinates naturally separate (LH at x < 0, RH at x > 0).
+
+```{r two-hemi-posterior, results='asis', fig.width=8, fig.height=5}
 # Two hemispheres shown from posterior viewpoint
 .render_counter$n <- .render_counter$n + 1
 posterior_file <- knitr::fig_path(paste0("-posterior-", .render_counter$n, ".png"))
@@ -461,10 +444,13 @@ img_path <- try({
   rgl::par3d(windowRect = c(0, 0, 1200, 600))
   rgl::bg3d(color = "white")
 
-  view_surface(white_lh_display, bgcol = curv_cols(curv_lh_display),
-               viewpoint = "posterior", new_window = FALSE)
-  view_surface(white_rh_smooth, bgcol = curv_cols(curv_rh),
-               viewpoint = "posterior", new_window = FALSE, offset = c(100, 0, 0))
+  # LH and RH sit naturally at x<0 and x>0; small offset adds breathing room
+  view_surface(white_lh_display, bgcol = curv_cols_smooth(curv_lh_display),
+               viewpoint = "posterior", new_window = FALSE, offset = c(-5, 0, 0))
+  view_surface(white_rh_smooth, bgcol = curv_cols_smooth(curv_rh),
+               viewpoint = "posterior", new_window = FALSE, offset = c(5, 0, 0))
+  rgl::view3d(fov = 0, zoom = 0.55,
+              userMatrix = rbind(c(1,0,0,0), c(0,0,1,0), c(0,-1,0,0), c(0,0,0,1)))
 
   if (rgl::rgl.useNULL() && requireNamespace("webshot2", quietly = TRUE)) {
     rgl::snapshot3d(file, webshot = TRUE)
@@ -480,10 +466,12 @@ if (!inherits(img_path, "try-error") && file.exists(img_path)) {
 } else {
   # Fallback to rglwidget
   rgl::open3d()
-  view_surface(white_lh_display, bgcol = curv_cols(curv_lh_display),
-               viewpoint = "posterior", new_window = FALSE)
-  view_surface(white_rh_smooth, bgcol = curv_cols(curv_rh),
-               viewpoint = "posterior", new_window = FALSE, offset = c(100, 0, 0))
+  view_surface(white_lh_display, bgcol = curv_cols_smooth(curv_lh_display),
+               viewpoint = "posterior", new_window = FALSE, offset = c(-5, 0, 0))
+  view_surface(white_rh_smooth, bgcol = curv_cols_smooth(curv_rh),
+               viewpoint = "posterior", new_window = FALSE, offset = c(5, 0, 0))
+  rgl::view3d(fov = 0, zoom = 0.55,
+              userMatrix = rbind(c(1,0,0,0), c(0,0,1,0), c(0,-1,0,0), c(0,0,0,1)))
   rgl::rglwidget()
 }
 ```

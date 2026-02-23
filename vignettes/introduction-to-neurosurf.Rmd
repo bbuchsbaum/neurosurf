@@ -4,7 +4,7 @@ author: Bradley Buchsbaum
 date: '`r Sys.Date()`'
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to NeuroSurf}
+  %\VignetteIndexEntry{Introduction to NeuroSurf Data Structures}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 params:
@@ -24,9 +24,9 @@ This vignette introduces the fundamental data structures used in the `neurosurf`
 
 For visualization, see the companion vignettes:
 
-- *Displaying Surfaces with RGL* for low-level static plots based on `plot()` and `view_surface()`.
-- *Interactive Surface Visualization with surfwidget* for HTML-widget based exploration.
-- *Surfplot-style Figures with neurosurf* for multi-view, publication-style layouts built with `surface_plot()` and friends.
+- `vignette("displaying-surfaces")` for interactive 3D plots based on `plot()` and `view_surface()`.
+- `vignette("interactive-surfaces")` for HTML-widget based exploration.
+- `vignette("surfplot-style-figures")` for multi-view, publication-style layouts built with `surface_plot()` and friends.
 
 ## Setup
 
@@ -44,6 +44,8 @@ if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown"
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  warning = FALSE,
+  message = FALSE,
   fig.width = 7,
   fig.height = 5,
   rgl.newwindow = TRUE,  # Required for setupKnitr hook to work properly
@@ -267,8 +269,12 @@ cat("Length of index vector:", length(index_vec_nsv), "\n")
 *   **`ColorMappedNeuroSurface`**: Stores data along with a specific colormap (`cmap`), data range (`irange`), and thresholds (`thresh`) to pre-define how the data should be visualized.
 *   **`VertexColoredNeuroSurface`**: Stores specific hex color codes directly for each vertex (`colors` slot), bypassing data mapping.
 
-These classes facilitate plotting with pre-set visual parameters using the `plot()` method discussed in the `displaying-surfaces` vignette.
+These classes facilitate plotting with pre-set visual parameters using the `plot()` method discussed in `vignette("displaying-surfaces")`.
 
-## Conclusion
+## Next Steps
 
-Understanding `SurfaceGeometry`, `NeuroSurface`, and `NeuroSurfaceVector` is key to using the `neurosurf` package effectively. `SurfaceGeometry` holds the mesh structure, while `NeuroSurface` and `NeuroSurfaceVector` link single or multiple data vectors to this geometry, respectively. These structures provide the foundation for various surface-based analyses and visualizations. 
+Now that you understand the core data structures, explore the visualization vignettes:
+
+- `vignette("displaying-surfaces")` — render surfaces with RGL, overlay data, and snapshot to PNG.
+- `vignette("interactive-surfaces")` — create interactive HTML widgets with `surfwidget()`.
+- `vignette("surfplot-style-figures")` — build publication-ready multi-view figures with shared colourbars and atlas outlines.

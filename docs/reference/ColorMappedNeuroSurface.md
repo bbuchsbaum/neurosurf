@@ -61,7 +61,7 @@ rendering (e.g., when using 'plot()”).
 # Load a sample surface geometry
 surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 surf_geom <- read_surf_geometry(surf_file)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e31f94425b/neurosurf/extdata/std.8_lh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpQdM37p/temp_libpatha900461f6b09/neurosurf/extdata/std.8_lh.inflated.asc
 
 # Get vertex count and generate some random data
 n_verts <- nrow(coords(surf_geom))

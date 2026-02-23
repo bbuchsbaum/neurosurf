@@ -1,8 +1,8 @@
 # Interactive Surface Visualization with surfwidget
 
 This vignette focuses on interactive 3D visualization using
-[`surfwidget()`](../reference/surfwidget-methods.md). For static
-RGL-based plots, see *Displaying Surfaces with RGL*. For multi-view,
+[`surfwidget()`](../reference/surfwidget-methods.md). For RGL-based 3D
+plots, see *Displaying Surfaces with RGL*. For multi-view,
 publication-style figures with shared colourbars and atlas outlines, see
 *Surfplot-style Figures with neurosurf*.
 
@@ -23,8 +23,9 @@ surfwidget(
   white_lh_smooth,
   width  = "100%",
   height = "420px",
+  curvature = curv_vals,
   config = list(
-    ambientLightColor = "#f0f0f0",
+    ambientLightColor = "#404040",
     initialZoom = 2,
     showControls = FALSE   # keep the panel hidden for the quick preview
   )
@@ -41,8 +42,9 @@ basic_widget <- surfwidget(
   white_lh_smooth,
   width  = "100%",
   height = "400px",
+  curvature = curv_vals,
   config = list(
-    ambientLightColor = "#f0f0f0",
+    ambientLightColor = "#404040",
     initialZoom = 2
   )
 )
@@ -63,8 +65,9 @@ data_widget <- surfwidget(nsurf,
                          irange = c(-2, 2),
                          width = "100%", 
                          height = "400px",
+                         curvature = curv_vals,
                          config = list(
-                           ambientLightColor = "#f0f0f0",
+                           ambientLightColor = "#404040",
                            initialZoom = 2
                          ))
 
@@ -90,13 +93,29 @@ color_mapped_surf <- ColorMappedNeuroSurface(
 advanced_config <- list(
   shininess = 60,
   specularColor = "#ffffff",
-  ambientLightColor = "#f0f0f0",
+  ambientLightColor = "#404040",
   directionalLightColor = "#ffffff",
   directionalLightIntensity = 0.7,
   flatShading = FALSE
 )
 
+# Add a subtle anatomical underlay using curvature so thresholded data doesn't
+# "float" on a blank white surface.
+underlay_layer <- list(
+  label = "curvature",
+  data = curv_vals,
+  cmap = curv_cmap,
+  color_range = curv_range,
+  alpha = 1
+)
+
+# Keep the main data layer on top (inherits data/cmap/range/threshold from the
+# ColorMappedNeuroSurface object).
+data_layer <- list(label = "data")
+
 advanced_widget <- surfwidget(color_mapped_surf, 
+                             layers = list(underlay_layer, data_layer),
+                             curvature = curv_vals,
                              config = c(advanced_config, list(initialZoom = 2)), 
                              alpha = 0.9,
                              width = "100%", 
@@ -125,10 +144,11 @@ vertex_surf <- VertexColoredNeuroSurface(
 material_config <- list(
   shininess = 20,
   specularColor = "#333333",
-  ambientLightColor = "#f0f0f0"
+  ambientLightColor = "#404040"
 )
 
 vertex_widget <- surfwidget(vertex_surf, 
+                           curvature = curv_vals,
                            config = c(material_config, list(initialZoom = 2)), 
                            alpha = 0.8,
                            width = "100%", 

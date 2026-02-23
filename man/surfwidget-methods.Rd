@@ -49,7 +49,7 @@ surfwidget(x, width = NULL, height = NULL, ...)
   x,
   width = NULL,
   height = NULL,
-  thresh = c(0, 0),
+  thresh = NULL,
   vertexColors = NULL,
   alpha = 1,
   curvature = NULL,

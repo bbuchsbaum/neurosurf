@@ -6,7 +6,7 @@ geometries and associated data.
 
 For visualization, see the companion vignettes:
 
-- *Displaying Surfaces with RGL* for low-level static plots based on
+- *Displaying Surfaces with RGL* for interactive 3D plots based on
   [`plot()`](https://rdrr.io/r/graphics/plot.default.html) and
   [`view_surface()`](../reference/view_surface.md).
 - *Interactive Surface Visualization with surfwidget* for HTML-widget
@@ -44,7 +44,6 @@ binary, Freesurfer ASCII `.asc`, GIFTI `.gii`) using the
 ``` r
 # Load the example left hemisphere white matter surface (.asc format)
 lh_geom <- read_surf_geometry(white_lh_asc)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e31f94425b/neurosurf/extdata/std.8_lh.smoothwm.asc
 
 # Display summary information about the loaded geometry
 show(lh_geom)
@@ -98,9 +97,9 @@ g <- neurosurf::graph(lh_geom)
 cat("Graph summary:", "\n")
 #> Graph summary:
 g
-#> IGRAPH aa49dec U--- 642 1920 -- 
+#> IGRAPH d053f71 U--- 642 1920 -- 
 #> + attr: x (v/n), y (v/n), z (v/n), dist (e/n)
-#> + edges from aa49dec:
+#> + edges from d053f71:
 #>  [1]  1-- 13  1-- 27  1-- 55  1-- 90  1--125  2--188  2--195  2--223  2--258
 #> [10]  2--293  3--264  3--271  3--300  3--356  3--391  4-- 96  4--103  4--132
 #> [19]  4--517  4--545  5-- 19  5-- 26  5-- 62  5--201  5--334  6--397  6--404
@@ -197,7 +196,6 @@ write.table(cbind(sample_nodes_indices_0based, sample_data),
 #    read_surf will match nodes in the file to the geometry
 lh_surf_loaded <- read_surf(surface_name = white_lh_asc, 
                                 surface_data_name = temp_dset_file)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/Rtmp0Nbniq/temp_libpath80e31f94425b/neurosurf/extdata/std.8_lh.smoothwm.asc
 
 # Display summary of the loaded NeuroSurface
 show(lh_surf_loaded)
