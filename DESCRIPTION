@@ -73,6 +73,7 @@ Collate:
     'vol_to_surf_sdf.R'
     'zzz.R'
 Suggests:
+    callr,
     testthat,
     covr,
     bench,

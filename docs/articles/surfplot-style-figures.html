@@ -82,7 +82,7 @@ figure using neurosurf’s high-level plotting API.</p>
 <li>add atlas outlines and colourbars to produce a surfplot-style
 figure.</li>
 </ul>
-<div class="section level2">
+<script>document.addEventListener("DOMContentLoaded",function(){document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-study","preset-structural","preset-adobe","preset-midnight");document.body.classList.add("palette-teal","preset-homage");});</script><div class="section level2">
 <h2 id="load-fsaverage-std-8-surfaces-and-schaefer-atlas">Load fsaverage std.8 surfaces and Schaefer atlas<a class="anchor" aria-label="anchor" href="#load-fsaverage-std-8-surfaces-and-schaefer-atlas"></a>
 </h2>
 <p>The package ships with decimated fsaverage surfaces
@@ -191,30 +191,76 @@ outlines.</p>
 grid and slightly compressed colourbar height and spacing for a more
 compact layout.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/draw_surface_plot.html">draw_surface_plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">p</span>,</span>
-<span>  colorbar      <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  cbar_location <span class="op">=</span> <span class="st">"bottom"</span>,</span>
-<span>  cbar_kws      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    n_ticks    <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>    digits     <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>    label_cex  <span class="op">=</span> <span class="fl">0.7</span>,</span>
-<span>    title_cex  <span class="op">=</span> <span class="fl">0.9</span>,</span>
-<span>    bar_height <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="st">"lines"</span><span class="op">)</span>,</span>
-<span>    bar_spacing <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="st">"lines"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">fig_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/fig_path.html" class="external-link">fig_path</a></span><span class="op">(</span><span class="st">".png"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fig_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span></span>
+<span>  <span class="va">fig_dir</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%s-manual.png"</span>, <span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/opts_chunk.html" class="external-link">opts_current</a></span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"label"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">fig_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fig_file</span> <span class="op">&lt;-</span> <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/fig_path.html" class="external-link">fig_path</a></span><span class="op">(</span><span class="st">".png"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="va">fig_file</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/png.html" class="external-link">png</a></span><span class="op">(</span><span class="va">fig_file</span>, width <span class="op">=</span> <span class="fl">1536</span>, height <span class="op">=</span> <span class="fl">768</span>, bg <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span></span>
-<span><span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.newpage.html" class="external-link">grid.newpage</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.draw.html" class="external-link">grid.draw</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span></span>
-<span><span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>quartz_off_screen 2</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/include_graphics.html" class="external-link">include_graphics</a></span><span class="op">(</span><span class="va">fig_file</span><span class="op">)</span></span></code></pre></div>
-<p><img src="surfplot-style-figures_files/figure-html/render-figure-1.png" class="r-plt" alt="" width="768"></p>
+<span><span class="va">render_figure</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">output_file</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/draw_surface_plot.html">draw_surface_plot</a></span><span class="op">(</span></span>
+<span>    <span class="va">p</span>,</span>
+<span>    colorbar      <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    cbar_location <span class="op">=</span> <span class="st">"bottom"</span>,</span>
+<span>    cbar_kws      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      n_ticks    <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>      digits     <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>      label_cex  <span class="op">=</span> <span class="fl">0.7</span>,</span>
+<span>      title_cex  <span class="op">=</span> <span class="fl">0.9</span>,</span>
+<span>      bar_height <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="st">"lines"</span><span class="op">)</span>,</span>
+<span>      bar_spacing <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="st">"lines"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span>  <span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/png.html" class="external-link">png</a></span><span class="op">(</span><span class="va">output_file</span>, width <span class="op">=</span> <span class="fl">1536</span>, height <span class="op">=</span> <span class="fl">768</span>, bg <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span></span>
+<span>  <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.newpage.html" class="external-link">grid.newpage</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.draw.html" class="external-link">grid.draw</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span></span>
+<span>  <span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"callr"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># In pkgdown/knitr builds, the in-process draw_surface_plot() path can</span></span>
+<span>  <span class="co"># snapshot as black panels. Rendering this one figure in a clean subprocess</span></span>
+<span>  <span class="co"># reliably produces the expected image.</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu">callr</span><span class="fu">::</span><span class="fu"><a href="https://callr.r-lib.org/reference/r.html" class="external-link">r</a></span><span class="op">(</span></span>
+<span>    <span class="kw">function</span><span class="op">(</span><span class="va">plot_obj</span>, <span class="va">output_file</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bbuchsbaum/neurosurf" class="external-link">neurosurf</a></span><span class="op">)</span></span>
+<span></span>
+<span>      <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/draw_surface_plot.html">draw_surface_plot</a></span><span class="op">(</span></span>
+<span>        <span class="va">plot_obj</span>,</span>
+<span>        colorbar      <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        cbar_location <span class="op">=</span> <span class="st">"bottom"</span>,</span>
+<span>        cbar_kws      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>          n_ticks    <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>          digits     <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>          label_cex  <span class="op">=</span> <span class="fl">0.7</span>,</span>
+<span>          title_cex  <span class="op">=</span> <span class="fl">0.9</span>,</span>
+<span>          bar_height <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="st">"lines"</span><span class="op">)</span>,</span>
+<span>          bar_spacing <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="st">"lines"</span><span class="op">)</span></span>
+<span>        <span class="op">)</span></span>
+<span>      <span class="op">)</span></span>
+<span></span>
+<span>      <span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/png.html" class="external-link">png</a></span><span class="op">(</span><span class="va">output_file</span>, width <span class="op">=</span> <span class="fl">1536</span>, height <span class="op">=</span> <span class="fl">768</span>, bg <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span></span>
+<span>      <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.newpage.html" class="external-link">grid.newpage</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>      <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.draw.html" class="external-link">grid.draw</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span></span>
+<span>      <span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>      <span class="va">output_file</span></span>
+<span>    <span class="op">}</span>,</span>
+<span>    args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">p</span>, <span class="fu"><a href="https://rdrr.io/r/base/normalizePath.html" class="external-link">normalizePath</a></span><span class="op">(</span><span class="va">fig_file</span>, winslash <span class="op">=</span> <span class="st">"/"</span>, mustWork <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu">render_figure</span><span class="op">(</span><span class="va">fig_file</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span></span>
+<span>  <span class="st">"![Lateral and medial views of left and right fsaverage surfaces with network colours and parcel outlines](%s)\n"</span>,</span>
+<span>  <span class="va">fig_file</span></span>
+<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="surfplot-style-figures_files/figure-html/render-figure-manual.png" alt="Lateral and medial views of left and right fsaverage surfaces with network colours and parcel outlines"><div class="figcaption">Lateral and medial views of left and right
+fsaverage surfaces with network colours and parcel outlines</div>
+</div>
 <p>The resulting figure shows:</p>
 <ul>
 <li>left and right inflated fsaverage surfaces;</li>

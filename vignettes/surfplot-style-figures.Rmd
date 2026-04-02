@@ -185,28 +185,73 @@ p <- add_atlas_outline(
 Finally, we draw the figure with a horizontal colourbar beneath the grid and
 slightly compressed colourbar height and spacing for a more compact layout.
 
-```{r render-figure, fig.width=8, fig.height=4, results='asis'}
-g <- draw_surface_plot(
-  p,
-  colorbar      = TRUE,
-  cbar_location = "bottom",
-  cbar_kws      = list(
-    n_ticks    = 3,
-    digits     = 0,
-    label_cex  = 0.7,
-    title_cex  = 0.9,
-    bar_height = grid::unit(0.6, "lines"),
-    bar_spacing = grid::unit(0.4, "lines")
-  )
+```{r render-figure, fig.width=8, fig.height=4, fig.show='hide', results='asis'}
+fig_dir <- dirname(knitr::fig_path(".png"))
+fig_file <- file.path(
+  fig_dir,
+  sprintf("%s-manual.png", knitr::opts_current$get("label"))
 )
+dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
 
-fig_file <- knitr::fig_path(".png")
-dir.create(dirname(fig_file), recursive = TRUE, showWarnings = FALSE)
-grDevices::png(fig_file, width = 1536, height = 768, bg = "white")
-grid::grid.newpage()
-grid::grid.draw(g)
-grDevices::dev.off()
-knitr::include_graphics(fig_file)
+render_figure <- function(output_file) {
+  g <- draw_surface_plot(
+    p,
+    colorbar      = TRUE,
+    cbar_location = "bottom",
+    cbar_kws      = list(
+      n_ticks    = 3,
+      digits     = 0,
+      label_cex  = 0.7,
+      title_cex  = 0.9,
+      bar_height = grid::unit(0.6, "lines"),
+      bar_spacing = grid::unit(0.4, "lines")
+    )
+  )
+
+  grDevices::png(output_file, width = 1536, height = 768, bg = "white")
+  grid::grid.newpage()
+  grid::grid.draw(g)
+  grDevices::dev.off()
+}
+
+if (requireNamespace("callr", quietly = TRUE)) {
+  # In pkgdown/knitr builds, the in-process draw_surface_plot() path can
+  # snapshot as black panels. Rendering this one figure in a clean subprocess
+  # reliably produces the expected image.
+  invisible(callr::r(
+    function(plot_obj, output_file) {
+      library(neurosurf)
+
+      g <- draw_surface_plot(
+        plot_obj,
+        colorbar      = TRUE,
+        cbar_location = "bottom",
+        cbar_kws      = list(
+          n_ticks    = 3,
+          digits     = 0,
+          label_cex  = 0.7,
+          title_cex  = 0.9,
+          bar_height = grid::unit(0.6, "lines"),
+          bar_spacing = grid::unit(0.4, "lines")
+        )
+      )
+
+      grDevices::png(output_file, width = 1536, height = 768, bg = "white")
+      grid::grid.newpage()
+      grid::grid.draw(g)
+      grDevices::dev.off()
+      output_file
+    },
+    args = list(p, normalizePath(fig_file, winslash = "/", mustWork = FALSE))
+  ))
+} else {
+  render_figure(fig_file)
+}
+
+cat(sprintf(
+  "![Lateral and medial views of left and right fsaverage surfaces with network colours and parcel outlines](%s)\n",
+  fig_file
+))
 ```
 
 The resulting figure shows:
