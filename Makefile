@@ -6,10 +6,17 @@
 # ============================================================================
 
 # Paths
+# Source of truth for the widget library is the external surfviewjs checkout.
+# The older inst/htmlwidgets/neurosurface subtree in this repo is not used by
+# the vendor sync below.
 SURFVIEWJS_DIR := $(HOME)/code/jscode/surfviewjs
 HTMLWIDGETS_DIR := inst/htmlwidgets
 NEUROSURFACE_LIB := $(HTMLWIDGETS_DIR)/lib/neurosurface
 SURFWIDGET_YAML := $(HTMLWIDGETS_DIR)/surfwidget.yaml
+PKGDOWN_NEUROSURFACE_DIRS := \
+	docs/articles/interactive-surfaces_files/neurosurface-2.1.0 \
+	docs/articles/displaying-surfaces_files/neurosurface-2.1.0 \
+	docs/reference/libs/neurosurface-2.1.0
 
 # Source files to watch for changes
 SURFVIEWJS_SRC := $(shell find $(SURFVIEWJS_DIR)/src -type f -name '*.js' -o -name '*.ts' 2>/dev/null)
@@ -35,7 +42,7 @@ COLOR_RESET := \033[0m
 all: surfview
 
 .PHONY: surfview
-surfview: sync-surfviewjs update-yaml
+surfview: sync-surfviewjs update-yaml sync-pkgdown-surfview
 	@echo "$(COLOR_GREEN)✓ surfview build complete$(COLOR_RESET)"
 	@echo "$(COLOR_BLUE)JavaScript library: $(NEUROSURFACE_JS)$(COLOR_RESET)"
 	@$(MAKE) --no-print-directory show-version
@@ -108,6 +115,19 @@ sync-surfviewjs: $(SURFVIEWJS_BUILD) | $(NEUROSURFACE_LIB)
 		echo "$(COLOR_GREEN)✓ Duplicated source map as surfview.umd.js.map$(COLOR_RESET)"; \
 	fi
 	@echo "$(COLOR_GREEN)✓ Files copied successfully$(COLOR_RESET)"
+
+.PHONY: sync-pkgdown-surfview
+sync-pkgdown-surfview: sync-surfviewjs
+	@echo "$(COLOR_BLUE)Syncing pkgdown JavaScript assets...$(COLOR_RESET)"
+	@for dir in $(PKGDOWN_NEUROSURFACE_DIRS); do \
+		if [ -d "$$dir" ]; then \
+			cp $(NEUROSURFACE_JS) "$$dir/neurosurface.umd.js"; \
+			cp $(NEUROSURFACE_LIB)/surfview.umd.js.map "$$dir/surfview.umd.js.map"; \
+			echo "$(COLOR_GREEN)✓ Synced $$dir$(COLOR_RESET)"; \
+		else \
+			echo "$(COLOR_YELLOW)Skipping missing directory: $$dir$(COLOR_RESET)"; \
+		fi; \
+	done
 
 # ============================================================================
 # Version Management
@@ -232,6 +252,7 @@ help:
 	@echo ""
 	@echo "$(COLOR_GREEN)Main targets:$(COLOR_RESET)"
 	@echo "  surfview          Build surfviewjs and copy to neurosurf (default)"
+	@echo "  sync-pkgdown-surfview  Copy the synced bundle into checked-in pkgdown assets"
 	@echo "  clean-surfview    Remove built files from neurosurf"
 	@echo "  clean-all         Remove all build artifacts (including surfviewjs)"
 	@echo ""

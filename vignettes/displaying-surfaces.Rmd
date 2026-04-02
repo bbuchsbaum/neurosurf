@@ -6,20 +6,24 @@ output:
   rmarkdown::html_vignette:
     fig_width: 7
     fig_height: 5
-vignette: >
-  %\VignetteIndexEntry{Displaying Surfaces with RGL}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+    toc: yes
+    toc_depth: 2.0
+    css: albers.css
+    includes:
+      in_header:
+      - |-
+        <script src="albers.js"></script>
+        <script>document.addEventListener('DOMContentLoaded',function(){document.body.classList.add('palette-teal');});</script>
+      - albers-header.html
+vignette: |
+  %\VignetteIndexEntry{Displaying Surfaces with RGL} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 params:
-  family: red
-css: albers.css
+  family: teal
+  preset: homage
 resource_files:
 - albers.css
 - albers.js
-includes:
-  in_header: |-
-    <script src="albers.js"></script>
-    <script>document.addEventListener('DOMContentLoaded',()=>document.body.classList.add('palette-red'));</script>
+- albers-header.html
 
 ---
 
@@ -40,7 +44,7 @@ if (!has_rgl) {
   message("Skipping vignette: rgl package not available")
 }
 
-if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(params$family))
+if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(family = params$family, preset = params$preset))
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -74,6 +78,59 @@ library(neurosurf)
 .render_counter <- new.env(parent = emptyenv())
 .render_counter$n <- 0
 
+# Treat uniform black/white PNGs as failed snapshots so the vignette can fall
+# back to interactive widgets instead of embedding bad files.
+snapshot_is_usable <- function(path,
+                               uniform_fraction = 0.995,
+                               near_black = 0.02,
+                               near_white = 0.98,
+                               low_variation_sd = 0.005,
+                               low_variation_span = 0.025) {
+  if (!is.character(path) || length(path) != 1L || !nzchar(path) ||
+      !file.exists(path)) {
+    return(FALSE)
+  }
+
+  img <- try(png::readPNG(path), silent = TRUE)
+  if (inherits(img, "try-error")) {
+    return(TRUE)
+  }
+
+  rgb <- if (length(dim(img)) >= 3L) {
+    img[, , seq_len(min(3L, dim(img)[3L])), drop = FALSE]
+  } else {
+    img
+  }
+
+  vals <- as.numeric(rgb)
+  vals <- vals[is.finite(vals)]
+  if (!length(vals)) {
+    return(FALSE)
+  }
+
+  if (mean(vals <= near_black) >= uniform_fraction ||
+      mean(vals >= near_white) >= uniform_fraction) {
+    return(FALSE)
+  }
+
+  !(stats::sd(vals) < low_variation_sd &&
+      diff(range(vals)) < low_variation_span)
+}
+
+snapshot_current_scene <- function(file) {
+  if (rgl::rgl.useNULL() && !requireNamespace("webshot2", quietly = TRUE)) {
+    return(character())
+  }
+
+  if (rgl::rgl.useNULL()) {
+    rgl::snapshot3d(file, webshot = TRUE)
+  } else {
+    rgl::rgl.snapshot(file)
+  }
+
+  if (snapshot_is_usable(file)) file else character()
+}
+
 # Helper function: try snapshot_surface first, fall back to rglwidget
 render_surface <- function(surfgeom, ..., width = 800, height = 600) {
   # Use knitr's figure path to ensure proper asset tracking
@@ -82,7 +139,7 @@ render_surface <- function(surfgeom, ..., width = 800, height = 600) {
   dir.create(dirname(fig_file), recursive = TRUE, showWarnings = FALSE)
 
   img_path <- try(snapshot_surface(surfgeom, file = fig_file, width = width, height = height, ...), silent = TRUE)
-  if (!inherits(img_path, "try-error") && length(img_path) > 0 && file.exists(img_path)) {
+  if (!inherits(img_path, "try-error") && snapshot_is_usable(img_path)) {
     knitr::include_graphics(img_path)
   } else {
     # Fallback to rglwidget
@@ -105,7 +162,7 @@ render_multi_view <- function(surfgeom, viewpoints = c("lateral", "medial", "ven
     try(snapshot_surface(surfgeom, file = fig_file, viewpoint = vp, width = width, height = height, ...), silent = TRUE)
   })
 
-  valid <- sapply(paths, function(p) !inherits(p, "try-error") && length(p) > 0 && file.exists(p))
+  valid <- sapply(paths, function(p) !inherits(p, "try-error") && snapshot_is_usable(p))
 
   if (all(valid)) {
     knitr::include_graphics(unlist(paths))
@@ -133,77 +190,109 @@ white_lh <- read_surf(white_lh_asc)
 white_rh <- read_surf(white_rh_asc)
 
 # Prepare data for examples
-white_lh_smooth <- smooth(white_lh, type="HCLaplace", delta=.2, iteration=5)
-curv_lh <- curvature(white_lh_smooth)
+white_lh_base <- smooth(white_lh, type = "HCLaplace", delta = 0.2, iteration = 5)
+white_rh_base <- smooth(white_rh, type = "HCLaplace", delta = 0.2, iteration = 5)
 set.seed(123) # for reproducibility
-random_vals <- rnorm(length(nodes(white_lh_smooth)))
+random_vals <- rnorm(length(nodes(white_lh_base)))
 
-# Keep a base (coarse) mesh for algorithms; use a display copy we may refine
-white_lh_base <- white_lh_smooth
+# Keep coarse meshes for algorithms; use display copies we may refine
 white_lh_display <- white_lh_base
-curv_lh_display <- curv_lh
+white_rh_display <- white_rh_base
+curv_lh_display <- curvature(white_lh_display)
+curv_rh_display <- curvature(white_rh_display)
 random_vals_display <- random_vals
 random_vals_display_smooth <- random_vals_display
 
 ```
 
+```{r albers-classes, echo=FALSE, results='asis'}
+cat(sprintf(
+  paste0(
+    '<script>document.addEventListener("DOMContentLoaded",function(){',
+    'document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-study","preset-structural","preset-adobe","preset-midnight");',
+    'document.body.classList.add("palette-%s","preset-%s");',
+    '});</script>'
+  ),
+  params$family,
+  params$preset
+))
+```
+
 ```{r upsample-hidden, echo=FALSE}
-# Gently refine the std8 mesh to reduce faceting in the vignette visuals
-if (requireNamespace("Rvcg", quietly = TRUE)) {
-  try({
-    white_lh_hi <- white_lh_base
-    if (is.function(Rvcg::vcgSubdivide)) {
-      white_lh_hi@mesh <- Rvcg::vcgSubdivide(white_lh_hi@mesh, type = "loop", iterations = 2, silent = TRUE)
-    }
-    white_lh_hi <- smooth(white_lh_hi, type = "HCLaplace", delta = 0.15, iteration = 8)
-    white_lh_display <- white_lh_hi
-    curv_lh_display <- curvature(white_lh_display)
-    random_vals_display <- rnorm(length(nodes(white_lh_display))) # regenerate to match new vertex count
-  }, silent = TRUE)
+# Gently refine the std8 mesh to reduce faceting in the vignette visuals.
+# Apply the same display pipeline to both hemispheres so side-by-side panels
+# are comparable.
+refine_display_surface <- function(surfgeom) {
+  surf_display <- surfgeom
+
+  if (requireNamespace("Rvcg", quietly = TRUE)) {
+    try({
+      if (is.function(Rvcg::vcgSubdivide)) {
+        surf_display@mesh <- Rvcg::vcgSubdivide(
+          surf_display@mesh,
+          type = "loop",
+          iterations = 2,
+          silent = TRUE
+        )
+      }
+      surf_display <- smooth(
+        surf_display,
+        type = "HCLaplace",
+        delta = 0.15,
+        iteration = 8
+      )
+    }, silent = TRUE)
+  }
+
+  surf_display
 }
 
-# Create a smoothed version of the random data to avoid speckled overlays
-try({
-  random_surf <- NeuroSurface(white_lh_display,
-                              indices = seq_len(length(random_vals_display)),
-                              data = random_vals_display)
-  random_surf_sm <- smooth(random_surf)
-  random_vals_display_smooth <- values(random_surf_sm)
-}, silent = TRUE)
+smooth_surface_values <- function(surfgeom, vals, passes = 1) {
+  tryCatch({
+    surf_vals <- NeuroSurface(
+      surfgeom,
+      indices = seq_len(length(vals)),
+      data = vals
+    )
+    for (i in seq_len(passes)) {
+      surf_vals <- smooth(surf_vals)
+    }
+
+    out <- values(surf_vals)
+    if (length(out) != length(vals) || any(!is.finite(out))) {
+      vals
+    } else {
+      out
+    }
+  }, error = function(e) vals)
+}
+
+white_lh_display <- refine_display_surface(white_lh_base)
+white_rh_display <- refine_display_surface(white_rh_base)
 
 # Final safety: ensure data vectors match the current display vertex count
 nv_display <- length(nodes(white_lh_display))
-
-# Regenerate raw data only if the vertex count changed
 if (length(random_vals_display) != nv_display) {
   random_vals_display <- rnorm(nv_display)
 }
 
-# (Re)compute a smoothed version aligned with the current mesh; fall back to raw data on error
-random_vals_display_smooth <- tryCatch({
-  rsurf <- NeuroSurface(white_lh_display,
-                        indices = seq_len(nv_display),
-                        data = random_vals_display)
-  values(smooth(rsurf))
-}, error = function(e) random_vals_display)
-
-# Guard against length/NA issues after smoothing
-if (length(random_vals_display_smooth) != nv_display ||
-    any(!is.finite(random_vals_display_smooth))) {
-  random_vals_display_smooth <- random_vals_display
-}
-
-# Recompute curvature for the current display mesh and smooth it repeatedly
-# to remove the lattice artifact that subdivision introduces
-curv_lh_display <- tryCatch({
-  raw_curv <- curvature(white_lh_display)
-  curv_surf <- NeuroSurface(white_lh_display,
-                            indices = seq_len(length(raw_curv)),
-                            data = raw_curv)
-  # Multiple smoothing passes to fully diffuse the subdivision lattice
-  for (i in seq_len(3)) curv_surf <- smooth(curv_surf)
-  values(curv_surf)
-}, error = function(e) curvature(white_lh_display))
+# Smooth the overlay data and curvature on the display mesh to avoid speckles
+# in the static vignette snapshots.
+random_vals_display_smooth <- smooth_surface_values(
+  white_lh_display,
+  random_vals_display,
+  passes = 1
+)
+curv_lh_display <- smooth_surface_values(
+  white_lh_display,
+  curvature(white_lh_display),
+  passes = 5
+)
+curv_rh_display <- smooth_surface_values(
+  white_rh_display,
+  curvature(white_rh_display),
+  passes = 5
+)
 ```
 
 ## Basic Surface Plotting
@@ -300,10 +389,19 @@ img_path <- try(snapshot_surface(white_lh_display,
                                  width = 1200, height = 900),
                 silent = TRUE)
 
-if (!inherits(img_path, "try-error") && is.character(img_path) && file.exists(img_path)) {
+if (!inherits(img_path, "try-error") && snapshot_is_usable(img_path)) {
   knitr::include_graphics(img_path)
 } else {
-  cat("*(Snapshot unavailable in this build environment)*")
+  rgl::open3d()
+  view_surface(white_lh_display,
+               vals = random_vals_display_smooth,
+               cmap = viridis::viridis(256),
+               viewpoint = "lateral",
+               specular = "black",
+               new_window = FALSE)
+  widget <- rgl::rglwidget()
+  rgl::close3d()
+  widget
 }
 ```
 
@@ -322,17 +420,27 @@ render_multi_view(white_lh_display,
 
 For lateral views, each hemisphere is best rendered separately since the camera can only face one direction. We render the left and right lateral views side by side.
 
-```{r two-hemispheres-plot, results='asis', out.width="50%", fig.show='hold'}
-# Smooth the right hemisphere and get its curvature
-white_rh_smooth <- smooth(white_rh, type = "HCLaplace", delta = 0.2, iteration = 5)
-curv_rh <- curvature(white_rh_smooth)
-
-# LH lateral
-render_surface(white_lh_display, bgcol = curv_cols_smooth(curv_lh_display),
-               viewpoint = "lateral", specular = "black")
-# RH lateral
-render_surface(white_rh_smooth, bgcol = curv_cols_smooth(curv_rh),
-               viewpoint = "lateral", specular = "black")
+```{r two-hemispheres-plot, results='asis', out.width="49%", out.height=NULL, fig.show='hold'}
+# Use the refined display meshes for both hemispheres and leave some extra
+# margin so the browser does not make the static PNGs feel cramped.
+render_surface(
+  white_lh_display,
+  bgcol = curv_cols_smooth(curv_lh_display, quantiles = c(0.02, 0.98)),
+  viewpoint = "lateral",
+  specular = "black",
+  zoom = 0.92,
+  width = 900,
+  height = 700
+)
+render_surface(
+  white_rh_display,
+  bgcol = curv_cols_smooth(curv_rh_display, quantiles = c(0.02, 0.98)),
+  viewpoint = "lateral",
+  specular = "black",
+  zoom = 0.92,
+  width = 900,
+  height = 700
+)
 ```
 
 ## Adding Spheres to the Surface
@@ -408,7 +516,7 @@ img3 <- try(snapshot_surface(geometry(csurf), file = act_file3, vals = values(cs
                               irange = c(-2, 2), thresh = c(-0.2, 0.2), width = 600, height = 450), silent = TRUE)
 
 # Check if all snapshots succeeded
-valid <- sapply(list(img1, img2, img3), function(p) !inherits(p, "try-error") && length(p) > 0 && file.exists(p))
+valid <- sapply(list(img1, img2, img3), function(p) !inherits(p, "try-error") && snapshot_is_usable(p))
 
 if (all(valid)) {
   knitr::include_graphics(c(img1, img2, img3))
@@ -447,28 +555,22 @@ img_path <- try({
   # LH and RH sit naturally at x<0 and x>0; small offset adds breathing room
   view_surface(white_lh_display, bgcol = curv_cols_smooth(curv_lh_display),
                viewpoint = "posterior", new_window = FALSE, offset = c(-5, 0, 0))
-  view_surface(white_rh_smooth, bgcol = curv_cols_smooth(curv_rh),
+  view_surface(white_rh_display, bgcol = curv_cols_smooth(curv_rh_display),
                viewpoint = "posterior", new_window = FALSE, offset = c(5, 0, 0))
   rgl::view3d(fov = 0, zoom = 0.55,
               userMatrix = rbind(c(1,0,0,0), c(0,0,1,0), c(0,-1,0,0), c(0,0,0,1)))
-
-  if (rgl::rgl.useNULL() && requireNamespace("webshot2", quietly = TRUE)) {
-    rgl::snapshot3d(file, webshot = TRUE)
-  } else {
-    rgl::rgl.snapshot(file)
-  }
-  rgl::close3d()
-  file
+  snapshot_current_scene(file)
 }, silent = TRUE)
+try(rgl::close3d(), silent = TRUE)
 
-if (!inherits(img_path, "try-error") && file.exists(img_path)) {
+if (!inherits(img_path, "try-error") && snapshot_is_usable(img_path)) {
   knitr::include_graphics(img_path)
 } else {
   # Fallback to rglwidget
   rgl::open3d()
   view_surface(white_lh_display, bgcol = curv_cols_smooth(curv_lh_display),
                viewpoint = "posterior", new_window = FALSE, offset = c(-5, 0, 0))
-  view_surface(white_rh_smooth, bgcol = curv_cols_smooth(curv_rh),
+  view_surface(white_rh_display, bgcol = curv_cols_smooth(curv_rh_display),
                viewpoint = "posterior", new_window = FALSE, offset = c(5, 0, 0))
   rgl::view3d(fov = 0, zoom = 0.55,
               userMatrix = rbind(c(1,0,0,0), c(0,0,1,0), c(0,-1,0,0), c(0,0,0,1)))

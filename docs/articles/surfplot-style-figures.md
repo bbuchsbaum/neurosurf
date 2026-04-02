@@ -155,3 +155,16 @@ The resulting figure shows:
 
 This pattern can be adapted to any surface + atlas combination that can
 be loaded into neurosurf as `SurfaceGeometry` and per-vertex ROI labels.
+
+## Next Steps
+
+- [`vignette("displaying-surfaces")`](../articles/displaying-surfaces.md)
+  — lower-level RGL rendering with curvature shading, data overlays,
+  thresholds, and PNG snapshots.
+- [`vignette("interactive-surfaces")`](../articles/interactive-surfaces.md)
+  — interactive HTML widgets with
+  [`surfwidget()`](../reference/surfwidget-methods.md) for exploratory
+  analysis.
+- [`vignette("introduction-to-neurosurf")`](../articles/introduction-to-neurosurf.md)
+  — the data structures (`SurfaceGeometry`, `NeuroSurface`,
+  `NeuroSurfaceVector`) that underpin these workflows.

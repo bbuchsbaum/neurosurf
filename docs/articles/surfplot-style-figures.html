@@ -63,7 +63,7 @@
                         <h4 data-toc-skip class="author">neurosurf
 authors</h4>
             
-            <h4 data-toc-skip class="date">2026-02-23</h4>
+            <h4 data-toc-skip class="date">2026-04-02</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bbuchsbaum/neurosurf/blob/HEAD/vignettes/surfplot-style-figures.Rmd" class="external-link"><code>vignettes/surfplot-style-figures.Rmd</code></a></small>
       <div class="d-none name"><code>surfplot-style-figures.Rmd</code></div>
@@ -205,8 +205,15 @@ compact layout.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
+<span><span class="va">fig_file</span> <span class="op">&lt;-</span> <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/fig_path.html" class="external-link">fig_path</a></span><span class="op">(</span><span class="st">".png"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="va">fig_file</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/png.html" class="external-link">png</a></span><span class="op">(</span><span class="va">fig_file</span>, width <span class="op">=</span> <span class="fl">1536</span>, height <span class="op">=</span> <span class="fl">768</span>, bg <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span></span>
 <span><span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.newpage.html" class="external-link">grid.newpage</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.draw.html" class="external-link">grid.draw</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.draw.html" class="external-link">grid.draw</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span></span>
+<span><span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>quartz_off_screen 2</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/include_graphics.html" class="external-link">include_graphics</a></span><span class="op">(</span><span class="va">fig_file</span><span class="op">)</span></span></code></pre></div>
 <p><img src="surfplot-style-figures_files/figure-html/render-figure-1.png" class="r-plt" alt="" width="768"></p>
 <p>The resulting figure shows:</p>
 <ul>
@@ -219,6 +226,23 @@ legibility.</li>
 <p>This pattern can be adapted to any surface + atlas combination that
 can be loaded into neurosurf as <code>SurfaceGeometry</code> and
 per-vertex ROI labels.</p>
+</div>
+<div class="section level2">
+<h2 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
+</h2>
+<ul>
+<li>
+<code><a href="../articles/displaying-surfaces.html">vignette("displaying-surfaces")</a></code> — lower-level RGL
+rendering with curvature shading, data overlays, thresholds, and PNG
+snapshots.</li>
+<li>
+<code><a href="../articles/interactive-surfaces.html">vignette("interactive-surfaces")</a></code> — interactive HTML
+widgets with <code><a href="../reference/surfwidget-methods.html">surfwidget()</a></code> for exploratory analysis.</li>
+<li>
+<code><a href="../articles/introduction-to-neurosurf.html">vignette("introduction-to-neurosurf")</a></code> — the data
+structures (<code>SurfaceGeometry</code>, <code>NeuroSurface</code>,
+<code>NeuroSurfaceVector</code>) that underpin these workflows.</li>
+</ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

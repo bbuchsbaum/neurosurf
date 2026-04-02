@@ -790,6 +790,13 @@ draw_surface_plot <- function(x,
   }
 
   cbar_location <- match.arg(cbar_location)
+  bg_fill <- x$background %||% "white"
+  with_background <- function(grob) {
+    grid::grobTree(
+      grid::rectGrob(gp = grid::gpar(fill = bg_fill, col = NA)),
+      grob
+    )
+  }
 
   rendered <- render_surface_plot(x, offscreen = TRUE, crop = TRUE)
   panels <- rendered$panels
@@ -848,7 +855,7 @@ draw_surface_plot <- function(x,
 
   # Add colour bars if requested and available
   if (!isTRUE(colorbar)) {
-    return(frame)
+    return(with_background(frame))
   }
 
   color_layers <- Filter(
@@ -857,7 +864,7 @@ draw_surface_plot <- function(x,
   )
 
   if (!length(color_layers)) {
-    return(frame)
+    return(with_background(frame))
   }
 
   default_cb <- list(
@@ -886,7 +893,7 @@ draw_surface_plot <- function(x,
     outer <- grid::placeGrob(outer, cb_grob, row = 1L, col = 2L)
   }
 
-  outer
+  with_background(outer)
 }
 
 #' Plot method for neurosurf_plot objects

@@ -244,6 +244,33 @@ test_that("plot.neurosurf_plot exists", {
   expect_true(is.function(plot.neurosurf_plot))
 })
 
+test_that("draw_surface_plot includes an explicit background grob", {
+  skip_if_not_installed("grid")
+
+  fake_plot <- structure(
+    list(
+      layout = list(dims = c(1L, 1L)),
+      layers = list(),
+      background = "white"
+    ),
+    class = "neurosurf_plot"
+  )
+
+  g <- testthat::with_mocked_bindings(
+    render_surface_plot = function(...) {
+      list(
+        panels = list(list(image = array(1, dim = c(10, 10, 3)), aspect = 1)),
+        layout = list(dims = c(1L, 1L))
+      )
+    },
+    draw_surface_plot(fake_plot, colorbar = FALSE)
+  )
+
+  expect_s3_class(g, "gTree")
+  expect_s3_class(g$children[[1]], "rect")
+  expect_equal(g$children[[1]]$gp$fill, "white")
+})
+
 # Tests for .ns_normalize_surface
 test_that(".ns_normalize_surface returns NULL for NULL input", {
   result <- neurosurf:::.ns_normalize_surface(NULL, "left")

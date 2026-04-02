@@ -2,9 +2,11 @@
 
 This vignette focuses on interactive 3D visualization using
 [`surfwidget()`](../reference/surfwidget-methods.md). For RGL-based 3D
-plots, see *Displaying Surfaces with RGL*. For multi-view,
-publication-style figures with shared colourbars and atlas outlines, see
-*Surfplot-style Figures with neurosurf*.
+plots, see
+[`vignette("displaying-surfaces")`](../articles/displaying-surfaces.md).
+For multi-view, publication-style figures with shared colourbars and
+atlas outlines, see
+[`vignette("surfplot-style-figures")`](../articles/surfplot-style-figures.md).
 
 ## Introduction
 
@@ -115,7 +117,6 @@ data_layer <- list(label = "data")
 
 advanced_widget <- surfwidget(color_mapped_surf, 
                              layers = list(underlay_layer, data_layer),
-                             curvature = curv_vals,
                              config = c(advanced_config, list(initialZoom = 2)), 
                              alpha = 0.9,
                              width = "100%", 
@@ -227,3 +228,15 @@ Interactive widgets offer several advantages:
 These interactive capabilities make
 [`surfwidget()`](../reference/surfwidget-methods.md) ideal for
 exploratory data analysis and interactive presentations.
+
+## Next Steps
+
+- [`vignette("displaying-surfaces")`](../articles/displaying-surfaces.md)
+  — RGL-based 3D rendering with curvature shading, data overlays, and
+  PNG snapshots.
+- [`vignette("surfplot-style-figures")`](../articles/surfplot-style-figures.md)
+  — publication-ready multi-view layouts with shared colourbars and
+  atlas outlines.
+- [`vignette("introduction-to-neurosurf")`](../articles/introduction-to-neurosurf.md)
+  — the data structures (`SurfaceGeometry`, `NeuroSurface`,
+  `NeuroSurfaceVector`) behind these visualizations.

@@ -2,21 +2,26 @@
 title: Surfplot-style Figures with neurosurf
 author: neurosurf authors
 date: '`r Sys.Date()`'
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Surfplot-style Figures with neurosurf}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output:
+  rmarkdown::html_vignette:
+    toc: yes
+    toc_depth: 2.0
+    css: albers.css
+    includes:
+      in_header:
+      - |-
+        <script src="albers.js"></script>
+        <script>document.addEventListener('DOMContentLoaded',function(){document.body.classList.add('palette-teal');});</script>
+      - albers-header.html
+vignette: |
+  %\VignetteIndexEntry{Surfplot-style Figures with neurosurf} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 params:
-  family: red
-css: albers.css
+  family: teal
+  preset: homage
 resource_files:
 - albers.css
 - albers.js
-includes:
-  in_header: |-
-    <script src="albers.js"></script>
-    <script>document.addEventListener('DOMContentLoaded',()=>document.body.classList.add('palette-red'));</script>
+- albers-header.html
 
 ---
 
@@ -44,12 +49,14 @@ if (!has_rgl) {
   message("Skipping vignette: rgl package not available")
 }
 
-if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(params$family))
+if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(family = params$family, preset = params$preset))
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   warning = FALSE,
   message = FALSE,
+  dev = "png",
+  dev.args = list(bg = "white"),
   fig.width = 7,
   fig.height = 5
 )
@@ -57,6 +64,19 @@ knitr::opts_chunk$set(
 library(neurosurf)
 library(neuroim2)
 library(ggplot2) # used only for palette ideas
+```
+
+```{r albers-classes, echo=FALSE, results='asis'}
+cat(sprintf(
+  paste0(
+    '<script>document.addEventListener("DOMContentLoaded",function(){',
+    'document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-study","preset-structural","preset-adobe","preset-midnight");',
+    'document.body.classList.add("palette-%s","preset-%s");',
+    '});</script>'
+  ),
+  params$family,
+  params$preset
+))
 ```
 
 ## Load fsaverage std.8 surfaces and Schaefer atlas
@@ -169,7 +189,7 @@ p <- add_atlas_outline(
 Finally, we draw the figure with a horizontal colourbar beneath the grid and
 slightly compressed colourbar height and spacing for a more compact layout.
 
-```{r render-figure, fig.width=8, fig.height=4}
+```{r render-figure, fig.width=8, fig.height=4, results='asis'}
 g <- draw_surface_plot(
   p,
   colorbar      = TRUE,
@@ -184,8 +204,13 @@ g <- draw_surface_plot(
   )
 )
 
+fig_file <- knitr::fig_path(".png")
+dir.create(dirname(fig_file), recursive = TRUE, showWarnings = FALSE)
+grDevices::png(fig_file, width = 1536, height = 768, bg = "white")
 grid::grid.newpage()
 grid::grid.draw(g)
+grDevices::dev.off()
+knitr::include_graphics(fig_file)
 ```
 
 The resulting figure shows:

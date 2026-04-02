@@ -256,15 +256,37 @@ HTMLWidgets.widget({
               };
 
               const toLayer = (layer, idx) => {
+                const hasValue = (key) =>
+                  Object.prototype.hasOwnProperty.call(layer, key) &&
+                  layer[key] !== null &&
+                  layer[key] !== undefined;
+                const hasOwnData = hasValue('data');
+                const hasOwnIndices = hasValue('indices');
+                const hasOwnCmap = hasValue('cmap');
+                const hasOwnRange = hasValue('color_range') || hasValue('irange');
+                const hasOwnThreshold = hasValue('thresh') || hasValue('threshold');
+                const isRootOverlayLayer =
+                  !layer.as_outline &&
+                  !hasOwnData &&
+                  !hasOwnIndices &&
+                  !hasOwnCmap &&
+                  !hasOwnRange &&
+                  !hasOwnThreshold;
                 const base = {
                   type: layer.as_outline ? 'outline' : 'data',
                   id: layer.id || `layer_${idx}`,
-                  data: layer.data || x.data,
-                  indices: layer.indices || x.indices,
-                  cmap: normalizeCmap(layer.cmap || x.cmap),
-                  range: layer.color_range || layer.irange || x.irange,
-                  threshold: layer.thresh || layer.threshold || x.thresh || [0,0],
-                  opacity: layer.alpha ?? x.alpha ?? 1,
+                  data: isRootOverlayLayer ? x.data : layer.data,
+                  indices: isRootOverlayLayer ? x.indices : layer.indices,
+                  cmap: normalizeCmap(
+                    isRootOverlayLayer ? x.cmap : layer.cmap
+                  ),
+                  range: isRootOverlayLayer ?
+                    x.irange :
+                    (layer.color_range || layer.irange),
+                  threshold: isRootOverlayLayer ?
+                    (x.thresh || [0, 0]) :
+                    (layer.thresh ?? layer.threshold ?? [0, 0]),
+                  opacity: layer.alpha ?? (isRootOverlayLayer ? (x.alpha ?? 1) : 1),
                   visible: layer.visible !== false,
                   blendMode: layer.blendMode || 'normal'
                 };

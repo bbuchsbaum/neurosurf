@@ -1,7 +1,5 @@
 code:
-  # Disable example evaluation: rgl rendering crashes on headless/Metal macOS
-  run_dont_run: false
-
+  run_dont_run: no
 reference:
 - title: read surfaces
   desc: |
@@ -35,8 +33,7 @@ reference:
 - title: Complete reference
   desc: |
     Catch-all index to include any remaining topics.
-  contents:
-  - starts_with("")
+  contents: starts_with("")
 template:
   package: albersdown
   bootstrap: 5.0
