@@ -8,11 +8,7 @@ output:
     toc_depth: 2.0
     css: albers.css
     includes:
-      in_header:
-      - |-
-        <script src="albers.js"></script>
-        <script>document.addEventListener('DOMContentLoaded',function(){document.body.classList.add('palette-teal');});</script>
-      - albers-header.html
+      in_header: albers-header.html
 vignette: |
   %\VignetteIndexEntry{Interactive Surface Visualization with surfwidget} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 params:

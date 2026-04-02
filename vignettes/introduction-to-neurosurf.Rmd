@@ -2,21 +2,22 @@
 title: Introduction to NeuroSurf Data Structures
 author: Bradley Buchsbaum
 date: '`r Sys.Date()`'
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Introduction to NeuroSurf Data Structures}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output:
+  rmarkdown::html_vignette:
+    toc: yes
+    toc_depth: 2.0
+    css: albers.css
+    includes:
+      in_header: albers-header.html
+vignette: |
+  %\VignetteIndexEntry{Introduction to NeuroSurf Data Structures} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 params:
-  family: red
-css: albers.css
+  family: teal
+  preset: homage
 resource_files:
 - albers.css
 - albers.js
-includes:
-  in_header: |-
-    <script src="albers.js"></script>
-    <script>document.addEventListener('DOMContentLoaded',()=>document.body.classList.add('palette-red'));</script>
+- albers-header.html
 
 ---
 
@@ -40,7 +41,7 @@ if (!has_rgl) {
   message("Skipping vignette: rgl package not available")
 }
 
-if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(params$family))
+if (requireNamespace("ggplot2", quietly = TRUE) && requireNamespace("albersdown", quietly = TRUE)) ggplot2::theme_set(albersdown::theme_albers(family = params$family, preset = params$preset))
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -66,6 +67,19 @@ library(Matrix) # For sparse matrices used in NeuroSurfaceVector
 # Prepare paths to example data included in the package
 white_lh_asc <- system.file("extdata", "std.8_lh.smoothwm.asc", package="neurosurf")
 white_rh_asc <- system.file("extdata", "std.8_rh.smoothwm.asc", package="neurosurf")
+```
+
+```{r albers-classes, echo=FALSE, results='asis'}
+cat(sprintf(
+  paste0(
+    '<script>document.addEventListener("DOMContentLoaded",function(){',
+    'document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-study","preset-structural","preset-adobe","preset-midnight");',
+    'document.body.classList.add("palette-%s","preset-%s");',
+    '});</script>'
+  ),
+  params$family,
+  params$preset
+))
 ```
 
 ## `SurfaceGeometry`: Representing the Mesh
