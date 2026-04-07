@@ -80,7 +80,8 @@ figure using neurosurf’s high-level plotting API.</p>
 <li>load bundled fsaverage std.8 surfaces;</li>
 <li>load a Schaefer 200-parcel atlas projected to MNI152;</li>
 <li>map parcel means to the surface; and</li>
-<li>add a colourbar to produce a surfplot-style figure.</li>
+<li>add atlas outlines and colourbars to produce a surfplot-style
+figure.</li>
 </ul>
 <script>document.addEventListener("DOMContentLoaded",function(){document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-study","preset-structural","preset-adobe","preset-midnight");document.body.classList.add("palette-teal","preset-homage");});</script><div class="section level2">
 <h2 id="load-fsaverage-std-8-surfaces-and-schaefer-atlas">Load fsaverage std.8 surfaces and Schaefer atlas<a class="anchor" aria-label="anchor" href="#load-fsaverage-std-8-surfaces-and-schaefer-atlas"></a>
@@ -148,8 +149,9 @@ plotting geometry by simple concatenation.</p>
 </h2>
 <p>We now construct a <code>neurosurf_plot</code> with a bilaterally
 symmetric layout and two views (<code>lateral</code> and
-<code>medial</code>), adding a continuous map (here, the network index
-derived from the parcel id).</p>
+<code>medial</code>). We first add a continuous map (here, the network
+index derived from the parcel id) and then overlay the parcel
+outlines.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Derive a simple continuous map: network index from parcel id</span></span>
 <span><span class="va">network_index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="op">(</span><span class="va">parcel_labels</span> <span class="op">-</span> <span class="fl">1L</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">200</span> <span class="op">/</span> <span class="fl">7</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1L</span></span>
@@ -172,6 +174,15 @@ derived from the parcel id).</p>
 <span>  show_colorbar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  label        <span class="op">=</span> <span class="st">"Network index"</span>,</span>
 <span>  alpha        <span class="op">=</span> <span class="fl">0.9</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Add parcel outlines with tasteful defaults</span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_atlas_outline.html">add_atlas_outline</a></span><span class="op">(</span></span>
+<span>  <span class="va">p</span>,</span>
+<span>  labels <span class="op">=</span> <span class="va">parcel_labels</span>,</span>
+<span>  label  <span class="op">=</span> <span class="st">"Schaefer-200"</span>,</span>
+<span>  outline_offset <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  outline_lwd    <span class="op">=</span> <span class="fl">1.2</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -244,18 +255,20 @@ compact layout.</p>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span></span>
-<span>  <span class="st">"![Lateral and medial views of left and right fsaverage surfaces with network colours](%s)\n"</span>,</span>
+<span>  <span class="st">"![Lateral and medial views of left and right fsaverage surfaces with network colours and parcel outlines](%s)\n"</span>,</span>
 <span>  <span class="va">fig_file</span></span>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="surfplot-style-figures_files/figure-html/render-figure-manual.png" alt="Lateral and medial views of left and right fsaverage surfaces with network colours"><div class="figcaption">Lateral and medial views of left and right
-fsaverage surfaces with network colours</div>
+<img src="surfplot-style-figures_files/figure-html/render-figure-manual.png" alt="Lateral and medial views of left and right fsaverage surfaces with network colours and parcel outlines"><div class="figcaption">Lateral and medial views of left and right
+fsaverage surfaces with network colours and parcel outlines</div>
 </div>
 <p>The resulting figure shows:</p>
 <ul>
 <li>left and right inflated fsaverage surfaces;</li>
 <li>lateral and medial views;</li>
-<li>a continuous network index map with a clean colourbar.</li>
+<li>a continuous network index map with a clean colourbar; and</li>
+<li>crisp parcel outlines with a subtle halo and offset for
+legibility.</li>
 </ul>
 <p>This pattern can be adapted to any surface + atlas combination that
 can be loaded into neurosurf as <code>SurfaceGeometry</code> and

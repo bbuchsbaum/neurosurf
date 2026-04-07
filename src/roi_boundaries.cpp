@@ -153,341 +153,225 @@ List roi_boundary_loops_cpp(const NumericMatrix& vertices,
                             const IntegerMatrix& faces,
                             const IntegerVector& vertex_id) {
 
-  const int nVerts = vertices.nrow();
-  const int nFaces = faces.nrow();
+  const int nV = vertices.nrow();
+  const int nF = faces.nrow();
 
-  if (nVerts == 0 || nFaces == 0) {
-    return List::create(
-      _["boundary"]        = List::create(),
-      _["boundary_roi_id"] = IntegerVector(),
-      _["roi_components"]  = IntegerVector(),
-      _["boundary_verts"]  = List::create()
-    );
-  }
+  List empty = List::create(
+    _["boundary"]        = List::create(),
+    _["boundary_roi_id"] = IntegerVector(),
+    _["roi_components"]  = IntegerVector(),
+    _["boundary_verts"]  = List::create(),
+    _["roi_ids"]         = IntegerVector()
+  );
 
-  // ---- ROI ids & mapping: sort(unique(vertex_id)) ----
-  std::set<int> roi_set;
-  for (int i = 0; i < nVerts; ++i) {
-    roi_set.insert(vertex_id[i]);
-  }
-  std::vector<int> roi_ids(roi_set.begin(), roi_set.end());
-  const int nRoi = static_cast<int>(roi_ids.size());
+  if (nV == 0 || nF == 0) return empty;
 
-  std::unordered_map<int, int> roi_to_index;
-  roi_to_index.reserve(nRoi * 2);
-  for (int i = 0; i < nRoi; ++i) {
-    roi_to_index[roi_ids[i]] = i;
-  }
+  // ---------------------------------------------------------------
+  // Step 1: collect boundary edges, grouped by ROI.
+  //
+  // A face is "mixed" when its three vertices don't all share the
+  // same ROI label.  For each edge of a mixed face whose two
+  // endpoints belong to the *same* ROI, that edge is a boundary
+  // segment for that ROI.  We collect canonical (v1 < v2) pairs
+  // into per-ROI sets so duplicates are automatically removed.
+  // ---------------------------------------------------------------
+  std::map<int, std::set<std::pair<int,int>>> roi_edges;
 
-  std::vector<int> roi_components(nRoi, 0);
-
-  // ---- Step 1: collect boundary edges from mixed faces only ----
-  std::vector<BoundaryEdge> edges_raw;
-  edges_raw.reserve(static_cast<std::size_t>(nFaces) * 3u);
-
-  for (int f = 0; f < nFaces; ++f) {
-    // faces are 1-based in R; convert to 0-based
+  for (int f = 0; f < nF; ++f) {
     int a = faces(f, 0) - 1;
     int b = faces(f, 1) - 1;
     int c = faces(f, 2) - 1;
+    if (a < 0 || b < 0 || c < 0 || a >= nV || b >= nV || c >= nV) continue;
 
-    // basic sanity (optional; R-side checks normally handle this)
-    if (a < 0 || a >= nVerts ||
-        b < 0 || b >= nVerts ||
-        c < 0 || c >= nVerts) {
-      continue;
-    }
+    int ra = vertex_id[a], rb = vertex_id[b], rc = vertex_id[c];
+    if (ra == rb && rb == rc) continue; // interior face – skip
 
-    int ra = vertex_id[a];
-    int rb = vertex_id[b];
-    int rc = vertex_id[c];
-
-    // Optimization: skip interior faces
-    // if the face is entirely inside a single ROI, it cannot contribute a boundary
-    if (ra == rb && rb == rc) {
-      continue;
-    }
-
-    // The face is "mixed": at least one vertex has different ROI.
-    // For such a face, an edge (u,v) is a boundary *for its ROI* iff:
-    //   - vertex_id[u] == vertex_id[v] == K
-    //   - the third vertex has a different ROI (guaranteed by this 'mixed' face block).
-    // So we only keep edges whose endpoints share an ROI.
-    int vs[3][2] = { {a, b}, {b, c}, {c, a} };
-
+    int ev[3][2] = {{a, b}, {b, c}, {c, a}};
+    int er[3][2] = {{ra, rb}, {rb, rc}, {rc, ra}};
     for (int e = 0; e < 3; ++e) {
-      int v1 = vs[e][0];
-      int v2 = vs[e][1];
-
-      if (v1 == v2) {
-        continue;
+      if (er[e][0] == er[e][1]) { // both endpoints in the same ROI
+        int v1 = ev[e][0], v2 = ev[e][1];
+        if (v1 > v2) std::swap(v1, v2);
+        roi_edges[er[e][0]].insert({v1, v2});
       }
-
-      if (vertex_id[v1] != vertex_id[v2]) {
-        continue; // endpoints in different ROIs, not a boundary *segment* for any ROI
-      }
-
-      if (v1 > v2) {
-        std::swap(v1, v2);
-      }
-
-      BoundaryEdge ed;
-      ed.v1 = v1;
-      ed.v2 = v2;
-      edges_raw.push_back(ed);
     }
   }
 
-  if (edges_raw.empty()) {
-    // No boundary edges at all
-    return List::create(
-      _["boundary"]        = List::create(),
-      _["boundary_roi_id"] = IntegerVector(),
-      _["roi_components"]  = IntegerVector(nRoi), // all zeros
-      _["boundary_verts"]  = List::create()
-    );
+  // ---------------------------------------------------------------
+  // Step 2: sorted unique ROI ids for the roi_components output.
+  // ---------------------------------------------------------------
+  std::vector<int> all_rois;
+  {
+    std::set<int> s(vertex_id.begin(), vertex_id.end());
+    all_rois.assign(s.begin(), s.end());
   }
+  const int nRoi = static_cast<int>(all_rois.size());
+  std::unordered_map<int,int> roi_idx_map;
+  roi_idx_map.reserve(nRoi * 2);
+  for (int i = 0; i < nRoi; ++i) roi_idx_map[all_rois[i]] = i;
+  std::vector<int> roi_components(nRoi, 0);
 
-  // ---- Step 2: sort & deduplicate edges ----
-  std::sort(edges_raw.begin(), edges_raw.end(),
-            [](const BoundaryEdge& a, const BoundaryEdge& b) {
-              if (a.v1 != b.v1) return a.v1 < b.v1;
-              return a.v2 < b.v2;
-            });
+  // ---------------------------------------------------------------
+  // Step 3: trace boundary loops per ROI using directed half-edge
+  //         consumption with angle-based pairing at T-junctions.
+  //
+  // Every undirected edge (u, v) yields two directed half-edges:
+  // (u→v) and (v→u).  We consume half-edges one at a time, always
+  // choosing the continuation whose outgoing direction is most
+  // collinear with the incoming direction (smallest turning angle).
+  // This naturally resolves T-junctions (degree > 2) into separate
+  // geometrically consistent loops without the single-loop collapse
+  // bug of the previous BFS-per-component approach.
+  // ---------------------------------------------------------------
+  List out_boundary;
+  List out_verts;
+  IntegerVector out_roi;
 
-  edges_raw.erase(
-    std::unique(edges_raw.begin(), edges_raw.end(),
-                [](const BoundaryEdge& a, const BoundaryEdge& b) {
-                  return a.v1 == b.v1 && a.v2 == b.v2;
-                }),
-    edges_raw.end()
-  );
+  for (auto& kv : roi_edges) {
+    const int roi      = kv.first;
+    const auto& edges  = kv.second; // canonical (v1 < v2) pairs, deduplicated
+    if (edges.empty()) continue;
 
-  const std::vector<BoundaryEdge>& edges = edges_raw; // all are boundary edges now
-
-  if (edges.empty()) {
-    return List::create(
-      _["boundary"]        = List::create(),
-      _["boundary_roi_id"] = IntegerVector(),
-      _["roi_components"]  = IntegerVector(nRoi), // all zeros
-      _["boundary_verts"]  = List::create()
-    );
-  }
-
-  // ---- Step 3: build adjacency for boundary edges ----
-  std::vector< std::vector<int> > adj(nVerts);
-  adj.shrink_to_fit();
-
-  for (const BoundaryEdge& e : edges) {
-    const int v1 = e.v1;
-    const int v2 = e.v2;
-    adj[v1].push_back(v2);
-    adj[v2].push_back(v1);
-  }
-
-  std::vector<int> deg(nVerts);
-  for (int v = 0; v < nVerts; ++v) {
-    deg[v] = static_cast<int>(adj[v].size());
-  }
-
-  // ---- Step 4: BFS connected components & trace loops per component ----
-  std::vector<int> comp_id(nVerts, -1);
-  int current_comp = 0;
-
-  std::vector< std::vector<int> > loops_vertices;
-  std::vector<int>                loops_roi;
-  loops_vertices.reserve(edges.size());
-
-  std::vector<int> stack;
-
-  for (int v0 = 0; v0 < nVerts; ++v0) {
-    if (adj[v0].empty()) continue;   // not on any boundary edge
-    if (comp_id[v0] != -1) continue; // already assigned
-
-    const int roi_val = vertex_id[v0];
-    auto it_roi = roi_to_index.find(roi_val);
-    if (it_roi == roi_to_index.end()) {
-      // ROI not recognized in our mapping; skip
-      continue;
+    // Directed adjacency: for each undirected edge add both directions.
+    std::map<int, std::vector<int>> adj;
+    for (const auto& e : edges) {
+      adj[e.first].push_back(e.second);
+      adj[e.second].push_back(e.first);
     }
-    const int roi_idx = it_roi->second;
-    roi_components[roi_idx]++; // new component for this ROI
+    // Sort neighbour lists for determinism.
+    for (auto& a : adj) std::sort(a.second.begin(), a.second.end());
 
-    // BFS to collect all vertices in this component
-    stack.clear();
-    stack.push_back(v0);
-    comp_id[v0] = current_comp;
+    // Track consumed directed half-edges.
+    std::set<std::pair<int,int>> used;
 
-    std::vector<int> comp_vertices;
-    comp_vertices.reserve(64);
-    comp_vertices.push_back(v0);
+    int n_loops = 0;
 
-    while (!stack.empty()) {
-      int v = stack.back();
-      stack.pop_back();
-      for (int u : adj[v]) {
-        if (comp_id[u] == -1) {
-          comp_id[u] = current_comp;
-          stack.push_back(u);
-          comp_vertices.push_back(u);
-        }
-      }
-    }
+    // Iterate over every directed half-edge; start a new loop whenever
+    // we find one that has not yet been consumed.
+    for (const auto& e : edges) {
+      for (int dir = 0; dir < 2; ++dir) {
+        const int start = (dir == 0) ? e.first  : e.second;
+        const int first = (dir == 0) ? e.second : e.first;
 
-    // classify degrees inside this component
-    bool all_deg2 = true;
-    std::vector<int> deg2_vertices;
-    deg2_vertices.reserve(comp_vertices.size());
+        if (used.count({start, first})) continue;
 
-    for (int v : comp_vertices) {
-      if (deg[v] == 2) {
-        deg2_vertices.push_back(v);
-      } else {
-        all_deg2 = false;
-      }
-    }
+        // --- trace one loop beginning with half-edge start → first ---
+        used.insert({start, first});
 
-    // If there are no degree-2 vertices, the original R code would also skip;
-    // there is nothing that looks like a polygon loop.
-    if (deg2_vertices.empty()) {
-      ++current_comp;
-      continue;
-    }
+        std::vector<int> path;
+        path.reserve(32);
+        path.push_back(start);
 
-    std::vector<int> path;
+        int prev = start;
+        int cur  = first;
+        bool closed = false;
 
-    if (all_deg2) {
-      // ---- Simple cycle: every vertex has degree 2 ----
-      int start   = comp_vertices[0];
-      int current = start;
-      int prev    = -1;
+        // Safety bound: a simple polygon can have at most 2*|edges| steps.
+        const int max_steps = static_cast<int>(edges.size()) * 2 + 4;
 
-      const int max_steps = static_cast<int>(comp_vertices.size()) + 5;
-      int steps = 0;
+        for (int step = 0; step < max_steps; ++step) {
+          // Closure check before appending.
+          if (cur == start) { closed = true; break; }
 
-      path.clear();
-      path.push_back(start);
+          path.push_back(cur);
 
-      while (true) {
-        const std::vector<int>& nbrs = adj[current];
-        if (nbrs.empty()) break;
+          // Incoming direction vector at cur (from prev).
+          double ix = vertices(cur, 0) - vertices(prev, 0);
+          double iy = vertices(cur, 1) - vertices(prev, 1);
+          double iz = vertices(cur, 2) - vertices(prev, 2);
+          double ilen = std::sqrt(ix*ix + iy*iy + iz*iz);
+          const bool has_dir = (ilen > 1e-12);
+          if (has_dir) { ix /= ilen; iy /= ilen; iz /= ilen; }
 
-        int next = -1;
-        if (prev == -1) {
-          // take any neighbor
-          next = nbrs[0];
-        } else {
-          // choose neighbor that is not 'prev'
-          if (nbrs[0] != prev) next = nbrs[0];
-          else if (nbrs.size() > 1) next = nbrs[1];
-        }
+          // Pick unused outgoing half-edge whose direction is most
+          // collinear with the incoming direction (dot product most
+          // negative = straightest continuation, least turning).
+          // Backtracking to prev is explicitly excluded.
+          int  best     = -1;
+          double best_dot =  2.0; // sentinal; lower is better
 
-        if (next < 0) break;
+          const auto it = adj.find(cur);
+          if (it == adj.end()) break;
+          for (int nbr : it->second) {
+            if (nbr == prev) continue;
+            if (used.count({cur, nbr})) continue;
 
-        prev    = current;
-        current = next;
-        path.push_back(current);
-        ++steps;
+            if (!has_dir) { best = nbr; break; } // no direction info yet
 
-        if (current == start || steps > max_steps) break;
-      }
+            double ox = vertices(nbr, 0) - vertices(cur, 0);
+            double oy = vertices(nbr, 1) - vertices(cur, 1);
+            double oz = vertices(nbr, 2) - vertices(cur, 2);
+            double olen = std::sqrt(ox*ox + oy*oy + oz*oz);
+            if (olen < 1e-12) { best = nbr; break; }
+            ox /= olen; oy /= olen; oz /= olen;
 
-      if (path.back() != start) {
-        path.push_back(start); // close loop explicitly
-      }
-
-    } else {
-      // ---- Non-simple: break one edge and find a path (BFS) like original code ----
-      int start = deg2_vertices[0];
-      const std::vector<int>& nbrs_start = adj[start];
-      if (nbrs_start.empty()) {
-        ++current_comp;
-        continue;
-      }
-      int end = nbrs_start[0];
-
-      std::vector<int> parent(nVerts, -1);
-      std::deque<int>  q;
-
-      parent[start] = start;
-      q.push_back(start);
-
-      while (!q.empty()) {
-        int v = q.front();
-        q.pop_front();
-        if (v == end) break;
-
-        for (int u : adj[v]) {
-          // ignore the direct start <-> end edge to "break" the cycle
-          if ((v == start && u == end) || (v == end && u == start))
-            continue;
-          if (parent[u] == -1) {
-            parent[u] = v;
-            q.push_back(u);
+            double dot = ix*ox + iy*oy + iz*oz;
+            if (dot < best_dot) { best_dot = dot; best = nbr; }
           }
+
+          if (best == -1) break; // dead end – open/degenerate chain
+
+          used.insert({cur, best});
+          prev = cur;
+          cur  = best;
         }
-      }
 
-      if (parent[end] == -1) {
-        ++current_comp;
-        continue; // no path; degenerate
-      }
+        // Require at least 3 unique vertices (triangle is the minimum
+        // closed polygon) before emitting this loop.
+        if (!closed || path.size() < 3) continue;
 
-      // reconstruct path from end back to start
-      std::vector<int> rev;
-      for (int v = end; ; ) {
-        rev.push_back(v);
-        if (v == start) break;
-        v = parent[v];
-      }
+        // Mark all reverse half-edges as used so the same ring is not
+        // traced again in the opposite direction.
+        {
+          const int K = static_cast<int>(path.size());
+          for (int k = 0; k + 1 < K; ++k)
+            used.insert({path[k + 1], path[k]});
+          // reverse of the closing half-edge (path[K-1] → start)
+          used.insert({path[0], path[K - 1]});
+        }
 
-      path.assign(rev.rbegin(), rev.rend());
-      path.push_back(start); // close loop
+        ++n_loops;
+
+        // Build output: path[0..K-1] are unique vertices; append path[0]
+        // as the closing point so rgl::lines3d() draws a closed polygon.
+        const int K = static_cast<int>(path.size());
+        const int L = K + 1; // +1 for closing vertex
+        NumericMatrix coords(L, 3);
+        IntegerVector vloop(L);
+
+        for (int k = 0; k < K; ++k) {
+          const int v = path[k]; // 0-based
+          vloop[k]      = v + 1; // 1-based for R
+          coords(k, 0)  = vertices(v, 0);
+          coords(k, 1)  = vertices(v, 1);
+          coords(k, 2)  = vertices(v, 2);
+        }
+        // Closing vertex (repeat of path[0]).
+        {
+          const int v   = path[0];
+          vloop[K]      = v + 1;
+          coords(K, 0)  = vertices(v, 0);
+          coords(K, 1)  = vertices(v, 1);
+          coords(K, 2)  = vertices(v, 2);
+        }
+
+        out_boundary.push_back(coords);
+        out_verts.push_back(vloop);
+        out_roi.push_back(roi);
+      }
     }
 
-    loops_vertices.push_back(path);
-    loops_roi.push_back(roi_val);
-
-    ++current_comp;
+    roi_components[roi_idx_map[roi]] = n_loops;
   }
 
-  // ---- Step 5: pack results into R structures ----
-  const std::size_t nLoops = loops_vertices.size();
-
-  List boundary(nLoops);
-  List boundary_verts(nLoops);
-  IntegerVector boundary_roi_id(nLoops);
-
-  for (std::size_t i = 0; i < nLoops; ++i) {
-    const std::vector<int>& loop = loops_vertices[i];
-    const int L = static_cast<int>(loop.size());
-
-    NumericMatrix coords(L, 3);
-    IntegerVector vloop(L);
-
-    for (int k = 0; k < L; ++k) {
-      const int v = loop[k];   // 0-based
-      vloop[k] = v + 1;        // convert back to 1-based for R
-      coords(k, 0) = vertices(v, 0);
-      coords(k, 1) = vertices(v, 1);
-      coords(k, 2) = vertices(v, 2);
-    }
-
-    boundary[i]        = coords;
-    boundary_verts[i]  = vloop;
-    boundary_roi_id[i] = loops_roi[i];
-  }
-
-  IntegerVector roi_components_R(nRoi);
-  for (int i = 0; i < nRoi; ++i) {
-    roi_components_R[i] = roi_components[i];
-  }
+  IntegerVector roi_comp_R(nRoi);
+  for (int i = 0; i < nRoi; ++i) roi_comp_R[i] = roi_components[i];
 
   return List::create(
-    _["boundary"]        = boundary,
-    _["boundary_roi_id"] = boundary_roi_id,
-    _["roi_components"]  = roi_components_R,
-    _["boundary_verts"]  = boundary_verts,
-    _["roi_ids"]         = wrap(roi_ids) // optional convenience; you can ignore in R
+    _["boundary"]        = out_boundary,
+    _["boundary_roi_id"] = out_roi,
+    _["roi_components"]  = roi_comp_R,
+    _["boundary_verts"]  = out_verts,
+    _["roi_ids"]         = wrap(all_rois)
   );
 }
