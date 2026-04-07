@@ -12,7 +12,9 @@ output:
     includes:
       in_header: albers-header.html
 vignette: |
-  %\VignetteIndexEntry{Displaying Surfaces with RGL} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Displaying Surfaces with RGL}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 params:
   family: teal
   preset: homage

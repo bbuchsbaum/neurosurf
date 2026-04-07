@@ -1,10 +1,9 @@
 Package: neurosurf
 Type: Package
-Title: Data structures and visualization for surface-based neuroimaging data
+Title: Data Structures and Visualization for Surface-Based Neuroimaging Data
 Version: 0.1.0
 Authors@R: c(
     person(c("Bradley", "R"), "Buchsbaum", role = c("aut", "cre"), email = "brad.buchsbaum@gmail.com"))
-Maintainer: Bradley Buchsbaum <brad.buchsbaum@gmail.com>
 Description: A comprehensive toolkit for working with surface-based neuroimaging data
     represented as triangle meshes. The package provides classes and methods for 
     creating, manipulating, and visualizing 3D surface geometries (e.g., cortical 

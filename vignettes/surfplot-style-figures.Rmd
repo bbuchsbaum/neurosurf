@@ -10,7 +10,9 @@ output:
     includes:
       in_header: albers-header.html
 vignette: |
-  %\VignetteIndexEntry{Surfplot-style Figures with neurosurf} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Surfplot-style Figures with neurosurf}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 params:
   family: teal
   preset: homage

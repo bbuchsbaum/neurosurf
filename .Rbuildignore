@@ -42,3 +42,13 @@ testshiny/test_shiny.R
 ^inst/extdata/fsaverage_SurfVol\+orig\.HEAD\.gz$
 # Temporary vignette build files
 ^vignettes/tmp\.html$
+# Hidden tool directories
+^\.omc$
+^\.playwright-mcp$
+# Non-standard top-level files
+^README\.html$
+^advanced-.*\.png$
+^tmp-.*\.png$
+^surfplot-.*\.png$
+^interactive-surfaces-snapshot\.md$
+^vol2surf\.md$

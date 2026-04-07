@@ -10,7 +10,9 @@ output:
     includes:
       in_header: albers-header.html
 vignette: |
-  %\VignetteIndexEntry{Interactive Surface Visualization with surfwidget} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Interactive Surface Visualization with surfwidget}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 params:
   family: teal
   preset: homage
