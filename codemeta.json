@@ -1,0 +1,22 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "name": "neurosurf",
+  "version": "0.1.0",
+  "description": "A comprehensive toolkit for working with surface-based neuroimaging data represented as triangle meshes. The package provides classes and methods for creating, manipulating, and visualizing 3D surface geometries (e.g., cortical surfaces), with support for various file formats including FreeSurfer and GIFTI.",
+  "license": "https://spdx.org/licenses/GPL-2.0-or-later.html",
+  "programmingLanguage": {
+    "@type": "ComputerLanguage",
+    "name": "R"
+  },
+  "author": [
+    {
+      "@type": "Person",
+      "givenName": "Bradley R.",
+      "familyName": "Buchsbaum",
+      "email": "brad.buchsbaum@gmail.com"
+    }
+  ],
+  "codeRepository": "https://github.com/bbuchsbaum/neurosurf",
+  "issueTracker": "https://github.com/bbuchsbaum/neurosurf/issues"
+}

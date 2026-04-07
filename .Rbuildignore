@@ -52,3 +52,7 @@ testshiny/test_shiny.R
 ^surfplot-.*\.png$
 ^interactive-surfaces-snapshot\.md$
 ^vol2surf\.md$
+^cran-comments\.md$
+^codemeta\.json$
+^LICENSE\.md$
+^CONTRIBUTING\.md$

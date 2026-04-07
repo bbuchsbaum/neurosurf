@@ -1,0 +1,8 @@
+bibentry(
+  bibtype  = "Manual",
+  title    = "{neurosurf}: Data Structures and Visualization for Surface-Based Neuroimaging Data",
+  author   = person(c("Bradley", "R"), "Buchsbaum"),
+  year     = "2026",
+  note     = "R package version 0.1.0",
+  url      = "https://github.com/bbuchsbaum/neurosurf"
+)
