@@ -1,0 +1,37 @@
+# NA
+
+- generic \[active\] \[ref=e1\]:
+  - link “Skip to contents” \[ref=e2\] \[cursor=pointer\]:
+    - /url: “#main”
+  - navigation “Site navigation” \[ref=e3\]:
+    - generic \[ref=e4\]:
+      - link “neurosurf” \[ref=e5\] \[cursor=pointer\]:
+        - /url: ../index.html
+      - generic \[ref=e6\]: 0.1.0
+      - generic \[ref=e7\]:
+        - list \[ref=e8\]
+        - list \[ref=e13\]
+  - generic \[ref=e21\]:
+    - generic \[ref=e22\]:
+      - main \[ref=e23\]:
+        - generic \[ref=e24\]
+        - paragraph \[ref=e31\]
+        - generic \[ref=e38\]
+        - generic \[ref=e43\]
+        - generic \[ref=e71\]
+        - generic \[ref=e219\]
+        - generic \[ref=e379\]
+        - generic \[ref=e576\]
+        - generic \[ref=e743\]
+        - generic \[ref=e768\]
+        - generic \[ref=e832\]
+        - generic \[ref=e853\]
+      - complementary \[ref=e868\]:
+        - navigation “Table of contents” \[ref=e869\]
+    - contentinfo \[ref=e892\]:
+      - paragraph \[ref=e894\]: Developed by Bradley R Buchsbaum.
+      - paragraph \[ref=e896\]:
+        - text: Site built with
+        - link “pkgdown” \[ref=e897\] \[cursor=pointer\]:
+          - /url: <https://pkgdown.r-lib.org/>
+        - text: 2.2.0.

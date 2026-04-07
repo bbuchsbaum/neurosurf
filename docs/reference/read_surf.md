@@ -73,7 +73,7 @@ if (file.exists(surf_file)) {
   # Get vertex coordinates
   head(coords(surf))
 }
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpQdM37p/temp_libpatha900461f6b09/neurosurf/extdata/std.8_lh.smoothwm.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.smoothwm.asc
 #> 
 #>  SurfaceGeometry 
 #> 

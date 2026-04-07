@@ -74,5 +74,5 @@ smoothed_large <- smooth(neuro_surf, sigma = 2)
 # The original geometry is preserved, but the data is smoothed
 head(series(smoothed_large, indices(smoothed_large)))
 #>             [,1]        [,2]        [,3]        [,4]
-#> [1,] -0.05213988 -0.05213988 -0.05213988 -0.05213988
+#> [1,] 0.008962328 0.008962328 0.008962328 0.008962328
 ```

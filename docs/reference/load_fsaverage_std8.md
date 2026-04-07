@@ -30,8 +30,8 @@ instance for the requested surface type.
 ``` r
 # \donttest{
 fs <- load_fsaverage_std8("smoothwm")
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpQdM37p/temp_libpatha900461f6b09/neurosurf/extdata/std.8_lh.smoothwm.asc
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpQdM37p/temp_libpatha900461f6b09/neurosurf/extdata/std.8_rh.smoothwm.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.smoothwm.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_rh.smoothwm.asc
 show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
 #> Warning: no non-missing arguments to min; returning Inf
 #> Warning: no non-missing arguments to max; returning -Inf

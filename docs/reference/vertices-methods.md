@@ -43,8 +43,8 @@ A matrix or data structure containing vertex information.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-vertex_data <- vertices(surface_obj)
+# \donttest{
+vertex_data <- vertices(example_surface_geometry())
 num_vertices <- nrow(vertex_data)
-} # }
+# }
 ```

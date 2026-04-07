@@ -1,6 +1,6 @@
 # ROISurface
 
-A class that respresents a surface-based region of interest
+A class that represents a surface-based region of interest
 
 ## Value
 

@@ -126,25 +126,80 @@ and slightly compressed colourbar height and spacing for a more compact
 layout.
 
 ``` r
-g <- draw_surface_plot(
-  p,
-  colorbar      = TRUE,
-  cbar_location = "bottom",
-  cbar_kws      = list(
-    n_ticks    = 3,
-    digits     = 0,
-    label_cex  = 0.7,
-    title_cex  = 0.9,
-    bar_height = grid::unit(0.6, "lines"),
-    bar_spacing = grid::unit(0.4, "lines")
-  )
+fig_dir <- dirname(knitr::fig_path(".png"))
+fig_file <- file.path(
+  fig_dir,
+  sprintf("%s-manual.png", knitr::opts_current$get("label"))
 )
+dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
 
-grid::grid.newpage()
-grid::grid.draw(g)
+render_figure <- function(output_file) {
+  g <- draw_surface_plot(
+    p,
+    colorbar      = TRUE,
+    cbar_location = "bottom",
+    cbar_kws      = list(
+      n_ticks    = 3,
+      digits     = 0,
+      label_cex  = 0.7,
+      title_cex  = 0.9,
+      bar_height = grid::unit(0.6, "lines"),
+      bar_spacing = grid::unit(0.4, "lines")
+    )
+  )
+
+  grDevices::png(output_file, width = 1536, height = 768, bg = "white")
+  grid::grid.newpage()
+  grid::grid.draw(g)
+  grDevices::dev.off()
+}
+
+if (requireNamespace("callr", quietly = TRUE)) {
+  # In pkgdown/knitr builds, the in-process draw_surface_plot() path can
+  # snapshot as black panels. Rendering this one figure in a clean subprocess
+  # reliably produces the expected image.
+  invisible(callr::r(
+    function(plot_obj, output_file) {
+      library(neurosurf)
+
+      g <- draw_surface_plot(
+        plot_obj,
+        colorbar      = TRUE,
+        cbar_location = "bottom",
+        cbar_kws      = list(
+          n_ticks    = 3,
+          digits     = 0,
+          label_cex  = 0.7,
+          title_cex  = 0.9,
+          bar_height = grid::unit(0.6, "lines"),
+          bar_spacing = grid::unit(0.4, "lines")
+        )
+      )
+
+      grDevices::png(output_file, width = 1536, height = 768, bg = "white")
+      grid::grid.newpage()
+      grid::grid.draw(g)
+      grDevices::dev.off()
+      output_file
+    },
+    args = list(p, normalizePath(fig_file, winslash = "/", mustWork = FALSE))
+  ))
+} else {
+  render_figure(fig_file)
+}
+
+cat(sprintf(
+  "![Lateral and medial views of left and right fsaverage surfaces with network colours and parcel outlines](%s)\n",
+  fig_file
+))
 ```
 
-![](surfplot-style-figures_files/figure-html/render-figure-1.png)
+![Lateral and medial views of left and right fsaverage surfaces with
+network colours and parcel
+outlines](surfplot-style-figures_files/figure-html/render-figure-manual.png)
+
+Lateral and medial views of left and right fsaverage surfaces with
+network colours and parcel outlines
 
 The resulting figure shows:
 

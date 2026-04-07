@@ -1,6 +1,6 @@
 # VertexData
 
-A set of arbitary vertices associated with a data table
+A set of arbitrary vertices associated with a data table
 
 ## Value
 

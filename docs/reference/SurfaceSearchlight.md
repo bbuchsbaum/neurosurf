@@ -60,7 +60,7 @@ node is defined by the specified radius and distance metric.
 # \donttest{
 file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 geom <- read_surf(file)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpQdM37p/temp_libpatha900461f6b09/neurosurf/extdata/std.8_lh.smoothwm.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.smoothwm.asc
 searchlight <- SurfaceSearchlight(geom, 12, distance_type = "geodesic")
 nodes <- searchlight$nextElem()
 # }

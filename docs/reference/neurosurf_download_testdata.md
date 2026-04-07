@@ -60,11 +60,17 @@ If you are running tests locally and want the full test suite, run
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 # Download all test data
 neurosurf_download_testdata("all")
+#> File already exists: rscan01_lh.gii
+#> Downloading rscan01_lh.niml.dset...
+#>   -> /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/rscan01_lh.niml.dset
+#> Downloading rscan01_rh.niml.dset...
+#>   -> /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/rscan01_rh.niml.dset
 
 # Download only the GIFTI file
 neurosurf_download_testdata("rscan01_lh.gii")
-} # }
+#> File already exists: rscan01_lh.gii
+# }
 ```

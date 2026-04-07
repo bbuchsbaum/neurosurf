@@ -1,10 +1,10 @@
 # Snapshot a surface to a PNG
 
 Convenience helper for vignettes and reports: renders a surface with
-\`view_surface()\` onto an off-screen rgl device and saves a PNG. When
-\`rgl.useNULL()\` is \`TRUE\` (headless builds), a proper snapshot
-requires the \`webshot2\` package; otherwise a blank image is likely and
-an empty path is returned.
+[`view_surface()`](view_surface.md) onto an off-screen rgl device and
+saves a PNG. When `rgl.useNULL()` is `TRUE` (headless builds), a proper
+snapshot requires the `webshot2` package; otherwise a blank image is
+likely and an empty path is returned.
 
 ## Usage
 
@@ -37,15 +37,18 @@ The file path (invisibly). Callers can use
 [`knitr::include_graphics()`](https://rdrr.io/pkg/knitr/man/include_graphics.html)
 or read the image via
 [`png::readPNG()`](https://rdrr.io/pkg/png/man/readPNG.html). In
-headless mode without \`webshot2\`, an empty character vector is
-returned.
+headless mode without `webshot2`, an empty character vector is returned.
 
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 fs <- load_fsaverage_std8("inflated")
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_rh.inflated.asc
 img <- snapshot_surface(fs$lh, viewpoint = "lateral", specular = "black")
-# knitr::include_graphics(img)
-} # }
+#> Warning: no non-missing arguments to min; returning Inf
+#> Warning: no non-missing arguments to max; returning -Inf
+#> Warning: rgl.useNULL=TRUE and webshot2 not installed; snapshot unavailable in headless builds.
+# }
 ```

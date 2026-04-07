@@ -13,3 +13,4 @@ Useful links:
 ## Author
 
 **Maintainer**: Bradley R Buchsbaum <brad.buchsbaum@gmail.com>
+\[copyright holder\]

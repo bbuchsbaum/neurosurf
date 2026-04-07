@@ -6,13 +6,14 @@ geometries and associated data.
 
 For visualization, see the companion vignettes:
 
-- *Displaying Surfaces with RGL* for interactive 3D plots based on
+- [`vignette("displaying-surfaces")`](../articles/displaying-surfaces.md)
+  for interactive 3D plots based on
   [`plot()`](https://rdrr.io/r/graphics/plot.default.html) and
   [`view_surface()`](../reference/view_surface.md).
-- *Interactive Surface Visualization with surfwidget* for HTML-widget
-  based exploration.
-- *Surfplot-style Figures with neurosurf* for multi-view,
-  publication-style layouts built with
+- [`vignette("interactive-surfaces")`](../articles/interactive-surfaces.md)
+  for HTML-widget based exploration.
+- [`vignette("surfplot-style-figures")`](../articles/surfplot-style-figures.md)
+  for multi-view, publication-style layouts built with
   [`surface_plot()`](../reference/surface_plot.md) and friends.
 
 ## Setup
@@ -97,9 +98,9 @@ g <- neurosurf::graph(lh_geom)
 cat("Graph summary:", "\n")
 #> Graph summary:
 g
-#> IGRAPH d053f71 U--- 642 1920 -- 
+#> IGRAPH 976f55d U--- 642 1920 -- 
 #> + attr: x (v/n), y (v/n), z (v/n), dist (e/n)
-#> + edges from d053f71:
+#> + edges from 976f55d:
 #>  [1]  1-- 13  1-- 27  1-- 55  1-- 90  1--125  2--188  2--195  2--223  2--258
 #> [10]  2--293  3--264  3--271  3--300  3--356  3--391  4-- 96  4--103  4--132
 #> [19]  4--517  4--545  5-- 19  5-- 26  5-- 62  5--201  5--334  6--397  6--404
@@ -345,13 +346,19 @@ cat("Length of index vector:", length(index_vec_nsv), "\n")
 
 These classes facilitate plotting with pre-set visual parameters using
 the [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method
-discussed in the `displaying-surfaces` vignette.
+discussed in
+[`vignette("displaying-surfaces")`](../articles/displaying-surfaces.md).
 
-## Conclusion
+## Next Steps
 
-Understanding `SurfaceGeometry`, `NeuroSurface`, and
-`NeuroSurfaceVector` is key to using the `neurosurf` package
-effectively. `SurfaceGeometry` holds the mesh structure, while
-`NeuroSurface` and `NeuroSurfaceVector` link single or multiple data
-vectors to this geometry, respectively. These structures provide the
-foundation for various surface-based analyses and visualizations.
+Now that you understand the core data structures, explore the
+visualization vignettes:
+
+- [`vignette("displaying-surfaces")`](../articles/displaying-surfaces.md)
+  — render surfaces with RGL, overlay data, and snapshot to PNG.
+- [`vignette("interactive-surfaces")`](../articles/interactive-surfaces.md)
+  — create interactive HTML widgets with
+  [`surfwidget()`](../reference/surfwidget-methods.md).
+- [`vignette("surfplot-style-figures")`](../articles/surfplot-style-figures.md)
+  — build publication-ready multi-view figures with shared colourbars
+  and atlas outlines.

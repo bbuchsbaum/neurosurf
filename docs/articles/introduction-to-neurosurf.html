@@ -40,6 +40,7 @@
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -63,7 +64,7 @@
                         <h4 data-toc-skip class="author">Bradley
 Buchsbaum</h4>
             
-            <h4 data-toc-skip class="date">2026-02-23</h4>
+            <h4 data-toc-skip class="date">2026-04-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bbuchsbaum/neurosurf/blob/HEAD/vignettes/introduction-to-neurosurf.Rmd" class="external-link"><code>vignettes/introduction-to-neurosurf.Rmd</code></a></small>
       <div class="d-none name"><code>introduction-to-neurosurf.Rmd</code></div>
@@ -77,13 +78,13 @@ surface geometries and associated data.</p>
 <p>For visualization, see the companion vignettes:</p>
 <ul>
 <li>
-<em>Displaying Surfaces with RGL</em> for interactive 3D plots based
-on <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> and <code><a href="../reference/view_surface.html">view_surface()</a></code>.</li>
+<code><a href="../articles/displaying-surfaces.html">vignette("displaying-surfaces")</a></code> for interactive 3D
+plots based on <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> and <code><a href="../reference/view_surface.html">view_surface()</a></code>.</li>
 <li>
-<em>Interactive Surface Visualization with surfwidget</em> for
-HTML-widget based exploration.</li>
+<code><a href="../articles/interactive-surfaces.html">vignette("interactive-surfaces")</a></code> for HTML-widget based
+exploration.</li>
 <li>
-<em>Surfplot-style Figures with neurosurf</em> for multi-view,
+<code><a href="../articles/surfplot-style-figures.html">vignette("surfplot-style-figures")</a></code> for multi-view,
 publication-style layouts built with <code><a href="../reference/surface_plot.html">surface_plot()</a></code> and
 friends.</li>
 </ul>
@@ -92,6 +93,7 @@ friends.</li>
 </h2>
 <p>First, let’s load the necessary libraries and set up the
 environment.</p>
+<script>document.addEventListener("DOMContentLoaded",function(){document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-study","preset-structural","preset-adobe","preset-midnight");document.body.classList.add("palette-teal","preset-homage");});</script>
 </div>
 <div class="section level2">
 <h2 id="surfacegeometry-representing-the-mesh">
@@ -175,9 +177,9 @@ using the <code><a href="../reference/read_surf_geometry.html">read_surf_geometr
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Graph summary:"</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Graph summary:</span></span>
 <span><span class="va">g</span></span>
-<span><span class="co">#&gt; IGRAPH d053f71 U--- 642 1920 -- </span></span>
+<span><span class="co">#&gt; IGRAPH 976f55d U--- 642 1920 -- </span></span>
 <span><span class="co">#&gt; + attr: x (v/n), y (v/n), z (v/n), dist (e/n)</span></span>
-<span><span class="co">#&gt; + edges from d053f71:</span></span>
+<span><span class="co">#&gt; + edges from 976f55d:</span></span>
 <span><span class="co">#&gt;  [1]  1-- 13  1-- 27  1-- 55  1-- 90  1--125  2--188  2--195  2--223  2--258</span></span>
 <span><span class="co">#&gt; [10]  2--293  3--264  3--271  3--300  3--356  3--391  4-- 96  4--103  4--132</span></span>
 <span><span class="co">#&gt; [19]  4--517  4--545  5-- 19  5-- 26  5-- 62  5--201  5--334  6--397  6--404</span></span>
@@ -446,20 +448,26 @@ specific hex color codes directly for each vertex (<code>colors</code>
 slot), bypassing data mapping.</li>
 </ul>
 <p>These classes facilitate plotting with pre-set visual parameters
-using the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method discussed in the
-<code>displaying-surfaces</code> vignette.</p>
+using the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method discussed in
+<code><a href="../articles/displaying-surfaces.html">vignette("displaying-surfaces")</a></code>.</p>
 </div>
 <div class="section level2">
-<h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
+<h2 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
 </h2>
-<p>Understanding <code>SurfaceGeometry</code>,
-<code>NeuroSurface</code>, and <code>NeuroSurfaceVector</code> is key to
-using the <code>neurosurf</code> package effectively.
-<code>SurfaceGeometry</code> holds the mesh structure, while
-<code>NeuroSurface</code> and <code>NeuroSurfaceVector</code> link
-single or multiple data vectors to this geometry, respectively. These
-structures provide the foundation for various surface-based analyses and
-visualizations.</p>
+<p>Now that you understand the core data structures, explore the
+visualization vignettes:</p>
+<ul>
+<li>
+<code><a href="../articles/displaying-surfaces.html">vignette("displaying-surfaces")</a></code> — render surfaces with
+RGL, overlay data, and snapshot to PNG.</li>
+<li>
+<code><a href="../articles/interactive-surfaces.html">vignette("interactive-surfaces")</a></code> — create interactive
+HTML widgets with <code><a href="../reference/surfwidget-methods.html">surfwidget()</a></code>.</li>
+<li>
+<code><a href="../articles/surfplot-style-figures.html">vignette("surfplot-style-figures")</a></code> — build
+publication-ready multi-view figures with shared colourbars and atlas
+outlines.</li>
+</ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

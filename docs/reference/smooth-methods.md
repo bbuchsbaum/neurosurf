@@ -133,18 +133,15 @@ details on the underlying smoothing algorithms.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-  # Smooth a SurfaceGeometry object
-  smoothed_geom <- smooth(surface_geom_obj, type="taubin", lambda=0.7, iteration=10)
-
-  # Smooth a NeuroSurface object's data
-  smoothed_data_surface <- smooth(neuro_surf_obj, sigma=5)
-} # }
+# \donttest{
+  sg <- example_surface_geometry()
+  smoothed_geom <- smooth(sg, type="taubin", lambda=0.7, iteration=10)
+# }
 
 # Load a surface file from the extdata directory
 surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 surface <- read_surf_geometry(surf_file)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpQdM37p/temp_libpatha900461f6b09/neurosurf/extdata/std.8_lh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.inflated.asc
 
 # Apply Taubin smoothing to the brain surface
 smoothed_surface1 <- smooth(surface, type = "taubin", lambda = 0.5, mu = -0.5, iteration = 10)

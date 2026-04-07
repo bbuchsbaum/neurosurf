@@ -2,7 +2,10 @@
 <url><loc>/404.html</loc></url>
 <url><loc>/AGENTS.html</loc></url>
 <url><loc>/CLAUDE.html</loc></url>
+<url><loc>/CONTRIBUTING.html</loc></url>
 <url><loc>/CRAN_prompt.html</loc></url>
+<url><loc>/LICENSE.html</loc></url>
+<url><loc>/README.knit.html</loc></url>
 <url><loc>/articles/displaying-surfaces.html</loc></url>
 <url><loc>/articles/index.html</loc></url>
 <url><loc>/articles/interactive-surfaces.html</loc></url>
@@ -11,6 +14,8 @@
 <url><loc>/articles/surfplot-style-figures.html</loc></url>
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
+<url><loc>/interactive-surfaces-snapshot.html</loc></url>
+<url><loc>/news/index.html</loc></url>
 <url><loc>/reference/AFNISurfaceFileDescriptor-class.html</loc></url>
 <url><loc>/reference/Arith-NeuroSurface-method.html</loc></url>
 <url><loc>/reference/Arith-NeuroSurfaceVector-method.html</loc></url>

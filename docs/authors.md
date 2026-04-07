@@ -2,19 +2,19 @@
 
 ## Authors
 
-- **Bradley R Buchsbaum**. Author, maintainer.
+- **Bradley R Buchsbaum**. Author, maintainer, copyright holder.
 
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/bbuchsbaum/neurosurf/blob/HEAD/DESCRIPTION)
+[`inst/CITATION`](https://github.com/bbuchsbaum/neurosurf/blob/HEAD/inst/CITATION)
 
-Buchsbaum BR (2026). *neurosurf: Data structures and visualization for
-surface-based neuroimaging data*. R package version 0.1.0,
+Buchsbaum BR (2026). *neurosurf: Data Structures and Visualization for
+Surface-Based Neuroimaging Data*. R package version 0.1.0,
 <https://github.com/bbuchsbaum/neurosurf>.
 
     @Manual{,
-      title = {neurosurf: Data structures and visualization for surface-based neuroimaging data},
+      title = {{neurosurf}: Data Structures and Visualization for Surface-Based Neuroimaging Data},
       author = {Bradley R Buchsbaum},
       year = {2026},
       note = {R package version 0.1.0},

@@ -88,3 +88,11 @@ manually:
 make update-yaml
 make show-version
 ```
+
+## Albers theme
+
+This package uses the albersdown theme. Existing vignette theme hooks
+are replaced so `albers.css` and local `albers.js` render consistently
+on CRAN and GitHub Pages. The defaults are configured via
+`params$family` and `params$preset` (family = ‘teal’, preset =
+‘homage’). The pkgdown site uses `template: { package: albersdown }`.

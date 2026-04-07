@@ -25,6 +25,7 @@ allowing for different mapping strategies."></head><body>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
     <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/bbuchsbaum/neurosurf/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -149,9 +150,9 @@ When provided, the sampler is reused and other sampling-related arguments are ig
 <span class="r-in"><span><span class="va">pial_surf_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8_lh.pial.asc"</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">surf_wm</span> <span class="op">&lt;-</span> <span class="fu"><a href="read_surf_geometry.html">read_surf_geometry</a></span><span class="op">(</span><span class="va">wm_surf_file</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpfikJD7/temp_libpathb89c5a0902a2/neurosurf/extdata/std.8_lh.white.asc</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.white.asc</span>
 <span class="r-in"><span><span class="va">surf_pial</span> <span class="op">&lt;-</span> <span class="fu"><a href="read_surf_geometry.html">read_surf_geometry</a></span><span class="op">(</span><span class="va">pial_surf_file</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpfikJD7/temp_libpathb89c5a0902a2/neurosurf/extdata/std.8_lh.pial.asc</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.pial.asc</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create a dummy volume for demonstration purposes</span></span></span>
 <span class="r-in"><span><span class="va">bb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">80</span>, <span class="fl">80</span>, <span class="op">-</span><span class="fl">120</span>, <span class="fl">80</span>, <span class="op">-</span><span class="fl">60</span>, <span class="fl">90</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">2</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
