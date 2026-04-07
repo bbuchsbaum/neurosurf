@@ -573,7 +573,7 @@ setClass("FreesurferBinarySurfaceFileDescriptor", contains=c("FileFormat"))
 
 #' ROISurface
 #'
-#' A class that respresents a surface-based region of interest
+#' A class that represents a surface-based region of interest
 #'
 #' @slot geometry the geometry of the parent surface: a \code{SurfaceGeometry} instance
 #' @slot data the vector-valued \code{numeric} data stored in ROI
@@ -672,7 +672,7 @@ setClass("ROISurface",
 
 #' ROISurfaceVector
 #'
-#' A class that respresents a surface-based region of interest
+#' A class that represents a surface-based region of interest
 #'
 #' @slot geometry the geometry of the parent surface: a \code{SurfaceGeometry} instance
 #' @slot data \code{matrix} data stored in ROI with number of columns equal to number of coordinates in ROI.
@@ -781,7 +781,7 @@ setClass("ROISurfaceVector",
 
 #' VertexData
 #'
-#' A set of arbitary vertices associated with a data table
+#' A set of arbitrary vertices associated with a data table
 #'
 #' @rdname VertexData-class
 #' @slot indices the node indices

@@ -3,7 +3,7 @@ Type: Package
 Title: Data Structures and Visualization for Surface-Based Neuroimaging Data
 Version: 0.1.0
 Authors@R: c(
-    person(c("Bradley", "R"), "Buchsbaum", role = c("aut", "cre"), email = "brad.buchsbaum@gmail.com"))
+    person(c("Bradley", "R"), "Buchsbaum", role = c("aut", "cre", "cph"), email = "brad.buchsbaum@gmail.com"))
 Description: A comprehensive toolkit for working with surface-based neuroimaging data
     represented as triangle meshes. The package provides classes and methods for 
     creating, manipulating, and visualizing 3D surface geometries (e.g., cortical 
@@ -37,11 +37,7 @@ Imports:
     Rcpp
 LinkingTo: Rcpp, RcppArmadillo, roptim
 License: GPL (>= 2)
-LazyData: TRUE
 RoxygenNote: 7.3.3
-Remotes:
-  bbuchsbaum/neuroim2,
-  bbuchsbaum/colorplane
 Collate:
     'all_generic.R'
     'all_class.R'

@@ -8,7 +8,7 @@
 An object of class \code{VertexData}.
 }
 \description{
-A set of arbitary vertices associated with a data table
+A set of arbitrary vertices associated with a data table
 }
 \details{
 The VertexData class provides a flexible way to associate arbitrary data with specific vertices

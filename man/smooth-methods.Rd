@@ -58,12 +58,9 @@ The \code{smooth} function provides a common interface for smoothing operations 
 Users should refer to the specific method documentation for the class of object they are working with to understand the exact behavior and parameters.
 }
 \examples{
-\dontrun{
-  # Smooth a SurfaceGeometry object
-  smoothed_geom <- smooth(surface_geom_obj, type="taubin", lambda=0.7, iteration=10)
-
-  # Smooth a NeuroSurface object's data
-  smoothed_data_surface <- smooth(neuro_surf_obj, sigma=5)
+\donttest{
+  sg <- example_surface_geometry()
+  smoothed_geom <- smooth(sg, type="taubin", lambda=0.7, iteration=10)
 }
 
 # Load a surface file from the extdata directory

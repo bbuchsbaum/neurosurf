@@ -28,7 +28,7 @@
 #' \code{neurosurf_download_testdata("all")} once after installing the package.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Download all test data
 #' neurosurf_download_testdata("all")
 #'

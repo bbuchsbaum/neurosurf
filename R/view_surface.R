@@ -291,26 +291,9 @@ surface_views <- list(
 #' @importFrom grDevices rainbow
 #'
 #' @examples
-#' \dontrun{
-#' # Load a surface geometry
+#' \donttest{
 #' surf_geom <- example_surface_geometry()
-#'
-#' # Simple display with default background color
 #' view_surface(surf_geom, viewpoint = "lateral")
-#'
-#' # Display with curvature coloring (assuming you have curvature data)
-#' curv_vals <- curvature(surf_geom)
-#' view_surface(surf_geom, vals = curv_vals, cmap = gray.colors(256), viewpoint = "medial")
-#'
-#' # Display with spheres marking specific coordinates
-#' sphere_coords <- data.frame(
-#'   x = c(10, -15, 5),
-#'   y = c(20, 0, -10),
-#'   z = c(-5, 25, 15),
-#'   radius = c(3, 4, 2.5),
-#'   color = c("yellow", "cyan", "magenta")
-#' )
-#' view_surface(surf_geom, viewpoint = "lateral", spheres = sphere_coords)
 #' }
 #'
 #' @seealso \code{\link[rgl]{shade3d}}, \code{\link[rgl]{spheres3d}}, \code{\link[rgl]{view3d}}, \code{\link{SurfaceGeometry}}

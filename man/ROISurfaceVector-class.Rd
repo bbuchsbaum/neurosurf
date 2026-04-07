@@ -8,7 +8,7 @@
 An object of class \code{ROISurfaceVector}.
 }
 \description{
-A class that respresents a surface-based region of interest
+A class that represents a surface-based region of interest
 }
 \details{
 The ROISurfaceVector class extends the concept of ROISurface to handle multiple measurements

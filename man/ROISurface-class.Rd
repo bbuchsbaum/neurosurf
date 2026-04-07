@@ -8,7 +8,7 @@
 An object of class \code{ROISurface}.
 }
 \description{
-A class that respresents a surface-based region of interest
+A class that represents a surface-based region of interest
 }
 \details{
 The ROISurface class provides a way to represent a specific subset of vertices on a

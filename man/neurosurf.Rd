@@ -17,6 +17,6 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Bradley R Buchsbaum \email{brad.buchsbaum@gmail.com}
+\strong{Maintainer}: Bradley R Buchsbaum \email{brad.buchsbaum@gmail.com} [copyright holder]
 
 }

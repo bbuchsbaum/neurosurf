@@ -45,7 +45,7 @@ If you are running tests locally and want the full test suite, run
 \code{neurosurf_download_testdata("all")} once after installing the package.
 }
 \examples{
-\dontrun{
+\donttest{
 # Download all test data
 neurosurf_download_testdata("all")
 

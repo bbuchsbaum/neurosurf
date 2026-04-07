@@ -63,8 +63,8 @@ setGeneric(name = "neighbor_graph",
 #' @return A matrix or data structure containing vertex information.
 #'
 #' @examples
-#' \dontrun{
-#' vertex_data <- vertices(surface_obj)
+#' \donttest{
+#' vertex_data <- vertices(example_surface_geometry())
 #' num_vertices <- nrow(vertex_data)
 #' }
 #'
@@ -171,12 +171,9 @@ setGeneric(name="graph", def=function(x, ...) standardGeneric("graph"))
 #' Users should refer to the specific method documentation for the class of object they are working with to understand the exact behavior and parameters.
 #'
 #' @examples
-#' \dontrun{
-#'   # Smooth a SurfaceGeometry object
-#'   smoothed_geom <- smooth(surface_geom_obj, type="taubin", lambda=0.7, iteration=10)
-#'
-#'   # Smooth a NeuroSurface object's data
-#'   smoothed_data_surface <- smooth(neuro_surf_obj, sigma=5)
+#' \donttest{
+#'   sg <- example_surface_geometry()
+#'   smoothed_geom <- smooth(sg, type="taubin", lambda=0.7, iteration=10)
 #' }
 #'
 #' @seealso \code{\link{smooth,SurfaceGeometry-method}}, \code{\link{smooth,NeuroSurface-method}}

@@ -1,27 +1,3 @@
-#' Snapshot a surface to a PNG
-#'
-#' Convenience helper for vignettes and reports: renders a surface with
-#' `view_surface()` onto an off-screen rgl device and saves a PNG.
-#' When `rgl.useNULL()` is `TRUE` (headless builds), a proper snapshot
-#' requires the `webshot2` package; otherwise a blank image is likely and an
-#' empty path is returned.
-#'
-#' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object.
-#' @param file Output path for the PNG. Defaults to the current knitr figure
-#'   path when knitting, otherwise a temporary file.
-#' @param width,height Device size in pixels (controls render resolution).
-#' @param ... Additional arguments passed to \code{\link{view_surface}}.
-#'
-#' @return The file path (invisibly). Callers can use
-#'   \code{knitr::include_graphics()} or read the image via \code{png::readPNG()}.
-#'   In headless mode without `webshot2`, an empty character vector is returned.
-#'
-#' @examples
-#' \dontrun{
-#' fs <- load_fsaverage_std8("inflated")
-#' img <- snapshot_surface(fs$lh, viewpoint = "lateral", specular = "black")
-#' # knitr::include_graphics(img)
-#' }
 #' @noRd
 .ns_snapshot_is_blank <- function(file,
                                   uniform_fraction = 0.995,
@@ -64,6 +40,29 @@
     diff(range(vals)) < low_variation_span
 }
 
+#' Snapshot a surface to a PNG
+#'
+#' Convenience helper for vignettes and reports: renders a surface with
+#' \code{view_surface()} onto an off-screen rgl device and saves a PNG.
+#' When \code{rgl.useNULL()} is \code{TRUE} (headless builds), a proper snapshot
+#' requires the \code{webshot2} package; otherwise a blank image is likely and an
+#' empty path is returned.
+#'
+#' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object.
+#' @param file Output path for the PNG. Defaults to the current knitr figure
+#'   path when knitting, otherwise a temporary file.
+#' @param width,height Device size in pixels (controls render resolution).
+#' @param ... Additional arguments passed to \code{\link{view_surface}}.
+#'
+#' @return The file path (invisibly). Callers can use
+#'   \code{knitr::include_graphics()} or read the image via \code{png::readPNG()}.
+#'   In headless mode without \code{webshot2}, an empty character vector is returned.
+#'
+#' @examples
+#' \donttest{
+#' fs <- load_fsaverage_std8("inflated")
+#' img <- snapshot_surface(fs$lh, viewpoint = "lateral", specular = "black")
+#' }
 #' @export
 snapshot_surface <- function(surfgeom,
                              file = NULL,

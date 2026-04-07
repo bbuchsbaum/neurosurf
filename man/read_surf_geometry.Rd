@@ -25,12 +25,9 @@ This function supports loading surface geometries from the following file format
 The appropriate loader is automatically selected based on the file extension or content.
 }
 \examples{
-\dontrun{
-# Load a FreeSurfer surface
-lh_surface <- read_surf_geometry("lh.pial")
-
-# Load a GIFTI surface
-rh_surface <- read_surf_geometry("rh.white.gii")
+\donttest{
+asc_path <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
+lh_surface <- read_surf_geometry(asc_path)
 }
 
 
