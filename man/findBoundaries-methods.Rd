@@ -7,14 +7,15 @@
 \usage{
 findBoundaries(x, method = "midpoint", ...)
 
-\S4method{findBoundaries}{NeuroSurface}(x, method = c("edge_vertices", "faces"), ...)
+\S4method{findBoundaries}{NeuroSurface}(x, method = c("midpoint", "edge_vertices", "faces"), ...)
 }
 \arguments{
 \item{x}{A \code{\linkS4class{NeuroSurface}} object whose \code{data} slot
 contains integer ROI labels for each vertex.}
 
 \item{method}{Boundary method passed to \code{\link{find_roi_boundaries}}.
-Currently one of \code{"faces"} or \code{"edge_vertices"}.}
+One of \code{"midpoint"} (default, crisp single-width contours),
+\code{"edge_vertices"}, or \code{"faces"}.}
 
 \item{...}{Additional arguments passed to \code{\link{find_roi_boundaries}}.}
 }

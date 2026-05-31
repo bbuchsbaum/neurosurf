@@ -112,14 +112,26 @@ curv_cols <- function(vals, incol="#B3B3B3", outcol="#404040") {
 #'   Default \code{"#3A3A3A"}.
 #' @param quantiles Length-2 numeric vector of lower and upper quantiles used
 #'   to clamp extreme values before rescaling.  Default \code{c(0.05, 0.95)}.
+#' @param sharpness Non-negative number controlling how crisp the gyral/sulcal
+#'   split is. Larger values push vertices toward the \code{light}/\code{dark}
+#'   extremes (a more binary, FreeSurfer-like contrast); smaller values give a
+#'   softer gradient. \code{0} reproduces a plain linear ramp. Default \code{6}.
 #'
 #' @return A character vector of hex color codes the same length as \code{vals}.
 #'
 #' @details
 #' Values are clamped to the range defined by \code{quantiles} to prevent
-#' outliers from washing out the colour map.
-#' The clamped values are linearly interpolated between \code{dark} (most
-#' negative / sulcal) and \code{light} (most positive / gyral).
+#' outliers from washing out the colour map. The clamped values are then
+#' centred on their median (the gyral/sulcal boundary) and passed through a
+#' logistic contrast curve governed by \code{sharpness} before being
+#' interpolated between \code{dark} (sulcal fundi) and \code{light}
+#' (gyral crowns).
+#'
+#' A plain linear ramp leaves most vertices near mid-grey, so the fold pattern
+#' tends to disappear once surface lighting is applied. Pushing values toward
+#' the two extremes with a logistic curve keeps the sulci clearly dark and the
+#' gyri clearly light, which reads as anatomical folding under lighting much
+#' the way FreeSurfer / Connectome Workbench curvature overlays do.
 #'
 #' @examples
 #' set.seed(1)
@@ -127,20 +139,37 @@ curv_cols <- function(vals, incol="#B3B3B3", outcol="#404040") {
 #' cols <- curv_cols_smooth(curv)
 #' head(cols)
 #'
+#' # Softer, more continuous gradient
+#' cols_soft <- curv_cols_smooth(curv, sharpness = 2)
+#'
 #' @seealso \code{\link{curv_cols}}, \code{\link{curvature}}, \code{\link{view_surface}}
 #' @importFrom grDevices col2rgb rgb
 #' @export
-curv_cols_smooth <- function(vals, light = "#D4D4D4", dark = "#3A3A3A",
-                             quantiles = c(0.05, 0.95)) {
+curv_cols_smooth <- function(vals, light = "#C8C8C8", dark = "#4D4D4D",
+                             quantiles = c(0.05, 0.95), sharpness = 6) {
   qr <- stats::quantile(vals, probs = quantiles, na.rm = TRUE)
   clamped <- pmin(pmax(vals, qr[1]), qr[2])
 
-  rng <- range(clamped, na.rm = TRUE)
-  if (diff(rng) == 0) {
-    t <- rep(0.5, length(clamped))
+  # Centre on the median (gyral/sulcal boundary) and scale by the symmetric
+  # half-range so the clamped values span roughly [-1, 1].
+  center <- stats::median(clamped, na.rm = TRUE)
+  half <- max(qr[2] - center, center - qr[1])
+  if (!is.finite(half) || half == 0) {
+    z <- rep(0, length(clamped))
   } else {
-    t <- (clamped - rng[1]) / diff(rng)
+    z <- (clamped - center) / half
   }
+
+  if (sharpness <= 0) {
+    t <- (z + 1) / 2
+  } else {
+    # Logistic contrast, rescaled so z in [-1, 1] spans the full colour range.
+    t  <- 1 / (1 + exp(-sharpness * z))
+    lo <- 1 / (1 + exp(sharpness))
+    hi <- 1 / (1 + exp(-sharpness))
+    t  <- (t - lo) / (hi - lo)
+  }
+  t <- pmin(pmax(t, 0), 1)
 
   dark_rgb  <- grDevices::col2rgb(dark)[, 1]  / 255
   light_rgb <- grDevices::col2rgb(light)[, 1] / 255
@@ -293,7 +322,9 @@ surface_views <- list(
 #' @examples
 #' \donttest{
 #' surf_geom <- example_surface_geometry()
-#' view_surface(surf_geom, viewpoint = "lateral")
+#' if (interactive()) {
+#'   view_surface(surf_geom, viewpoint = "lateral")
+#' }
 #' }
 #'
 #' @seealso \code{\link[rgl]{shade3d}}, \code{\link[rgl]{spheres3d}}, \code{\link[rgl]{view3d}}, \code{\link{SurfaceGeometry}}
@@ -470,9 +501,15 @@ view_surface <- function(surfgeom, vals=NA,
   ret <- do.call(rgl::shade3d, c(list(mesh), shade_args))
   rgl::view3d(fov=0, userMatrix=umat, zoom=zoom)
 
-  # Add better lights for interactive scenes (studio setup)
+  # Add better lights for interactive scenes (studio setup).
+  # Only wipe existing lights when we own the whole window. In embedded /
+  # multi-panel scenes (e.g. mfrow3d, where new_window = FALSE), a global
+  # clear removes the lights illuminating sibling subscenes, leaving the
+  # first panel black; instead we add lights to the current subscene only.
   if (isTRUE(lit) && !rgl::rgl.useNULL()) {
-    rgl::clear3d(type = "lights")
+    if (new_window) {
+      rgl::clear3d(type = "lights")
+    }
     rgl::light3d(theta = 45,  phi = 45, diffuse = "#E0E0E0", specular = specular)
     rgl::light3d(theta = -45, phi = 0,  diffuse = "#B0B0B0", specular = "black")
     rgl::light3d(theta = 0,   phi = -45, diffuse = "#606060", specular = "black")
@@ -636,7 +673,9 @@ setMethod("plot", signature=signature(x="SurfaceGeometry", y="missing"),
 #' @examples
 #' \donttest{
 #' geom <- example_surface_geometry()
-#' plot(geom)
+#' if (interactive()) {
+#'   plot(geom)
+#' }
 #' }
 #'
 #' @method plot SurfaceGeometry
@@ -656,7 +695,9 @@ plot.SurfaceGeometry <- function(x, y, ...) {
 #' \donttest{
 #' geom <- example_surface_geometry()
 #' ss <- surface_set(inflated = geom)
-#' plot(ss)
+#' if (interactive()) {
+#'   plot(ss)
+#' }
 #' }
 #'
 #' @method plot SurfaceSet

@@ -22,7 +22,9 @@ Plot method for SurfaceGeometry objects
 \examples{
 \donttest{
 geom <- example_surface_geometry()
-plot(geom)
+if (interactive()) {
+  plot(geom)
+}
 }
 
 }

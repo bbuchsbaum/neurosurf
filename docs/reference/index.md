@@ -464,6 +464,9 @@ Catch-all index to include any remaining topics.
 - [`surface_labels()`](surface_labels.md) : List available surface
   labels
 
+- [`surface_montage()`](surface_montage.md) : Arrange multiple surface
+  views into a single montage figure
+
 - [`surface_plot()`](surface_plot.md) : Create a surface plot
   specification
 

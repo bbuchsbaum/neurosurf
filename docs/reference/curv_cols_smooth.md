@@ -9,9 +9,10 @@ than the binary mapping of [`curv_cols`](curv_cols.md).
 ``` r
 curv_cols_smooth(
   vals,
-  light = "#D4D4D4",
-  dark = "#3A3A3A",
-  quantiles = c(0.05, 0.95)
+  light = "#C8C8C8",
+  dark = "#4D4D4D",
+  quantiles = c(0.05, 0.95),
+  sharpness = 6
 )
 ```
 
@@ -34,6 +35,13 @@ curv_cols_smooth(
   Length-2 numeric vector of lower and upper quantiles used to clamp
   extreme values before rescaling. Default `c(0.05, 0.95)`.
 
+- sharpness:
+
+  Non-negative number controlling how crisp the gyral/sulcal split is.
+  Larger values push vertices toward the `light`/`dark` extremes (a more
+  binary, FreeSurfer-like contrast); smaller values give a softer
+  gradient. `0` reproduces a plain linear ramp. Default `6`.
+
 ## Value
 
 A character vector of hex color codes the same length as `vals`.
@@ -41,9 +49,17 @@ A character vector of hex color codes the same length as `vals`.
 ## Details
 
 Values are clamped to the range defined by `quantiles` to prevent
-outliers from washing out the colour map. The clamped values are
-linearly interpolated between `dark` (most negative / sulcal) and
-`light` (most positive / gyral).
+outliers from washing out the colour map. The clamped values are then
+centred on their median (the gyral/sulcal boundary) and passed through a
+logistic contrast curve governed by `sharpness` before being
+interpolated between `dark` (sulcal fundi) and `light` (gyral crowns).
+
+A plain linear ramp leaves most vertices near mid-grey, so the fold
+pattern tends to disappear once surface lighting is applied. Pushing
+values toward the two extremes with a logistic curve keeps the sulci
+clearly dark and the gyri clearly light, which reads as anatomical
+folding under lighting much the way FreeSurfer / Connectome Workbench
+curvature overlays do.
 
 ## See also
 
@@ -57,5 +73,8 @@ set.seed(1)
 curv <- rnorm(500, sd = 0.1)
 cols <- curv_cols_smooth(curv)
 head(cols)
-#> [1] "#686868" "#8E8E8E" "#5E5E5E" "#D0D0D0" "#959595" "#5F5F5F"
+#> [1] "#5B5B5B" "#A1A1A1" "#545454" "#C8C8C8" "#ADADAD" "#545454"
+
+# Softer, more continuous gradient
+cols_soft <- curv_cols_smooth(curv, sharpness = 2)
 ```

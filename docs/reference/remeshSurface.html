@@ -23,7 +23,7 @@ creating a new mesh with more regular face sizes and improved quality."></head><
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
+    <li><a class="dropdown-item" href="../articles/surface-figures.html">Publication-quality surface figures</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -146,7 +146,7 @@ which is a robust and widely-used algorithm for mesh processing.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      Mesh Box is 1.000000 1.000000 1.000000</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Visualize the meshes if rgl is available</span></span></span>
-<span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"rgl"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"rgl"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="co"># Original mesh</span></span></span>
 <span class="r-in"><span>  <span class="fu">rgl</span><span class="fu">::</span><span class="fu"><a href="https://dmurdoch.github.io/rgl/dev/reference/open3d.html" class="external-link">open3d</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu">rgl</span><span class="fu">::</span><span class="fu"><a href="https://dmurdoch.github.io/rgl/dev/reference/shade3d.html" class="external-link">shade3d</a></span><span class="op">(</span><span class="va">surf_geom</span><span class="op">@</span><span class="va">mesh</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></span>
@@ -167,9 +167,6 @@ which is a robust and widely-used algorithm for mesh processing.</p>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Coarse remesh faces:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">coarse_remesh</span><span class="op">@</span><span class="va">mesh</span><span class="op">$</span><span class="va">it</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Fine remesh faces:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">fine_remesh</span><span class="op">@</span><span class="va">mesh</span><span class="op">$</span><span class="va">it</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Original mesh faces: 12 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Coarse remesh faces: 17 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Fine remesh faces: 373 </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

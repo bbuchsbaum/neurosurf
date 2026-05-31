@@ -141,7 +141,7 @@ details on the underlying smoothing algorithms.
 # Load a surface file from the extdata directory
 surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 surface <- read_surf_geometry(surf_file)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpzRF1jx/temp_libpathf6cf495866b/neurosurf/extdata/std.8_lh.inflated.asc
 
 # Apply Taubin smoothing to the brain surface
 smoothed_surface1 <- smooth(surface, type = "taubin", lambda = 0.5, mu = -0.5, iteration = 10)

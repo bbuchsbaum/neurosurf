@@ -37,7 +37,7 @@
 <li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
+    <li><a class="dropdown-item" href="../articles/surface-figures.html">Publication-quality surface figures</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -64,7 +64,7 @@
                         <h4 data-toc-skip class="author">Bradley
 Buchsbaum</h4>
             
-            <h4 data-toc-skip class="date">2026-04-07</h4>
+            <h4 data-toc-skip class="date">2026-05-31</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bbuchsbaum/neurosurf/blob/HEAD/vignettes/introduction-to-neurosurf.Rmd" class="external-link"><code>vignettes/introduction-to-neurosurf.Rmd</code></a></small>
       <div class="d-none name"><code>introduction-to-neurosurf.Rmd</code></div>
@@ -84,8 +84,8 @@ plots based on <code><a href="https://rdrr.io/r/graphics/plot.default.html" clas
 <code><a href="../articles/interactive-surfaces.html">vignette("interactive-surfaces")</a></code> for HTML-widget based
 exploration.</li>
 <li>
-<code><a href="../articles/surfplot-style-figures.html">vignette("surfplot-style-figures")</a></code> for multi-view,
-publication-style layouts built with <code><a href="../reference/surface_plot.html">surface_plot()</a></code> and
+<code><a href="../articles/surface-figures.html">vignette("surface-figures")</a></code> for multi-view,
+publication-quality layouts built with <code><a href="../reference/surface_plot.html">surface_plot()</a></code> and
 friends.</li>
 </ul>
 <div class="section level2">
@@ -155,31 +155,25 @@ using the <code><a href="../reference/read_surf_geometry.html">read_surf_geometr
 <p>Several methods allow you to access information within the
 <code>SurfaceGeometry</code> object:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Get the total number of vertices (nodes) in the geometry</span></span>
-<span><span class="va">num_nodes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Number of vertices:"</span>, <span class="va">num_nodes</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Number of vertices: 642</span></span>
+<code class="sourceCode R"><span><span class="co"># Total number of vertices (nodes) in the geometry</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 642</span></span>
 <span></span>
-<span><span class="co"># Get the coordinates of all vertices as a matrix (N x 3)</span></span>
+<span><span class="co"># Vertex coordinates as an N x 3 matrix; its dimensions and first 3 rows</span></span>
 <span><span class="va">vertex_coords</span> <span class="op">&lt;-</span> <span class="fu">coords</span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Dimensions of coordinate matrix:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">vertex_coords</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Dimensions of coordinate matrix: 642 3</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Coordinates of the first 3 vertices:\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Coordinates of the first 3 vertices:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">vertex_coords</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">vertex_coords</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 642   3</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">vertex_coords</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           [,1]       [,2]      [,3]</span></span>
 <span><span class="co">#&gt; [1,] -32.43124  -5.756156 -26.85239</span></span>
 <span><span class="co">#&gt; [2,] -38.78497  10.942583  52.54661</span></span>
 <span><span class="co">#&gt; [3,] -26.23813 -35.324768  58.41325</span></span>
 <span></span>
-<span><span class="co"># Access the underlying igraph object</span></span>
-<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">neurosurf</span><span class="fu">::</span><span class="fu"><a href="../reference/graph-methods.html">graph</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Graph summary:"</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Graph summary:</span></span>
-<span><span class="va">g</span></span>
-<span><span class="co">#&gt; IGRAPH 976f55d U--- 642 1920 -- </span></span>
+<span><span class="co"># The underlying igraph connectivity object</span></span>
+<span><span class="fu">neurosurf</span><span class="fu">::</span><span class="fu"><a href="../reference/graph-methods.html">graph</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
+<span><span class="co">#&gt; IGRAPH 1c48116 U--- 642 1920 -- </span></span>
 <span><span class="co">#&gt; + attr: x (v/n), y (v/n), z (v/n), dist (e/n)</span></span>
-<span><span class="co">#&gt; + edges from 976f55d:</span></span>
+<span><span class="co">#&gt; + edges from 1c48116:</span></span>
 <span><span class="co">#&gt;  [1]  1-- 13  1-- 27  1-- 55  1-- 90  1--125  2--188  2--195  2--223  2--258</span></span>
 <span><span class="co">#&gt; [10]  2--293  3--264  3--271  3--300  3--356  3--391  4-- 96  4--103  4--132</span></span>
 <span><span class="co">#&gt; [19]  4--517  4--545  5-- 19  5-- 26  5-- 62  5--201  5--334  6--397  6--404</span></span>
@@ -190,15 +184,11 @@ using the <code><a href="../reference/read_surf_geometry.html">read_surf_geometr
 <span><span class="co">#&gt; [64] 13-- 55 13-- 69 14-- 15 14-- 34 14-- 40 14-- 69 14-- 70 15-- 16 15-- 40</span></span>
 <span><span class="co">#&gt; + ... omitted several edges</span></span>
 <span></span>
-<span><span class="co"># Access the underlying mesh3d object</span></span>
-<span><span class="va">mesh</span> <span class="op">&lt;-</span> <span class="va">lh_geom</span><span class="op">@</span><span class="va">mesh</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Mesh object class:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">mesh</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Mesh object class: mesh3d shape3d</span></span>
-<span></span>
-<span><span class="co"># Access the hemisphere label</span></span>
-<span><span class="va">hemi_label</span> <span class="op">&lt;-</span> <span class="va">lh_geom</span><span class="op">@</span><span class="va">hemi</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Hemisphere:"</span>, <span class="va">hemi_label</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Hemisphere: lh</span></span></code></pre></div>
+<span><span class="co"># The underlying rgl mesh3d object, and the hemisphere label</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">@</span><span class="va">mesh</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "mesh3d"  "shape3d"</span></span>
+<span><span class="va">lh_geom</span><span class="op">@</span><span class="va">hemi</span></span>
+<span><span class="co">#&gt; [1] "lh"</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -300,39 +290,34 @@ temporary <code>.1D.dset</code> file for demonstration.</p>
 <span><span class="co">#&gt;   <span style="color: #00BB00;">Mean:</span>  <span style="color: #BBBB00;">-0.03667</span></span></span>
 <span><span class="co">#&gt;   <span style="color: #00BB00;">Max:</span>    <span style="color: #BBBB00;">2.689</span></span></span>
 <span></span>
-<span><span class="co"># Verify the number of loaded data points</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Number of data points loaded:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">lh_surf_loaded</span><span class="op">@</span><span class="va">data</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Number of data points loaded: 500</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Number of non-zero data points:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">lh_surf_loaded</span><span class="op">@</span><span class="va">data</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span> <span class="co"># Should match size=500</span></span>
-<span><span class="co">#&gt; Number of non-zero data points: 500</span></span>
-<span></span>
-<span><span class="co"># Clean up the temporary file (optional, R usually handles temp files)</span></span>
-<span><span class="co"># file.remove(temp_dset_file) </span></span></code></pre></div>
+<span><span class="co"># Number of data points loaded, and how many are non-zero (should match size = 500)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">lh_surf_loaded</span><span class="op">@</span><span class="va">data</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 500</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">lh_surf_loaded</span><span class="op">@</span><span class="va">data</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 500</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="accessing-neurosurface-properties">Accessing <code>NeuroSurface</code> Properties<a class="anchor" aria-label="anchor" href="#accessing-neurosurface-properties"></a>
 </h3>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Access the geometry</span></span>
-<span><span class="va">geom_from_ns</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geometry-methods.html">geometry</a></span><span class="op">(</span><span class="va">lh_surf_data</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Is geometry the same?"</span>, <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">geom_from_ns</span>, <span class="va">lh_geom</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Is geometry the same? TRUE</span></span>
+<code class="sourceCode R"><span><span class="co"># The geometry can be retrieved and matches the original</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="../reference/geometry-methods.html">geometry</a></span><span class="op">(</span><span class="va">lh_surf_data</span><span class="op">)</span>, <span class="va">lh_geom</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
 <span></span>
-<span><span class="co"># Access the data vector</span></span>
-<span><span class="va">data_vec</span> <span class="op">&lt;-</span> <span class="va">lh_surf_data</span><span class="op">@</span><span class="va">data</span> <span class="co"># Direct slot access</span></span>
-<span><span class="co"># Alternatively, convert to a simple vector</span></span>
-<span><span class="va">data_vec_as</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">lh_surf_data</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Length of data vector:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">data_vec</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Length of data vector: 642</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"First 5 data values:"</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_vec</span>, <span class="fl">5</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; First 5 data values: -32.43124 -38.78497 -26.23813 -29.04933 -39.65442</span></span>
+<span><span class="co"># The data vector, via direct slot access (lh_surf_data@data) or as.vector();</span></span>
+<span><span class="co"># its length and first few values</span></span>
+<span><span class="va">data_vec</span> <span class="op">&lt;-</span> <span class="va">lh_surf_data</span><span class="op">@</span><span class="va">data</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">data_vec</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 642</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_vec</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] -32.43124 -38.78497 -26.23813 -29.04933 -39.65442</span></span>
 <span></span>
-<span><span class="co"># Access the associated indices</span></span>
+<span><span class="co"># The associated vertex indices</span></span>
 <span><span class="va">index_vec</span> <span class="op">&lt;-</span> <span class="fu">indices</span><span class="op">(</span><span class="va">lh_surf_data</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Length of index vector:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">index_vec</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Length of index vector: 642</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"First 5 indices:"</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">index_vec</span>, <span class="fl">5</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; First 5 indices: 1 2 3 4 5</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">index_vec</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 642</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">index_vec</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 1 2 3 4 5</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -397,32 +382,24 @@ correspond to vertices (matching <code>indices</code>) and
 <h3 id="accessing-neurosurfacevector-properties">Accessing <code>NeuroSurfaceVector</code> Properties<a class="anchor" aria-label="anchor" href="#accessing-neurosurfacevector-properties"></a>
 </h3>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Access the geometry</span></span>
-<span><span class="va">geom_from_nsv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geometry-methods.html">geometry</a></span><span class="op">(</span><span class="va">lh_surf_vec</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Is geometry the same?"</span>, <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">geom_from_nsv</span>, <span class="va">lh_geom</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Is geometry the same? TRUE</span></span>
+<code class="sourceCode R"><span><span class="co"># The geometry matches the original</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="../reference/geometry-methods.html">geometry</a></span><span class="op">(</span><span class="va">lh_surf_vec</span><span class="op">)</span>, <span class="va">lh_geom</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
 <span></span>
-<span><span class="co"># Access the data matrix</span></span>
-<span><span class="va">data_mat</span> <span class="op">&lt;-</span> <span class="va">lh_surf_vec</span><span class="op">@</span><span class="va">data</span> <span class="co"># Direct slot access</span></span>
-<span><span class="co"># Or convert to a standard matrix</span></span>
-<span><span class="va">data_mat_std</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">lh_surf_vec</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Dimensions of data matrix:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">data_mat</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Dimensions of data matrix: 642 3</span></span>
+<span><span class="co"># The data matrix (sparse Matrix slot, or as.matrix()); its dimensions</span></span>
+<span><span class="va">data_mat</span> <span class="op">&lt;-</span> <span class="va">lh_surf_vec</span><span class="op">@</span><span class="va">data</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">data_mat</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 642   3</span></span>
 <span></span>
-<span><span class="co"># Access data for specific vertices/columns using standard matrix indexing</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Data for vertex 10 (all columns):\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Data for vertex 10 (all columns):</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">data_mat</span><span class="op">[</span><span class="fl">10</span>, <span class="op">]</span><span class="op">)</span></span>
+<span><span class="co"># Standard matrix indexing: one vertex (row), or one column across vertices</span></span>
+<span><span class="va">data_mat</span><span class="op">[</span><span class="fl">10</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt; [1] -48.594086 -23.064110  -8.115485</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Data for column 2 (all vertices):\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Data for column 2 (all vertices):</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_mat</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_mat</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1]  -5.756156  10.942583 -35.324768 -73.917900  20.463083 -70.911591</span></span>
 <span></span>
-<span><span class="co"># Access the associated indices</span></span>
-<span><span class="va">index_vec_nsv</span> <span class="op">&lt;-</span> <span class="fu">indices</span><span class="op">(</span><span class="va">lh_surf_vec</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Length of index vector:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">index_vec_nsv</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Length of index vector: 642</span></span></code></pre></div>
+<span><span class="co"># The associated vertex indices</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu">indices</span><span class="op">(</span><span class="va">lh_surf_vec</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 642</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -464,9 +441,8 @@ RGL, overlay data, and snapshot to PNG.</li>
 <code><a href="../articles/interactive-surfaces.html">vignette("interactive-surfaces")</a></code> — create interactive
 HTML widgets with <code><a href="../reference/surfwidget-methods.html">surfwidget()</a></code>.</li>
 <li>
-<code><a href="../articles/surfplot-style-figures.html">vignette("surfplot-style-figures")</a></code> — build
-publication-ready multi-view figures with shared colourbars and atlas
-outlines.</li>
+<code><a href="../articles/surface-figures.html">vignette("surface-figures")</a></code> — build publication-quality
+multi-view figures with colourbars and atlas outlines.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

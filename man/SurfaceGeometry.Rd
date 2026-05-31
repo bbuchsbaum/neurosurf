@@ -57,7 +57,7 @@ faces <- matrix(sample(0:11, 60, replace=TRUE), ncol=3)
 surf_geom <- SurfaceGeometry(vertices, faces, "lh")
 
 # Visualize the mesh if rgl is available
-if(requireNamespace("rgl", quietly = TRUE)) {
+if(interactive() && requireNamespace("rgl", quietly = TRUE)) {
   rgl::open3d()
   rgl::shade3d(surf_geom@mesh, col="lightblue")
 }

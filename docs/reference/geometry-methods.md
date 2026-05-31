@@ -35,7 +35,7 @@ A geometry object representing the surface structure
 # Load a sample surface
 surf_file <- system.file("extdata", "std.8_lh.smoothwm.asc", package = "neurosurf")
 surf <- read_surf_geometry(surf_file)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.smoothwm.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpzRF1jx/temp_libpathf6cf495866b/neurosurf/extdata/std.8_lh.smoothwm.asc
 # Create a NeuroSurface with some data
 ns <- NeuroSurface(surf, indices = 1:100, data = rnorm(100))
 # Extract the geometry

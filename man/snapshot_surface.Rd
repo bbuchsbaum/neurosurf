@@ -31,6 +31,8 @@ empty path is returned.
 \examples{
 \donttest{
 fs <- load_fsaverage_std8("inflated")
-img <- snapshot_surface(fs$lh, viewpoint = "lateral", specular = "black")
+if (interactive()) {
+  img <- snapshot_surface(fs$lh, viewpoint = "lateral", specular = "black")
+}
 }
 }

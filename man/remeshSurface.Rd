@@ -90,7 +90,7 @@ coarse_remesh <- remeshSurface(surf_geom, voxel_size = 0.5)
 fine_remesh <- remeshSurface(surf_geom, voxel_size = 0.2)
 
 # Visualize the meshes if rgl is available
-if(requireNamespace("rgl", quietly = TRUE)) {
+if(interactive() && requireNamespace("rgl", quietly = TRUE)) {
   # Original mesh
   rgl::open3d()
   rgl::shade3d(surf_geom@mesh, col = "red")

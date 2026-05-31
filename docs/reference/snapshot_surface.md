@@ -44,11 +44,10 @@ headless mode without `webshot2`, an empty character vector is returned.
 ``` r
 # \donttest{
 fs <- load_fsaverage_std8("inflated")
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.inflated.asc
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_rh.inflated.asc
-img <- snapshot_surface(fs$lh, viewpoint = "lateral", specular = "black")
-#> Warning: no non-missing arguments to min; returning Inf
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: rgl.useNULL=TRUE and webshot2 not installed; snapshot unavailable in headless builds.
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpzRF1jx/temp_libpathf6cf495866b/neurosurf/extdata/std.8_lh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpzRF1jx/temp_libpathf6cf495866b/neurosurf/extdata/std.8_rh.inflated.asc
+if (interactive()) {
+  img <- snapshot_surface(fs$lh, viewpoint = "lateral", specular = "black")
+}
 # }
 ```

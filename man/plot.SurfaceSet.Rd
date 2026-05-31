@@ -25,7 +25,9 @@ Plot method for SurfaceSet objects
 \donttest{
 geom <- example_surface_geometry()
 ss <- surface_set(inflated = geom)
-plot(ss)
+if (interactive()) {
+  plot(ss)
+}
 }
 
 }

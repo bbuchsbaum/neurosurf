@@ -126,9 +126,9 @@ wm_surf_file <- system.file("extdata", "std.8_lh.white.asc", package = "neurosur
 pial_surf_file <- system.file("extdata", "std.8_lh.pial.asc", package = "neurosurf")
 
 surf_wm <- read_surf_geometry(wm_surf_file)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.white.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpzRF1jx/temp_libpathf6cf495866b/neurosurf/extdata/std.8_lh.white.asc
 surf_pial <- read_surf_geometry(pial_surf_file)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.pial.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpzRF1jx/temp_libpathf6cf495866b/neurosurf/extdata/std.8_lh.pial.asc
 
 # Create a dummy volume for demonstration purposes
 bb <- matrix(c(-80, 80, -120, 80, -60, 90), 3, 2, byrow = TRUE)
@@ -150,10 +150,10 @@ print(mapped_surf)
 #>   Vertices w/ Data:642
 #> 
 #>   Data Summary: 
-#>   Min:    -1.407
-#>   Median:-0.006574
-#>   Mean:  -0.01082
-#>   Max:    1.229
+#>   Min:    -1.148
+#>   Median:-0.01554
+#>   Mean:  0.0004073
+#>   Max:    1.126
 #> 
 # }
 ```

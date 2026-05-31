@@ -12,8 +12,8 @@ For visualization, see the companion vignettes:
   [`view_surface()`](../reference/view_surface.md).
 - [`vignette("interactive-surfaces")`](../articles/interactive-surfaces.md)
   for HTML-widget based exploration.
-- [`vignette("surfplot-style-figures")`](../articles/surfplot-style-figures.md)
-  for multi-view, publication-style layouts built with
+- [`vignette("surface-figures")`](../articles/surface-figures.md) for
+  multi-view, publication-quality layouts built with
   [`surface_plot()`](../reference/surface_plot.md) and friends.
 
 ## Setup
@@ -76,31 +76,25 @@ Several methods allow you to access information within the
 `SurfaceGeometry` object:
 
 ``` r
-# Get the total number of vertices (nodes) in the geometry
-num_nodes <- length(nodes(lh_geom))
-cat("Number of vertices:", num_nodes, "\n")
-#> Number of vertices: 642
+# Total number of vertices (nodes) in the geometry
+length(nodes(lh_geom))
+#> [1] 642
 
-# Get the coordinates of all vertices as a matrix (N x 3)
+# Vertex coordinates as an N x 3 matrix; its dimensions and first 3 rows
 vertex_coords <- coords(lh_geom)
-cat("Dimensions of coordinate matrix:", dim(vertex_coords), "\n")
-#> Dimensions of coordinate matrix: 642 3
-cat("Coordinates of the first 3 vertices:\n")
-#> Coordinates of the first 3 vertices:
-print(head(vertex_coords, 3))
+dim(vertex_coords)
+#> [1] 642   3
+head(vertex_coords, 3)
 #>           [,1]       [,2]      [,3]
 #> [1,] -32.43124  -5.756156 -26.85239
 #> [2,] -38.78497  10.942583  52.54661
 #> [3,] -26.23813 -35.324768  58.41325
 
-# Access the underlying igraph object
-g <- neurosurf::graph(lh_geom)
-cat("Graph summary:", "\n")
-#> Graph summary:
-g
-#> IGRAPH 976f55d U--- 642 1920 -- 
+# The underlying igraph connectivity object
+neurosurf::graph(lh_geom)
+#> IGRAPH 1c48116 U--- 642 1920 -- 
 #> + attr: x (v/n), y (v/n), z (v/n), dist (e/n)
-#> + edges from 976f55d:
+#> + edges from 1c48116:
 #>  [1]  1-- 13  1-- 27  1-- 55  1-- 90  1--125  2--188  2--195  2--223  2--258
 #> [10]  2--293  3--264  3--271  3--300  3--356  3--391  4-- 96  4--103  4--132
 #> [19]  4--517  4--545  5-- 19  5-- 26  5-- 62  5--201  5--334  6--397  6--404
@@ -111,15 +105,11 @@ g
 #> [64] 13-- 55 13-- 69 14-- 15 14-- 34 14-- 40 14-- 69 14-- 70 15-- 16 15-- 40
 #> + ... omitted several edges
 
-# Access the underlying mesh3d object
-mesh <- lh_geom@mesh
-cat("Mesh object class:", class(mesh), "\n")
-#> Mesh object class: mesh3d shape3d
-
-# Access the hemisphere label
-hemi_label <- lh_geom@hemi
-cat("Hemisphere:", hemi_label, "\n")
-#> Hemisphere: lh
+# The underlying rgl mesh3d object, and the hemisphere label
+class(lh_geom@mesh)
+#> [1] "mesh3d"  "shape3d"
+lh_geom@hemi
+#> [1] "lh"
 ```
 
 ## `NeuroSurface`: Mapping Data to Geometry
@@ -214,39 +204,34 @@ show(lh_surf_loaded)
 #>   Mean:  -0.03667
 #>   Max:    2.689
 
-# Verify the number of loaded data points
-cat("Number of data points loaded:", length(lh_surf_loaded@data), "\n")
-#> Number of data points loaded: 500
-cat("Number of non-zero data points:", sum(lh_surf_loaded@data != 0), "\n") # Should match size=500
-#> Number of non-zero data points: 500
-
-# Clean up the temporary file (optional, R usually handles temp files)
-# file.remove(temp_dset_file) 
+# Number of data points loaded, and how many are non-zero (should match size = 500)
+length(lh_surf_loaded@data)
+#> [1] 500
+sum(lh_surf_loaded@data != 0)
+#> [1] 500
 ```
 
 ### Accessing `NeuroSurface` Properties
 
 ``` r
-# Access the geometry
-geom_from_ns <- geometry(lh_surf_data)
-cat("Is geometry the same?", identical(geom_from_ns, lh_geom), "\n")
-#> Is geometry the same? TRUE
+# The geometry can be retrieved and matches the original
+identical(geometry(lh_surf_data), lh_geom)
+#> [1] TRUE
 
-# Access the data vector
-data_vec <- lh_surf_data@data # Direct slot access
-# Alternatively, convert to a simple vector
-data_vec_as <- as.vector(lh_surf_data)
-cat("Length of data vector:", length(data_vec), "\n")
-#> Length of data vector: 642
-cat("First 5 data values:", head(data_vec, 5), "\n")
-#> First 5 data values: -32.43124 -38.78497 -26.23813 -29.04933 -39.65442
+# The data vector, via direct slot access (lh_surf_data@data) or as.vector();
+# its length and first few values
+data_vec <- lh_surf_data@data
+length(data_vec)
+#> [1] 642
+head(data_vec, 5)
+#> [1] -32.43124 -38.78497 -26.23813 -29.04933 -39.65442
 
-# Access the associated indices
+# The associated vertex indices
 index_vec <- indices(lh_surf_data)
-cat("Length of index vector:", length(index_vec), "\n")
-#> Length of index vector: 642
-cat("First 5 indices:", head(index_vec, 5), "\n")
-#> First 5 indices: 1 2 3 4 5
+length(index_vec)
+#> [1] 642
+head(index_vec, 5)
+#> [1] 1 2 3 4 5
 ```
 
 ## `NeuroSurfaceVector`: Mapping Multiple Data Vectors
@@ -302,32 +287,24 @@ show(lh_surf_vec)
 ### Accessing `NeuroSurfaceVector` Properties
 
 ``` r
-# Access the geometry
-geom_from_nsv <- geometry(lh_surf_vec)
-cat("Is geometry the same?", identical(geom_from_nsv, lh_geom), "\n")
-#> Is geometry the same? TRUE
+# The geometry matches the original
+identical(geometry(lh_surf_vec), lh_geom)
+#> [1] TRUE
 
-# Access the data matrix
-data_mat <- lh_surf_vec@data # Direct slot access
-# Or convert to a standard matrix
-data_mat_std <- as.matrix(lh_surf_vec)
-cat("Dimensions of data matrix:", dim(data_mat), "\n")
-#> Dimensions of data matrix: 642 3
+# The data matrix (sparse Matrix slot, or as.matrix()); its dimensions
+data_mat <- lh_surf_vec@data
+dim(data_mat)
+#> [1] 642   3
 
-# Access data for specific vertices/columns using standard matrix indexing
-cat("Data for vertex 10 (all columns):\n")
-#> Data for vertex 10 (all columns):
-print(data_mat[10, ])
+# Standard matrix indexing: one vertex (row), or one column across vertices
+data_mat[10, ]
 #> [1] -48.594086 -23.064110  -8.115485
-cat("Data for column 2 (all vertices):\n")
-#> Data for column 2 (all vertices):
-print(head(data_mat[, 2]))
+head(data_mat[, 2])
 #> [1]  -5.756156  10.942583 -35.324768 -73.917900  20.463083 -70.911591
 
-# Access the associated indices
-index_vec_nsv <- indices(lh_surf_vec)
-cat("Length of index vector:", length(index_vec_nsv), "\n")
-#> Length of index vector: 642
+# The associated vertex indices
+length(indices(lh_surf_vec))
+#> [1] 642
 ```
 
 ## Specialized NeuroSurface Classes
@@ -359,6 +336,6 @@ visualization vignettes:
 - [`vignette("interactive-surfaces")`](../articles/interactive-surfaces.md)
   — create interactive HTML widgets with
   [`surfwidget()`](../reference/surfwidget-methods.md).
-- [`vignette("surfplot-style-figures")`](../articles/surfplot-style-figures.md)
-  — build publication-ready multi-view figures with shared colourbars
-  and atlas outlines.
+- [`vignette("surface-figures")`](../articles/surface-figures.md) —
+  build publication-quality multi-view figures with colourbars and atlas
+  outlines.

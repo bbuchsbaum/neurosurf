@@ -8,9 +8,8 @@ method which utilizes the
 
 For interactive HTML widgets, see
 [`vignette("interactive-surfaces")`](../articles/interactive-surfaces.md).
-For high-level, surfplot-style multi-view layouts with shared colourbars
-and atlas outlines, see
-[`vignette("surfplot-style-figures")`](../articles/surfplot-style-figures.md).
+For high-level, multi-view layouts with colourbars and atlas outlines,
+see [`vignette("surface-figures")`](../articles/surface-figures.md).
 
 ## Setup and Loading Data
 
@@ -33,6 +32,8 @@ specify a `viewpoint`.
 render_surface(white_lh_display, viewpoint = "lateral", lit = TRUE)
 ```
 
+![](displaying-surfaces_files/figure-html/basic-plot-1.-render-1.png)
+
 ## Coloring Based on Curvature
 
 Surface curvature helps distinguish gyri (outward folds) from sulci
@@ -53,6 +54,8 @@ curv_colors <- curv_cols_smooth(curv_lh_display)
 render_surface(white_lh_display, bgcol = curv_colors, viewpoint = "medial", specular = "black")
 ```
 
+![](displaying-surfaces_files/figure-html/curvature-plot-1.-render-2.png)
+
 ## Overlaying Data Values
 
 Often, we want to visualize data mapped onto the surface vertices (e.g.,
@@ -68,6 +71,8 @@ render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = rainb
                irange = c(-2, 2), thresh = NULL, viewpoint = "lateral", specular = "gray")
 ```
 
+![](displaying-surfaces_files/figure-html/data-overlay-1.-render-3.png)
+
 ## Thresholding Data Visualization
 
 The `thresh` argument (a vector of two values, `c(lower, upper)`) can be
@@ -81,6 +86,8 @@ opaque. This is useful for masking out a band of values.
 render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = rainbow(256),
                irange = c(-2, 2), thresh = c(-1, 1), viewpoint = "lateral", lit = TRUE)
 ```
+
+![](displaying-surfaces_files/figure-html/threshold-plot-1.-render-4.png)
 
 ## Direct Vertex Coloring
 
@@ -97,6 +104,8 @@ vertex_colors <- ifelse(x_coords > median(x_coords), "#FF0000", "#0000FF") # Red
 render_surface(white_lh_display, vert_clrs = vertex_colors, viewpoint = "ventral", lit = TRUE)
 ```
 
+![](displaying-surfaces_files/figure-html/vertex-color-plot-1.-render-5.png)
+
 ## Controlling Transparency
 
 The `alpha` argument controls the overall transparency of the surface,
@@ -107,6 +116,8 @@ ranging from 0 (fully transparent) to 1 (fully opaque).
 render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = heat.colors(256),
                irange = c(-2, 2), alpha = 0.6, viewpoint = "posterior")
 ```
+
+![](displaying-surfaces_files/figure-html/alpha-plot-1.-render-6.png)
 
 ## Adjusting Lighting and Material
 
@@ -119,6 +130,8 @@ it to `"black"` creates a matte appearance.
 render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = topo.colors(256),
                irange = c(-2, 2), specular = "black", viewpoint = "lateral", lit = TRUE)
 ```
+
+![](displaying-surfaces_files/figure-html/lighting-plot-1.-render-7.png)
 
 ## Snapshotting to an image (for knitr/CI)
 
@@ -155,6 +168,8 @@ if (!inherits(img_path, "try-error") && snapshot_is_usable(img_path)) {
 }
 ```
 
+![](displaying-surfaces_files/figure-html/snapshot-example-1.-snapshot-8.png)
+
 ## Changing Viewpoints
 
 The `viewpoint` argument can be set to common anatomical views like
@@ -169,6 +184,8 @@ render_multi_view(white_lh_display,
                   bgcol = curv_cols_smooth(curv_lh_display), specular = "black")
 ```
 
+![](displaying-surfaces_files/figure-html/viewpoints-plot-1.-multiview-9.png)![](displaying-surfaces_files/figure-html/viewpoints-plot-1.-multiview-10.png)![](displaying-surfaces_files/figure-html/viewpoints-plot-1.-multiview-11.png)![](displaying-surfaces_files/figure-html/viewpoints-plot-1.-multiview-12.png)
+
 ## Displaying Two Hemispheres
 
 For lateral views, each hemisphere is best rendered separately since the
@@ -176,11 +193,14 @@ camera can only face one direction. We render the left and right lateral
 views side by side.
 
 ``` r
-# Use the refined display meshes for both hemispheres and leave some extra
-# margin so the browser does not make the static PNGs feel cramped.
-render_surface(
+# Render both hemispheres as a single figure so they always appear together
+# (two side-by-side images, or one combined widget when snapshots are
+# unavailable). Leave some extra margin so the static PNGs do not feel cramped.
+render_hemi_pair(
   white_lh_display,
-  bgcol = curv_cols_smooth(curv_lh_display, quantiles = c(0.02, 0.98)),
+  white_rh_display,
+  bgcol_lh = curv_cols_smooth(curv_lh_display, quantiles = c(0.02, 0.98)),
+  bgcol_rh = curv_cols_smooth(curv_rh_display, quantiles = c(0.02, 0.98)),
   viewpoint = "lateral",
   specular = "black",
   zoom = 0.92,
@@ -189,17 +209,7 @@ render_surface(
 )
 ```
 
-``` r
-render_surface(
-  white_rh_display,
-  bgcol = curv_cols_smooth(curv_rh_display, quantiles = c(0.02, 0.98)),
-  viewpoint = "lateral",
-  specular = "black",
-  zoom = 0.92,
-  width = 900,
-  height = 700
-)
-```
+![](displaying-surfaces_files/figure-html/two-hemispheres-plot-1.-hemipair-13.png)![](displaying-surfaces_files/figure-html/two-hemispheres-plot-1.-hemipair-14.png)
 
 ## Adding Spheres to the Surface
 
@@ -226,6 +236,8 @@ render_surface(white_lh_display, bgcol = curv_cols_smooth(curv_lh_display),
                viewpoint = "lateral", specular = "black", spheres = peak_coords)
 ```
 
+![](displaying-surfaces_files/figure-html/spheres-plot-1.-render-15.png)
+
 ## Plotting Other NeuroSurface Objects
 
 The [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method also
@@ -246,64 +258,41 @@ render_surface(geometry(nsurf), vals = values(nsurf), cmap = heat.colors(128),
                irange = c(-2.5, 2.5), viewpoint = "lateral")
 ```
 
+![](displaying-surfaces_files/figure-html/neurosurface-plot-1.-render-16.png)
+
 ## Showing an activation map overlaid on a surface mesh
 
 We will plot surface in a row of 3. We generate a set of random values
 and then smooth those values along the surface to approximate a
 realistic activation pattern.
 
-In the first column we display all the values in the map. Next we
-threshold all values between (-2,2). In the last panel we additionally
-add a cluster size threshold of 30 nodes.
+In the first column we display all the values in the map. Next we make
+values between (-0.2, 0.2) transparent. In the last panel we
+additionally add a cluster size threshold of 30 nodes.
+
+[`surface_montage()`](../reference/surface_montage.md) handles the
+per-panel rendering and layout for us: it captures each panel as a
+static image and tiles them into one figure (falling back to a single
+interactive widget when static snapshots are unavailable). Each panel is
+either a surface or a `list(surface, ...overrides)`, and arguments
+shared by every panel (here `cmap` and `irange`) are passed once.
 
 ``` r
 vals <- rnorm(length(nodes(white_lh_base)))
-surf <- NeuroSurface(white_lh_base, indices = 1:length(vals), data = vals)
-ssurf <- smooth(surf)
-
-# Generate proper figure paths
-.render_counter$n <- .render_counter$n + 1
-act_file1 <- knitr::fig_path(paste0("-actmap-", .render_counter$n, ".png"))
-.render_counter$n <- .render_counter$n + 1
-act_file2 <- knitr::fig_path(paste0("-actmap-", .render_counter$n, ".png"))
-.render_counter$n <- .render_counter$n + 1
-act_file3 <- knitr::fig_path(paste0("-actmap-", .render_counter$n, ".png"))
-dir.create(dirname(act_file1), recursive = TRUE, showWarnings = FALSE)
-
-# Panel 1: All values
-img1 <- try(snapshot_surface(geometry(ssurf), file = act_file1, vals = values(ssurf), cmap = rainbow(100),
-                              irange = c(-2, 2), width = 600, height = 450), silent = TRUE)
-
-# Panel 2: Thresholded (values between -0.2 and 0.2 transparent)
-comp <- conn_comp(ssurf, threshold = c(-0.2, 0.2))
-img2 <- try(snapshot_surface(geometry(ssurf), file = act_file2, vals = values(ssurf), cmap = rainbow(100),
-                              irange = c(-2, 2), thresh = c(-0.2, 0.2), width = 600, height = 450), silent = TRUE)
-
-# Panel 3: Cluster thresholded (minimum cluster size of 30)
+ssurf <- smooth(NeuroSurface(white_lh_base, indices = seq_along(vals), data = vals))
 csurf <- cluster_threshold(ssurf, size = 30, threshold = c(-0.2, 0.2))
-img3 <- try(snapshot_surface(geometry(csurf), file = act_file3, vals = values(csurf), cmap = rainbow(100),
-                              irange = c(-2, 2), thresh = c(-0.2, 0.2), width = 600, height = 450), silent = TRUE)
 
-# Check if all snapshots succeeded
-valid <- sapply(list(img1, img2, img3), function(p) !inherits(p, "try-error") && snapshot_is_usable(p))
-
-if (all(valid)) {
-  knitr::include_graphics(c(img1, img2, img3))
-} else {
-  # Fallback to rglwidget
-  rgl::open3d()
-  rgl::mfrow3d(1, 3, byrow = TRUE)
-  view_surface(geometry(ssurf), vals = values(ssurf), cmap = rainbow(100),
-               irange = c(-2, 2), new_window = FALSE)
-  rgl::next3d()
-  view_surface(geometry(ssurf), vals = values(ssurf), cmap = rainbow(100),
-               irange = c(-2, 2), thresh = c(-0.2, 0.2), new_window = FALSE)
-  rgl::next3d()
-  view_surface(geometry(csurf), vals = values(csurf), cmap = rainbow(100),
-               irange = c(-2, 2), thresh = c(-0.2, 0.2), new_window = FALSE)
-  rgl::rglwidget()
-}
+surface_montage(
+  list(
+    ssurf,                                # all values
+    list(ssurf, thresh = c(-0.2, 0.2)),   # band around zero made transparent
+    list(csurf, thresh = c(-0.2, 0.2))    # + cluster-size threshold (>= 30 nodes)
+  ),
+  cmap = rainbow(100), irange = c(-2, 2), ncol = 3
+)
 ```
+
+![](displaying-surfaces_files/figure-html/activation-map-1.-montage-1.png)
 
 ## Showing two hemispheres in same scene
 
@@ -349,6 +338,8 @@ if (!inherits(img_path, "try-error") && snapshot_is_usable(img_path)) {
 }
 ```
 
+![](displaying-surfaces_files/figure-html/two-hemi-posterior-1.-posterior-17.png)
+
 ## Next Steps
 
 For **interactive 3D visualization** with
@@ -356,4 +347,4 @@ For **interactive 3D visualization** with
 [`vignette("interactive-surfaces")`](../articles/interactive-surfaces.md).
 
 For **publication-quality multi-view figures**, see
-[`vignette("surfplot-style-figures")`](../articles/surfplot-style-figures.md).
+[`vignette("surface-figures")`](../articles/surface-figures.md).

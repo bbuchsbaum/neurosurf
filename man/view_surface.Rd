@@ -181,7 +181,9 @@ overlaying spherical markers.
 \examples{
 \donttest{
 surf_geom <- example_surface_geometry()
-view_surface(surf_geom, viewpoint = "lateral")
+if (interactive()) {
+  view_surface(surf_geom, viewpoint = "lateral")
+}
 }
 
 }

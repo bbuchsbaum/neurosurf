@@ -49,10 +49,8 @@ higher-level figure drawing utilities.
 # \donttest{
 geom <- example_surface_geometry()
 p <- surface_plot(geom)
-rendered <- render_surface_plot(p)
-#> Warning: no non-missing arguments to min; returning Inf
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: no non-missing arguments to min; returning Inf
-#> Warning: no non-missing arguments to max; returning -Inf
+if (interactive()) {
+  rendered <- render_surface_plot(p)
+}
 # }
 ```

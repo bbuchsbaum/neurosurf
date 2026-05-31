@@ -529,3 +529,44 @@ test_that("cpp_available helper works", {
   result <- cpp_available()
   expect_type(result, "logical")
 })
+
+# Tests for the 'midpoint' boundary method ----------------------------------
+
+test_that("find_roi_boundaries 'midpoint' returns clean single-segment contours", {
+  vertices <- matrix(c(0,0,0, 1,0,0, 0,1,0), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(1, 2, 3), ncol = 3, byrow = TRUE)
+
+  # All vertices share a label -> no boundary segments
+  r0 <- find_roi_boundaries(vertices, faces, c(1, 1, 1),
+                            boundary_method = "midpoint")
+  expect_length(r0$boundary, 0L)
+
+  # Two labels (v1 differs) -> one segment joining the midpoints of the two
+  # edges incident to v1, i.e. edges (1,2) and (3,1)
+  r2 <- find_roi_boundaries(vertices, faces, c(2, 1, 1),
+                            boundary_method = "midpoint")
+  expect_length(r2$boundary, 1L)
+  seg <- r2$boundary[[1]]
+  expect_equal(dim(seg), c(2L, 3L))
+  m12 <- (vertices[1, ] + vertices[2, ]) / 2
+  m31 <- (vertices[3, ] + vertices[1, ]) / 2
+  expect_equal(sort(seg[, 1]), sort(c(m12[1], m31[1])))
+  expect_equal(sort(seg[, 2]), sort(c(m12[2], m31[2])))
+  expect_equal(r2$boundary_roi_id, 2L)
+  expect_equal(length(r2$boundary_verts[[1]]), 2L)
+
+  # Three distinct labels -> three segments meeting at the face centroid
+  r3 <- find_roi_boundaries(vertices, faces, c(1, 2, 3),
+                            boundary_method = "midpoint")
+  expect_length(r3$boundary, 3L)
+})
+
+test_that("findBoundaries() default method is 'midpoint' (2-point segments)", {
+  geom <- example_surface_geometry()
+  lab <- as.integer(coords(geom)[, 1] > stats::median(coords(geom)[, 1])) + 1L
+  ns <- NeuroSurface(geom, indices = seq_along(lab), data = lab)
+
+  b <- findBoundaries(ns)   # default method
+  expect_gt(length(b$boundary), 0L)
+  expect_true(all(vapply(b$boundary, nrow, integer(1)) == 2L))
+})

@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+.DS_Store
 *.tar.gz
 
 # surfviewjs built files (build on-demand via Makefile)

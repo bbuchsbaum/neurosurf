@@ -30,7 +30,9 @@ uses "load" rather than "fetch" to follow common R idioms.
 \examples{
 \donttest{
 fs <- load_fsaverage(density = "std.8", surf = "inflated")
-show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
+if (interactive()) {
+  show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
+}
 }
 
 }

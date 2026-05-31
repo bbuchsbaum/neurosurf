@@ -12,7 +12,7 @@ find_roi_boundaries(
   vertices,
   faces,
   vertex_id,
-  boundary_method = c("faces", "edge_vertices"),
+  boundary_method = c("midpoint", "faces", "edge_vertices"),
   verbose = FALSE,
   use_cpp = TRUE
 )
@@ -34,7 +34,7 @@ find_roi_boundaries(
 
 - boundary_method:
 
-  One of `"faces"` or `"edge_vertices"`.
+  One of `"midpoint"`, `"faces"`, or `"edge_vertices"`.
 
 - verbose:
 
@@ -42,7 +42,8 @@ find_roi_boundaries(
 
 - use_cpp:
 
-  Logical; if `TRUE`, use optimized C++ implementation.
+  Logical; if `TRUE`, use optimized C++ implementation (applies to
+  `"edge_vertices"` only).
 
 ## Value
 
@@ -51,9 +52,10 @@ A list with elements:
 - `boundary`:
 
   For `"faces"`: logical vector of length `nrow(faces)` indicating
-  boundary faces. For `"edge_vertices"`: list of coordinate matrices
-  (\\k \times 3\\) giving boundary polygons for each connected ROI
-  component.
+  boundary faces. For `"midpoint"`: list of \\2 \times 3\\ coordinate
+  matrices, one per contour segment. For `"edge_vertices"`: list of
+  coordinate matrices (\\k \times 3\\) giving boundary polygons for each
+  connected ROI component.
 
 - `boundary_roi_id`:
 
@@ -72,13 +74,20 @@ A list with elements:
 
 ## Details
 
-Two boundary representations are currently supported:
+Three boundary representations are currently supported:
+
+- `"midpoint"` (default): returns crisp single-width contour segments
+  that run *between* differing labels, through the midpoints of the mesh
+  edges that separate them. This is the recommended method for drawing
+  clean ROI/atlas outlines: shared borders are drawn once (no double
+  lines) and adjacent segments join into continuous contours.
 
 - `"faces"`: returns a logical vector indicating which faces lie on a
   boundary between ROIs.
 
 - `"edge_vertices"`: returns boundary polygons traced through mesh
-  vertices, suitable for drawing ROI outlines.
+  vertices. Borders are traced along vertices on both sides of a
+  boundary, which can read as a thicker double line on coarse meshes.
 
 ## Examples
 

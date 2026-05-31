@@ -6,9 +6,10 @@
 \usage{
 curv_cols_smooth(
   vals,
-  light = "#D4D4D4",
-  dark = "#3A3A3A",
-  quantiles = c(0.05, 0.95)
+  light = "#C8C8C8",
+  dark = "#4D4D4D",
+  quantiles = c(0.05, 0.95),
+  sharpness = 6
 )
 }
 \arguments{
@@ -22,6 +23,11 @@ Default \code{"#3A3A3A"}.}
 
 \item{quantiles}{Length-2 numeric vector of lower and upper quantiles used
 to clamp extreme values before rescaling.  Default \code{c(0.05, 0.95)}.}
+
+\item{sharpness}{Non-negative number controlling how crisp the gyral/sulcal
+split is. Larger values push vertices toward the \code{light}/\code{dark}
+extremes (a more binary, FreeSurfer-like contrast); smaller values give a
+softer gradient. \code{0} reproduces a plain linear ramp. Default \code{6}.}
 }
 \value{
 A character vector of hex color codes the same length as \code{vals}.
@@ -33,15 +39,26 @@ mapping of \code{\link{curv_cols}}.
 }
 \details{
 Values are clamped to the range defined by \code{quantiles} to prevent
-outliers from washing out the colour map.
-The clamped values are linearly interpolated between \code{dark} (most
-negative / sulcal) and \code{light} (most positive / gyral).
+outliers from washing out the colour map. The clamped values are then
+centred on their median (the gyral/sulcal boundary) and passed through a
+logistic contrast curve governed by \code{sharpness} before being
+interpolated between \code{dark} (sulcal fundi) and \code{light}
+(gyral crowns).
+
+A plain linear ramp leaves most vertices near mid-grey, so the fold pattern
+tends to disappear once surface lighting is applied. Pushing values toward
+the two extremes with a logistic curve keeps the sulci clearly dark and the
+gyri clearly light, which reads as anatomical folding under lighting much
+the way FreeSurfer / Connectome Workbench curvature overlays do.
 }
 \examples{
 set.seed(1)
 curv <- rnorm(500, sd = 0.1)
 cols <- curv_cols_smooth(curv)
 head(cols)
+
+# Softer, more continuous gradient
+cols_soft <- curv_cols_smooth(curv, sharpness = 2)
 
 }
 \seealso{

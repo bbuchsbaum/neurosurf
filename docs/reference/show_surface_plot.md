@@ -81,11 +81,8 @@ drawn as a side-effect.
 ``` r
 # \donttest{
 geom <- example_surface_geometry()
-show_surface_plot(geom, data = rnorm(nrow(coords(geom))))
-#> Warning: no non-missing arguments to min; returning Inf
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: no non-missing arguments to min; returning Inf
-#> Warning: no non-missing arguments to max; returning -Inf
-
+if (interactive()) {
+  show_surface_plot(geom, data = rnorm(nrow(coords(geom))))
+}
 # }
 ```

@@ -11,6 +11,7 @@
 <url><loc>/articles/interactive-surfaces.html</loc></url>
 <url><loc>/articles/introduction-to-neurosurf.html</loc></url>
 <url><loc>/articles/rgl-lighting-bug.html</loc></url>
+<url><loc>/articles/surface-figures.html</loc></url>
 <url><loc>/articles/surfplot-style-figures.html</loc></url>
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
@@ -182,6 +183,7 @@
 <url><loc>/reference/surf_to_world-methods.html</loc></url>
 <url><loc>/reference/surf_to_world-set-methods.html</loc></url>
 <url><loc>/reference/surface_labels.html</loc></url>
+<url><loc>/reference/surface_montage.html</loc></url>
 <url><loc>/reference/surface_plot.html</loc></url>
 <url><loc>/reference/surface_plot_helpers.html</loc></url>
 <url><loc>/reference/surface_sampler.html</loc></url>

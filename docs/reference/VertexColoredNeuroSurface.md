@@ -56,7 +56,7 @@ parcellation results or pre-computed color schemes.
 # Load a sample surface geometry
 surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package = "neurosurf")
 surf_geom <- read_surf_geometry(surf_file)
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpzRF1jx/temp_libpathf6cf495866b/neurosurf/extdata/std.8_lh.inflated.asc
 
 # Get first 100 vertices for this example
 n_verts <- min(100, nrow(coords(surf_geom)))

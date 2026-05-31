@@ -32,7 +32,9 @@ Render a neurosurf plot using rgl
 \donttest{
 geom <- example_surface_geometry()
 p <- surface_plot(geom)
-rendered <- render_surface_plot(p)
+if (interactive()) {
+  rendered <- render_surface_plot(p)
+}
 }
 
 }

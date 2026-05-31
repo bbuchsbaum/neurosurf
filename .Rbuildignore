@@ -36,6 +36,10 @@ testshiny/test_shiny.R
 ^Rd2\.pdf$
 # Large test data files excluded from CRAN package (available via neurosurf_download_testdata)
 ^inst/extdata/Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm\.nii$
+^inst/extdata/rscan01_lh\.gii$
+^inst/extdata/fsSchaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm\.nii\.gz$
+^inst/extdata/std\.8_fsaverage_lh\.MI\.1D$
+^inst/extdata/std\.8_fsaverage_rh\.MI\.1D$
 ^inst/extdata/rscan01_lh\.niml\.dset$
 ^inst/extdata/rscan01_rh\.niml\.dset$
 ^inst/extdata/fsaverage_SurfVol\+orig\.BRIK\.gz$
@@ -56,3 +60,12 @@ testshiny/test_shiny.R
 ^codemeta\.json$
 ^LICENSE\.md$
 ^CONTRIBUTING\.md$
+
+# Local/generated artifacts not intended for package builds
+^.*\.DS_Store$
+^src/.*\.(o|so)$
+^\.beads($|/)
+^\.github($|/)
+^\.tmpcheck($|/)
+^tests/testthat/Rplots\.pdf$
+^vignettes/surfplot-style-figures\.html$

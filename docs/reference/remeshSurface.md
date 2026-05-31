@@ -116,7 +116,7 @@ fine_remesh <- remeshSurface(surf_geom, voxel_size = 0.2)
 #>      Mesh Box is 1.000000 1.000000 1.000000
 
 # Visualize the meshes if rgl is available
-if(requireNamespace("rgl", quietly = TRUE)) {
+if(interactive() && requireNamespace("rgl", quietly = TRUE)) {
   # Original mesh
   rgl::open3d()
   rgl::shade3d(surf_geom@mesh, col = "red")
@@ -137,8 +137,5 @@ if(requireNamespace("rgl", quietly = TRUE)) {
   cat("Coarse remesh faces:", ncol(coarse_remesh@mesh$it), "\n")
   cat("Fine remesh faces:", ncol(fine_remesh@mesh$it), "\n")
 }
-#> Original mesh faces: 12 
-#> Coarse remesh faces: 17 
-#> Fine remesh faces: 373 
 # }
 ```

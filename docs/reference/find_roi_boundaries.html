@@ -27,7 +27,7 @@ for use with neurosurf objects."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
     <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-    <li><a class="dropdown-item" href="../articles/surfplot-style-figures.html">Surfplot-style Figures with neurosurf</a></li>
+    <li><a class="dropdown-item" href="../articles/surface-figures.html">Publication-quality surface figures</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -59,7 +59,7 @@ for use with neurosurf objects.</p>
 <span>  <span class="va">vertices</span>,</span>
 <span>  <span class="va">faces</span>,</span>
 <span>  <span class="va">vertex_id</span>,</span>
-<span>  boundary_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"faces"</span>, <span class="st">"edge_vertices"</span><span class="op">)</span>,</span>
+<span>  boundary_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"midpoint"</span>, <span class="st">"faces"</span>, <span class="st">"edge_vertices"</span><span class="op">)</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  use_cpp <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -82,7 +82,8 @@ for use with neurosurf objects.</p>
 
 
 <dt id="arg-boundary-method">boundary_method<a class="anchor" aria-label="anchor" href="#arg-boundary-method"></a></dt>
-<dd><p>One of <code>"faces"</code> or <code>"edge_vertices"</code>.</p></dd>
+<dd><p>One of <code>"midpoint"</code>, <code>"faces"</code>, or
+<code>"edge_vertices"</code>.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -90,7 +91,8 @@ for use with neurosurf objects.</p>
 
 
 <dt id="arg-use-cpp">use_cpp<a class="anchor" aria-label="anchor" href="#arg-use-cpp"></a></dt>
-<dd><p>Logical; if <code>TRUE</code>, use optimized C++ implementation.</p></dd>
+<dd><p>Logical; if <code>TRUE</code>, use optimized C++ implementation
+(applies to <code>"edge_vertices"</code> only).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -98,6 +100,8 @@ for use with neurosurf objects.</p>
     <p>A list with elements:</p><dl><dt><code>boundary</code></dt>
 <dd><p>For <code>"faces"</code>: logical vector of length
     <code>nrow(faces)</code> indicating boundary faces.
+    For <code>"midpoint"</code>: list of \(2 \times 3\) coordinate matrices, one
+    per contour segment.
     For <code>"edge_vertices"</code>: list of coordinate matrices (\(k \times 3\))
     giving boundary polygons for each connected ROI component.</p></dd>
 
@@ -118,10 +122,16 @@ for use with neurosurf objects.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Two boundary representations are currently supported:</p><ul><li><p><code>"faces"</code>: returns a logical vector indicating which faces lie
+    <p>Three boundary representations are currently supported:</p><ul><li><p><code>"midpoint"</code> (default): returns crisp single-width contour
+    segments that run <em>between</em> differing labels, through the midpoints
+    of the mesh edges that separate them. This is the recommended method for
+    drawing clean ROI/atlas outlines: shared borders are drawn once (no
+    double lines) and adjacent segments join into continuous contours.</p></li>
+<li><p><code>"faces"</code>: returns a logical vector indicating which faces lie
     on a boundary between ROIs.</p></li>
 <li><p><code>"edge_vertices"</code>: returns boundary polygons traced through
-    mesh vertices, suitable for drawing ROI outlines.</p></li>
+    mesh vertices. Borders are traced along vertices on both sides of a
+    boundary, which can read as a thicker double line on coarse meshes.</p></li>
 </ul></div>
 
     <div class="section level2">

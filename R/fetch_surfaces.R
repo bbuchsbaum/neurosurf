@@ -14,7 +14,9 @@
 #' @examples
 #' \donttest{
 #' fs <- load_fsaverage_std8("smoothwm")
-#' show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
+#' if (interactive()) {
+#'   show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
+#' }
 #' }
 #'
 #' @export
@@ -56,7 +58,9 @@ load_fsaverage_std8 <- function(surf = c("smoothwm", "pial", "inflated", "white"
 #' @examples
 #' \donttest{
 #' fs <- load_fsaverage(density = "std.8", surf = "inflated")
-#' show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
+#' if (interactive()) {
+#'   show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
+#' }
 #' }
 #'
 #' @export

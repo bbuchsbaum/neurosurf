@@ -32,8 +32,8 @@ The pkgdown site includes a few good entry points:
   RGL](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html)
 - [Interactive Surface Visualization with
   surfwidget](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html)
-- [Surfplot-style Figures with
-  neurosurf](https://bbuchsbaum.github.io/neurosurf/articles/surfplot-style-figures.html)
+- [Publication-quality surface
+  figures](https://bbuchsbaum.github.io/neurosurf/articles/index.html)
 - [Reference
   index](https://bbuchsbaum.github.io/neurosurf/reference/index.html)
 

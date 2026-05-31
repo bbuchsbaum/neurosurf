@@ -7,4 +7,4 @@
   surfwidget](interactive-surfaces.md):
 - [Introduction to NeuroSurf Data
   Structures](introduction-to-neurosurf.md):
-- [Surfplot-style Figures with neurosurf](surfplot-style-figures.md):
+- [Publication-quality surface figures](surface-figures.md):

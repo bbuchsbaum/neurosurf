@@ -26,8 +26,8 @@ The pkgdown site includes a few good entry points:
   RGL](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html)
 - [Interactive Surface Visualization with
   surfwidget](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html)
-- [Surfplot-style Figures with
-  neurosurf](https://bbuchsbaum.github.io/neurosurf/articles/surfplot-style-figures.html)
+- [Publication-quality surface
+  figures](https://bbuchsbaum.github.io/neurosurf/articles/index.html)
 - [Reference
   index](https://bbuchsbaum.github.io/neurosurf/reference/index.html)
 
@@ -563,6 +563,9 @@ Catch-all index to include any remaining topics.
 - [`surface_labels()`](surface_labels.md) : List available surface
   labels
 
+- [`surface_montage()`](surface_montage.md) : Arrange multiple surface
+  views into a single montage figure
+
 - [`surface_plot()`](surface_plot.md) : Create a surface plot
   specification
 
@@ -603,4 +606,4 @@ Catch-all index to include any remaining topics.
   surfwidget](interactive-surfaces.md):
 - [Introduction to NeuroSurf Data
   Structures](introduction-to-neurosurf.md):
-- [Surfplot-style Figures with neurosurf](surfplot-style-figures.md):
+- [Publication-quality surface figures](surface-figures.md):

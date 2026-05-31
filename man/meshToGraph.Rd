@@ -87,7 +87,7 @@ cat("Number of vertices:", igraph::vcount(graph), "\n")
 cat("Number of edges:", igraph::ecount(graph), "\n")
 
 # Plot the graph if igraph is available
-if (requireNamespace("igraph", quietly = TRUE) &&
+if (interactive() && requireNamespace("igraph", quietly = TRUE) &&
     requireNamespace("rgl", quietly = TRUE)) {
   # First visualize the mesh
   rgl::open3d()

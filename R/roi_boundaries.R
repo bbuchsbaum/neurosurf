@@ -5,25 +5,35 @@
 #' parts of Stuart Oldham's \code{findROIboundaries} MATLAB function, adapted
 #' for use with neurosurf objects.
 #'
-#' Two boundary representations are currently supported:
+#' Three boundary representations are currently supported:
 #' \itemize{
+#'   \item \code{"midpoint"} (default): returns crisp single-width contour
+#'     segments that run \emph{between} differing labels, through the midpoints
+#'     of the mesh edges that separate them. This is the recommended method for
+#'     drawing clean ROI/atlas outlines: shared borders are drawn once (no
+#'     double lines) and adjacent segments join into continuous contours.
 #'   \item \code{"faces"}: returns a logical vector indicating which faces lie
 #'     on a boundary between ROIs.
 #'   \item \code{"edge_vertices"}: returns boundary polygons traced through
-#'     mesh vertices, suitable for drawing ROI outlines.
+#'     mesh vertices. Borders are traced along vertices on both sides of a
+#'     boundary, which can read as a thicker double line on coarse meshes.
 #' }
 #'
 #' @param vertices Numeric matrix of vertex coordinates (\eqn{n \times 3}).
 #' @param faces Integer matrix of face indices (\eqn{m \times 3}, 1-based).
 #' @param vertex_id Integer vector of ROI labels for each vertex (length \eqn{n}).
-#' @param boundary_method One of \code{"faces"} or \code{"edge_vertices"}.
+#' @param boundary_method One of \code{"midpoint"}, \code{"faces"}, or
+#'   \code{"edge_vertices"}.
 #' @param verbose Logical; if \code{TRUE}, print progress messages.
-#' @param use_cpp Logical; if \code{TRUE}, use optimized C++ implementation.
+#' @param use_cpp Logical; if \code{TRUE}, use optimized C++ implementation
+#'   (applies to \code{"edge_vertices"} only).
 #'
 #' @return A list with elements:
 #' \describe{
 #'   \item{\code{boundary}}{For \code{"faces"}: logical vector of length
 #'     \code{nrow(faces)} indicating boundary faces.
+#'     For \code{"midpoint"}: list of \eqn{2 \times 3} coordinate matrices, one
+#'     per contour segment.
 #'     For \code{"edge_vertices"}: list of coordinate matrices (\eqn{k \times 3})
 #'     giving boundary polygons for each connected ROI component.}
 #'   \item{\code{boundary_roi_id}}{Integer vector giving the ROI id associated
@@ -64,7 +74,7 @@
 find_roi_boundaries <- function(vertices,
                                 faces,
                                 vertex_id,
-                                boundary_method = c("faces", "edge_vertices"),
+                                boundary_method = c("midpoint", "faces", "edge_vertices"),
                                 verbose = FALSE,
                                 use_cpp = TRUE) {
   boundary_method <- match.arg(boundary_method)
@@ -100,6 +110,83 @@ find_roi_boundaries <- function(vertices,
       boundary_roi_id = NULL,
       roi_components = NULL,
       boundary_verts = NULL
+    ))
+  }
+
+  if (boundary_method == "midpoint") {
+    # midpoint method --------------------------------------------------------
+    # Draw a single crisp contour that runs *between* differing labels, along
+    # the midpoints of the edges that separate them. Each boundary face
+    # contributes one segment (two distinct labels) or three segments meeting
+    # at the face centroid (three distinct labels). Adjacent faces share an
+    # edge -- and therefore its midpoint -- so the per-face segments join up
+    # into continuous, single-width contours with no double lines.
+    L1 <- faces_roi_ids[, 1L]
+    L2 <- faces_roi_ids[, 2L]
+    L3 <- faces_roi_ids[, 3L]
+    v1 <- faces[, 1L]
+    v2 <- faces[, 2L]
+    v3 <- faces[, 3L]
+
+    M12 <- (vertices[v1, , drop = FALSE] + vertices[v2, , drop = FALSE]) / 2
+    M23 <- (vertices[v2, , drop = FALSE] + vertices[v3, , drop = FALSE]) / 2
+    M31 <- (vertices[v3, , drop = FALSE] + vertices[v1, , drop = FALSE]) / 2
+
+    d12 <- L1 != L2
+    d23 <- L2 != L3
+    d31 <- L3 != L1
+    ndiff <- d12 + d23 + d31           # 0, 2, or 3 for a triangle
+
+    two <- ndiff == 2L
+    # In a two-label face exactly one edge has equal endpoints; the "odd"
+    # vertex is the one shared by the two differing edges.
+    m_odd1 <- two & !d23               # edges (1,2) and (3,1) differ -> odd = v1
+    m_odd2 <- two & !d31               # edges (1,2) and (2,3) differ -> odd = v2
+    m_odd3 <- two & !d12               # edges (2,3) and (3,1) differ -> odd = v3
+    three <- ndiff == 3L
+
+    starts <- rbind(M12[m_odd1, , drop = FALSE],
+                    M12[m_odd2, , drop = FALSE],
+                    M23[m_odd3, , drop = FALSE])
+    ends   <- rbind(M31[m_odd1, , drop = FALSE],
+                    M23[m_odd2, , drop = FALSE],
+                    M31[m_odd3, , drop = FALSE])
+    seg_roi <- c(L1[m_odd1], L2[m_odd2], L3[m_odd3])
+    seg_vid <- c(v1[m_odd1], v2[m_odd2], v3[m_odd3])
+
+    if (any(three)) {
+      cen <- (vertices[v1[three], , drop = FALSE] +
+              vertices[v2[three], , drop = FALSE] +
+              vertices[v3[three], , drop = FALSE]) / 3
+      starts <- rbind(starts, cen, cen, cen)
+      ends   <- rbind(ends, M12[three, , drop = FALSE],
+                            M23[three, , drop = FALSE],
+                            M31[three, , drop = FALSE])
+      seg_roi <- c(seg_roi, L1[three], L2[three], L3[three])
+      seg_vid <- c(seg_vid, v1[three], v2[three], v3[three])
+    }
+
+    nseg <- nrow(starts)
+    if (is.null(nseg) || nseg == 0L) {
+      return(list(boundary = list(), boundary_roi_id = integer(0L),
+                  roi_components = integer(length(sort(unique(vertex_id)))),
+                  boundary_verts = list()))
+    }
+
+    boundary <- lapply(seq_len(nseg), function(i) {
+      rbind(starts[i, ], ends[i, ])
+    })
+    boundary_verts <- lapply(seg_vid, function(v) c(v, v))
+
+    roi_ids_all <- sort(unique(vertex_id))
+    roi_components <- tabulate(match(seg_roi, roi_ids_all),
+                               nbins = length(roi_ids_all))
+
+    return(list(
+      boundary = boundary,
+      boundary_roi_id = as.integer(seg_roi),
+      roi_components = roi_components,
+      boundary_verts = boundary_verts
     ))
   }
 
@@ -318,7 +405,8 @@ find_roi_boundaries <- function(vertices,
 #' @param x A \code{\linkS4class{NeuroSurface}} object whose \code{data} slot
 #'   contains integer ROI labels for each vertex.
 #' @param method Boundary method passed to \code{\link{find_roi_boundaries}}.
-#'   Currently one of \code{"faces"} or \code{"edge_vertices"}.
+#'   One of \code{"midpoint"} (default, crisp single-width contours),
+#'   \code{"edge_vertices"}, or \code{"faces"}.
 #' @param ... Additional arguments passed to \code{\link{find_roi_boundaries}}.
 #'
 #' @return A list as returned by \code{\link{find_roi_boundaries}}.
@@ -329,7 +417,7 @@ find_roi_boundaries <- function(vertices,
 setMethod(
   f = "findBoundaries",
   signature = "NeuroSurface",
-  definition = function(x, method = c("edge_vertices", "faces"), ...) {
+  definition = function(x, method = c("midpoint", "edge_vertices", "faces"), ...) {
     method <- match.arg(method)
 
     geom <- x@geometry

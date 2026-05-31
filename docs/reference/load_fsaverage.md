@@ -37,17 +37,10 @@ instance.
 ``` r
 # \donttest{
 fs <- load_fsaverage(density = "std.8", surf = "inflated")
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_lh.inflated.asc
-#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpFhvBlN/temp_libpathff9947c5f204/neurosurf/extdata/std.8_rh.inflated.asc
-show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
-#> Warning: no non-missing arguments to min; returning Inf
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: no non-missing arguments to min; returning Inf
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: no non-missing arguments to min; returning Inf
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: no non-missing arguments to min; returning Inf
-#> Warning: no non-missing arguments to max; returning -Inf
-
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpzRF1jx/temp_libpathf6cf495866b/neurosurf/extdata/std.8_lh.inflated.asc
+#> loading /private/var/folders/9h/nkjq6vss7mqdl4ck7q1hd8ph0000gp/T/RtmpzRF1jx/temp_libpathf6cf495866b/neurosurf/extdata/std.8_rh.inflated.asc
+if (interactive()) {
+  show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
+}
 # }
 ```

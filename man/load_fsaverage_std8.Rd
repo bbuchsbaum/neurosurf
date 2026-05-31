@@ -25,7 +25,9 @@ with neurosurf (the \code{std.8} decimated variant) and returns them as
 \examples{
 \donttest{
 fs <- load_fsaverage_std8("smoothwm")
-show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
+if (interactive()) {
+  show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
+}
 }
 
 }

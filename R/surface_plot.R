@@ -42,7 +42,9 @@ NULL
 #' @examples
 #' \donttest{
 #' geom <- example_surface_geometry()
-#' show_surface_plot(geom, data = rnorm(nrow(coords(geom))))
+#' if (interactive()) {
+#'   show_surface_plot(geom, data = rnorm(nrow(coords(geom))))
+#' }
 #' }
 #'
 #' @export
@@ -496,7 +498,9 @@ add_vector_layer <- function(x,
 #' \donttest{
 #' geom <- example_surface_geometry()
 #' p <- surface_plot(geom)
-#' rendered <- render_surface_plot(p)
+#' if (interactive()) {
+#'   rendered <- render_surface_plot(p)
+#' }
 #' }
 #'
 #' @seealso \code{\link{surface_plot}}, \code{\link{add_surface_layer}},
@@ -515,9 +519,14 @@ render_surface_plot <- function(x,
   old_useNULL <- getOption("rgl.useNULL")
   on.exit(options(rgl.useNULL = old_useNULL), add = TRUE)
 
-  # For snapshot-based offscreen renders, prefer a real context when available;
-  # rgl.snapshot on rgl.useNULL devices can return empty/black images on some builds.
-  if (offscreen) {
+  # Headless builds (e.g. knitr / pkgdown with rgl.useNULL = TRUE) cannot
+  # produce a real GL snapshot -- rgl.snapshot() returns black images. When
+  # webshot2 is available we keep the NULL device and capture the scene through
+  # it (off-screen WebGL via headless Chrome), which renders correctly. Only
+  # force a real GL context when there is no webshot2 fallback.
+  use_webshot <- offscreen && isTRUE(old_useNULL) &&
+    requireNamespace("webshot2", quietly = TRUE)
+  if (offscreen && !use_webshot) {
     options(rgl.useNULL = FALSE)
   }
 
@@ -613,7 +622,7 @@ render_surface_plot <- function(x,
         )
 
         b <- tryCatch(
-          findBoundaries(ns_obj, method = "edge_vertices"),
+          findBoundaries(ns_obj, method = "midpoint"),
           error = function(e) {
             warning("findBoundaries() failed for outline layer: ", conditionMessage(e))
             NULL
@@ -724,11 +733,33 @@ render_surface_plot <- function(x,
       tmpfile <- tempfile(fileext = ".png")
 
       # force scene update before snapshot for some drivers
-      if (exists("rgl.bringtotop", where = asNamespace("rgl"), mode = "function")) {
+      if (!use_webshot &&
+          exists("rgl.bringtotop", where = asNamespace("rgl"), mode = "function")) {
         try(rgl::rgl.bringtotop(), silent = TRUE)
       }
 
-      rgl::rgl.snapshot(filename = tmpfile)
+      # Capture the panel. webshot2 needs a headless browser, which is absent on
+      # some CI / R-universe builders; never let a missing backend abort the
+      # render -- try the chosen method, then the other, then fall back to a
+      # blank panel so the figure (and the vignette build) still completes.
+      snap_ok <- FALSE
+      if (use_webshot) {
+        snap_ok <- tryCatch({
+          rgl::snapshot3d(filename = tmpfile, webshot = TRUE)
+          file.exists(tmpfile)
+        }, error = function(e) FALSE)
+      }
+      if (!snap_ok) {
+        snap_ok <- tryCatch({
+          rgl::rgl.snapshot(filename = tmpfile)
+          file.exists(tmpfile)
+        }, error = function(e) FALSE)
+      }
+      if (!snap_ok) {
+        warning("render_surface_plot(): no working snapshot backend; ",
+                "emitting a blank panel.")
+        png::writePNG(array(1, dim = c(as.integer(h), as.integer(w), 3L)), tmpfile)
+      }
       img <- png::readPNG(tmpfile)
       unlink(tmpfile)
 
@@ -1478,21 +1509,34 @@ plot.neurosurf_plot <- function(x, ...) {
       )
     )
 
-    lay <- grid::grid.layout(
-      nrow = 3L,
+    # Stack title / gap / bar / tick-labels so the title sits clearly above the
+    # bar instead of overlapping it.
+    inner_lay <- grid::grid.layout(
+      nrow = 4L,
       ncol = 1L,
       heights = grid::unit.c(
-        bar_spacing,
-        bar_height,
-        grid::unit(1, "lines")
+        grid::unit(title_cex + 0.3, "lines"),  # title row, sized to the title
+        bar_spacing,                            # gap between title and bar
+        bar_height,                             # the colour bar
+        grid::unit(1, "lines")                  # tick labels
       )
     )
-    frame <- grid::frameGrob(layout = lay)
-    frame <- grid::placeGrob(frame, title, row = 1L, col = 1L)
-    frame <- grid::placeGrob(frame, bar,   row = 2L, col = 1L)
-    frame <- grid::placeGrob(frame, axis,  row = 3L, col = 1L)
+    inner <- grid::frameGrob(layout = inner_lay)
+    inner <- grid::placeGrob(inner, title, row = 1L, col = 1L)
+    inner <- grid::placeGrob(inner, bar,   row = 3L, col = 1L)
+    inner <- grid::placeGrob(inner, axis,  row = 4L, col = 1L)
 
-    bar_grobs[[i]] <- frame
+    # Inset the bar with horizontal margins so it does not run to the figure
+    # edge and so the end tick labels are not clipped.
+    margin <- grid::unit(2, "lines")
+    outer_lay <- grid::grid.layout(
+      nrow = 1L, ncol = 3L,
+      widths = grid::unit.c(margin, grid::unit(1, "null"), margin)
+    )
+    framed <- grid::frameGrob(layout = outer_lay)
+    framed <- grid::placeGrob(framed, inner, row = 1L, col = 2L)
+
+    bar_grobs[[i]] <- framed
   }
 
   # Stack bars vertically; location is handled at the caller level

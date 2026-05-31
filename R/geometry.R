@@ -53,7 +53,7 @@ SurfaceGeometrySource <- function(surface_name) {
 #' surf_geom <- SurfaceGeometry(vertices, faces, "lh")
 #'
 #' # Visualize the mesh if rgl is available
-#' if(requireNamespace("rgl", quietly = TRUE)) {
+#' if(interactive() && requireNamespace("rgl", quietly = TRUE)) {
 #'   rgl::open3d()
 #'   rgl::shade3d(surf_geom@mesh, col="lightblue")
 #' }
@@ -218,7 +218,7 @@ setMethod(f="curvature", signature=c(x="SurfaceGeometry"),
 #' fine_remesh <- remeshSurface(surf_geom, voxel_size = 0.2)
 #'
 #' # Visualize the meshes if rgl is available
-#' if(requireNamespace("rgl", quietly = TRUE)) {
+#' if(interactive() && requireNamespace("rgl", quietly = TRUE)) {
 #'   # Original mesh
 #'   rgl::open3d()
 #'   rgl::shade3d(surf_geom@mesh, col = "red")
@@ -340,7 +340,7 @@ remeshSurface <- function(surfgeom, voxel_size=2, ...) {
 #' cat("Number of edges:", igraph::ecount(graph), "\n")
 #'
 #' # Plot the graph if igraph is available
-#' if (requireNamespace("igraph", quietly = TRUE) &&
+#' if (interactive() && requireNamespace("igraph", quietly = TRUE) &&
 #'     requireNamespace("rgl", quietly = TRUE)) {
 #'   # First visualize the mesh
 #'   rgl::open3d()

@@ -29,7 +29,7 @@ For visualization, see the companion vignettes:
 
 - `vignette("displaying-surfaces")` for interactive 3D plots based on `plot()` and `view_surface()`.
 - `vignette("interactive-surfaces")` for HTML-widget based exploration.
-- `vignette("surfplot-style-figures")` for multi-view, publication-style layouts built with `surface_plot()` and friends.
+- `vignette("surface-figures")` for multi-view, publication-quality layouts built with `surface_plot()` and friends.
 
 ## Setup
 
@@ -111,28 +111,20 @@ show(lh_geom)
 Several methods allow you to access information within the `SurfaceGeometry` object:
 
 ```{r access-geometry}
-# Get the total number of vertices (nodes) in the geometry
-num_nodes <- length(nodes(lh_geom))
-cat("Number of vertices:", num_nodes, "\n")
+# Total number of vertices (nodes) in the geometry
+length(nodes(lh_geom))
 
-# Get the coordinates of all vertices as a matrix (N x 3)
+# Vertex coordinates as an N x 3 matrix; its dimensions and first 3 rows
 vertex_coords <- coords(lh_geom)
-cat("Dimensions of coordinate matrix:", dim(vertex_coords), "\n")
-cat("Coordinates of the first 3 vertices:\n")
-print(head(vertex_coords, 3))
+dim(vertex_coords)
+head(vertex_coords, 3)
 
-# Access the underlying igraph object
-g <- neurosurf::graph(lh_geom)
-cat("Graph summary:", "\n")
-g
+# The underlying igraph connectivity object
+neurosurf::graph(lh_geom)
 
-# Access the underlying mesh3d object
-mesh <- lh_geom@mesh
-cat("Mesh object class:", class(mesh), "\n")
-
-# Access the hemisphere label
-hemi_label <- lh_geom@hemi
-cat("Hemisphere:", hemi_label, "\n")
+# The underlying rgl mesh3d object, and the hemisphere label
+class(lh_geom@mesh)
+lh_geom@hemi
 ```
 
 ## `NeuroSurface`: Mapping Data to Geometry
@@ -192,32 +184,27 @@ lh_surf_loaded <- read_surf(surface_name = white_lh_asc,
 # Display summary of the loaded NeuroSurface
 show(lh_surf_loaded)
 
-# Verify the number of loaded data points
-cat("Number of data points loaded:", length(lh_surf_loaded@data), "\n")
-cat("Number of non-zero data points:", sum(lh_surf_loaded@data != 0), "\n") # Should match size=500
-
-# Clean up the temporary file (optional, R usually handles temp files)
-# file.remove(temp_dset_file) 
+# Number of data points loaded, and how many are non-zero (should match size = 500)
+length(lh_surf_loaded@data)
+sum(lh_surf_loaded@data != 0)
 ```
 
 ### Accessing `NeuroSurface` Properties
 
 ```{r access-neurosurface}
-# Access the geometry
-geom_from_ns <- geometry(lh_surf_data)
-cat("Is geometry the same?", identical(geom_from_ns, lh_geom), "\n")
+# The geometry can be retrieved and matches the original
+identical(geometry(lh_surf_data), lh_geom)
 
-# Access the data vector
-data_vec <- lh_surf_data@data # Direct slot access
-# Alternatively, convert to a simple vector
-data_vec_as <- as.vector(lh_surf_data)
-cat("Length of data vector:", length(data_vec), "\n")
-cat("First 5 data values:", head(data_vec, 5), "\n")
+# The data vector, via direct slot access (lh_surf_data@data) or as.vector();
+# its length and first few values
+data_vec <- lh_surf_data@data
+length(data_vec)
+head(data_vec, 5)
 
-# Access the associated indices
+# The associated vertex indices
 index_vec <- indices(lh_surf_data)
-cat("Length of index vector:", length(index_vec), "\n")
-cat("First 5 indices:", head(index_vec, 5), "\n")
+length(index_vec)
+head(index_vec, 5)
 ```
 
 ## `NeuroSurfaceVector`: Mapping Multiple Data Vectors
@@ -256,25 +243,19 @@ show(lh_surf_vec)
 ### Accessing `NeuroSurfaceVector` Properties
 
 ```{r access-neurosurfacevector}
-# Access the geometry
-geom_from_nsv <- geometry(lh_surf_vec)
-cat("Is geometry the same?", identical(geom_from_nsv, lh_geom), "\n")
+# The geometry matches the original
+identical(geometry(lh_surf_vec), lh_geom)
 
-# Access the data matrix
-data_mat <- lh_surf_vec@data # Direct slot access
-# Or convert to a standard matrix
-data_mat_std <- as.matrix(lh_surf_vec)
-cat("Dimensions of data matrix:", dim(data_mat), "\n")
+# The data matrix (sparse Matrix slot, or as.matrix()); its dimensions
+data_mat <- lh_surf_vec@data
+dim(data_mat)
 
-# Access data for specific vertices/columns using standard matrix indexing
-cat("Data for vertex 10 (all columns):\n")
-print(data_mat[10, ])
-cat("Data for column 2 (all vertices):\n")
-print(head(data_mat[, 2]))
+# Standard matrix indexing: one vertex (row), or one column across vertices
+data_mat[10, ]
+head(data_mat[, 2])
 
-# Access the associated indices
-index_vec_nsv <- indices(lh_surf_vec)
-cat("Length of index vector:", length(index_vec_nsv), "\n")
+# The associated vertex indices
+length(indices(lh_surf_vec))
 ```
 
 ## Specialized NeuroSurface Classes
@@ -293,4 +274,4 @@ Now that you understand the core data structures, explore the visualization vign
 
 - `vignette("displaying-surfaces")` — render surfaces with RGL, overlay data, and snapshot to PNG.
 - `vignette("interactive-surfaces")` — create interactive HTML widgets with `surfwidget()`.
-- `vignette("surfplot-style-figures")` — build publication-ready multi-view figures with shared colourbars and atlas outlines.
+- `vignette("surface-figures")` — build publication-quality multi-view figures with colourbars and atlas outlines.

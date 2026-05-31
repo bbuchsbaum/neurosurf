@@ -8,7 +8,7 @@ find_roi_boundaries(
   vertices,
   faces,
   vertex_id,
-  boundary_method = c("faces", "edge_vertices"),
+  boundary_method = c("midpoint", "faces", "edge_vertices"),
   verbose = FALSE,
   use_cpp = TRUE
 )
@@ -20,17 +20,21 @@ find_roi_boundaries(
 
 \item{vertex_id}{Integer vector of ROI labels for each vertex (length \eqn{n}).}
 
-\item{boundary_method}{One of \code{"faces"} or \code{"edge_vertices"}.}
+\item{boundary_method}{One of \code{"midpoint"}, \code{"faces"}, or
+\code{"edge_vertices"}.}
 
 \item{verbose}{Logical; if \code{TRUE}, print progress messages.}
 
-\item{use_cpp}{Logical; if \code{TRUE}, use optimized C++ implementation.}
+\item{use_cpp}{Logical; if \code{TRUE}, use optimized C++ implementation
+(applies to \code{"edge_vertices"} only).}
 }
 \value{
 A list with elements:
 \describe{
   \item{\code{boundary}}{For \code{"faces"}: logical vector of length
     \code{nrow(faces)} indicating boundary faces.
+    For \code{"midpoint"}: list of \eqn{2 \times 3} coordinate matrices, one
+    per contour segment.
     For \code{"edge_vertices"}: list of coordinate matrices (\eqn{k \times 3})
     giving boundary polygons for each connected ROI component.}
   \item{\code{boundary_roi_id}}{Integer vector giving the ROI id associated
@@ -49,12 +53,18 @@ parts of Stuart Oldham's \code{findROIboundaries} MATLAB function, adapted
 for use with neurosurf objects.
 }
 \details{
-Two boundary representations are currently supported:
+Three boundary representations are currently supported:
 \itemize{
+  \item \code{"midpoint"} (default): returns crisp single-width contour
+    segments that run \emph{between} differing labels, through the midpoints
+    of the mesh edges that separate them. This is the recommended method for
+    drawing clean ROI/atlas outlines: shared borders are drawn once (no
+    double lines) and adjacent segments join into continuous contours.
   \item \code{"faces"}: returns a logical vector indicating which faces lie
     on a boundary between ROIs.
   \item \code{"edge_vertices"}: returns boundary polygons traced through
-    mesh vertices, suitable for drawing ROI outlines.
+    mesh vertices. Borders are traced along vertices on both sides of a
+    boundary, which can read as a thicker double line on coarse meshes.
 }
 }
 \examples{
