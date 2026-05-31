@@ -7,6 +7,9 @@
 ## Notes
 
 * "New submission" — this is a first CRAN submission.
+* The DESCRIPTION spell-check flags "FreeSurfer", "GIFTI", "HTMLWidgets",
+  "Neuroimaging", and "neuroimaging". These are correctly spelled
+  domain and technology terms.
 
 ## Bundled files and tarball size
 
