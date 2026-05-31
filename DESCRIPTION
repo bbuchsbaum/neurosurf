@@ -38,6 +38,7 @@ Imports:
 LinkingTo: Rcpp, RcppArmadillo, roptim
 License: GPL (>= 2)
 RoxygenNote: 7.3.3
+Language: en-US
 Collate:
     'all_generic.R'
     'all_class.R'

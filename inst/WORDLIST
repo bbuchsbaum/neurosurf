@@ -4,6 +4,7 @@ Albers
 BilatNeuroSurfaceVector
 ColorMappedNeuroSurface
 Colour
+Connectome
 CoordinateSystemTransformMatrix
 FileFormat
 FreeSurfer
@@ -59,7 +60,6 @@ SurfaceGeometryMetaInfo
 SurfaceGeometrySource
 SurfaceSearchlight
 SurfaceSet
-Surfplot
 Taubin
 UI
 UMD
@@ -72,6 +72,7 @@ XYZ
 affine
 albersdown
 annot
+another's
 antialiasing
 args
 asc
@@ -102,6 +103,7 @@ foci
 fsaverage
 fundi
 gii
+grey
 gyral
 gyri
 hemi
@@ -123,7 +125,6 @@ neighbourhood
 neighbours
 nels
 neurofunctor
-neuroim
 neuroimaging
 neuromaps
 neurosurf's
@@ -151,6 +152,7 @@ roptim
 rx
 ry
 rz
+snapshotting
 specular
 standardised
 sulcal
@@ -158,7 +160,6 @@ sulci
 supersamples
 supersampling
 surfgeom
-surfplot
 surfviewjs
 surfwidget
 tkr
