@@ -745,14 +745,24 @@ setMethod(f="load_data", signature=c("GIFTISurfaceGeometryMetaInfo"),
 
 #' Load GIFTI surface geometry
 #'
-#' @param meta_info instance of type \code{GIFTISurfaceGeometryMetaInfo}
+#' Loads a GIFTI (\code{.surf.gii}) surface into a
+#' \code{\linkS4class{SurfaceGeometry}}. The usual public entry point for
+#' reading a surface from disk is \code{\link{read_surf_geometry}} /
+#' \code{\link{read_surf}}; this function is the GIFTI-specific loader it
+#' dispatches to. For convenience it also accepts a file path directly, in
+#' which case the header is read internally.
+#'
+#' @param meta_info either a \code{GIFTISurfaceGeometryMetaInfo} instance, or a
+#'   length-one character path to a \code{.surf.gii} / \code{.gii} file.
 #' @details requires rgl library
 #' @return a class of type \code{SurfaceGeometry}
 #'
 #' @examples
 #' \donttest{
-#' # Requires GIFTI surface file
-#' # meta <- read_meta_info(GIFTISurfaceFileDescriptor(), "surface.gii")
+#' # Either pass a path directly ...
+#' # geom <- loadGIFTISurface("lh.midthickness.surf.gii")
+#' # ... or go through the meta-info object:
+#' # meta <- read_meta_info(neurosurf:::GIFTI_SURFACE_DSET, "lh.midthickness.surf.gii")
 #' # geom <- loadGIFTISurface(meta)
 #' }
 #'
@@ -761,6 +771,24 @@ loadGIFTISurface <- function(meta_info) {
   if (!requireNamespace("rgl", quietly = TRUE)) {
     stop("Pkg rgl needed for this function to work. Please install it.",
          call. = FALSE)
+  }
+
+  # Convenience: accept a file path and read the header for the caller, so that
+  # loadGIFTISurface("file.gii") works as users intuitively expect.
+  if (is.character(meta_info)) {
+    if (length(meta_info) != 1L) {
+      stop("loadGIFTISurface() accepts a single file path, not a vector.",
+           call. = FALSE)
+    }
+    if (!file.exists(meta_info)) {
+      stop("GIFTI surface file not found: ", meta_info, call. = FALSE)
+    }
+    descriptor <- findSurfaceDescriptor(meta_info)
+    if (!is(descriptor, "GIFTISurfaceFileDescriptor")) {
+      stop("Not a GIFTI surface file (expected .gii / .gii.gz): ", meta_info,
+           call. = FALSE)
+    }
+    meta_info <- read_meta_info(descriptor, meta_info)
   }
 
   # The info slot contains the gifti object from readgii()
@@ -785,7 +813,52 @@ loadGIFTISurface <- function(meta_info) {
 }
 
 
+#' Recursively locate a 4x4 numeric affine matrix within a nested structure
+#'
+#' @param x an object that may be (or contain) a 4x4 numeric matrix
+#' @return a 4x4 numeric matrix, or \code{NULL} if none is found
+#' @noRd
+#' @keywords internal
+.find_4x4 <- function(x) {
+  if (is.null(x)) {
+    return(NULL)
+  }
+  if (is.matrix(x) && is.numeric(x) && nrow(x) == 4L && ncol(x) == 4L) {
+    return(x)
+  }
+  # A data.frame holding a 4x4 grid of numbers (some gifti versions parse this way)
+  if (is.data.frame(x) && nrow(x) == 4L && ncol(x) == 4L) {
+    m <- tryCatch(data.matrix(x), error = function(e) NULL)
+    if (!is.null(m) && is.numeric(m) && nrow(m) == 4L && ncol(m) == 4L) {
+      return(m)
+    }
+    return(NULL)
+  }
+  # A length-16 numeric vector (row-major affine)
+  if (is.numeric(x) && length(x) == 16L && !is.matrix(x)) {
+    return(matrix(x, nrow = 4L, ncol = 4L, byrow = TRUE))
+  }
+  if (is.list(x)) {
+    for (el in x) {
+      m <- .find_4x4(el)
+      if (!is.null(m)) {
+        return(m)
+      }
+    }
+  }
+  NULL
+}
+
 #' Extract coordinate transform from GIFTI object
+#'
+#' Pulls the surface-to-world affine (the GIFTI
+#' \code{CoordinateSystemTransformMatrix} attached to the POINTSET data array)
+#' out of the object returned by \code{gifti::readgii()}. With \code{gifti}
+#' >= 0.8 the parsed transforms live in \code{gii$parsed_transformations}
+#' (one entry per data array), while \code{gii$data_info} is a
+#' \code{data.frame} of per-array attributes rather than a list carrying the
+#' transform. Older layouts that stored \code{$trans_mat} per data array are
+#' still handled. Returns the 4x4 identity when no usable transform is present.
 #'
 #' @param gii gifti object returned by gifti::readgii()
 #' @return 4x4 affine transformation matrix (identity if not found)
@@ -795,35 +868,61 @@ loadGIFTISurface <- function(meta_info) {
   # Default to identity
   xform <- diag(4)
 
-  # The gifti package stores transform in data_info$trans_mat for each data array
+  # Identify which data array is the POINTSET so we prefer its transform.
+  # In current gifti, data_info is a data.frame with one row per data array.
+  pointset_idx <- NULL
+  di <- gii$data_info
+  if (is.data.frame(di)) {
+    if (!is.null(di$name)) {
+      hit <- which(tolower(as.character(di$name)) == "pointset")
+      if (length(hit) > 0) pointset_idx <- hit[1]
+    }
+    if (is.null(pointset_idx) && !is.null(di$Intent)) {
+      hit <- grep("POINTSET", as.character(di$Intent), ignore.case = TRUE)
+      if (length(hit) > 0) pointset_idx <- hit[1]
+    }
+  }
 
-  # We look for the pointset (NIFTI_INTENT_POINTSET) transform first
-  if (!is.null(gii$data_info)) {
-    for (i in seq_along(gii$data_info)) {
-      info <- gii$data_info[[i]]
-      # Check if this is the pointset and has a transform
-      if (!is.null(info$trans_mat) && !is.null(info$intent)) {
-        if (grepl("POINTSET|pointset", info$intent, ignore.case = TRUE)) {
-          # trans_mat should be a 4x4 matrix
-          if (is.matrix(info$trans_mat) &&
-              nrow(info$trans_mat) == 4 && ncol(info$trans_mat) == 4) {
-            xform <- info$trans_mat
-            break
-          }
-        }
+  # Prefer parsed_transformations, then the raw transformations field. Each is
+  # a list with one (possibly nested / possibly empty) entry per data array.
+  for (field in list(gii$parsed_transformations, gii$transformations)) {
+    if (is.null(field)) next
+
+    # Try the POINTSET data array's transform first.
+    if (!is.null(pointset_idx) && is.list(field) &&
+        pointset_idx <= length(field)) {
+      m <- .find_4x4(field[[pointset_idx]])
+      if (!is.null(m)) {
+        return(m)
       }
     }
 
-    # If no pointset-specific transform, check first available transform
-    if (identical(xform, diag(4))) {
-      for (i in seq_along(gii$data_info)) {
-        info <- gii$data_info[[i]]
-        if (!is.null(info$trans_mat)) {
-          if (is.matrix(info$trans_mat) &&
-              nrow(info$trans_mat) == 4 && ncol(info$trans_mat) == 4) {
-            xform <- info$trans_mat
-            break
-          }
+    # Otherwise fall back to the first usable 4x4 anywhere in the field.
+    m <- .find_4x4(field)
+    if (!is.null(m)) {
+      return(m)
+    }
+  }
+
+  # Legacy fallback: older code paths (and some test fixtures) stored the
+  # transform in a list-shaped data_info as $trans_mat per data array. Guard
+  # against the modern data.frame shape, where `$` would misbehave.
+  if (is.list(di) && !is.data.frame(di)) {
+    # Prefer a POINTSET-labelled entry, then any entry with a valid matrix.
+    for (info in di) {
+      if (is.list(info) && !is.null(info$intent) && !is.null(info$trans_mat) &&
+          grepl("POINTSET", as.character(info$intent), ignore.case = TRUE)) {
+        m <- .find_4x4(info$trans_mat)
+        if (!is.null(m)) {
+          return(m)
+        }
+      }
+    }
+    for (info in di) {
+      if (is.list(info) && !is.null(info$trans_mat)) {
+        m <- .find_4x4(info$trans_mat)
+        if (!is.null(m)) {
+          return(m)
         }
       }
     }
@@ -1109,11 +1208,13 @@ GIFTISurfaceGeometryMetaInfo <- function(descriptor, header) {
   assertthat::assert_that(length(id0) > 0, msg="gifti surface file must have pointset")
   assertthat::assert_that(length(id1) > 0, msg="gifti surface file must have triangles")
 
-  # Determine hemisphere from file name
+  # Determine hemisphere from file name. Handle both FreeSurfer-style
+  # (lh./rh.) and BIDS/TemplateFlow-style (hemi-L/hemi-R) naming.
+  bn <- basename(header$header_file)
   hemi <- "unknown"
-  if (grepl("\\.lh\\.|_lh[._]|^lh\\.", basename(header$header_file))) {
+  if (grepl("\\.lh\\.|_lh[._]|^lh\\.|hemi-L(?![a-zA-Z])|hemi-lh", bn, perl = TRUE)) {
     hemi <- "lh"
-  } else if (grepl("\\.rh\\.|_rh[._]|^rh\\.", basename(header$header_file))) {
+  } else if (grepl("\\.rh\\.|_rh[._]|^rh\\.|hemi-R(?![a-zA-Z])|hemi-rh", bn, perl = TRUE)) {
     hemi <- "rh"
   }
 
