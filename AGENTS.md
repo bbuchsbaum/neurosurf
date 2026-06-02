@@ -43,7 +43,8 @@ This project uses **beads** (`bd`) for git-backed issue tracking. See https://gi
 | `bd close <id> --reason "text"` | Close completed task |
 | `bd dep add <child> <parent>` | Add dependency |
 | `bd list --json` | List all open issues |
-| `bd sync` | Force sync to git |
+| `bd vc status` | Check Beads database version-control state |
+| `bd dolt commit -m "message"` | Commit pending Beads changes if `bd vc status` reports any |
 
 ### Critical Rules for Agents
 
@@ -55,7 +56,10 @@ This project uses **beads** (`bd`) for git-backed issue tracking. See https://gi
 
 2. **Always use `--json` flag** for programmatic access
 
-3. **Run `bd sync` after changes** to ensure immediate git sync
+3. **Check Beads state after changes** with `bd vc status`; this checkout
+   uses the embedded Dolt backend with auto-commit enabled, so the older
+   manual sync subcommand is not available. If pending Beads changes are
+   reported, run `bd dolt commit -m "message"`.
 
 ### Finding Work
 
@@ -77,7 +81,7 @@ bd stale --days 7        # Neglected tasks
 4. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
    git pull --rebase
-   bd sync
+   bd vc status
    git push
    git status  # MUST show "up to date with origin"
    ```
