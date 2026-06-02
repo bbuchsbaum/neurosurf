@@ -241,6 +241,87 @@ test_that(".extract_gifti_transform extracts valid transform", {
   expect_equal(xform, custom_xform)
 })
 
+test_that(".extract_gifti_transform handles modern gifti (data.frame data_info)", {
+  # Regression for #68: gifti >= 0.8 returns data_info as a data.frame and
+  # stores parsed transforms in $parsed_transformations. The old code did
+  # `info$trans_mat` on each column (an atomic vector), erroring with
+  # "$ operator is invalid for atomic vectors".
+  custom_xform <- matrix(c(
+    2, 0, 0, 5,
+    0, 2, 0, 6,
+    0, 0, 2, 7,
+    0, 0, 0, 1
+  ), nrow = 4, byrow = TRUE)
+
+  gii <- list(
+    data_info = data.frame(
+      Intent = c("NIFTI_INTENT_POINTSET", "NIFTI_INTENT_TRIANGLE"),
+      name = c("pointset", "triangle"),
+      Dim0 = c("10242", "20480"),
+      stringsAsFactors = FALSE
+    ),
+    # One entry per data array; pointset carries the transform, triangle none.
+    parsed_transformations = list(list(custom_xform), list())
+  )
+
+  xform <- neurosurf:::.extract_gifti_transform(gii)
+  expect_equal(xform, custom_xform)
+})
+
+test_that(".extract_gifti_transform prefers the POINTSET data array transform", {
+  pointset_xform <- diag(c(3, 3, 3, 1))
+  triangle_xform <- diag(c(9, 9, 9, 1))
+
+  gii <- list(
+    data_info = data.frame(
+      Intent = c("NIFTI_INTENT_TRIANGLE", "NIFTI_INTENT_POINTSET"),
+      name = c("triangle", "pointset"),
+      stringsAsFactors = FALSE
+    ),
+    # Note: triangle is first; the loader must still pick the pointset's matrix.
+    parsed_transformations = list(triangle_xform, pointset_xform)
+  )
+
+  xform <- neurosurf:::.extract_gifti_transform(gii)
+  expect_equal(xform, pointset_xform)
+})
+
+test_that(".extract_gifti_transform does not error on data.frame without transform", {
+  gii <- list(
+    data_info = data.frame(
+      Intent = c("NIFTI_INTENT_POINTSET", "NIFTI_INTENT_TRIANGLE"),
+      name = c("pointset", "triangle"),
+      stringsAsFactors = FALSE
+    ),
+    parsed_transformations = list(list(), list())
+  )
+
+  expect_silent(xform <- neurosurf:::.extract_gifti_transform(gii))
+  expect_equal(xform, diag(4))
+})
+
+test_that(".extract_gifti_transform falls back to raw transformations field", {
+  custom_xform <- diag(c(4, 4, 4, 1))
+  gii <- list(
+    data_info = NULL,
+    transformations = list(list(custom_xform))
+  )
+  expect_equal(neurosurf:::.extract_gifti_transform(gii), custom_xform)
+})
+
+test_that(".find_4x4 locates matrices in nested structures and rejects others", {
+  m <- diag(4)
+  expect_equal(neurosurf:::.find_4x4(m), m)
+  expect_equal(neurosurf:::.find_4x4(list(list(list(m)))), m)
+  # Length-16 row-major vector is reshaped to a 4x4 matrix
+  vec <- 1:16
+  expect_equal(neurosurf:::.find_4x4(vec),
+               matrix(vec, 4, 4, byrow = TRUE))
+  expect_null(neurosurf:::.find_4x4(NULL))
+  expect_null(neurosurf:::.find_4x4(matrix(0, 3, 3)))
+  expect_null(neurosurf:::.find_4x4("not a matrix"))
+})
+
 
 # Tests for error paths in binary reader -----------------------------------
 
@@ -336,6 +417,37 @@ test_that("readFreesurferAsciiHeader detects rh from filename", {
 
   header <- neurosurf:::readFreesurferAsciiHeader(rh_file)
   expect_equal(header$hemi, "rh")
+})
+
+test_that("GIFTISurfaceGeometryMetaInfo detects hemisphere from BIDS naming", {
+  desc <- neurosurf:::GIFTI_SURFACE_DSET
+  make_header <- function(fname) {
+    info <- list(data_info = data.frame(
+      name = c("pointset", "triangle"),
+      Dim0 = c("32492", "64980"),
+      stringsAsFactors = FALSE
+    ))
+    class(info) <- "gifti"  # info slot is typed as the S3 "gifti" class
+    list(
+      header_file = fname,
+      data_file = fname,
+      label = "midthickness",
+      info = info
+    )
+  }
+
+  meta_l <- neurosurf:::GIFTISurfaceGeometryMetaInfo(
+    desc, make_header("tpl-fsLR_den-32k_hemi-L_midthickness.surf.gii"))
+  expect_equal(meta_l@hemi, "lh")
+
+  meta_r <- neurosurf:::GIFTISurfaceGeometryMetaInfo(
+    desc, make_header("tpl-fsLR_den-32k_hemi-R_midthickness.surf.gii"))
+  expect_equal(meta_r@hemi, "rh")
+
+  # FreeSurfer-style naming still works
+  meta_fs <- neurosurf:::GIFTISurfaceGeometryMetaInfo(
+    desc, make_header("lh.white.surf.gii"))
+  expect_equal(meta_fs@hemi, "lh")
 })
 
 

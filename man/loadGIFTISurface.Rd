@@ -7,21 +7,29 @@
 loadGIFTISurface(meta_info)
 }
 \arguments{
-\item{meta_info}{instance of type \code{GIFTISurfaceGeometryMetaInfo}}
+\item{meta_info}{either a \code{GIFTISurfaceGeometryMetaInfo} instance, or a
+length-one character path to a \code{.surf.gii} / \code{.gii} file.}
 }
 \value{
 a class of type \code{SurfaceGeometry}
 }
 \description{
-Load GIFTI surface geometry
+Loads a GIFTI (\code{.surf.gii}) surface into a
+\code{\linkS4class{SurfaceGeometry}}. The usual public entry point for
+reading a surface from disk is \code{\link{read_surf_geometry}} /
+\code{\link{read_surf}}; this function is the GIFTI-specific loader it
+dispatches to. For convenience it also accepts a file path directly, in
+which case the header is read internally.
 }
 \details{
 requires rgl library
 }
 \examples{
 \donttest{
-# Requires GIFTI surface file
-# meta <- read_meta_info(GIFTISurfaceFileDescriptor(), "surface.gii")
+# Either pass a path directly ...
+# geom <- loadGIFTISurface("lh.midthickness.surf.gii")
+# ... or go through the meta-info object:
+# meta <- read_meta_info(neurosurf:::GIFTI_SURFACE_DSET, "lh.midthickness.surf.gii")
 # geom <- loadGIFTISurface(meta)
 }
 
