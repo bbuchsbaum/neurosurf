@@ -1,0 +1,97 @@
+# Create a SurfaceGeometry Object
+
+This function creates a new SurfaceGeometry object from vertex
+coordinates and face indices.
+
+## Usage
+
+``` r
+SurfaceGeometry(
+  vert,
+  faces,
+  hemi,
+  label = NA_character_,
+  surf_to_world = diag(4)
+)
+```
+
+## Arguments
+
+- vert:
+
+  A numeric matrix with 3 columns representing the x, y, and z
+  coordinates of vertices.
+
+- faces:
+
+  An integer matrix where each row represents a face, containing indices
+  of vertices that form the face.
+
+- hemi:
+
+  A character string indicating the hemisphere ("lh" for left, "rh" for
+  right, or other identifier).
+
+- label:
+
+  Optional character string describing the surface type (e.g., "pial",
+  "white", "inflated", "sphere").
+
+- surf_to_world:
+
+  Optional 4x4 affine transformation matrix from surface coordinates to
+  world (scanner RAS) coordinates. Defaults to identity matrix. This
+  transform handles coordinate system conventions (e.g., RAS vs LPI) and
+  reference space alignment (e.g., MNI305 vs MNI152).
+
+## Value
+
+A new object of class "SurfaceGeometry" containing:
+
+- mesh:
+
+  An rgl mesh object representing the surface.
+
+- graph:
+
+  An igraph object representing the mesh connectivity.
+
+- hemi:
+
+  The hemisphere identifier.
+
+- surf_to_world:
+
+  The 4x4 affine transformation matrix.
+
+## Details
+
+This function constructs a SurfaceGeometry object by creating a mesh and
+a graph representation of the surface. It uses the rgl package for 3D
+visualization and the igraph package for graph operations.
+
+The vertex indices in the faces matrix should be 0-based (starting from
+0), as they get incremented by 1 when passed to the rgl mesh function.
+
+## Examples
+
+``` r
+# \donttest{
+# Create a simple icosahedron-like mesh with 12 vertices
+set.seed(123)
+vertices <- matrix(rnorm(36), ncol=3)
+
+# Create faces with 0-based indices (0 to 11)
+# Each face connects three vertices
+faces <- matrix(sample(0:11, 60, replace=TRUE), ncol=3)
+
+# Create the SurfaceGeometry object
+surf_geom <- SurfaceGeometry(vertices, faces, "lh")
+
+# Visualize the mesh if rgl is available
+if(interactive() && requireNamespace("rgl", quietly = TRUE)) {
+  rgl::open3d()
+  rgl::shade3d(surf_geom@mesh, col="lightblue")
+}
+# }
+```
