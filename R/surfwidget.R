@@ -32,7 +32,7 @@
 #'   Unknown elements in \code{config} are ignored with a warning.
 #'
 #' @import htmlwidgets
-#' @importFrom grDevices col2rgb rgb rainbow
+#' @importFrom grDevices col2rgb rgb rainbow colorRampPalette
 #'
 #' @return An HTMLWidget object
 #'
@@ -45,7 +45,7 @@
 #' @rdname surfwidget-methods
 #' @export
 setMethod("surfwidget", signature(x = "SurfaceGeometry"),
-  function(x, width = NULL, height = NULL, data = NULL, cmap = grDevices::rainbow(256),
+  function(x, width = NULL, height = NULL, data = NULL, cmap = jet_colors(256),
            irange = NULL, thresh = c(0,0), vertexColors = NULL, alpha = 1,
            curvature = NULL, colorbar = TRUE, colorbar_label = NULL,
            layers = NULL, config = list(), ...) {
@@ -73,7 +73,7 @@ setMethod("surfwidget", signature(x = "SurfaceGeometry"),
 #' @rdname surfwidget-methods
 #' @export
 setMethod("surfwidget", signature(x = "NeuroSurface"),
-  function(x, width = NULL, height = NULL, cmap = grDevices::rainbow(256),
+  function(x, width = NULL, height = NULL, cmap = jet_colors(256),
            irange = range(x@data), thresh = c(0,0), vertexColors = NULL,
            alpha = 1, curvature = NULL, colorbar = TRUE,
            colorbar_label = NULL, layers = NULL,
@@ -152,6 +152,22 @@ setMethod("plot_js", signature(x = "SurfaceGeometry"),
     surfwidget(x, width = width, height = height, ...)
   }
 )
+
+# Default "jet" colormap for surfwidget data overlays.
+#
+# Matches the "jet" preset rendered by the surfviewjs viewer bundle (the same
+# anchor colors used by the JavaScript `colormap` package), so the surface,
+# the colorbar, and the viewer's built-in "jet" preset all agree. Previously
+# the default was `grDevices::rainbow()`, an HSV hue wheel that did not match
+# the viewer's "jet" control label.
+#' @noRd
+#' @keywords internal
+jet_colors <- function(n = 256) {
+  grDevices::colorRampPalette(c(
+    "#00007F", "#0000FF", "#007FFF", "#00FFFF",
+    "#7FFF7F", "#FFFF00", "#FF7F00", "#FF0000", "#7F0000"
+  ))(n)
+}
 
 # Helper function to prepare surface data
 #' @noRd
