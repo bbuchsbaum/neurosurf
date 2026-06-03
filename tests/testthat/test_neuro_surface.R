@@ -402,6 +402,59 @@ test_that("NeuroSurfaceVector [,] full extraction works", {
   expect_equal(dim(full), c(n_verts, n_cols))
 })
 
+# BilatNeuroSurfaceVector Tests ----------------------------------------------
+
+# Helper: build a BilatNeuroSurfaceVector with `n_cols` columns per hemisphere.
+make_bilat <- function(n_cols) {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  left_geom <- geom
+  left_geom@hemi <- "left"
+  right_geom <- geom
+  right_geom@hemi <- "right"
+  support <- seq_len(n_verts)
+
+  left <- NeuroSurfaceVector(
+    left_geom, support,
+    matrix(seq_len(n_verts * n_cols), nrow = n_verts, ncol = n_cols)
+  )
+  right <- NeuroSurfaceVector(
+    right_geom, support,
+    matrix(seq_len(n_verts * n_cols) + 1000, nrow = n_verts, ncol = n_cols)
+  )
+  methods::new("BilatNeuroSurfaceVector", left = left, right = right)
+}
+
+test_that("as.matrix works for single-column BilatNeuroSurfaceVector (GH #70)", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  bilat <- make_bilat(1L)
+
+  # Single-column case used to error with "invalid 'times' argument" because
+  # `[` dropped the 1-column Matrix to a vector.
+  m <- expect_no_error(as.matrix(bilat))
+  expect_true(is.matrix(m))
+  # Hemispheres are stacked by row, one column preserved.
+  expect_equal(dim(m), c(2 * n_verts, 1))
+  expect_equal(m[seq_len(n_verts), 1], as.numeric(seq_len(n_verts)))
+  expect_equal(m[n_verts + seq_len(n_verts), 1], as.numeric(seq_len(n_verts) + 1000))
+
+  # Attributes are well-formed and consistent with the row count.
+  expect_equal(attr(m, "hemi"), c(rep(1, n_verts), rep(2, n_verts)))
+  expect_equal(nrow(attr(m, "coords")), 2 * n_verts)
+  expect_length(attr(m, "indices"), 2 * n_verts)
+})
+
+test_that("as.matrix preserves orientation for multi-column BilatNeuroSurfaceVector", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  bilat <- make_bilat(5L)
+
+  m <- as.matrix(bilat)
+  expect_equal(dim(m), c(2 * n_verts, 5))
+  expect_equal(attr(m, "hemi"), c(rep(1, n_verts), rep(2, n_verts)))
+})
+
 # ColorMappedNeuroSurface Tests ----------------------------------------------
 
 test_that("ColorMappedNeuroSurface constructor works", {

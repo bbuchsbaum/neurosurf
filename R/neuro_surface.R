@@ -810,8 +810,11 @@ setMethod(f="[", signature=signature(x = "NeuroSurfaceVector", i = "missing", j 
 #' @export
 setAs(from="BilatNeuroSurfaceVector", to="matrix",
       def=function(from) {
-        mat1 <- left(from)[]
-        mat2 <- right(from)[]
+        # Use as.matrix() rather than `[` so single-column hemispheres stay
+        # matrices: `[` drops a 1-column Matrix to a vector, which both gives
+        # the wrong orientation under rbind() and makes nrow() NULL (GH #70).
+        mat1 <- as.matrix(left(from))
+        mat2 <- as.matrix(right(from))
         out <- rbind(mat1,mat2)
         attr(out, "coords") <- rbind(coords(left(from)), coords(right(from)))
         attr(out, "indices") <- c(indices(left(from)), indices(right(from)))
