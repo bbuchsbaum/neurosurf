@@ -424,9 +424,13 @@ view_surface <- function(surfgeom, vals=NA,
     )
   }
 
+  maps_vals <- is.null(vert_clrs) && is.numeric(vals_use) &&
+    any(!is.na(vals_use))
   if (is.null(irange) || any(!is.finite(irange))) {
-    irange <- range(vals_use, na.rm = TRUE)
-    if (!all(is.finite(irange))) {
+    if (maps_vals) {
+      finite_vals <- vals_use[is.finite(vals_use)]
+      irange <- if (length(finite_vals)) range(finite_vals) else c(0, 1)
+    } else {
       irange <- c(0, 1)
     }
   }
@@ -445,7 +449,7 @@ view_surface <- function(surfgeom, vals=NA,
     }
   }
 
-  if (is.numeric(vals_use) && any(!is.na(vals_use)) && is.null(vert_clrs)) {
+  if (maps_vals) {
     fg_layer <- colorplane::IntensityColorPlane(vals_use, cmap, alpha=1)
     fg_clrs <- colorplane::map_colors(fg_layer, alpha=alpha, threshold=thresh, irange=irange)
     combined <- colorplane::blend_colors(bg_layer, fg_clrs, alpha=alpha)

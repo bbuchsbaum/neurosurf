@@ -11,9 +11,14 @@ show_surface_plot(
   views = c("lateral", "medial"),
   layout = c("grid", "row", "column"),
   cmap = "viridis",
+  irange = NULL,
   color_range = NULL,
+  thresh = NULL,
   show_colorbar = TRUE,
   outline = FALSE,
+  file = NULL,
+  width = 1200,
+  height = 900,
   ...
 )
 }
@@ -34,14 +39,26 @@ controlling how views and hemispheres are arranged.}
 
 \item{cmap}{Character string naming a colour map for the data layer.}
 
+\item{irange}{Optional numeric vector of length 2 giving the minimum and
+maximum values for the colour scale. Alias for \code{color_range}.}
+
 \item{color_range}{Optional numeric vector of length 2 giving the minimum
 and maximum values for the colour scale.}
+
+\item{thresh}{Optional numeric threshold band. A length-2 value is passed to
+the colour mapper as \code{c(lower, upper)}; a scalar is treated as a
+symmetric band around zero.}
 
 \item{show_colorbar}{Logical; if \code{TRUE}, draw a colour bar for the data
 layer.}
 
 \item{outline}{Logical; if \code{TRUE}, the supplied \code{data} are treated
 as ROI labels and boundaries are drawn instead of a filled map.}
+
+\item{file}{Optional PNG output path. If supplied, the plot is drawn to this
+file instead of the active graphics device.}
+
+\item{width, height}{Pixel dimensions used when \code{file} is supplied.}
 
 \item{...}{Additional arguments passed through to \code{\link{add_surface_layer}}
 (for example \code{alpha}, \code{outline_col}, \code{outline_lwd}).}

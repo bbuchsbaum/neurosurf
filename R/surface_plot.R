@@ -27,12 +27,20 @@ NULL
 #' @param layout One of \code{"grid"}, \code{"row"}, or \code{"column"}
 #'   controlling how views and hemispheres are arranged.
 #' @param cmap Character string naming a colour map for the data layer.
+#' @param irange Optional numeric vector of length 2 giving the minimum and
+#'   maximum values for the colour scale. Alias for \code{color_range}.
 #' @param color_range Optional numeric vector of length 2 giving the minimum
 #'   and maximum values for the colour scale.
+#' @param thresh Optional numeric threshold band. A length-2 value is passed to
+#'   the colour mapper as \code{c(lower, upper)}; a scalar is treated as a
+#'   symmetric band around zero.
 #' @param show_colorbar Logical; if \code{TRUE}, draw a colour bar for the data
 #'   layer.
 #' @param outline Logical; if \code{TRUE}, the supplied \code{data} are treated
 #'   as ROI labels and boundaries are drawn instead of a filled map.
+#' @param file Optional PNG output path. If supplied, the plot is drawn to this
+#'   file instead of the active graphics device.
+#' @param width,height Pixel dimensions used when \code{file} is supplied.
 #' @param ... Additional arguments passed through to \code{\link{add_surface_layer}}
 #'   (for example \code{alpha}, \code{outline_col}, \code{outline_lwd}).
 #'
@@ -54,9 +62,14 @@ show_surface_plot <- function(lh,
                               views = c("lateral", "medial"),
                               layout = c("grid", "row", "column"),
                               cmap = "viridis",
+                              irange = NULL,
                               color_range = NULL,
+                              thresh = NULL,
                               show_colorbar = TRUE,
                               outline = FALSE,
+                              file = NULL,
+                              width = 1200,
+                              height = 900,
                               ...) {
   p <- surface_plot(lh = lh,
                     rh = rh,
@@ -64,17 +77,27 @@ show_surface_plot <- function(lh,
                     layout = layout)
 
   if (!is.null(data)) {
-    p <- add_surface_layer(
-      p,
+    layer_args <- list(
+      x = p,
       data = data,
-      cmap = cmap,
+      irange = irange,
       color_range = color_range,
+      thresh = thresh,
       show_colorbar = show_colorbar && !outline,
       as_outline = outline,
       ...
     )
+    if (!missing(cmap)) {
+      layer_args$cmap <- cmap
+    }
+    p <- do.call(add_surface_layer, layer_args)
   }
 
+  if (!is.null(file)) {
+    dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
+    grDevices::png(filename = file, width = width, height = height)
+    on.exit(grDevices::dev.off(), add = TRUE)
+  }
   plot(p)
   invisible(p)
 }
@@ -253,9 +276,14 @@ surface_plot <- function(lh,
 #' @param cmap Character string naming a colour map. The value is passed
 #'   through to \code{\link{colorRampPalette}} to generate colours.
 #' @param alpha Numeric in \eqn{[0,1]} controlling layer opacity.
+#' @param irange Optional numeric vector of length 2 giving the minimum and
+#'   maximum data values to map to the colour scale. Alias for
+#'   \code{color_range}.
 #' @param color_range Optional numeric vector of length 2 giving the minimum
 #'   and maximum data values to map to the colour scale. If \code{NULL}, the
 #'   range of \code{data} (ignoring \code{NA}) is used.
+#' @param thresh Optional numeric threshold band passed to the colour mapper.
+#'   A scalar is expanded to \code{c(-abs(thresh), abs(thresh))}.
 #' @param vertices Optional vector or list of vertex ids corresponding to the
 #'   supplied \code{data} when it is defined on a subset of vertices. Use a list
 #'   with elements \code{left}/\code{right} for hemisphere-specific subsets.
@@ -316,7 +344,9 @@ add_surface_layer <- function(x,
                               data,
                               cmap = "viridis",
                               alpha = 1,
+                              irange = NULL,
                               color_range = NULL,
+                              thresh = NULL,
                               vertices = NULL,
                               smoothing = c("auto", "nearest"),
                               smoothing_steps = 20,
@@ -337,6 +367,31 @@ add_surface_layer <- function(x,
   hemi <- match.arg(hemi)
   smoothing <- match.arg(smoothing)
   outline_lty <- match.arg(outline_lty)
+
+  cm_surface <- .ns_first_color_mapped_surface(data)
+  if (!is.null(cm_surface)) {
+    if (missing(cmap)) {
+      cmap <- cm_surface@cmap
+    }
+    if (is.null(irange) && is.null(color_range)) {
+      irange <- cm_surface@irange
+    }
+    if (is.null(thresh)) {
+      thresh <- cm_surface@thresh
+    }
+  }
+
+  if (!is.null(irange)) {
+    if (!is.null(color_range) && !isTRUE(all.equal(color_range, irange))) {
+      stop("Specify only one of 'irange' and 'color_range'.")
+    }
+    color_range <- irange
+  }
+  thresh <- .ns_normalize_thresh(thresh)
+
+  if (is.null(vertices)) {
+    vertices <- .ns_layer_data_vertices(data)
+  }
 
   split_data <- .ns_split_layer_data(
     surfaces = x$surfaces,
@@ -372,6 +427,7 @@ add_surface_layer <- function(x,
     cmap = cmap,
     alpha = alpha,
     color_range = color_range,
+    thresh = thresh,
     vertices = split_vertices,
     smoothing = smoothing,
     smoothing_steps = smoothing_steps,
@@ -1074,8 +1130,13 @@ plot.neurosurf_plot <- function(x, ...) {
 }
 
 .ns_split_layer_data <- function(surfaces, data, hemi, allow_partial = FALSE) {
+  if (.ns_is_layer_surface_data(data)) {
+    data <- values(data)
+  }
+
   if (is.list(data)) {
-    out <- list(left = data$left, right = data$right)
+    out <- list(left = .ns_layer_data_values(data$left),
+                right = .ns_layer_data_values(data$right))
     return(out)
   }
 
@@ -1110,6 +1171,83 @@ plot.neurosurf_plot <- function(x, ...) {
   }
 
   list(left = left_vals, right = right_vals)
+}
+
+.ns_is_layer_surface_data <- function(x) {
+  isS4(x) && methods::is(x, "NeuroSurface")
+}
+
+.ns_is_color_mapped_surface <- function(x) {
+  isS4(x) && methods::is(x, "ColorMappedNeuroSurface")
+}
+
+.ns_layer_data_values <- function(x) {
+  if (.ns_is_layer_surface_data(x)) {
+    values(x)
+  } else {
+    x
+  }
+}
+
+.ns_layer_data_vertices <- function(data) {
+  if (.ns_is_layer_surface_data(data)) {
+    return(indices(data))
+  }
+  if (!is.list(data)) {
+    return(NULL)
+  }
+
+  out <- list(
+    left = if (.ns_is_layer_surface_data(data$left)) {
+      indices(data$left)
+    } else {
+      NULL
+    },
+    right = if (.ns_is_layer_surface_data(data$right)) {
+      indices(data$right)
+    } else {
+      NULL
+    }
+  )
+  if (is.null(out$left) && is.null(out$right)) {
+    NULL
+  } else {
+    out
+  }
+}
+
+.ns_first_color_mapped_surface <- function(data) {
+  if (.ns_is_color_mapped_surface(data)) {
+    return(data)
+  }
+  if (!is.list(data)) {
+    return(NULL)
+  }
+  for (x in data) {
+    if (.ns_is_color_mapped_surface(x)) {
+      return(x)
+    }
+  }
+  NULL
+}
+
+.ns_normalize_thresh <- function(thresh) {
+  if (is.null(thresh)) {
+    return(NULL)
+  }
+  if (!is.numeric(thresh) || length(thresh) < 1L || length(thresh) > 2L) {
+    stop("'thresh' must be a numeric scalar or length-2 vector.")
+  }
+  if (any(is.na(thresh))) {
+    stop("'thresh' values must not be NA.")
+  }
+  if (length(thresh) == 1L) {
+    thresh <- c(-abs(thresh), abs(thresh))
+  }
+  if (thresh[1L] > thresh[2L]) {
+    stop("'thresh[1]' must be less than or equal to 'thresh[2]'.")
+  }
+  thresh
 }
 
 .ns_split_vertices <- function(surfaces, vertices, hemi, allow_partial = FALSE) {
@@ -1373,7 +1511,7 @@ plot.neurosurf_plot <- function(x, ...) {
     fg_clrs <- colorplane::map_colors(
       fg_plane,
       alpha = layer$alpha,
-      threshold = NULL,
+      threshold = layer$thresh,
       irange = layer$color_range
     )
 

@@ -87,6 +87,31 @@ test_that("add_surface_layer with color_range", {
   expect_equal(p$layers[[1]]$color_range, c(-2, 2))
 })
 
+test_that("add_surface_layer accepts irange alias and threshold band", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  data <- rnorm(n_verts)
+
+  p <- surface_plot(geom)
+  p <- add_surface_layer(p, data = data, irange = c(-3, 3), thresh = 2)
+
+  expect_equal(p$layers[[1]]$color_range, c(-3, 3))
+  expect_equal(p$layers[[1]]$thresh, c(-2, 2))
+})
+
+test_that("add_surface_layer accepts NeuroSurface data directly", {
+  geom <- example_surface_geometry()
+  n_verts <- nrow(coords(geom))
+  data <- rnorm(n_verts)
+  ns <- NeuroSurface(geom, indices = seq_len(n_verts), data = data)
+
+  p <- surface_plot(geom)
+  p <- add_surface_layer(p, data = ns)
+
+  expect_equal(p$layers[[1]]$data$left, data)
+  expect_equal(p$layers[[1]]$vertices$left, seq_len(n_verts))
+})
+
 test_that("add_surface_layer as outline", {
   geom <- example_surface_geometry()
   n_verts <- nrow(coords(geom))
@@ -417,6 +442,36 @@ test_that(".ns_compute_vertex_colors applies layer colors", {
   expect_true(all(grepl("^#", result)))
 })
 
+test_that("view_surface does not warn on explicit vertex colors without vals", {
+  skip_if_not_installed("rgl")
+
+  geom <- example_surface_geometry()
+  n <- nrow(coords(geom))
+  old_null <- getOption("rgl.useNULL")
+  options(rgl.useNULL = TRUE)
+  on.exit(options(rgl.useNULL = old_null), add = TRUE)
+
+  rgl::open3d()
+  on.exit(try(rgl::close3d(), silent = TRUE), add = TRUE)
+
+  warnings_seen <- character()
+  withCallingHandlers(
+    view_surface(
+      geom,
+      vals = NA,
+      vert_clrs = rep("#FFFFFF", n),
+      bgcol = NA,
+      new_window = FALSE
+    ),
+    warning = function(w) {
+      warnings_seen <<- c(warnings_seen, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+
+  expect_false(any(grepl("no non-missing arguments", warnings_seen)))
+})
+
 # Tests for .ns_vertex_normals
 test_that(".ns_vertex_normals computes vertex normals", {
   geom <- example_surface_geometry()
@@ -474,6 +529,33 @@ test_that("show_surface_plot creates plot object", {
   result <- show_surface_plot(geom, data = rnorm(n))
   expect_s3_class(result, "neurosurf_plot")
   expect_length(result$layers, 1)
+})
+
+test_that("show_surface_plot can draw to a PNG file", {
+  skip_if_not_installed("grid")
+  skip_if_not(capabilities("png"), "PNG device unavailable")
+
+  geom <- example_surface_geometry()
+  n <- nrow(coords(geom))
+  out <- tempfile(fileext = ".png")
+
+  result <- testthat::with_mocked_bindings(
+    draw_surface_plot = function(...) grid::nullGrob(),
+    show_surface_plot(
+      geom,
+      data = rnorm(n),
+      file = out,
+      width = 64,
+      height = 64,
+      thresh = 1,
+      irange = c(-2, 2)
+    )
+  )
+
+  expect_s3_class(result, "neurosurf_plot")
+  expect_true(file.exists(out))
+  expect_equal(result$layers[[1]]$thresh, c(-1, 1))
+  expect_equal(result$layers[[1]]$color_range, c(-2, 2))
 })
 
 # Tests for surface_plot bilateral

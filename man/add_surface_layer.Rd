@@ -9,7 +9,9 @@ add_surface_layer(
   data,
   cmap = "viridis",
   alpha = 1,
+  irange = NULL,
   color_range = NULL,
+  thresh = NULL,
   vertices = NULL,
   smoothing = c("auto", "nearest"),
   smoothing_steps = 20,
@@ -42,9 +44,16 @@ through to \code{\link{colorRampPalette}} to generate colours.}
 
 \item{alpha}{Numeric in \eqn{[0,1]} controlling layer opacity.}
 
+\item{irange}{Optional numeric vector of length 2 giving the minimum and
+maximum data values to map to the colour scale. Alias for
+\code{color_range}.}
+
 \item{color_range}{Optional numeric vector of length 2 giving the minimum
 and maximum data values to map to the colour scale. If \code{NULL}, the
 range of \code{data} (ignoring \code{NA}) is used.}
+
+\item{thresh}{Optional numeric threshold band passed to the colour mapper.
+A scalar is expanded to \code{c(-abs(thresh), abs(thresh))}.}
 
 \item{vertices}{Optional vector or list of vertex ids corresponding to the
 supplied \code{data} when it is defined on a subset of vertices. Use a list
