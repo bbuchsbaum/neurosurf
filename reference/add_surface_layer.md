@@ -10,7 +10,9 @@ add_surface_layer(
   data,
   cmap = "viridis",
   alpha = 1,
+  irange = NULL,
   color_range = NULL,
+  thresh = NULL,
   vertices = NULL,
   smoothing = c("auto", "nearest"),
   smoothing_steps = 20,
@@ -54,11 +56,21 @@ add_surface_layer(
 
   Numeric in \\\[0,1\]\\ controlling layer opacity.
 
+- irange:
+
+  Optional numeric vector of length 2 giving the minimum and maximum
+  data values to map to the colour scale. Alias for `color_range`.
+
 - color_range:
 
   Optional numeric vector of length 2 giving the minimum and maximum
   data values to map to the colour scale. If `NULL`, the range of `data`
   (ignoring `NA`) is used.
+
+- thresh:
+
+  Optional numeric threshold band passed to the colour mapper. A scalar
+  is expanded to `c(-abs(thresh), abs(thresh))`.
 
 - vertices:
 

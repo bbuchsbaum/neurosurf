@@ -17,9 +17,14 @@ show_surface_plot(
   views = c("lateral", "medial"),
   layout = c("grid", "row", "column"),
   cmap = "viridis",
+  irange = NULL,
   color_range = NULL,
+  thresh = NULL,
   show_colorbar = TRUE,
   outline = FALSE,
+  file = NULL,
+  width = 1200,
+  height = 900,
   ...
 )
 ```
@@ -54,10 +59,21 @@ show_surface_plot(
 
   Character string naming a colour map for the data layer.
 
+- irange:
+
+  Optional numeric vector of length 2 giving the minimum and maximum
+  values for the colour scale. Alias for `color_range`.
+
 - color_range:
 
   Optional numeric vector of length 2 giving the minimum and maximum
   values for the colour scale.
+
+- thresh:
+
+  Optional numeric threshold band. A length-2 value is passed to the
+  colour mapper as `c(lower, upper)`; a scalar is treated as a symmetric
+  band around zero.
 
 - show_colorbar:
 
@@ -67,6 +83,15 @@ show_surface_plot(
 
   Logical; if `TRUE`, the supplied `data` are treated as ROI labels and
   boundaries are drawn instead of a filled map.
+
+- file:
+
+  Optional PNG output path. If supplied, the plot is drawn to this file
+  instead of the active graphics device.
+
+- width, height:
+
+  Pixel dimensions used when `file` is supplied.
 
 - ...:
 

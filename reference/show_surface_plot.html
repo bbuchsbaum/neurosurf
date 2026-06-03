@@ -59,9 +59,14 @@ It is intended for quick inspection and simple publication-style plots.</p>
 <span>  views <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lateral"</span>, <span class="st">"medial"</span><span class="op">)</span>,</span>
 <span>  layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grid"</span>, <span class="st">"row"</span>, <span class="st">"column"</span><span class="op">)</span>,</span>
 <span>  cmap <span class="op">=</span> <span class="st">"viridis"</span>,</span>
+<span>  irange <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  color_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  thresh <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_colorbar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  outline <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  file <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  width <span class="op">=</span> <span class="fl">1200</span>,</span>
+<span>  height <span class="op">=</span> <span class="fl">900</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -96,9 +101,20 @@ controlling how views and hemispheres are arranged.</p></dd>
 <dd><p>Character string naming a colour map for the data layer.</p></dd>
 
 
+<dt id="arg-irange">irange<a class="anchor" aria-label="anchor" href="#arg-irange"></a></dt>
+<dd><p>Optional numeric vector of length 2 giving the minimum and
+maximum values for the colour scale. Alias for <code>color_range</code>.</p></dd>
+
+
 <dt id="arg-color-range">color_range<a class="anchor" aria-label="anchor" href="#arg-color-range"></a></dt>
 <dd><p>Optional numeric vector of length 2 giving the minimum
 and maximum values for the colour scale.</p></dd>
+
+
+<dt id="arg-thresh">thresh<a class="anchor" aria-label="anchor" href="#arg-thresh"></a></dt>
+<dd><p>Optional numeric threshold band. A length-2 value is passed to
+the colour mapper as <code>c(lower, upper)</code>; a scalar is treated as a
+symmetric band around zero.</p></dd>
 
 
 <dt id="arg-show-colorbar">show_colorbar<a class="anchor" aria-label="anchor" href="#arg-show-colorbar"></a></dt>
@@ -109,6 +125,15 @@ layer.</p></dd>
 <dt id="arg-outline">outline<a class="anchor" aria-label="anchor" href="#arg-outline"></a></dt>
 <dd><p>Logical; if <code>TRUE</code>, the supplied <code>data</code> are treated
 as ROI labels and boundaries are drawn instead of a filled map.</p></dd>
+
+
+<dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
+<dd><p>Optional PNG output path. If supplied, the plot is drawn to this
+file instead of the active graphics device.</p></dd>
+
+
+<dt id="arg-width-height">width, height<a class="anchor" aria-label="anchor" href="#arg-width-height"></a></dt>
+<dd><p>Pixel dimensions used when <code>file</code> is supplied.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
