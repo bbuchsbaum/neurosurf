@@ -13,6 +13,10 @@ inst/htmlwidgets/lib/neurosurface/neurosurface.umd.js.map
 /doc/
 /Meta/
 
+# pkgdown site is built and deployed to the gh-pages branch by CI
+# (.github/workflows/pkgdown.yaml); no need to track generated output.
+/docs/
+
 # Large test data files (available via neurosurf_download_testdata())
 inst/extdata/*.niml.dset
 inst/extdata/*.BRIK*
