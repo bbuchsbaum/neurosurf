@@ -1,2 +1,5 @@
 *.html
 *.R
+# albers-header.html is a required vignette build input (referenced via
+# rmarkdown includes:in_header), not knitted output — keep it tracked.
+!albers-header.html
