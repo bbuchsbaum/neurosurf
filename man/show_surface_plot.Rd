@@ -16,6 +16,10 @@ show_surface_plot(
   thresh = NULL,
   show_colorbar = TRUE,
   outline = FALSE,
+  background = "white",
+  zoom = 2,
+  margin = 0.03,
+  trim = FALSE,
   file = NULL,
   width = 1200,
   height = 900,
@@ -37,7 +41,10 @@ See \code{\link{surface_plot}} for valid values.}
 \item{layout}{One of \code{"grid"}, \code{"row"}, or \code{"column"}
 controlling how views and hemispheres are arranged.}
 
-\item{cmap}{Character string naming a colour map for the data layer.}
+\item{cmap}{Colour map for the data layer: either a vector of colours or a
+single palette name understood by \code{\link[grDevices]{hcl.colors}} (for
+example \code{"viridis"}, \code{"inferno"}, \code{"magma"}). See
+\code{\link{add_surface_layer}}.}
 
 \item{irange}{Optional numeric vector of length 2 giving the minimum and
 maximum values for the colour scale. Alias for \code{color_range}.}
@@ -55,13 +62,33 @@ layer.}
 \item{outline}{Logical; if \code{TRUE}, the supplied \code{data} are treated
 as ROI labels and boundaries are drawn instead of a filled map.}
 
+\item{background}{Background colour for the figure (also used as the PNG
+canvas colour and for background-aware cropping). Defaults to
+\code{"white"}; any solid colour such as \code{"#222222"} works.}
+
+\item{zoom}{Numeric camera zoom passed to \code{\link{surface_plot}}. Because
+panels are auto-cropped to their content, \code{zoom} does not change how
+much of each panel the brain fills; use \code{margin} to control whitespace.}
+
+\item{margin}{Fraction of background kept around each cropped brain (default
+\code{0.03}); smaller values pack the brains more tightly.}
+
+\item{trim}{Logical; if \code{TRUE} and \code{file} is supplied, crop the
+uniform-background border from the saved PNG so the brains fill the image
+(native equivalent of ImageMagick \code{-trim}). The output dimensions
+become the content bounding box, so \code{width}/\code{height} act as an
+upper bound rather than a fixed canvas.}
+
 \item{file}{Optional PNG output path. If supplied, the plot is drawn to this
 file instead of the active graphics device.}
 
 \item{width, height}{Pixel dimensions used when \code{file} is supplied.}
 
 \item{...}{Additional arguments passed through to \code{\link{add_surface_layer}}
-(for example \code{alpha}, \code{outline_col}, \code{outline_lwd}).}
+(for example \code{alpha}, \code{alpha_range}, \code{alpha_gamma},
+\code{outline_col}, \code{outline_lwd}). Pass \code{alpha = "soft"} (or a
+per-vertex \code{alpha} vector) for data-modulated opacity that mirrors
+\code{neuroim2::plot_overlay(ov_alpha_mode = "soft")}.}
 }
 \value{
 Invisibly returns the underlying \code{"neurosurf_plot"} object.

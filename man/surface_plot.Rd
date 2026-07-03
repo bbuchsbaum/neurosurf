@@ -13,7 +13,8 @@ surface_plot(
   flip = FALSE,
   zoom = 2,
   background = "white",
-  brightness = 0.5
+  brightness = 0.5,
+  margin = 0.03
 )
 }
 \arguments{
@@ -35,13 +36,22 @@ mirror the left hemisphere.}
 \item{flip}{Logical; if \code{TRUE} and both hemispheres are present, flip
 the left/right ordering in the layout (useful for anterior views).}
 
-\item{zoom}{Numeric zoom factor passed through to the underlying
-\code{\link{view_surface}} calls.}
+\item{zoom}{Numeric camera zoom factor passed through to the underlying
+\code{\link{view_surface}} calls. Note that each rendered panel is
+automatically cropped to its content, so camera \code{zoom} does not change
+how much of a panel the brain fills; use \code{margin} to control the
+whitespace around each brain in the assembled figure.}
 
-\item{background}{Background colour for the rgl scene.}
+\item{background}{Background colour for the rgl scene. Panels are cropped in a
+background-aware way, so any solid colour (e.g. a dark \code{"#222222"})
+trims correctly.}
 
 \item{brightness}{Baseline brightness for a plain surface when no layers are
 added. Value in \eqn{[0,1]}.}
+
+\item{margin}{Fraction of background retained around each cropped brain when
+assembling the figure (e.g. \code{0.03} keeps a 3\% band). Smaller values
+pack the brains more tightly; \code{0} crops flush to the content.}
 }
 \value{
 An object of class \code{"neurosurf_plot"} that can be further

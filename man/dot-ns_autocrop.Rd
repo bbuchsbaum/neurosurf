@@ -2,19 +2,31 @@
 % Please edit documentation in R/surface_plot.R
 \name{.ns_autocrop}
 \alias{.ns_autocrop}
-\title{Auto-crop a raster image (removes whitespace)}
+\title{Auto-crop a raster image (removes uniform background)}
 \usage{
-.ns_autocrop(img, border = 0)
+.ns_autocrop(img, border = 0, bg = NULL, fuzz = 0.02, margin = NULL)
 }
 \arguments{
 \item{img}{A raster image array}
 
-\item{border}{Number of pixels to preserve as border}
+\item{border}{Number of pixels to preserve as border. Ignored when
+\code{margin} is supplied.}
+
+\item{bg}{Optional background colour. When given (and the image has no alpha
+channel), pixels within \code{fuzz} of this colour are treated as
+background and cropped away, so any solid background works, not just white.
+When \code{NULL}, near-white is treated as background.}
+
+\item{fuzz}{Numeric tolerance in \eqn{[0,1]} for matching the background
+colour per RGB channel.}
+
+\item{margin}{Optional fraction of the content extent to retain as a
+proportional border. Overrides \code{border} when supplied.}
 }
 \value{
-The cropped image array with whitespace removed
+The cropped image array with background removed
 }
 \description{
-Auto-crop a raster image (removes whitespace)
+Auto-crop a raster image (removes uniform background)
 }
 \keyword{internal}

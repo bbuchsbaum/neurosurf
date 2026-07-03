@@ -26,7 +26,10 @@ NULL
 #'   See \code{\link{surface_plot}} for valid values.
 #' @param layout One of \code{"grid"}, \code{"row"}, or \code{"column"}
 #'   controlling how views and hemispheres are arranged.
-#' @param cmap Character string naming a colour map for the data layer.
+#' @param cmap Colour map for the data layer: either a vector of colours or a
+#'   single palette name understood by \code{\link[grDevices]{hcl.colors}} (for
+#'   example \code{"viridis"}, \code{"inferno"}, \code{"magma"}). See
+#'   \code{\link{add_surface_layer}}.
 #' @param irange Optional numeric vector of length 2 giving the minimum and
 #'   maximum values for the colour scale. Alias for \code{color_range}.
 #' @param color_range Optional numeric vector of length 2 giving the minimum
@@ -38,11 +41,27 @@ NULL
 #'   layer.
 #' @param outline Logical; if \code{TRUE}, the supplied \code{data} are treated
 #'   as ROI labels and boundaries are drawn instead of a filled map.
+#' @param background Background colour for the figure (also used as the PNG
+#'   canvas colour and for background-aware cropping). Defaults to
+#'   \code{"white"}; any solid colour such as \code{"#222222"} works.
+#' @param zoom Numeric camera zoom passed to \code{\link{surface_plot}}. Because
+#'   panels are auto-cropped to their content, \code{zoom} does not change how
+#'   much of each panel the brain fills; use \code{margin} to control whitespace.
+#' @param margin Fraction of background kept around each cropped brain (default
+#'   \code{0.03}); smaller values pack the brains more tightly.
+#' @param trim Logical; if \code{TRUE} and \code{file} is supplied, crop the
+#'   uniform-background border from the saved PNG so the brains fill the image
+#'   (native equivalent of ImageMagick \code{-trim}). The output dimensions
+#'   become the content bounding box, so \code{width}/\code{height} act as an
+#'   upper bound rather than a fixed canvas.
 #' @param file Optional PNG output path. If supplied, the plot is drawn to this
 #'   file instead of the active graphics device.
 #' @param width,height Pixel dimensions used when \code{file} is supplied.
 #' @param ... Additional arguments passed through to \code{\link{add_surface_layer}}
-#'   (for example \code{alpha}, \code{outline_col}, \code{outline_lwd}).
+#'   (for example \code{alpha}, \code{alpha_range}, \code{alpha_gamma},
+#'   \code{outline_col}, \code{outline_lwd}). Pass \code{alpha = "soft"} (or a
+#'   per-vertex \code{alpha} vector) for data-modulated opacity that mirrors
+#'   \code{neuroim2::plot_overlay(ov_alpha_mode = "soft")}.
 #'
 #' @return Invisibly returns the underlying \code{"neurosurf_plot"} object.
 #'   The plot is drawn as a side-effect.
@@ -67,6 +86,10 @@ show_surface_plot <- function(lh,
                               thresh = NULL,
                               show_colorbar = TRUE,
                               outline = FALSE,
+                              background = "white",
+                              zoom = 2,
+                              margin = 0.03,
+                              trim = FALSE,
                               file = NULL,
                               width = 1200,
                               height = 900,
@@ -74,7 +97,10 @@ show_surface_plot <- function(lh,
   p <- surface_plot(lh = lh,
                     rh = rh,
                     views = views,
-                    layout = layout)
+                    layout = layout,
+                    background = background,
+                    zoom = zoom,
+                    margin = margin)
 
   if (!is.null(data)) {
     layer_args <- list(
@@ -95,10 +121,24 @@ show_surface_plot <- function(lh,
 
   if (!is.null(file)) {
     dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
-    grDevices::png(filename = file, width = width, height = height)
-    on.exit(grDevices::dev.off(), add = TRUE)
+    grDevices::png(filename = file, width = width, height = height,
+                   bg = background)
+    ok <- FALSE
+    tryCatch({
+      plot(p)
+      ok <- TRUE
+    }, finally = grDevices::dev.off())
+    if (ok && isTRUE(trim)) {
+      # Native equivalent of `magick -trim`: crop the uniform-background border
+      # so the brains fill the saved image. The background is detected from the
+      # rendered image's corners (robust to device colour shifts). Output
+      # dimensions become the content bounding box (plus the fractional
+      # `margin`), so `width`/`height` act as an upper bound, not a fixed canvas.
+      .ns_trim_png(file, margin = margin)
+    }
+  } else {
+    plot(p)
   }
-  plot(p)
   invisible(p)
 }
 
@@ -206,11 +246,19 @@ add_atlas_outline <- function(x,
 #'   mirror the left hemisphere.
 #' @param flip Logical; if \code{TRUE} and both hemispheres are present, flip
 #'   the left/right ordering in the layout (useful for anterior views).
-#' @param zoom Numeric zoom factor passed through to the underlying
-#'   \code{\link{view_surface}} calls.
-#' @param background Background colour for the rgl scene.
+#' @param zoom Numeric camera zoom factor passed through to the underlying
+#'   \code{\link{view_surface}} calls. Note that each rendered panel is
+#'   automatically cropped to its content, so camera \code{zoom} does not change
+#'   how much of a panel the brain fills; use \code{margin} to control the
+#'   whitespace around each brain in the assembled figure.
+#' @param background Background colour for the rgl scene. Panels are cropped in a
+#'   background-aware way, so any solid colour (e.g. a dark \code{"#222222"})
+#'   trims correctly.
 #' @param brightness Baseline brightness for a plain surface when no layers are
 #'   added. Value in \eqn{[0,1]}.
+#' @param margin Fraction of background retained around each cropped brain when
+#'   assembling the figure (e.g. \code{0.03} keeps a 3\% band). Smaller values
+#'   pack the brains more tightly; \code{0} crops flush to the content.
 #'
 #' @return An object of class \code{"neurosurf_plot"} that can be further
 #'   modified with \code{add_surface_layer()} and rendered with
@@ -232,9 +280,14 @@ surface_plot <- function(lh,
                          flip = FALSE,
                          zoom = 2,
                          background = "white",
-                         brightness = 0.5) {
+                         brightness = 0.5,
+                         margin = 0.03) {
 
   layout <- match.arg(layout)
+  if (!is.numeric(margin) || length(margin) != 1L || !is.finite(margin) ||
+      margin < 0) {
+    stop("'margin' must be a single non-negative number.")
+  }
 
   surf_lh <- .ns_normalize_surface(lh, hemi = "lh")
   surf_rh <- if (!is.null(rh)) .ns_normalize_surface(rh, hemi = "rh") else NULL
@@ -257,6 +310,7 @@ surface_plot <- function(lh,
     zoom = zoom,
     background = background,
     brightness = brightness,
+    margin = margin,
     layers = list(),
     vector_layers = list()
   )
@@ -273,9 +327,30 @@ surface_plot <- function(lh,
 #'   it should have length equal to the total number of vertices across
 #'   hemispheres and is split left-to-right. If a list, it may contain elements
 #'   named \code{"left"} and/or \code{"right"}.
-#' @param cmap Character string naming a colour map. The value is passed
-#'   through to \code{\link{colorRampPalette}} to generate colours.
-#' @param alpha Numeric in \eqn{[0,1]} controlling layer opacity.
+#' @param cmap Colour specification for the layer. May be a vector of two or
+#'   more colours (passed to \code{\link{colorRampPalette}}), or a single
+#'   character string naming a palette. Palette names understood by
+#'   \code{\link[grDevices]{hcl.colors}} (for example \code{"viridis"},
+#'   \code{"inferno"}, \code{"magma"}, \code{"plasma"}, \code{"cividis"}) are
+#'   resolved via \code{hcl.colors()}; see \code{grDevices::hcl.pals()} for the
+#'   full list. An unrecognised name falls back to a blue-white-red ramp with a
+#'   warning.
+#' @param alpha Layer opacity. One of: a single numeric in \eqn{[0,1]}
+#'   (uniform opacity, the default); a numeric vector of per-vertex opacities
+#'   matching \code{data} in length and layout (values are clamped to
+#'   \eqn{[0,1]} and, for sparse \code{data}, filled/smoothed the same way);
+#'   or the string \code{"soft"} to derive per-vertex opacity from the data
+#'   magnitude (see \code{alpha_range}/\code{alpha_gamma}). Per-vertex and
+#'   \code{"soft"} alpha let opacity be modulated by the data value, mirroring
+#'   \code{neuroim2::plot_overlay(ov_alpha_mode = "soft")} for volumes.
+#' @param alpha_range Numeric length-2 vector \code{c(lo, hi)} used when
+#'   \code{alpha = "soft"}: opacity rises from 0 at \code{lo} to 1 at \code{hi}
+#'   as \code{clamp((|data| - lo)/(hi - lo), 0, 1)}. If \code{NULL}, defaults to
+#'   \code{c(0, max(abs(color_range)))}. Ignored unless \code{alpha = "soft"}.
+#' @param alpha_gamma Optional positive exponent applied to the soft-alpha ramp
+#'   (\code{opacity^alpha_gamma}). Values \code{> 1} keep low signal fainter;
+#'   values \code{< 1} lift it. \code{NULL} (default) is treated as \code{1}
+#'   (linear). Ignored unless \code{alpha = "soft"}.
 #' @param irange Optional numeric vector of length 2 giving the minimum and
 #'   maximum data values to map to the colour scale. Alias for
 #'   \code{color_range}.
@@ -344,6 +419,8 @@ add_surface_layer <- function(x,
                               data,
                               cmap = "viridis",
                               alpha = 1,
+                              alpha_range = NULL,
+                              alpha_gamma = NULL,
                               irange = NULL,
                               color_range = NULL,
                               thresh = NULL,
@@ -421,11 +498,70 @@ add_surface_layer <- function(x,
       color_range <- c(0, 1)
     }
   }
+  # Guard against a degenerate (zero-width) colour range. Constant data, or an
+  # explicit range such as c(v, v), would otherwise make the colour mapper
+  # divide by zero and render every vertex transparent. Expand symmetrically so
+  # a constant map renders at the middle of the colour scale.
+  color_range <- .ns_normalize_color_range(color_range)
+
+  # Resolve the alpha specification into a uniform scalar, a per-vertex
+  # opacity map, or a "soft" (data-modulated) mode.
+  alpha_mode <- "uniform"
+  alpha_values <- NULL
+  alpha_scalar <- 1
+
+  if (is.character(alpha)) {
+    alpha_mode <- match.arg(alpha, "soft")
+    if (is.null(alpha_range)) {
+      alpha_range <- c(0, max(abs(color_range)))
+    }
+    if (!is.numeric(alpha_range) || length(alpha_range) != 2L ||
+        any(!is.finite(alpha_range))) {
+      stop("'alpha_range' must be a finite numeric vector of length 2.")
+    }
+    if (alpha_range[2L] <= alpha_range[1L]) {
+      stop("'alpha_range[2]' must be greater than 'alpha_range[1]'.")
+    }
+    if (!is.null(alpha_gamma) &&
+        (!is.numeric(alpha_gamma) || length(alpha_gamma) != 1L ||
+         !is.finite(alpha_gamma) || alpha_gamma <= 0)) {
+      stop("'alpha_gamma' must be a single positive number or NULL.")
+    }
+  } else if (is.numeric(alpha) && length(alpha) == 1L) {
+    if (is.na(alpha) || alpha < 0 || alpha > 1) {
+      stop("Scalar 'alpha' must be a single number in [0, 1].")
+    }
+    alpha_scalar <- alpha
+  } else if (is.numeric(alpha)) {
+    split_alpha <- .ns_split_layer_data(
+      surfaces = x$surfaces,
+      data = alpha,
+      hemi = hemi,
+      allow_partial = !is.null(vertices)
+    )
+    alpha_values <- .ns_prepare_layer_data(
+      surfaces = x$surfaces,
+      data = split_alpha,
+      vertices = split_vertices,
+      smoothing = smoothing,
+      smoothing_steps = smoothing_steps
+    )
+    alpha_values <- lapply(alpha_values, function(z) {
+      if (is.null(z)) NULL else pmax(0, pmin(1, z))
+    })
+  } else {
+    stop("'alpha' must be a numeric scalar, a per-vertex numeric vector, ",
+         "or the string \"soft\".")
+  }
 
   layer <- list(
     data = filled_data,
     cmap = cmap,
-    alpha = alpha,
+    alpha = alpha_scalar,
+    alpha_mode = alpha_mode,
+    alpha_values = alpha_values,
+    alpha_range = alpha_range,
+    alpha_gamma = alpha_gamma,
     color_range = color_range,
     thresh = thresh,
     vertices = split_vertices,
@@ -820,7 +956,8 @@ render_surface_plot <- function(x,
       unlink(tmpfile)
 
       if (isTRUE(crop)) {
-        img <- .ns_autocrop(img, border = 10)
+        img <- .ns_autocrop(img, border = 10, bg = x$background %||% "white",
+                            margin = x$margin)
       }
 
       panels[[length(panels) + 1L]] <- list(
@@ -905,39 +1042,35 @@ draw_surface_plot <- function(x,
             "figure layout may be incorrect.")
   }
 
-  panel_grobs <- lapply(panels, function(p) {
-    img <- p$image
-    aspect <- p$aspect %||% (ncol(img) / nrow(img))
-    if (!is.finite(aspect) || aspect <= 0) {
-      aspect <- 1
-    }
-
-    # Preserve aspect by shrinking the limiting dimension inside the cell
-    if (aspect >= 1) {
-      vp <- grid::viewport(width = grid::unit(1, "npc"),
-                           height = grid::unit(1 / aspect, "npc"),
-                           x = 0.5, y = 0.5,
-                           just = c("center", "center"))
-    } else {
-      vp <- grid::viewport(width = grid::unit(aspect, "npc"),
-                           height = grid::unit(1, "npc"),
-                           x = 0.5, y = 0.5,
-                           just = c("center", "center"))
-    }
-
-    grid::grobTree(
-      grid::rasterGrob(img, interpolate = TRUE),
-      vp = vp
-    )
-  })
-
-  layout <- grid::grid.layout(nrow = nrow, ncol = ncol)
+  # Size grid cells proportionally to the (cropped) panel pixel dimensions and
+  # ask grid to respect that aspect. Panels then pack flush at their true aspect
+  # with no letterboxing or stretching, and the whole grid fills the device as
+  # tightly as the canvas aspect allows.
+  lay <- .ns_assemble_grid_layout(panels, nrow, ncol)
+  layout <- grid::grid.layout(
+    nrow = nrow, ncol = ncol,
+    widths = grid::unit(lay$col_w, "null"),
+    heights = grid::unit(lay$row_h, "null"),
+    respect = TRUE
+  )
   frame <- grid::frameGrob(layout = layout)
 
-  for (k in seq_along(panel_grobs)) {
-    row <- ((k - 1L) %% nrow) + 1L
-    col <- ((k - 1L) %/% nrow) + 1L
-    frame <- grid::placeGrob(frame, panel_grobs[[k]], row = row, col = col)
+  for (k in seq_along(panels)) {
+    row <- lay$rows[k]
+    col <- lay$cols[k]
+    # Place each panel at its true size within the correctly-proportioned cell.
+    # For the common case (panel is the widest/tallest in its column/row) this
+    # fills the cell exactly; otherwise it is contained and centred.
+    w_npc <- lay$pw[k] / lay$col_w[col]
+    h_npc <- lay$ph[k] / lay$row_h[row]
+    g <- grid::grobTree(
+      grid::rasterGrob(panels[[k]]$image, interpolate = TRUE),
+      vp = grid::viewport(width = grid::unit(w_npc, "npc"),
+                          height = grid::unit(h_npc, "npc"),
+                          x = 0.5, y = 0.5,
+                          just = c("center", "center"))
+    )
+    frame <- grid::placeGrob(frame, g, row = row, col = col)
   }
 
   # Add colour bars if requested and available
@@ -1011,18 +1144,47 @@ plot.neurosurf_plot <- function(x, ...) {
 
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
-#' Auto-crop a raster image (removes whitespace)
+#' Auto-crop a raster image (removes uniform background)
 #' @param img A raster image array
-#' @param border Number of pixels to preserve as border
-#' @return The cropped image array with whitespace removed
+#' @param border Number of pixels to preserve as border. Ignored when
+#'   \code{margin} is supplied.
+#' @param bg Optional background colour. When given (and the image has no alpha
+#'   channel), pixels within \code{fuzz} of this colour are treated as
+#'   background and cropped away, so any solid background works, not just white.
+#'   When \code{NULL}, near-white is treated as background.
+#' @param fuzz Numeric tolerance in \eqn{[0,1]} for matching the background
+#'   colour per RGB channel.
+#' @param margin Optional fraction of the content extent to retain as a
+#'   proportional border. Overrides \code{border} when supplied.
+#' @return The cropped image array with background removed
 #' @keywords internal
-.ns_autocrop <- function(img, border = 0) {
+.ns_autocrop <- function(img, border = 0, bg = NULL, fuzz = 0.02,
+                         margin = NULL) {
   if (length(dim(img)) < 3L) {
     return(img)
   }
 
-  if (dim(img)[3L] == 4L) {
+  has_alpha <- dim(img)[3L] == 4L
+  if (has_alpha && any(img[, , 4L] <= 0.99)) {
+    # Use the alpha channel only when the image actually carries transparency
+    # (opaque pixels are content). A fully-opaque RGBA image -- e.g. a figure
+    # rendered by png() with the background baked in -- falls through to
+    # background-colour detection below instead.
     is_content <- img[, , 4L] > 0.01
+  } else if (!is.null(bg)) {
+    # Background-aware: a pixel is content if it differs from the background
+    # colour by more than `fuzz` in any RGB channel. This lets autocrop trim
+    # panels on any solid background, not just white.
+    if (identical(bg, "auto")) {
+      # Detect the background from the image's own corner pixels, which is
+      # robust to device gamma/compositing shifting the nominal colour.
+      bg_rgb <- .ns_corner_bg(img)
+    } else {
+      bg_rgb <- as.numeric(grDevices::col2rgb(bg)) / 255
+    }
+    is_content <- (abs(img[, , 1L] - bg_rgb[1L]) > fuzz) |
+      (abs(img[, , 2L] - bg_rgb[2L]) > fuzz) |
+      (abs(img[, , 3L] - bg_rgb[3L]) > fuzz)
   } else {
     is_content <- (img[, , 1L] < 0.99) | (img[, , 2L] < 0.99) | (img[, , 3L] < 0.99)
   }
@@ -1034,12 +1196,69 @@ plot.neurosurf_plot <- function(x, ...) {
     return(img)
   }
 
+  # A fractional `margin` keeps a proportional band of background around the
+  # content (relative to the larger content dimension), overriding `border`.
+  if (!is.null(margin) && is.finite(margin) && margin > 0) {
+    content_extent <- max(max(rows) - min(rows) + 1L, max(cols) - min(cols) + 1L)
+    border <- as.integer(round(margin * content_extent))
+  }
+
   r1 <- max(1L, min(rows) - border)
   r2 <- min(nrow(img), max(rows) + border)
   c1 <- max(1L, min(cols) - border)
   c2 <- min(ncol(img), max(cols) + border)
 
   img[r1:r2, c1:c2, , drop = FALSE]
+}
+
+# Compute proportional grid-cell sizes for assembling cropped panels. Panels
+# are placed column-major (to match placeGrob below): panel k -> row
+# ((k-1) %% nrow)+1, column ((k-1) %/% nrow)+1. Column widths / row heights are
+# the max panel pixel width / height in that column / row.
+.ns_assemble_grid_layout <- function(panels, nrow, ncol) {
+  pw <- vapply(panels, function(p) as.numeric(ncol(p$image)), numeric(1))
+  ph <- vapply(panels, function(p) as.numeric(nrow(p$image)), numeric(1))
+  k <- seq_along(panels)
+  rows <- ((k - 1L) %% nrow) + 1L
+  cols <- ((k - 1L) %/% nrow) + 1L
+  col_w <- vapply(seq_len(ncol), function(cc) {
+    w <- pw[cols == cc]
+    if (length(w)) max(w) else 1
+  }, numeric(1))
+  row_h <- vapply(seq_len(nrow), function(rr) {
+    h <- ph[rows == rr]
+    if (length(h)) max(h) else 1
+  }, numeric(1))
+  list(pw = pw, ph = ph, rows = rows, cols = cols,
+       col_w = col_w, row_h = row_h)
+}
+
+# Median background colour sampled from the four corners of an image. Robust to
+# a device rendering the nominal background slightly off (gamma/compositing).
+.ns_corner_bg <- function(img) {
+  nr <- nrow(img)
+  nc <- ncol(img)
+  corners <- rbind(
+    img[1L, 1L, 1:3],
+    img[1L, nc, 1:3],
+    img[nr, 1L, 1:3],
+    img[nr, nc, 1:3]
+  )
+  apply(corners, 2L, stats::median)
+}
+
+# Trim a uniform-background border from a PNG file in place (native equivalent
+# of `magick -trim`). The background is detected from the image corners by
+# default, so it need not match a nominal colour exactly. Returns the trimmed
+# dimensions invisibly.
+.ns_trim_png <- function(file, bg = "auto", fuzz = 0.04, margin = NULL) {
+  if (!requireNamespace("png", quietly = TRUE) || !file.exists(file)) {
+    return(invisible(NULL))
+  }
+  img <- png::readPNG(file)
+  trimmed <- .ns_autocrop(img, border = 0, bg = bg, fuzz = fuzz, margin = margin)
+  png::writePNG(trimmed, file)
+  invisible(dim(trimmed))
 }
 
 #' Supersample/Resize image for antialiasing (placeholder)
@@ -1465,14 +1684,83 @@ plot.neurosurf_plot <- function(x, ...) {
     return(grDevices::colorRampPalette(cmap)(n))
   }
 
-  if (identical(cmap, "viridis")) {
-    # Hard-coded viridis-like palette to avoid extra dependencies
-    base_cols <- c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF")
-    return(grDevices::colorRampPalette(base_cols)(n))
+  if (is.character(cmap) && length(cmap) == 1L && !is.na(cmap)) {
+    if (identical(tolower(cmap), "viridis")) {
+      # Hard-coded viridis-like palette (kept for backwards compatibility)
+      base_cols <- c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF")
+      return(grDevices::colorRampPalette(base_cols)(n))
+    }
+    pal <- .ns_match_hcl_palette(cmap)
+    if (!is.null(pal)) {
+      return(grDevices::hcl.colors(n, palette = pal))
+    }
+    warning("Unknown cmap '", cmap, "'; falling back to a blue-white-red ramp. ",
+            "Pass a colour vector or a palette name from grDevices::hcl.pals().",
+            call. = FALSE)
   }
 
   # Fallback: simple blue-white-red palette
   grDevices::colorRampPalette(c("blue", "white", "red"))(n)
+}
+
+# Ensure a colour range has strictly positive width so the colour mapper never
+# divides by zero. A degenerate range (min == max, e.g. constant data) is
+# expanded symmetrically about its centre; the constant then maps to the middle
+# of the colour scale rather than rendering transparent. Non-finite ranges fall
+# back to c(0, 1). Genuinely inverted ranges (max < min) are left untouched so
+# they surface as an error downstream rather than being silently reinterpreted.
+.ns_normalize_color_range <- function(color_range) {
+  if (length(color_range) != 2L || !all(is.finite(color_range))) {
+    return(c(0, 1))
+  }
+  if (color_range[2L] == color_range[1L]) {
+    centre <- color_range[1L]
+    pad <- max(abs(centre), 1) * 1e-6
+    return(c(centre - pad, centre + pad))
+  }
+  color_range
+}
+
+# Case-/separator-insensitive match of a palette name against hcl.pals().
+.ns_match_hcl_palette <- function(name) {
+  pals <- grDevices::hcl.pals()
+  norm <- function(s) gsub("[^a-z0-9]", "", tolower(s))
+  idx <- match(norm(name), vapply(pals, norm, character(1)))
+  if (is.na(idx)) NULL else pals[[idx]]
+}
+
+# Resolve a layer's opacity into a per-vertex modulation vector in [0, 1],
+# already multiplied by any uniform scalar opacity.
+.ns_resolve_layer_alpha <- function(layer, vals, hemi, n) {
+  scalar <- layer$alpha %||% 1
+  mode <- layer$alpha_mode %||% "uniform"
+
+  if (identical(mode, "soft")) {
+    mod <- .ns_soft_alpha(vals, layer$alpha_range, layer$alpha_gamma)
+  } else if (!is.null(layer$alpha_values) &&
+             !is.null(layer$alpha_values[[hemi]])) {
+    mod <- layer$alpha_values[[hemi]]
+  } else {
+    mod <- rep(1, n)
+  }
+
+  if (length(mod) != n) {
+    mod <- rep_len(mod, n)
+  }
+  pmax(0, pmin(1, mod)) * scalar
+}
+
+# Data-modulated ("soft") opacity: clamp((|v| - lo)/(hi - lo), 0, 1)^gamma.
+.ns_soft_alpha <- function(vals, alpha_range, gamma = NULL) {
+  lo <- alpha_range[1L]
+  hi <- alpha_range[2L]
+  a <- (abs(vals) - lo) / (hi - lo)
+  a[!is.finite(a)] <- 0
+  a <- pmax(0, pmin(1, a))
+  if (!is.null(gamma) && is.finite(gamma) && gamma != 1) {
+    a <- a^gamma
+  }
+  a
 }
 
 .ns_compute_vertex_colors <- function(layers, surf, hemi, brightness) {
@@ -1508,14 +1796,23 @@ plot.neurosurf_plot <- function(x, ...) {
 
     cmap_cols <- .ns_cmap_to_colors(layer$cmap)
     fg_plane <- colorplane::IntensityColorPlane(v, cmap_cols, alpha = 1)
-    fg_clrs <- colorplane::map_colors(
+    # Map colours at full opacity, then apply the layer's opacity (scalar,
+    # per-vertex, or "soft") once via the RGBA alpha channel. Threshold and
+    # NA vertices already carry alpha 0 out of map_colors().
+    fg_map <- colorplane::map_colors(
       fg_plane,
-      alpha = layer$alpha,
+      alpha = 1,
       threshold = layer$thresh,
       irange = layer$color_range
     )
+    rgb <- colorplane::as_rgb(fg_map)
 
-    cur <- colorplane::blend_colors(cur, fg_clrs, alpha = layer$alpha)
+    mod <- .ns_resolve_layer_alpha(layer, vals, hemi, nrow(rgb))
+    mod[!is.finite(mod)] <- 0
+    rgb[, 4L] <- pmax(0, pmin(255, rgb[, 4L] * mod))
+
+    fg_clrs <- colorplane::RGBColorPlane(rgb)
+    cur <- colorplane::blend_colors(cur, fg_clrs, alpha = 1)
   }
 
   colorplane::as_hexcol(cur)

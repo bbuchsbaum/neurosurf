@@ -1,5 +1,119 @@
 # Tests for surface_plot.R
 
+# ---- Figure assembly / framing (GH #74) -----------------------------------
+
+test_that(".ns_autocrop is background-aware (crops on non-white backgrounds)", {
+  mk <- function(bg) {
+    img <- array(0, dim = c(200, 300, 3))
+    for (k in 1:3) img[, , k] <- bg[k]
+    img[80:120, 130:170, 1] <- 0.9
+    img[80:120, 130:170, 2] <- 0.2
+    img[80:120, 130:170, 3] <- 0.2
+    img
+  }
+  # brain blob is 41 x 41
+  dark <- neurosurf:::.ns_autocrop(mk(c(0.133, 0.133, 0.133)), border = 0,
+                                   bg = "#222222")
+  expect_equal(dim(dark)[1:2], c(41L, 41L))
+  black <- neurosurf:::.ns_autocrop(mk(c(0, 0, 0)), border = 0, bg = "black")
+  expect_equal(dim(black)[1:2], c(41L, 41L))
+  # white still works, and the legacy (bg = NULL) path is unchanged
+  white <- neurosurf:::.ns_autocrop(mk(c(1, 1, 1)), border = 0, bg = "white")
+  expect_equal(dim(white)[1:2], c(41L, 41L))
+  legacy <- neurosurf:::.ns_autocrop(mk(c(1, 1, 1)), border = 0)
+  expect_equal(dim(legacy)[1:2], c(41L, 41L))
+})
+
+test_that(".ns_autocrop margin keeps a proportional border", {
+  img <- array(1, dim = c(200, 200, 3))
+  img[81:120, 81:120, 1] <- 0.1 # 40x40 content, non-white
+  img[81:120, 81:120, 2] <- 0.1
+  img[81:120, 81:120, 3] <- 0.1
+  # margin = 0.25 of the 40px content extent -> 10px border each side -> 60x60
+  m <- neurosurf:::.ns_autocrop(img, bg = "white", margin = 0.25)
+  expect_equal(dim(m)[1:2], c(60L, 60L))
+  # margin = 0 crops flush
+  m0 <- neurosurf:::.ns_autocrop(img, bg = "white", margin = 0)
+  expect_equal(dim(m0)[1:2], c(40L, 40L))
+})
+
+test_that(".ns_assemble_grid_layout sizes cells to panel pixel dimensions", {
+  # 2x2, column-major: k1->(1,1) k2->(2,1) k3->(1,2) k4->(2,2)
+  panels <- list(
+    list(image = array(0, dim = c(100, 130, 3))), # r1 c1
+    list(image = array(0, dim = c(110, 120, 3))), # r2 c1
+    list(image = array(0, dim = c(105, 140, 3))), # r1 c2
+    list(image = array(0, dim = c(115, 125, 3)))  # r2 c2
+  )
+  lay <- neurosurf:::.ns_assemble_grid_layout(panels, nrow = 2, ncol = 2)
+  expect_equal(lay$rows, c(1, 2, 1, 2))
+  expect_equal(lay$cols, c(1, 1, 2, 2))
+  # column widths = max panel width per column
+  expect_equal(lay$col_w, c(max(130, 120), max(140, 125)))
+  # row heights = max panel height per row
+  expect_equal(lay$row_h, c(max(100, 105), max(110, 115)))
+  # a panel that is the col/row max fills its cell (npc == 1)
+  expect_equal(lay$pw[3] / lay$col_w[2], 1) # panel 3 is widest in col 2
+})
+
+test_that(".ns_trim_png crops a rendered figure to its content", {
+  skip_if_not_installed("png")
+  img <- array(0, dim = c(200, 300, 3)) # black background
+  img[80:120, 130:170, 1] <- 0.9        # bright blob, 41x41
+  img[80:120, 130:170, 2] <- 0.2
+  img[80:120, 130:170, 3] <- 0.2
+  f <- tempfile(fileext = ".png")
+  png::writePNG(img, f)
+  dims <- neurosurf:::.ns_trim_png(f, bg = "black")
+  expect_equal(dims[1:2], c(41L, 41L))
+  expect_equal(dim(png::readPNG(f))[1:2], c(41L, 41L))
+  unlink(f)
+})
+
+test_that(".ns_autocrop ignores a fully-opaque alpha channel and uses bg", {
+  # 4-channel image, alpha all opaque, dark background with a bright blob.
+  img <- array(0, dim = c(200, 300, 4))
+  img[, , 1:3] <- 0.133           # dark bg
+  img[, , 4] <- 1                 # fully opaque everywhere
+  img[80:120, 130:170, 1] <- 0.9  # blob 41x41
+  img[80:120, 130:170, 2:3] <- 0.2
+  # alpha branch would keep the whole image; bg detection must crop to the blob
+  cropped <- neurosurf:::.ns_autocrop(img, bg = "#222222")
+  expect_equal(dim(cropped)[1:2], c(41L, 41L))
+})
+
+test_that(".ns_autocrop bg='auto' detects background from image corners", {
+  # background is 0.102 (a device-shifted #222222), not the nominal 0.133
+  img <- array(0, dim = c(200, 300, 3))
+  img[, , 1:3] <- 0.102
+  img[80:120, 130:170, 1] <- 0.9
+  img[80:120, 130:170, 2:3] <- 0.2
+  # nominal "#222222" with tight fuzz fails to match the shifted bg ...
+  nominal <- neurosurf:::.ns_autocrop(img, bg = "#222222", fuzz = 0.02)
+  expect_gt(nrow(nominal), 41L)
+  # ... but corner auto-detection nails it
+  auto <- neurosurf:::.ns_autocrop(img, bg = "auto", fuzz = 0.02)
+  expect_equal(dim(auto)[1:2], c(41L, 41L))
+})
+
+test_that("surface_plot stores margin and validates it", {
+  geom <- example_surface_geometry()
+  p <- surface_plot(geom, margin = 0.05)
+  expect_equal(p$margin, 0.05)
+  expect_error(surface_plot(geom, margin = -1), "non-negative")
+  expect_error(surface_plot(geom, margin = c(0.1, 0.2)), "single")
+})
+
+test_that("show_surface_plot accepts background/zoom/margin without error", {
+  # These plumb into surface_plot(); we can build the object without rendering.
+  geom <- example_surface_geometry()
+  # surface_plot is the part that must accept the args (rendering needs rgl).
+  p <- surface_plot(geom, background = "#222222", zoom = 4, margin = 0.02)
+  expect_equal(p$background, "#222222")
+  expect_equal(p$zoom, 4)
+  expect_equal(p$margin, 0.02)
+})
+
 test_that("surface_plot creates neurosurf_plot object", {
   geom <- example_surface_geometry()
 
@@ -579,4 +693,283 @@ test_that("add_surface_layer with specific vertices", {
 
   expect_length(p$layers, 1)
   expect_equal(p$layers[[1]]$vertices$left, 1:10)
+})
+
+# ---- Data-modulated alpha (GH #73) ----------------------------------------
+
+test_that("scalar alpha is stored as a uniform mode (regression)", {
+  geom <- example_surface_geometry()
+  n <- nrow(coords(geom))
+
+  p <- add_surface_layer(surface_plot(geom), data = rnorm(n), alpha = 0.5)
+  layer <- p$layers[[1]]
+
+  expect_equal(layer$alpha, 0.5)
+  expect_equal(layer$alpha_mode, "uniform")
+  expect_null(layer$alpha_values)
+})
+
+test_that("per-vertex alpha vector is split and stored per hemisphere", {
+  geom <- example_surface_geometry()
+  n <- nrow(coords(geom))
+  av <- seq(0, 1, length.out = n)
+
+  p <- add_surface_layer(surface_plot(geom), data = rnorm(n), alpha = av,
+                         hemi = "left")
+  layer <- p$layers[[1]]
+
+  expect_equal(layer$alpha_mode, "uniform")
+  expect_equal(layer$alpha, 1)
+  expect_equal(layer$alpha_values$left, av)
+})
+
+test_that("per-vertex alpha is clamped to [0, 1]", {
+  geom <- example_surface_geometry()
+  n <- nrow(coords(geom))
+
+  p <- add_surface_layer(surface_plot(geom), data = rnorm(n),
+                         alpha = rep(c(-1, 2), length.out = n), hemi = "left")
+  vals <- p$layers[[1]]$alpha_values$left
+  expect_true(all(vals >= 0 & vals <= 1))
+})
+
+test_that("alpha = 'soft' records soft mode with a default alpha_range", {
+  geom <- example_surface_geometry()
+  n <- nrow(coords(geom))
+
+  p <- add_surface_layer(surface_plot(geom), data = rnorm(n), alpha = "soft",
+                         color_range = c(-2, 3))
+  layer <- p$layers[[1]]
+
+  expect_equal(layer$alpha_mode, "soft")
+  # default alpha_range = c(0, max(abs(color_range)))
+  expect_equal(layer$alpha_range, c(0, 3))
+})
+
+test_that("invalid alpha specifications error", {
+  geom <- example_surface_geometry()
+  n <- nrow(coords(geom))
+  p <- surface_plot(geom)
+
+  expect_error(add_surface_layer(p, data = rnorm(n), alpha = 1.5),
+               "\\[0, 1\\]")
+  expect_error(add_surface_layer(p, data = rnorm(n), alpha = "fade"),
+               "should be")
+  expect_error(
+    add_surface_layer(p, data = rnorm(n), alpha = "soft",
+                      alpha_range = c(1, 0)),
+    "alpha_range"
+  )
+  expect_error(
+    add_surface_layer(p, data = rnorm(n), alpha = "soft",
+                      alpha_gamma = -1),
+    "alpha_gamma"
+  )
+})
+
+test_that(".ns_soft_alpha implements clamp((|v|-lo)/(hi-lo),0,1)^gamma", {
+  v <- c(0, 0.15, 0.3, 0.45, NA)
+  expect_equal(neurosurf:::.ns_soft_alpha(v, c(0, 0.3), NULL),
+               c(0, 0.5, 1, 1, 0))
+  expect_equal(neurosurf:::.ns_soft_alpha(v, c(0, 0.3), 2),
+               c(0, 0.25, 1, 1, 0))
+})
+
+test_that(".ns_resolve_layer_alpha combines scalar, per-vertex, and soft", {
+  # scalar
+  expect_equal(
+    neurosurf:::.ns_resolve_layer_alpha(
+      list(alpha = 0.5, alpha_mode = "uniform"), rep(1, 3), "left", 3),
+    rep(0.5, 3))
+  # per-vertex times scalar
+  expect_equal(
+    neurosurf:::.ns_resolve_layer_alpha(
+      list(alpha = 0.5, alpha_mode = "uniform",
+           alpha_values = list(left = c(0, 1), right = NULL)),
+      rep(1, 2), "left", 2),
+    c(0, 0.5))
+  # soft
+  expect_equal(
+    neurosurf:::.ns_resolve_layer_alpha(
+      list(alpha = 1, alpha_mode = "soft", alpha_range = c(0, 0.3),
+           alpha_gamma = NULL),
+      c(0, 0.15, 0.3), "left", 3),
+    c(0, 0.5, 1))
+})
+
+test_that("named cmap palettes resolve via hcl.colors instead of the fallback", {
+  inferno <- neurosurf:::.ns_cmap_to_colors("inferno", 8)
+  viridis <- neurosurf:::.ns_cmap_to_colors("viridis", 8)
+  fallback <- neurosurf:::.ns_cmap_to_colors(c("blue", "white", "red"), 8)
+
+  expect_length(inferno, 8)
+  expect_false(identical(inferno, viridis))
+  expect_false(identical(inferno, fallback))
+  # case/separator insensitive
+  expect_equal(neurosurf:::.ns_cmap_to_colors("Inferno", 8), inferno)
+})
+
+test_that("an unknown cmap name warns and falls back", {
+  expect_warning(
+    neurosurf:::.ns_cmap_to_colors("not-a-real-palette", 8),
+    "Unknown cmap"
+  )
+})
+
+test_that("data-modulated alpha pulls vertex colours toward the base", {
+  # Larger grid mesh so a per-vertex ramp is meaningful.
+  k <- 8
+  g <- expand.grid(x = seq_len(k), y = seq_len(k))
+  verts <- cbind(g$x, g$y, 0)
+  faces <- do.call(rbind, lapply(seq_len(k - 1), function(i) {
+    do.call(rbind, lapply(seq_len(k - 1), function(j) {
+      a <- (j - 1) * k + i
+      rbind(c(a, a + 1, a + k), c(a + 1, a + k + 1, a + k))
+    }))
+  }))
+  geom <- SurfaceGeometry(verts, faces - 1L, hemi = "lh")
+  n <- nrow(coords(geom))
+  d <- seq(0, 0.3, length.out = n)
+
+  base_rgb <- as.numeric(grDevices::col2rgb(grDevices::gray(0.6)))
+  dist_from_base <- function(alpha, ...) {
+    p <- add_surface_layer(surface_plot(geom, views = "lateral"), data = d,
+                           hemi = "left", alpha = alpha, zero_transparent = FALSE,
+                           ...)
+    cols <- neurosurf:::.ns_compute_vertex_colors(list(p$layers[[1]]), geom,
+                                                  "left", 0.6)
+    sqrt(colSums((grDevices::col2rgb(cols) - base_rgb)^2))
+  }
+
+  # alpha = 0 -> every vertex is exactly the base colour
+  expect_true(max(dist_from_base(0)) < 1e-6)
+
+  # opacity is monotone in the scalar
+  d0  <- dist_from_base(0)
+  d05 <- dist_from_base(0.5)
+  d1  <- dist_from_base(1)
+  expect_true(all(d0 <= d05 + 1e-6) && all(d05 <= d1 + 1e-6))
+
+  # per-vertex ramp: higher alpha => further from base
+  av <- seq(0, 1, length.out = n)
+  expect_gt(cor(av, dist_from_base(av)), 0.8)
+
+  # soft: colour distance from base tracks |data|; d == 0 stays at base
+  ds <- dist_from_base("soft", color_range = c(0, 0.3))
+  expect_gt(cor(abs(d), ds), 0.8)
+  expect_lt(ds[1], 1e-6)
+})
+
+test_that(".ns_normalize_color_range expands a degenerate range", {
+  # constant range -> symmetric non-zero-width band centred on the value
+  r <- neurosurf:::.ns_normalize_color_range(c(5, 5))
+  expect_lt(r[1], 5)
+  expect_gt(r[2], 5)
+  expect_equal(mean(r), 5)
+  # zero-centred degenerate range
+  r0 <- neurosurf:::.ns_normalize_color_range(c(0, 0))
+  expect_lt(r0[1], 0)
+  expect_gt(r0[2], 0)
+  # non-finite -> c(0, 1)
+  expect_equal(neurosurf:::.ns_normalize_color_range(c(NA, 1)), c(0, 1))
+  # ordinary range untouched
+  expect_equal(neurosurf:::.ns_normalize_color_range(c(-2, 3)), c(-2, 3))
+})
+
+test_that("constant non-zero data renders opaquely (degenerate range guard)", {
+  geom <- example_surface_geometry()
+  n <- nrow(coords(geom))
+
+  # No explicit color_range: constant data would collapse range to c(v, v).
+  p <- add_surface_layer(surface_plot(geom, views = "lateral"),
+                         data = rep(0.7, n), hemi = "left",
+                         zero_transparent = FALSE)
+  # stored range must have positive width
+  expect_gt(diff(p$layers[[1]]$color_range), 0)
+
+  cols <- neurosurf:::.ns_compute_vertex_colors(list(p$layers[[1]]), geom,
+                                                "left", 0.6)
+  base_rgb <- as.numeric(grDevices::col2rgb(grDevices::gray(0.6)))
+  dist <- sqrt(colSums((grDevices::col2rgb(cols) - base_rgb)^2))
+  # every vertex is coloured (not transparent -> not left as the base colour)
+  expect_true(all(dist > 0))
+  # ... and constant data maps to a single flat colour
+  expect_equal(length(unique(cols)), 1L)
+})
+
+test_that("per-vertex and soft alpha are recovered exactly from rendered colours", {
+  # Compositing a layer over an opaque base gives
+  #   out = fg * m + base * (1 - m)
+  # so with a CONSTANT foreground colour we can invert for the effective
+  # per-vertex opacity m and check it equals the requested alpha exactly
+  # (to 8-bit rounding).
+  k <- 8
+  g <- expand.grid(x = seq_len(k), y = seq_len(k))
+  verts <- cbind(g$x, g$y, 0)
+  faces <- do.call(rbind, lapply(seq_len(k - 1), function(i) {
+    do.call(rbind, lapply(seq_len(k - 1), function(j) {
+      a <- (j - 1) * k + i
+      rbind(c(a, a + 1, a + k), c(a + 1, a + k + 1, a + k))
+    }))
+  }))
+  geom <- SurfaceGeometry(verts, faces - 1L, hemi = "lh")
+  n <- nrow(coords(geom))
+
+  fg_hex <- "#FF0000"
+  base_rgb <- as.numeric(grDevices::col2rgb(grDevices::gray(0.6)))
+  denom <- as.numeric(grDevices::col2rgb(fg_hex)) - base_rgb
+  d <- seq(0.1, 1, length.out = n) # varying, all nonzero
+
+  recover <- function(layer) {
+    cols <- neurosurf:::.ns_compute_vertex_colors(list(layer), geom, "left", 0.6)
+    out <- grDevices::col2rgb(cols)
+    vapply(seq_len(n), function(i) mean((out[, i] - base_rgb) / denom), numeric(1))
+  }
+
+  # per-vertex ramp recovered to 8-bit precision
+  av <- seq(0, 1, length.out = n)
+  p <- add_surface_layer(surface_plot(geom, views = "lateral"), data = d,
+                         hemi = "left", cmap = c(fg_hex, fg_hex),
+                         color_range = c(0, 1), alpha = av,
+                         zero_transparent = FALSE)
+  expect_equal(recover(p$layers[[1]]), av, tolerance = 0.01)
+
+  # soft mode recovers clamp(|d| / 1) == d
+  ps <- add_surface_layer(surface_plot(geom, views = "lateral"), data = d,
+                          hemi = "left", cmap = c(fg_hex, fg_hex),
+                          color_range = c(0, 1), alpha = "soft",
+                          alpha_range = c(0, 1), zero_transparent = FALSE)
+  expect_equal(recover(ps$layers[[1]]), d, tolerance = 0.01)
+})
+
+test_that("thresh with alpha < 1 applies opacity once (no double application)", {
+  k <- 6
+  g <- expand.grid(x = seq_len(k), y = seq_len(k))
+  verts <- cbind(g$x, g$y, 0)
+  faces <- do.call(rbind, lapply(seq_len(k - 1), function(i) {
+    do.call(rbind, lapply(seq_len(k - 1), function(j) {
+      a <- (j - 1) * k + i
+      rbind(c(a, a + 1, a + k), c(a + 1, a + k + 1, a + k))
+    }))
+  }))
+  geom <- SurfaceGeometry(verts, faces - 1L, hemi = "lh")
+  n <- nrow(coords(geom))
+  d <- seq(0, 0.3, length.out = n)
+
+  base_rgb <- as.numeric(grDevices::col2rgb(grDevices::gray(0.6)))
+  colour_dist <- function(alpha, thresh = NULL) {
+    p <- add_surface_layer(surface_plot(geom, views = "lateral"), data = d,
+                           hemi = "left", alpha = alpha, thresh = thresh,
+                           color_range = c(0, 0.3), zero_transparent = FALSE)
+    cols <- neurosurf:::.ns_compute_vertex_colors(list(p$layers[[1]]), geom,
+                                                  "left", 0.6)
+    sqrt(colSums((grDevices::col2rgb(cols) - base_rgb)^2))
+  }
+
+  above <- d >= 0.15
+  # For above-threshold vertices, distance-from-base at alpha=0.5 should be
+  # ~half of that at alpha=1 (double application would make it ~a quarter).
+  half <- mean(colour_dist(0.5, thresh = 0.15)[above])
+  full <- mean(colour_dist(1, thresh = 0.15)[above])
+  expect_equal(half / full, 0.5, tolerance = 0.05)
 })

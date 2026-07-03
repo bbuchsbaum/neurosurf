@@ -9,6 +9,8 @@ add_surface_layer(
   data,
   cmap = "viridis",
   alpha = 1,
+  alpha_range = NULL,
+  alpha_gamma = NULL,
   irange = NULL,
   color_range = NULL,
   thresh = NULL,
@@ -39,10 +41,33 @@ it should have length equal to the total number of vertices across
 hemispheres and is split left-to-right. If a list, it may contain elements
 named \code{"left"} and/or \code{"right"}.}
 
-\item{cmap}{Character string naming a colour map. The value is passed
-through to \code{\link{colorRampPalette}} to generate colours.}
+\item{cmap}{Colour specification for the layer. May be a vector of two or
+more colours (passed to \code{\link{colorRampPalette}}), or a single
+character string naming a palette. Palette names understood by
+\code{\link[grDevices]{hcl.colors}} (for example \code{"viridis"},
+\code{"inferno"}, \code{"magma"}, \code{"plasma"}, \code{"cividis"}) are
+resolved via \code{hcl.colors()}; see \code{grDevices::hcl.pals()} for the
+full list. An unrecognised name falls back to a blue-white-red ramp with a
+warning.}
 
-\item{alpha}{Numeric in \eqn{[0,1]} controlling layer opacity.}
+\item{alpha}{Layer opacity. One of: a single numeric in \eqn{[0,1]}
+(uniform opacity, the default); a numeric vector of per-vertex opacities
+matching \code{data} in length and layout (values are clamped to
+\eqn{[0,1]} and, for sparse \code{data}, filled/smoothed the same way);
+or the string \code{"soft"} to derive per-vertex opacity from the data
+magnitude (see \code{alpha_range}/\code{alpha_gamma}). Per-vertex and
+\code{"soft"} alpha let opacity be modulated by the data value, mirroring
+\code{neuroim2::plot_overlay(ov_alpha_mode = "soft")} for volumes.}
+
+\item{alpha_range}{Numeric length-2 vector \code{c(lo, hi)} used when
+\code{alpha = "soft"}: opacity rises from 0 at \code{lo} to 1 at \code{hi}
+as \code{clamp((|data| - lo)/(hi - lo), 0, 1)}. If \code{NULL}, defaults to
+\code{c(0, max(abs(color_range)))}. Ignored unless \code{alpha = "soft"}.}
+
+\item{alpha_gamma}{Optional positive exponent applied to the soft-alpha ramp
+(\code{opacity^alpha_gamma}). Values \code{> 1} keep low signal fainter;
+values \code{< 1} lift it. \code{NULL} (default) is treated as \code{1}
+(linear). Ignored unless \code{alpha = "soft"}.}
 
 \item{irange}{Optional numeric vector of length 2 giving the minimum and
 maximum data values to map to the colour scale. Alias for
