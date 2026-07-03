@@ -14,7 +14,8 @@ surface_plot(
   flip = FALSE,
   zoom = 2,
   background = "white",
-  brightness = 0.5
+  brightness = 0.5,
+  margin = 0.03
 )
 ```
 
@@ -50,18 +51,29 @@ surface_plot(
 
 - zoom:
 
-  Numeric zoom factor passed through to the underlying
+  Numeric camera zoom factor passed through to the underlying
   [`view_surface`](https://bbuchsbaum.github.io/neurosurf/reference/view_surface.md)
-  calls.
+  calls. Note that each rendered panel is automatically cropped to its
+  content, so camera `zoom` does not change how much of a panel the
+  brain fills; use `margin` to control the whitespace around each brain
+  in the assembled figure.
 
 - background:
 
-  Background colour for the rgl scene.
+  Background colour for the rgl scene. Panels are cropped in a
+  background-aware way, so any solid colour (e.g. a dark `"#222222"`)
+  trims correctly.
 
 - brightness:
 
   Baseline brightness for a plain surface when no layers are added.
   Value in \\\[0,1\]\\.
+
+- margin:
+
+  Fraction of background retained around each cropped brain when
+  assembling the figure (e.g. `0.03` keeps a 3% band). Smaller values
+  pack the brains more tightly; `0` crops flush to the content.
 
 ## Value
 

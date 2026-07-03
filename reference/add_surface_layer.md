@@ -10,6 +10,8 @@ add_surface_layer(
   data,
   cmap = "viridis",
   alpha = 1,
+  alpha_range = NULL,
+  alpha_gamma = NULL,
   irange = NULL,
   color_range = NULL,
   thresh = NULL,
@@ -48,13 +50,42 @@ add_surface_layer(
 
 - cmap:
 
-  Character string naming a colour map. The value is passed through to
-  [`colorRampPalette`](https://rdrr.io/r/grDevices/colorRamp.html) to
-  generate colours.
+  Colour specification for the layer. May be a vector of two or more
+  colours (passed to
+  [`colorRampPalette`](https://rdrr.io/r/grDevices/colorRamp.html)), or
+  a single character string naming a palette. Palette names understood
+  by [`hcl.colors`](https://rdrr.io/r/grDevices/palettes.html) (for
+  example `"viridis"`, `"inferno"`, `"magma"`, `"plasma"`, `"cividis"`)
+  are resolved via
+  [`hcl.colors()`](https://rdrr.io/r/grDevices/palettes.html); see
+  [`grDevices::hcl.pals()`](https://rdrr.io/r/grDevices/palettes.html)
+  for the full list. An unrecognised name falls back to a blue-white-red
+  ramp with a warning.
 
 - alpha:
 
-  Numeric in \\\[0,1\]\\ controlling layer opacity.
+  Layer opacity. One of: a single numeric in \\\[0,1\]\\ (uniform
+  opacity, the default); a numeric vector of per-vertex opacities
+  matching `data` in length and layout (values are clamped to
+  \\\[0,1\]\\ and, for sparse `data`, filled/smoothed the same way); or
+  the string `"soft"` to derive per-vertex opacity from the data
+  magnitude (see `alpha_range`/`alpha_gamma`). Per-vertex and `"soft"`
+  alpha let opacity be modulated by the data value, mirroring
+  `neuroim2::plot_overlay(ov_alpha_mode = "soft")` for volumes.
+
+- alpha_range:
+
+  Numeric length-2 vector `c(lo, hi)` used when `alpha = "soft"`:
+  opacity rises from 0 at `lo` to 1 at `hi` as
+  `clamp((|data| - lo)/(hi - lo), 0, 1)`. If `NULL`, defaults to
+  `c(0, max(abs(color_range)))`. Ignored unless `alpha = "soft"`.
+
+- alpha_gamma:
+
+  Optional positive exponent applied to the soft-alpha ramp
+  (`opacity^alpha_gamma`). Values `> 1` keep low signal fainter; values
+  `< 1` lift it. `NULL` (default) is treated as `1` (linear). Ignored
+  unless `alpha = "soft"`.
 
 - irange:
 

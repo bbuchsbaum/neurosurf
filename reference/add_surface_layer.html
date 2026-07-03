@@ -51,6 +51,8 @@
 <span>  <span class="va">data</span>,</span>
 <span>  cmap <span class="op">=</span> <span class="st">"viridis"</span>,</span>
 <span>  alpha <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  alpha_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  alpha_gamma <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  irange <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  color_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  thresh <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -90,12 +92,39 @@ named <code>"left"</code> and/or <code>"right"</code>.</p></dd>
 
 
 <dt id="arg-cmap">cmap<a class="anchor" aria-label="anchor" href="#arg-cmap"></a></dt>
-<dd><p>Character string naming a colour map. The value is passed
-through to <code><a href="https://rdrr.io/r/grDevices/colorRamp.html" class="external-link">colorRampPalette</a></code> to generate colours.</p></dd>
+<dd><p>Colour specification for the layer. May be a vector of two or
+more colours (passed to <code><a href="https://rdrr.io/r/grDevices/colorRamp.html" class="external-link">colorRampPalette</a></code>), or a single
+character string naming a palette. Palette names understood by
+<code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">hcl.colors</a></code> (for example <code>"viridis"</code>,
+<code>"inferno"</code>, <code>"magma"</code>, <code>"plasma"</code>, <code>"cividis"</code>) are
+resolved via <code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">hcl.colors()</a></code>; see <code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">grDevices::hcl.pals()</a></code> for the
+full list. An unrecognised name falls back to a blue-white-red ramp with a
+warning.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>Numeric in \([0,1]\) controlling layer opacity.</p></dd>
+<dd><p>Layer opacity. One of: a single numeric in \([0,1]\)
+(uniform opacity, the default); a numeric vector of per-vertex opacities
+matching <code>data</code> in length and layout (values are clamped to
+\([0,1]\) and, for sparse <code>data</code>, filled/smoothed the same way);
+or the string <code>"soft"</code> to derive per-vertex opacity from the data
+magnitude (see <code>alpha_range</code>/<code>alpha_gamma</code>). Per-vertex and
+<code>"soft"</code> alpha let opacity be modulated by the data value, mirroring
+<code>neuroim2::plot_overlay(ov_alpha_mode = "soft")</code> for volumes.</p></dd>
+
+
+<dt id="arg-alpha-range">alpha_range<a class="anchor" aria-label="anchor" href="#arg-alpha-range"></a></dt>
+<dd><p>Numeric length-2 vector <code>c(lo, hi)</code> used when
+<code>alpha = "soft"</code>: opacity rises from 0 at <code>lo</code> to 1 at <code>hi</code>
+as <code>clamp((|data| - lo)/(hi - lo), 0, 1)</code>. If <code>NULL</code>, defaults to
+<code>c(0, max(abs(color_range)))</code>. Ignored unless <code>alpha = "soft"</code>.</p></dd>
+
+
+<dt id="arg-alpha-gamma">alpha_gamma<a class="anchor" aria-label="anchor" href="#arg-alpha-gamma"></a></dt>
+<dd><p>Optional positive exponent applied to the soft-alpha ramp
+(<code>opacity^alpha_gamma</code>). Values <code>&gt; 1</code> keep low signal fainter;
+values <code>&lt; 1</code> lift it. <code>NULL</code> (default) is treated as <code>1</code>
+(linear). Ignored unless <code>alpha = "soft"</code>.</p></dd>
 
 
 <dt id="arg-irange">irange<a class="anchor" aria-label="anchor" href="#arg-irange"></a></dt>

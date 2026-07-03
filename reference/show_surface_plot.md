@@ -22,6 +22,10 @@ show_surface_plot(
   thresh = NULL,
   show_colorbar = TRUE,
   outline = FALSE,
+  background = "white",
+  zoom = 2,
+  margin = 0.03,
+  trim = FALSE,
   file = NULL,
   width = 1200,
   height = 900,
@@ -57,7 +61,11 @@ show_surface_plot(
 
 - cmap:
 
-  Character string naming a colour map for the data layer.
+  Colour map for the data layer: either a vector of colours or a single
+  palette name understood by
+  [`hcl.colors`](https://rdrr.io/r/grDevices/palettes.html) (for example
+  `"viridis"`, `"inferno"`, `"magma"`). See
+  [`add_surface_layer`](https://bbuchsbaum.github.io/neurosurf/reference/add_surface_layer.md).
 
 - irange:
 
@@ -84,6 +92,33 @@ show_surface_plot(
   Logical; if `TRUE`, the supplied `data` are treated as ROI labels and
   boundaries are drawn instead of a filled map.
 
+- background:
+
+  Background colour for the figure (also used as the PNG canvas colour
+  and for background-aware cropping). Defaults to `"white"`; any solid
+  colour such as `"#222222"` works.
+
+- zoom:
+
+  Numeric camera zoom passed to
+  [`surface_plot`](https://bbuchsbaum.github.io/neurosurf/reference/surface_plot.md).
+  Because panels are auto-cropped to their content, `zoom` does not
+  change how much of each panel the brain fills; use `margin` to control
+  whitespace.
+
+- margin:
+
+  Fraction of background kept around each cropped brain (default
+  `0.03`); smaller values pack the brains more tightly.
+
+- trim:
+
+  Logical; if `TRUE` and `file` is supplied, crop the uniform-background
+  border from the saved PNG so the brains fill the image (native
+  equivalent of ImageMagick `-trim`). The output dimensions become the
+  content bounding box, so `width`/`height` act as an upper bound rather
+  than a fixed canvas.
+
 - file:
 
   Optional PNG output path. If supplied, the plot is drawn to this file
@@ -97,7 +132,10 @@ show_surface_plot(
 
   Additional arguments passed through to
   [`add_surface_layer`](https://bbuchsbaum.github.io/neurosurf/reference/add_surface_layer.md)
-  (for example `alpha`, `outline_col`, `outline_lwd`).
+  (for example `alpha`, `alpha_range`, `alpha_gamma`, `outline_col`,
+  `outline_lwd`). Pass `alpha = "soft"` (or a per-vertex `alpha` vector)
+  for data-modulated opacity that mirrors
+  `neuroim2::plot_overlay(ov_alpha_mode = "soft")`.
 
 ## Value
 
