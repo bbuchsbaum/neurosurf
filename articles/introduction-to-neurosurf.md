@@ -96,9 +96,9 @@ head(vertex_coords, 3)
 
 # The underlying igraph connectivity object
 neurosurf::graph(lh_geom)
-#> IGRAPH 73e7fc7 U--- 642 1920 -- 
+#> IGRAPH ded0640 U--- 642 1920 -- 
 #> + attr: x (v/n), y (v/n), z (v/n), dist (e/n)
-#> + edges from 73e7fc7:
+#> + edges from ded0640:
 #>  [1]  1-- 13  1-- 27  1-- 55  1-- 90  1--125  2--188  2--195  2--223  2--258
 #> [10]  2--293  3--264  3--271  3--300  3--356  3--391  4-- 96  4--103  4--132
 #> [19]  4--517  4--545  5-- 19  5-- 26  5-- 62  5--201  5--334  6--397  6--404
