@@ -106,24 +106,26 @@ plot(p, colorbar = TRUE, cbar_location = "bottom",
 overlays parcel boundaries. By default it uses the `"midpoint"` boundary
 method, which draws a single crisp contour running between differing
 labels (no double lines), with a subtle halo for legibility against the
-colour map.
+colour map. On this decimated mesh a full 200-parcel atlas is visually
+dense, so the example highlights a representative subset of parcels;
+omit `rois` to draw every parcel boundary.
 
 ``` r
 
-p <- add_atlas_outline(
+roi_counts <- sort(table(parcel_labels[parcel_labels > 0]), decreasing = TRUE)
+outline_rois <- as.integer(names(roi_counts)[seq_len(min(24L, length(roi_counts)))])
+
+p_outline <- add_atlas_outline(
   p,
   labels         = parcel_labels,
+  rois           = outline_rois,
   label          = "Schaefer-200",
   outline_lwd    = 1.0,
   outline_offset = 0.5
 )
 
-plot(p, colorbar = TRUE, cbar_location = "bottom",
+plot(p_outline, colorbar = TRUE, cbar_location = "bottom",
      cbar_kws = list(n_ticks = 3, digits = 1, label_cex = 0.7, title_cex = 0.9))
-#> Error : Chromote: timed out waiting for response to command Page.disable
-#> Error : Chromote: timed out waiting for response to command Page.disable
-#> Error : Chromote: timed out waiting for response to command Page.disable
-#> Error : Chromote: timed out waiting for response to command Page.disable
 ```
 
 ![](surface-figures_files/figure-html/outlined-figure-1.png)

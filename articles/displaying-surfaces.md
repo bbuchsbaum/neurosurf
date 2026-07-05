@@ -233,22 +233,27 @@ coordinates. It requires a data frame with columns `x`, `y`, `z`, and
 
 ``` r
 
-# Define coordinates for some spherical markers
-# Sample some vertex indices safely from available vertices
-n_vertices <- nrow(coords(white_lh_display))
-sample_indices <- sample(1:n_vertices, size = min(3, n_vertices))
+# Pick deterministic markers on the lateral face so all examples are visible.
+xyz <- coords(white_lh_display)
+lateral_targets <- rbind(
+  c(quantile(xyz[, 1], 0.06), quantile(xyz[, 2], 0.20), quantile(xyz[, 3], 0.68)),
+  c(quantile(xyz[, 1], 0.05), quantile(xyz[, 2], 0.50), quantile(xyz[, 3], 0.50)),
+  c(quantile(xyz[, 1], 0.06), quantile(xyz[, 2], 0.78), quantile(xyz[, 3], 0.35))
+)
+marker_vertices <- apply(lateral_targets, 1, function(target) {
+  which.min(rowSums((sweep(xyz, 2, target, "-"))^2))
+})
 
 peak_coords <- data.frame(
-  x = coords(white_lh_display)[sample_indices, 1],
-  y = coords(white_lh_display)[sample_indices, 2],
-  z = coords(white_lh_display)[sample_indices, 3],
-  radius = c(3, 4, 2.5)[1:length(sample_indices)],
-  color = c("yellow", "cyan", "magenta")[1:length(sample_indices)]
+  vertex = marker_vertices,
+  radius = c(4.5, 4.5, 4.5),
+  color = c("yellow", "cyan", "magenta")
 )
 
 # Plot the surface with curvature shading and add the spheres
 render_surface(white_lh_display, bgcol = curv_cols_smooth(curv_lh_display),
-               viewpoint = "lateral", specular = "black", spheres = peak_coords)
+               viewpoint = "lateral", specular = "black",
+               spheres = peak_coords, spheres_as_vertices = TRUE)
 ```
 
 ![](displaying-surfaces_files/figure-html/spheres-plot-1.-render-15.png)

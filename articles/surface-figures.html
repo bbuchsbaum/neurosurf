@@ -167,22 +167,25 @@ your own per-vertex values.</p>
 <p><code><a href="../reference/add_atlas_outline.html">add_atlas_outline()</a></code> overlays parcel boundaries. By
 default it uses the <code>"midpoint"</code> boundary method, which draws
 a single crisp contour running between differing labels (no double
-lines), with a subtle halo for legibility against the colour map.</p>
+lines), with a subtle halo for legibility against the colour map. On
+this decimated mesh a full 200-parcel atlas is visually dense, so the
+example highlights a representative subset of parcels; omit
+<code>rois</code> to draw every parcel boundary.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_atlas_outline.html">add_atlas_outline</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">roi_counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">parcel_labels</span><span class="op">[</span><span class="va">parcel_labels</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span><span class="op">)</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">outline_rois</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">roi_counts</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">24L</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">roi_counts</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p_outline</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_atlas_outline.html">add_atlas_outline</a></span><span class="op">(</span></span>
 <span>  <span class="va">p</span>,</span>
 <span>  labels         <span class="op">=</span> <span class="va">parcel_labels</span>,</span>
+<span>  rois           <span class="op">=</span> <span class="va">outline_rois</span>,</span>
 <span>  label          <span class="op">=</span> <span class="st">"Schaefer-200"</span>,</span>
 <span>  outline_lwd    <span class="op">=</span> <span class="fl">1.0</span>,</span>
 <span>  outline_offset <span class="op">=</span> <span class="fl">0.5</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p</span>, colorbar <span class="op">=</span> <span class="cn">TRUE</span>, cbar_location <span class="op">=</span> <span class="st">"bottom"</span>,</span>
-<span>     cbar_kws <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n_ticks <span class="op">=</span> <span class="fl">3</span>, digits <span class="op">=</span> <span class="fl">1</span>, label_cex <span class="op">=</span> <span class="fl">0.7</span>, title_cex <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error : Chromote: timed out waiting for response to command Page.disable</span></span>
-<span><span class="co">#&gt; Error : Chromote: timed out waiting for response to command Page.disable</span></span>
-<span><span class="co">#&gt; Error : Chromote: timed out waiting for response to command Page.disable</span></span>
-<span><span class="co">#&gt; Error : Chromote: timed out waiting for response to command Page.disable</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_outline</span>, colorbar <span class="op">=</span> <span class="cn">TRUE</span>, cbar_location <span class="op">=</span> <span class="st">"bottom"</span>,</span>
+<span>     cbar_kws <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n_ticks <span class="op">=</span> <span class="fl">3</span>, digits <span class="op">=</span> <span class="fl">1</span>, label_cex <span class="op">=</span> <span class="fl">0.7</span>, title_cex <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="surface-figures_files/figure-html/outlined-figure-1.png" class="r-plt" alt="" width="100%"></p>
 <p>The figure now shows left and right inflated surfaces in lateral and
 medial views, a continuous map with a clean colourbar, and parcel
