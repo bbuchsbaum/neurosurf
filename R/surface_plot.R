@@ -936,16 +936,18 @@ render_surface_plot <- function(x,
       # blank panel so the figure (and the vignette build) still completes.
       snap_ok <- FALSE
       if (use_webshot) {
-        snap_ok <- tryCatch({
+        snap_ok <- .ns_quiet_snapshot({
           rgl::snapshot3d(filename = tmpfile, webshot = TRUE)
-          file.exists(tmpfile)
-        }, error = function(e) FALSE)
+          .ns_snapshot_file_ok(tmpfile)
+        })
       }
       if (!snap_ok) {
-        snap_ok <- tryCatch({
+        # rgl.snapshot() against a NULL device can return an all-black image.
+        # Treat that as a failed capture rather than publishing a black panel.
+        snap_ok <- .ns_quiet_snapshot({
           rgl::rgl.snapshot(filename = tmpfile)
-          file.exists(tmpfile)
-        }, error = function(e) FALSE)
+          .ns_snapshot_file_ok(tmpfile)
+        })
       }
       if (!snap_ok) {
         warning("render_surface_plot(): no working snapshot backend; ",
@@ -1141,6 +1143,56 @@ plot.neurosurf_plot <- function(x, ...) {
 
 
 # Internal utilities ---------------------------------------------------------
+
+.ns_quiet_snapshot <- function(expr) {
+  value <- NULL
+  ok <- TRUE
+
+  utils::capture.output({
+    utils::capture.output({
+      value <- tryCatch(
+        force(expr),
+        error = function(e) {
+          ok <<- FALSE
+          FALSE
+        }
+      )
+    }, type = "message")
+  }, type = "output")
+
+  isTRUE(ok) && isTRUE(value)
+}
+
+.ns_snapshot_file_ok <- function(file) {
+  if (!file.exists(file) || is.na(file.info(file)$size) ||
+      file.info(file)$size <= 0) {
+    return(FALSE)
+  }
+
+  img <- tryCatch(png::readPNG(file), error = function(e) NULL)
+  if (is.null(img) || length(dim(img)) < 3L || dim(img)[3L] < 3L) {
+    return(FALSE)
+  }
+
+  rgb <- img[, , seq_len(3L), drop = FALSE]
+  lum <- 0.2126 * rgb[, , 1L] + 0.7152 * rgb[, , 2L] + 0.0722 * rgb[, , 3L]
+  lum <- as.numeric(lum)
+  lum <- lum[is.finite(lum)]
+  if (!length(lum)) {
+    return(FALSE)
+  }
+
+  # Reject the common headless failure modes: uniform blank or all-black
+  # screenshots that rgl can still write as apparently successful PNGs.
+  if (stats::sd(lum) < 0.002) {
+    return(FALSE)
+  }
+  if (mean(lum < 0.02) > 0.98 || mean(lum > 0.98) > 0.995) {
+    return(FALSE)
+  }
+
+  TRUE
+}
 
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
@@ -1932,14 +1984,15 @@ plot.neurosurf_plot <- function(x, ...) {
       grid::segmentsGrob(
         x0 = grid::unit(tick_pos, "npc"),
         x1 = grid::unit(tick_pos, "npc"),
-        y0 = grid::unit(0, "npc"),
-        y1 = grid::unit(0.3, "npc"),
+        y0 = grid::unit(1, "npc"),
+        y1 = grid::unit(0.62, "npc"),
         gp = grid::gpar(col = "black", lwd = 0.5)
       ),
       grid::textGrob(
         label = tick_lab,
         x = grid::unit(tick_pos, "npc"),
-        y = grid::unit(0.9, "npc"),
+        y = grid::unit(0.12, "npc"),
+        just = c("center", "bottom"),
         gp = grid::gpar(cex = label_cex)
       )
     )
@@ -1947,13 +2000,14 @@ plot.neurosurf_plot <- function(x, ...) {
     # Stack title / gap / bar / tick-labels so the title sits clearly above the
     # bar instead of overlapping it.
     inner_lay <- grid::grid.layout(
-      nrow = 4L,
+      nrow = 5L,
       ncol = 1L,
       heights = grid::unit.c(
         grid::unit(title_cex + 0.3, "lines"),  # title row, sized to the title
         bar_spacing,                            # gap between title and bar
         bar_height,                             # the colour bar
-        grid::unit(1, "lines")                  # tick labels
+        grid::unit(1.2, "lines"),               # ticks and tick labels
+        grid::unit(0.25, "lines")               # bottom breathing room
       )
     )
     inner <- grid::frameGrob(layout = inner_lay)

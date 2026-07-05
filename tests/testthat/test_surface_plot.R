@@ -615,6 +615,44 @@ test_that(".ns_build_colorbars builds grob for layers", {
   expect_true(inherits(result, "grob") || inherits(result, "gTree"))
 })
 
+test_that(".ns_snapshot_file_ok rejects blank snapshot failures", {
+  skip_if_not_installed("png")
+
+  black_file <- tempfile(fileext = ".png")
+  white_file <- tempfile(fileext = ".png")
+  valid_file <- tempfile(fileext = ".png")
+  on.exit(unlink(c(black_file, white_file, valid_file)), add = TRUE)
+
+  png::writePNG(array(0, dim = c(20, 20, 3)), black_file)
+  png::writePNG(array(1, dim = c(20, 20, 3)), white_file)
+
+  valid <- array(1, dim = c(20, 20, 3))
+  valid[6:15, 6:15, 1] <- 0.2
+  valid[6:15, 6:15, 2] <- 0.6
+  valid[6:15, 6:15, 3] <- 0.8
+  png::writePNG(valid, valid_file)
+
+  expect_false(neurosurf:::.ns_snapshot_file_ok(black_file))
+  expect_false(neurosurf:::.ns_snapshot_file_ok(white_file))
+  expect_true(neurosurf:::.ns_snapshot_file_ok(valid_file))
+})
+
+test_that(".ns_quiet_snapshot suppresses snapshot backend chatter", {
+  out <- utils::capture.output({
+    msg <- utils::capture.output({
+      result <- neurosurf:::.ns_quiet_snapshot({
+        cat("backend stdout\n")
+        message("backend message")
+        TRUE
+      })
+    }, type = "message")
+  }, type = "output")
+
+  expect_true(result)
+  expect_length(out, 0L)
+  expect_length(msg, 0L)
+})
+
 # Tests for .ns_split_vector_data
 test_that(".ns_split_vector_data handles matrix input", {
   geom <- example_surface_geometry()
