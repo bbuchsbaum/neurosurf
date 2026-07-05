@@ -65,7 +65,9 @@ testshiny/test_shiny.R
 ^.*\.DS_Store$
 ^src/.*\.(o|so)$
 ^\.beads($|/)
+^\.mote($|/)
 ^\.github($|/)
 ^\.tmpcheck($|/)
+^inst/htmlwidgets/lib/neurosurface/\.omc($|/)
 ^tests/testthat/Rplots\.pdf$
 ^vignettes/surfplot-style-figures\.html$
