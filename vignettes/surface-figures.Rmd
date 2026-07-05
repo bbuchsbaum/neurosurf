@@ -11,7 +11,7 @@ output:
       in_header: albers-header.html
 params:
   family: teal
-  preset: interaction
+  preset: homage
 resource_files:
 - albers.css
 - albers.js
