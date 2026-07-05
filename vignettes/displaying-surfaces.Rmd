@@ -11,18 +11,19 @@ output:
     css: albers.css
     includes:
       in_header: albers-header.html
-vignette: |
-  %\VignetteIndexEntry{Displaying Surfaces with RGL}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 params:
-  family: teal
+  family: interaction
   preset: homage
 resource_files:
 - albers.css
 - albers.js
 - albers-header.html
+- fonts
 
+vignette: |
+  %\VignetteIndexEntry{Displaying Surfaces with RGL}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 This vignette demonstrates how to display 3D brain surface meshes using the `rgl` plotting tools provided by the `neurosurf` package, primarily through the `plot()` method which utilizes the `view_surface()` function internally.
@@ -35,6 +36,8 @@ For high-level, multi-view layouts with colourbars and atlas outlines, see `vign
 First, we set up `knitr` options to embed `rgl` plots directly into the HTML output using WebGL and prevent standalone `rgl` windows from popping up during knitting. We then load example left and right hemisphere white matter surfaces included with the package and prepare some data (smoothed geometry, curvature, random values) for the examples.
 
 ```{r setup, include = FALSE}
+if (requireNamespace("ragg", quietly = TRUE)) knitr::opts_chunk$set(dev = "ragg_png")
+if (requireNamespace("systemfonts", quietly = TRUE)) albersdown::albers_register_fonts()
 # Check for required packages - skip vignette build if rgl unavailable
 has_rgl <- requireNamespace("rgl", quietly = TRUE)
 if (!has_rgl) {
@@ -245,7 +248,7 @@ random_vals_display_smooth <- random_vals_display
 cat(sprintf(
   paste0(
     '<script>document.addEventListener("DOMContentLoaded",function(){',
-    'document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-study","preset-structural","preset-adobe","preset-midnight");',
+    'document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-interaction","preset-study","preset-structural","preset-adobe","preset-midnight");',
     'document.body.classList.add("palette-%s","preset-%s");',
     '});</script>'
   ),
@@ -253,6 +256,7 @@ cat(sprintf(
   params$preset
 ))
 ```
+
 
 ```{r upsample-hidden, echo=FALSE}
 # Gently refine the std8 mesh to reduce faceting in the vignette visuals.

@@ -9,18 +9,19 @@ output:
     css: albers.css
     includes:
       in_header: albers-header.html
-vignette: |
-  %\VignetteIndexEntry{Interactive Surface Visualization with surfwidget}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 params:
-  family: teal
+  family: interaction
   preset: homage
 resource_files:
 - albers.css
 - albers.js
 - albers-header.html
+- fonts
 
+vignette: |
+  %\VignetteIndexEntry{Interactive Surface Visualization with surfwidget}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 This vignette focuses on interactive 3D visualization using `surfwidget()`.
@@ -29,6 +30,8 @@ multi-view, publication-quality figures with colourbars and atlas
 outlines, see `vignette("surface-figures")`.
 
 ```{r setup, include = FALSE}
+if (requireNamespace("ragg", quietly = TRUE)) knitr::opts_chunk$set(dev = "ragg_png")
+if (requireNamespace("systemfonts", quietly = TRUE)) albersdown::albers_register_fonts()
 # Ensure rgl uses a NULL device when knitting (prevents OpenGL segfaults on headless)
 Sys.setenv(RGL_USE_NULL = "TRUE")
 options(rgl.useNULL = TRUE)
@@ -71,7 +74,7 @@ curv_cmap <- grDevices::colorRampPalette(c("#707070", "#E0E0E0"))(256)
 cat(sprintf(
   paste0(
     '<script>document.addEventListener("DOMContentLoaded",function(){',
-    'document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-study","preset-structural","preset-adobe","preset-midnight");',
+    'document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-interaction","preset-study","preset-structural","preset-adobe","preset-midnight");',
     'document.body.classList.add("palette-%s","preset-%s");',
     '});</script>'
   ),
@@ -79,6 +82,7 @@ cat(sprintf(
   params$preset
 ))
 ```
+
 
 ## Introduction
 

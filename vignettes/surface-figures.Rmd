@@ -9,18 +9,19 @@ output:
     css: albers.css
     includes:
       in_header: albers-header.html
-vignette: |
-  %\VignetteIndexEntry{Publication-quality surface figures}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 params:
-  family: teal
+  family: interaction
   preset: homage
 resource_files:
 - albers.css
 - albers.js
 - albers-header.html
+- fonts
 
+vignette: |
+  %\VignetteIndexEntry{Publication-quality surface figures}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 This vignette builds a multi-view, publication-ready surface figure from
@@ -36,6 +37,8 @@ We will:
 - add crisp atlas outlines for anatomical reference.
 
 ```{r setup, include=FALSE}
+if (requireNamespace("ragg", quietly = TRUE)) knitr::opts_chunk$set(dev = "ragg_png")
+if (requireNamespace("systemfonts", quietly = TRUE)) albersdown::albers_register_fonts()
 # Prefer rgl's NULL device for non-interactive builds (avoids headless crashes)
 if (!interactive()) {
   options(rgl.useNULL = TRUE)
@@ -69,7 +72,7 @@ library(neuroim2)
 cat(sprintf(
   paste0(
     '<script>document.addEventListener("DOMContentLoaded",function(){',
-    'document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-study","preset-structural","preset-adobe","preset-midnight");',
+    'document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-interaction","preset-study","preset-structural","preset-adobe","preset-midnight");',
     'document.body.classList.add("palette-%s","preset-%s");',
     '});</script>'
   ),
@@ -77,6 +80,7 @@ cat(sprintf(
   params$preset
 ))
 ```
+
 
 ## Load surfaces and an atlas
 
