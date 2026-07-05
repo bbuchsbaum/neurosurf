@@ -626,6 +626,14 @@ test_that(".ns_snapshot_file_ok rejects blank snapshot failures", {
   png::writePNG(array(0, dim = c(20, 20, 3)), black_file)
   png::writePNG(array(1, dim = c(20, 20, 3)), white_file)
 
+  nearly_blank <- array(1, dim = c(100, 100, 3))
+  nearly_blank[99:100, , 1] <- 0.2
+  nearly_blank[99:100, , 2] <- 0.6
+  nearly_blank[99:100, , 3] <- 0.8
+  nearly_blank_file <- tempfile(fileext = ".png")
+  on.exit(unlink(nearly_blank_file), add = TRUE)
+  png::writePNG(nearly_blank, nearly_blank_file)
+
   valid <- array(1, dim = c(20, 20, 3))
   valid[6:15, 6:15, 1] <- 0.2
   valid[6:15, 6:15, 2] <- 0.6
@@ -634,6 +642,7 @@ test_that(".ns_snapshot_file_ok rejects blank snapshot failures", {
 
   expect_false(neurosurf:::.ns_snapshot_file_ok(black_file))
   expect_false(neurosurf:::.ns_snapshot_file_ok(white_file))
+  expect_false(neurosurf:::.ns_snapshot_file_ok(nearly_blank_file))
   expect_true(neurosurf:::.ns_snapshot_file_ok(valid_file))
 })
 

@@ -1147,6 +1147,15 @@ plot.neurosurf_plot <- function(x, ...) {
 .ns_quiet_snapshot <- function(expr) {
   value <- NULL
   ok <- TRUE
+  old_timeout <- getOption("chromote.timeout")
+  on.exit(options(chromote.timeout = old_timeout), add = TRUE)
+
+  timeout <- getOption("neurosurf.chromote_timeout", 120)
+  if (is.numeric(timeout) && length(timeout) == 1L && is.finite(timeout)) {
+    old_numeric <- suppressWarnings(as.numeric(old_timeout))
+    timeout <- max(timeout, old_numeric %||% 0, na.rm = TRUE)
+    options(chromote.timeout = timeout)
+  }
 
   utils::capture.output({
     utils::capture.output({
@@ -1187,7 +1196,7 @@ plot.neurosurf_plot <- function(x, ...) {
   if (stats::sd(lum) < 0.002) {
     return(FALSE)
   }
-  if (mean(lum < 0.02) > 0.98 || mean(lum > 0.98) > 0.995) {
+  if (mean(lum < 0.02) > 0.98 || mean(lum > 0.98) > 0.97) {
     return(FALSE)
   }
 
