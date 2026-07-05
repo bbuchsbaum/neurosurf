@@ -12,8 +12,8 @@ output:
     includes:
       in_header: albers-header.html
 params:
-  family: interaction
-  preset: homage
+  family: teal
+  preset: interaction
 resource_files:
 - albers.css
 - albers.js
@@ -37,7 +37,13 @@ First, we set up `knitr` options to embed `rgl` plots directly into the HTML out
 
 ```{r setup, include = FALSE}
 if (requireNamespace("ragg", quietly = TRUE)) knitr::opts_chunk$set(dev = "ragg_png")
-if (requireNamespace("systemfonts", quietly = TRUE)) albersdown::albers_register_fonts()
+if (
+  requireNamespace("systemfonts", quietly = TRUE) &&
+  requireNamespace("albersdown", quietly = TRUE) &&
+  "albers_register_fonts" %in% getNamespaceExports("albersdown")
+) {
+  getExportedValue("albersdown", "albers_register_fonts")()
+}
 # Check for required packages - skip vignette build if rgl unavailable
 has_rgl <- requireNamespace("rgl", quietly = TRUE)
 if (!has_rgl) {

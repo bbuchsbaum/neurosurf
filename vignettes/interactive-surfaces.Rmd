@@ -10,8 +10,8 @@ output:
     includes:
       in_header: albers-header.html
 params:
-  family: interaction
-  preset: homage
+  family: teal
+  preset: interaction
 resource_files:
 - albers.css
 - albers.js
@@ -31,7 +31,13 @@ outlines, see `vignette("surface-figures")`.
 
 ```{r setup, include = FALSE}
 if (requireNamespace("ragg", quietly = TRUE)) knitr::opts_chunk$set(dev = "ragg_png")
-if (requireNamespace("systemfonts", quietly = TRUE)) albersdown::albers_register_fonts()
+if (
+  requireNamespace("systemfonts", quietly = TRUE) &&
+  requireNamespace("albersdown", quietly = TRUE) &&
+  "albers_register_fonts" %in% getNamespaceExports("albersdown")
+) {
+  getExportedValue("albersdown", "albers_register_fonts")()
+}
 # Ensure rgl uses a NULL device when knitting (prevents OpenGL segfaults on headless)
 Sys.setenv(RGL_USE_NULL = "TRUE")
 options(rgl.useNULL = TRUE)

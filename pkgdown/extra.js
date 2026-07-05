@@ -10,8 +10,8 @@
 
   function applyDefaults() {
     if (!document.body) return;
-    if (!hasAny("palette-", FAMILY_CLASSES)) document.body.classList.add("palette-interaction");
-    if (!hasAny("preset-", PRESET_CLASSES)) document.body.classList.add("preset-homage");
+    if (!hasAny("palette-", FAMILY_CLASSES)) document.body.classList.add("palette-teal");
+    if (!hasAny("preset-", PRESET_CLASSES)) document.body.classList.add("preset-interaction");
     if (!hasAny("style-", STYLE_CLASSES)) document.body.classList.add("style-minimal");
 
     var theme = document.body.classList.contains("preset-midnight") ? "dark" : "light";

@@ -10,8 +10,8 @@ output:
     includes:
       in_header: albers-header.html
 params:
-  family: interaction
-  preset: homage
+  family: teal
+  preset: interaction
 resource_files:
 - albers.css
 - albers.js
@@ -38,7 +38,13 @@ We will:
 
 ```{r setup, include=FALSE}
 if (requireNamespace("ragg", quietly = TRUE)) knitr::opts_chunk$set(dev = "ragg_png")
-if (requireNamespace("systemfonts", quietly = TRUE)) albersdown::albers_register_fonts()
+if (
+  requireNamespace("systemfonts", quietly = TRUE) &&
+  requireNamespace("albersdown", quietly = TRUE) &&
+  "albers_register_fonts" %in% getNamespaceExports("albersdown")
+) {
+  getExportedValue("albersdown", "albers_register_fonts")()
+}
 # Prefer rgl's NULL device for non-interactive builds (avoids headless crashes)
 if (!interactive()) {
   options(rgl.useNULL = TRUE)
