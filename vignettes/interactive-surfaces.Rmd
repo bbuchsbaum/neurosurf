@@ -67,13 +67,6 @@ random_vals <- rnorm(length(nodes(white_lh_smooth)))
 
 # Curvature underlay: provides subtle anatomical texture (gyri/sulci shading)
 curv_vals <- curvature(white_lh_smooth)
-curv_range <- as.numeric(stats::quantile(
-  curv_vals,
-  probs = c(0.02, 0.98),
-  na.rm = TRUE,
-  names = FALSE
-))
-curv_cmap <- grDevices::colorRampPalette(c("#707070", "#E0E0E0"))(256)
 ```
 
 ```{r albers-classes, echo=FALSE, results='asis'}
@@ -179,22 +172,10 @@ advanced_config <- list(
   flatShading = FALSE
 )
 
-# Add a subtle anatomical underlay using curvature so thresholded data doesn't
-# "float" on a blank white surface.
-underlay_layer <- list(
-  label = "curvature",
-  data = curv_vals,
-  cmap = curv_cmap,
-  color_range = curv_range,
-  alpha = 1
-)
-
-# Keep the main data layer on top (inherits data/cmap/range/threshold from the
-# ColorMappedNeuroSurface object).
-data_layer <- list(label = "data")
-
-advanced_widget <- surfwidget(color_mapped_surf, 
-                             layers = list(underlay_layer, data_layer),
+# Curvature is the anatomical underlay; the ColorMappedNeuroSurface supplies
+# the selectable data layer without copying it into a legacy layer list.
+advanced_widget <- surfwidget(color_mapped_surf,
+                             curvature = curv_vals,
                              config = c(advanced_config, list(initialZoom = 2)), 
                              alpha = 0.9,
                              width = "100%", 
