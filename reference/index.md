@@ -186,6 +186,9 @@ Catch-all index to include any remaining topics.
 - [`SurfaceGeometrySource-class`](https://bbuchsbaum.github.io/neurosurf/reference/SurfaceGeometrySource-class.md)
   : SurfaceGeometrySource Class
 
+- [`show(`*`<SurfaceScene>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/SurfaceScene-class.md)
+  : A portable cortical surface scene
+
 - [`SurfaceSearchlight()`](https://bbuchsbaum.github.io/neurosurf/reference/SurfaceSearchlight.md)
   : SurfaceSearchlight
 
@@ -498,6 +501,9 @@ Catch-all index to include any remaining topics.
 - [`surface_labels()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_labels.md)
   : List available surface labels
 
+- [`surface_layer()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_layer.md)
+  : Define a named scalar layer for a surface scene
+
 - [`surface_montage()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_montage.md)
   : Arrange multiple surface views into a single montage figure
 
@@ -506,6 +512,12 @@ Catch-all index to include any remaining topics.
 
 - [`surface_sampler()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_sampler.md)
   : Build a reusable surface sampler for multi-frame volumes
+
+- [`surface_scene()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_scene.md)
+  : Construct a validated portable surface scene
+
+- [`surface_scene_manifest()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_scene_manifest.md)
+  : Serialize a SurfaceScene as a surfview.scene.v1 manifest
 
 - [`surface_set()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_set.md)
   : Construct a SurfaceSet
@@ -536,3 +548,6 @@ Catch-all index to include any remaining topics.
 
 - [`write_surf_data()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surf_data.md)
   : Write Surface Data to File
+
+- [`write_surface_scene()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_scene.md)
+  : Write a standalone portable surface report

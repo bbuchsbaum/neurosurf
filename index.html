@@ -85,12 +85,12 @@
 <div class="section level2">
 <h2 id="development-setup">Development setup<a class="anchor" aria-label="anchor" href="#development-setup"></a>
 </h2>
-<p><code>neurosurf</code> includes an interactive 3D visualization component powered by <a href="https://github.com/bbuchsbaum/surfviewjs" class="external-link">surfviewjs</a>. The built UMD bundle is committed so <code>devtools::install_github()</code> works without Node; Node is only needed if you want to rebuild the JavaScript library locally.</p>
+<p><code>neurosurf</code> includes an interactive 3D visualization component powered by <a href="https://github.com/bbuchsbaum/surfviewjs" class="external-link">surfviewjs</a>. The report-safe embed bundle is committed, so package users do not need Node. Maintainers control the source checkout at <code>~/code/jscode/surfviewjs</code>; <code>make surfview</code> rebuilds it and records the exact source commit and artifact checksum in <code>inst/htmlwidgets/lib/neurosurface/surfview.embed.commit</code>.</p>
 <div class="section level3">
 <h3 id="prerequisites">Prerequisites<a class="anchor" aria-label="anchor" href="#prerequisites"></a>
 </h3>
 <ul>
-<li>Node.js (v14 or higher)</li>
+<li>Node.js 18 or higher</li>
 <li>npm</li>
 </ul>
 </div>
@@ -100,39 +100,24 @@
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Build the surfviewjs library and copy it into neurosurf</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">make</span> surfview</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># Check build status</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">make</span> status</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># Verify the copied artifact and provenance marker</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">make</span> verify-build</span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co"># Clean build artifacts</span></span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">make</span> clean-surfview</span></code></pre></div>
 <p>The Makefile will:</p>
 <ol style="list-style-type: decimal">
-<li>Install npm dependencies in <code>surfviewjs</code> if needed</li>
-<li>Build the library with Vite</li>
-<li>Copy the UMD bundle to <code>inst/htmlwidgets/lib/neurosurface/</code>
-</li>
-<li>Synchronize the version number into <code>surfwidget.yaml</code>
-</li>
+<li>Build the dedicated embed bundle from the controlled <code>surfviewjs</code> checkout</li>
+<li>Copy <code>surfview.embed.iife.js</code> into the R package</li>
+<li>Record its source commit, package version, SHA-256, and Three.js revision</li>
+<li>Verify that <code>surfwidget.yaml</code> loads that one self-contained dependency</li>
 </ol>
 </div>
 <div class="section level3">
-<h3 id="workflow-integration">Workflow integration<a class="anchor" aria-label="anchor" href="#workflow-integration"></a>
+<h3 id="version-and-provenance">Version and provenance<a class="anchor" aria-label="anchor" href="#version-and-provenance"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Before R CMD check</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">make</span> r-check</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># Install package</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">make</span> r-install</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co"># Watch for changes during development</span></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="fu">make</span> watch-surfview  <span class="co"># Requires fswatch</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="version-management">Version management<a class="anchor" aria-label="anchor" href="#version-management"></a>
-</h3>
-<p>The version number in <code>surfwidget.yaml</code> is synchronized with <code>surfviewjs/package.json</code> when <code>make surfview</code> runs. To update it manually:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">make</span> update-yaml</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">make</span> show-version</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">make</span> show-version</span></code></pre></div>
+<p><code>paper-light</code> is the default appearance preset: a white-background, publication-oriented combination of lighting, material, and figure-export defaults. It is not a widget class or an interaction mode. <code>mode = "report"</code> separately enables the compact map, anatomical-view, reset, fullscreen, and PNG controls. The old Tweakpane control surface is deprecated and is not included in generated reports.</p>
 <!-- albersdown:theme-note:start -->
 </div>
 </div>
@@ -196,7 +181,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

@@ -47,6 +47,7 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/SurfaceGeometry.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/SurfaceGeometryMetaInfo-class.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/SurfaceGeometrySource-class.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/SurfaceScene-class.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/SurfaceSearchlight.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/SurfaceSet-class.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/VertexColoredNeuroSurface-class.html</loc></url>
@@ -144,10 +145,13 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surf_to_world-methods.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surf_to_world-set-methods.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_labels.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_layer.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_montage.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_plot.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_plot_helpers.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_sampler.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_scene.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_scene_manifest.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_set.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-shiny.html</loc></url>
@@ -158,6 +162,7 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/vol_to_surf.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/vol_to_surf_sdf.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/write_surf_data.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/write_surface_scene.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/vol2surf.html</loc></url>
 </urlset>
 

@@ -36,6 +36,8 @@ surfwidget(
 )
 ```
 
+Interactive left-hemisphere surface; map: data.
+
 ## Basic Surface Display
 
 The simplest usage is to pass a `SurfaceGeometry` object directly:
@@ -55,6 +57,8 @@ basic_widget <- surfwidget(
 )
 basic_widget
 ```
+
+Interactive left-hemisphere surface; map: data.
 
 ## Data Visualization
 
@@ -79,6 +83,8 @@ data_widget <- surfwidget(nsurf,
 
 data_widget
 ```
+
+Interactive left-hemisphere surface; map: data.
 
 ## Advanced Configuration
 
@@ -106,22 +112,10 @@ advanced_config <- list(
   flatShading = FALSE
 )
 
-# Add a subtle anatomical underlay using curvature so thresholded data doesn't
-# "float" on a blank white surface.
-underlay_layer <- list(
-  label = "curvature",
-  data = curv_vals,
-  cmap = curv_cmap,
-  color_range = curv_range,
-  alpha = 1
-)
-
-# Keep the main data layer on top (inherits data/cmap/range/threshold from the
-# ColorMappedNeuroSurface object).
-data_layer <- list(label = "data")
-
-advanced_widget <- surfwidget(color_mapped_surf, 
-                             layers = list(underlay_layer, data_layer),
+# Curvature is the anatomical underlay; the ColorMappedNeuroSurface supplies
+# the selectable data layer without copying it into a legacy layer list.
+advanced_widget <- surfwidget(color_mapped_surf,
+                             curvature = curv_vals,
                              config = c(advanced_config, list(initialZoom = 2)), 
                              alpha = 0.9,
                              width = "100%", 
@@ -129,6 +123,8 @@ advanced_widget <- surfwidget(color_mapped_surf,
 
 advanced_widget
 ```
+
+Interactive left-hemisphere surface; map: data.
 
 ## Vertex-Colored Surfaces
 
@@ -164,25 +160,49 @@ vertex_widget <- surfwidget(vertex_surf,
 vertex_widget
 ```
 
+Interactive left-hemisphere surface; map: data.
+
 ## Interactive Controls
 
-When the widgets display properly, they include several interactive
-controls:
+Report widgets include a deliberately small set of native controls:
 
 - **Rotation**: Click and drag to rotate the surface
 - **Zoom**: Mouse wheel or pinch gestures to zoom in/out
 - **Pan**: Right-click and drag to pan the view
-- **Control Panel**: Adjust lighting, materials, color mapping, and
-  viewpoints
-  - **Lighting**: Ambient and directional light colors and intensity
-  - **Material**: Surface shininess (metalness/roughness)
-  - **Camera**: Reset camera position and orientation
-  - **Color Map**: Real-time adjustment of intensity and threshold
-    ranges
-  - **Viewpoint**: Switch between anatomical views (lateral, medial,
-    ventral, posterior)
-  - **SSAO**: Screen-space ambient occlusion for enhanced depth
-    perception
+- **Map**: Select one of the named layers authored in the scene
+- **Viewpoint**: Switch among anatomical views and reset the camera
+- **Fullscreen**: Expand the report figure when the browser permits it
+- **PNG**: Export the current view using the active figure preset
+
+`paper-light` names the default visual preset. It combines a light
+background, lighting, material, and export defaults suited to papers and
+reports. It does not enable controls. The independent `SurfaceScene`
+`mode` controls behavior: `mode = "report"` adds the curated toolbar,
+while `mode = "viewer"` leaves a bare rotatable viewer.
+
+Tweakpane is deprecated for
+[`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
+reports. Existing `config = list(showControls = ...)` and `controlType`
+calls warn during the migration; no Tweakpane code or CDN dependency is
+loaded.
+
+For a portable, explicitly authored report, construct a scene with
+required fallback and alternative text:
+
+``` r
+
+scene <- surface_scene(
+  left = white_lh_smooth,
+  layers = surface_layer("effect", random_vals, limits = c(-2, 2)),
+  fallback = "Left cortical surface showing the effect map from -2 to 2.",
+  alt_text = "Lateral view of the left cortex colored by effect size.",
+  preset = "paper-light",
+  mode = "report"
+)
+
+surfwidget(scene)
+write_surface_scene(scene, "surface-report", self_contained = FALSE)
+```
 
 ## Troubleshooting
 
