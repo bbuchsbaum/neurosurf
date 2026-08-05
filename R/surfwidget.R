@@ -2,7 +2,8 @@
 #'
 #' Create a surfwidget to display brain surface data.
 #'
-#' @param x A SurfaceGeometry, NeuroSurface, ColorMappedNeuroSurface, or VertexColoredNeuroSurface object
+#' @param x A SurfaceScene, SurfaceGeometry, NeuroSurface,
+#'   ColorMappedNeuroSurface, or VertexColoredNeuroSurface object.
 #' @param width The width of the widget
 #' @param height The height of the widget
 #' @param data Optional. Numeric vector of data values for each vertex.
@@ -74,13 +75,13 @@ setMethod("surfwidget", signature(x = "SurfaceGeometry"),
 #' @export
 setMethod("surfwidget", signature(x = "NeuroSurface"),
   function(x, width = NULL, height = NULL, cmap = jet_colors(256),
-           irange = range(x@data), thresh = c(0,0), vertexColors = NULL,
+           irange = NULL, thresh = c(0,0), vertexColors = NULL,
            alpha = 1, curvature = NULL, colorbar = TRUE,
            colorbar_label = NULL, layers = NULL,
            config = list(), ...) {
 
     if (is.null(irange)) {
-      irange <- range(x@data)
+      irange <- .scene_limits(NULL, list(x@data), "data")
     }
     curv_vals <- curvature
     if (is.null(curv_vals)) {
@@ -114,12 +115,55 @@ setMethod("surfwidget", signature(x = "ColorMappedNeuroSurface"),
       curv_vals <- curvature(x@geometry)
     }
 
-    surface_data <- prepare_surface_data(x, thresh, vertexColors, alpha, config,
-                                         curv_vals,
-                                         colorbar = colorbar,
-                                         colorbar_label = colorbar_label,
-                                         layers = layers)
-    create_widget(surface_data, width, height)
+    geom <- resolve_surface_geometry(x@geometry)
+    hemi <- .scene_hemi(geom@hemi)
+    layer_list <- list(surface_layer(
+      "data",
+      values = x@data,
+      indices = x@indices,
+      colormap = x@cmap,
+      limits = x@irange,
+      threshold = thresh,
+      opacity = alpha,
+      legend = list(title = colorbar_label %||% "data", visible = colorbar)
+    ))
+
+    if (!is.null(layers)) {
+      layer_list <- c(layer_list, lapply(seq_along(layers), function(i) {
+        layer <- layers[[i]]
+        if (inherits(layer, "SurfaceLayer")) return(layer)
+        name <- layer$label %||% layer$id %||% paste0("layer_", i)
+        if (is.null(layer$data)) {
+          stop("legacy layer '", name, "' must provide 'data'", call. = FALSE)
+        }
+        surface_layer(
+          name,
+          values = layer$data,
+          indices = layer$indices,
+          colormap = layer$cmap %||% "viridis",
+          limits = layer$color_range %||% layer$irange,
+          threshold = layer$thresh %||% layer$threshold,
+          opacity = layer$alpha %||% 1,
+          visible = layer$visible %||% TRUE,
+          legend = list(title = name, visible = layer$colorbar %||% TRUE)
+        )
+      }))
+    }
+
+    scene_args <- list(
+      layers = layer_list,
+      curvature = curv_vals,
+      fallback = paste0("Interactive ", hemi,
+                        "-hemisphere surface; map: data."),
+      alt_text = paste0("Interactive ", hemi,
+                        "-hemisphere cortical surface showing data."),
+      preset = config$preset %||% "paper-light",
+      mode = config$mode %||% "report"
+    )
+    scene_args[[hemi]] <- geom
+    scene <- do.call(surface_scene, scene_args)
+    surfwidget(scene, width = width, height = height,
+               config = config, ...)
   }
 )
 
@@ -136,12 +180,45 @@ setMethod("surfwidget", signature(x = "VertexColoredNeuroSurface"),
       curv_vals <- curvature(x@geometry)
     }
 
-    surface_data <- prepare_surface_data(x, c(0,0), x@colors, alpha, config,
-                                         curv_vals,
-                                         colorbar = colorbar,
-                                         colorbar_label = colorbar_label,
-                                         layers = layers)
-    create_widget(surface_data, width, height)
+    geom <- resolve_surface_geometry(x@geometry)
+    numeric_colors <- if (is.numeric(x@colors)) x@colors else seq_along(x@colors)
+    cmap <- if (is.character(x@colors)) x@colors else "viridis"
+    mapped <- ColorMappedNeuroSurface(
+      geom, x@indices, numeric_colors, cmap,
+      range(numeric_colors, finite = TRUE), c(0, 0)
+    )
+    surfwidget(mapped, width = width, height = height, alpha = alpha,
+               curvature = curv_vals, colorbar = colorbar,
+               colorbar_label = colorbar_label, layers = layers,
+               config = config, ...)
+  }
+)
+
+#' @rdname surfwidget-methods
+#' @export
+setMethod("surfwidget", signature(x = "SurfaceScene"),
+  function(x, width = NULL, height = NULL, config = list(), ...) {
+    config <- process_config(config)
+    widget_data <- list(
+      scene = surface_scene_manifest(x, asset_mode = "inline"),
+      options = list(
+        lazy = TRUE,
+        preset = x@preset,
+        controls = identical(x@mode, "report"),
+        mode = x@mode
+      ),
+      config = config,
+      fallback = x@fallback,
+      altText = x@alt_text,
+      calls = list()
+    )
+    widget <- create_widget(widget_data, width, height)
+    htmlwidgets::prependContent(
+      widget,
+      htmltools::tags$noscript(
+        htmltools::tags$div(class = "surfwidget-author-fallback", x@fallback)
+      )
+    )
   }
 )
 
@@ -278,7 +355,8 @@ process_config <- function(config) {
     "ambientLightColor", "directionalLightColor",
     "directionalLightIntensity", "color",
     "materialType", "showControls", "controlType",
-    "rotationSpeed", "initialZoom", "ambientLightIntensity"
+    "rotationSpeed", "initialZoom", "ambientLightIntensity",
+    "preset", "mode"
   )
 
   unknown <- setdiff(names(config), known_keys)
@@ -286,6 +364,26 @@ process_config <- function(config) {
     warning("Ignoring unknown config key(s): ", paste(unknown, collapse = ", "))
     config[unknown] <- NULL
   }
+
+  if ("showControls" %in% names(config)) {
+    warning("'showControls' is deprecated; use SurfaceScene mode='report' or mode='viewer'.")
+    config$showControls <- NULL
+  }
+
+  if ("controlType" %in% names(config)) {
+    warning("'controlType' is deprecated; report controls no longer use Tweakpane.")
+    config$controlType <- NULL
+  }
+
+  if ("preset" %in% names(config)) {
+    .scene_nonempty_string(config$preset, "config$preset")
+    config$preset <- NULL
+  }
+
+  if ("mode" %in% names(config) && !config$mode %in% c("report", "viewer")) {
+    stop("'config$mode' must be 'report' or 'viewer'", call. = FALSE)
+  }
+  config$mode <- NULL
 
   # convert colors
   color_config_keys <- c("color", "ambientLightColor", "directionalLightColor", "specularColor")

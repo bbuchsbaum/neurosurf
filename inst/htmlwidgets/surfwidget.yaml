@@ -1,12 +1,6 @@
 dependencies:
-  - name: three
-    version: 0.132.2
-    src: htmlwidgets/lib/three
-    script:
-      - three.min.js
-  - name: neurosurface
+  - name: surfview
     version: 2.2.0
     src: htmlwidgets/lib/neurosurface
     script:
-      - three-controls-polyfill.js
-      - neurosurface.umd.js
+      - surfview.embed.iife.js

@@ -32,3 +32,6 @@ inst/extdata/rscan01_lh.gii
 Rplots.pdf
 tests/testthat/Rplots.pdf
 Rd2.pdf
+
+# Local Mote coordination store (append-only machine-local tracker state)
+.mote/

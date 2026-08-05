@@ -1,0 +1,85 @@
+{
+  "receipt_version": 1,
+  "generated_at": "2026-08-05T22:49:00Z",
+  "neurosurf_base_commit": "d50fc64cc1228386325df7a487f5ed92c8969bb5",
+  "source_state": "verified pre-commit worktree",
+  "surfviewjs_commit": "63e315a81b14a4983ecaa76aef12dfe414ae28fe",
+  "three_revision": "185",
+  "template": "fsaverage6",
+  "vertices_per_hemisphere": 40962,
+  "faces_per_hemisphere": 81920,
+  "raw_geometry_bytes": 1966128,
+  "curvature_bytes": 327696,
+  "per_layer_bytes": {
+    "effect": 327696,
+    "reliability": 327696
+  },
+  "manifest_bytes": 5827,
+  "html_bytes": 7898,
+  "transferred_bytes_first_run": 2449495,
+  "encoded_body_bytes_first_run": 4598558,
+  "typed_array_decode_ms": 0.003,
+  "time_to_interactive_ms": [
+    703.5,
+    503.6,
+    502.5,
+    514.2,
+    515.2,
+    499.2,
+    505.5,
+    491.3,
+    511.0,
+    503.9
+  ],
+  "first_frame_ms": [
+    704.2,
+    504.4,
+    503.3,
+    515.0,
+    516.0,
+    500.0,
+    507.0,
+    492.1,
+    511.8,
+    504.8
+  ],
+  "median_time_to_interactive_ms": 504.7,
+  "reference_ceiling_ms": 2000,
+  "ci_regression_ceiling_ms": 5000,
+  "host": {
+    "cpu": "Apple M3 Max",
+    "architecture": "arm64",
+    "os": "Darwin 23.3.0",
+    "browser": "Chromium 141.0.7390.37 headless",
+    "cache_state": "one cold navigation followed by nine warm-cache navigations"
+  },
+  "proof": {
+    "webgl_context_count": 1,
+    "geometry_requests_before_map_switch": 3,
+    "geometry_requests_after_map_switch": 3,
+    "geometry_identity_stable": true,
+    "authoritative_value_sha256_parity": true,
+    "deterministic_views": true,
+    "drag_changed_camera": true,
+    "drag_changed_pixel_digest": true,
+    "resize_css_pixels": [900, 600],
+    "resize_drawing_buffer_pixels": [900, 600],
+    "png_dimensions": [900, 600],
+    "png_sha256": "20a61dc0c7dc6bf4d409f8706e84c37e3e8ec75526ffa4ac7937c9af25500b60",
+    "left_nonblank_samples": 4190,
+    "right_nonblank_samples": 4190,
+    "active_animation_frames_after_dispose": 0,
+    "browser_guard_before": "no automated top-level browser processes",
+    "browser_guard_after": "no automated top-level browser processes"
+  },
+  "value_sha256": {
+    "effect": {
+      "left": "f1a6b23aba16c766f1548ae315f1b604b6abec5a32e12979d61505e59193ca33",
+      "right": "179812aa4cb6d9bf70f27bb81c56c83da4f062751cdcb6340876385a67200552"
+    },
+    "reliability": {
+      "left": "f2ec5e4bdc0bb1e2563bd8f5ca9b94c3b9f6e8bbd2a16f8c6380777fbeebc503",
+      "right": "363c5448a2729b684e63a51c59fd609d6a574dd5ac68713373aaa83fc127942b"
+    }
+  }
+}

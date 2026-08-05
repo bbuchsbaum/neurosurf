@@ -30,6 +30,9 @@ Imports:
     gplots,
     gifti,
     htmlwidgets,
+    htmltools,
+    jsonlite,
+    base64enc,
     deflist,
     fastmap,
     crayon,
@@ -62,6 +65,7 @@ Collate:
     'spec.R'
     'surface_montage.R'
     'surface_plot.R'
+    'surface_scene.R'
     'surface_set.R'
     'surfwidget.R'
     'testdata.R'

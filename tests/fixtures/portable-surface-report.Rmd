@@ -1,0 +1,35 @@
+---
+title: "Portable surface report"
+output:
+  html_document:
+    self_contained: true
+    mathjax: null
+---
+
+```{r setup, include=FALSE}
+devtools::load_all(quiet = TRUE)
+vertices <- matrix(
+  c(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1),
+  ncol = 3,
+  byrow = TRUE
+)
+triangles <- matrix(
+  c(0L, 1L, 2L, 0L, 1L, 3L, 0L, 2L, 3L, 1L, 2L, 3L),
+  ncol = 3,
+  byrow = TRUE
+)
+geometry <- SurfaceGeometry(vertices, triangles, hemi = "lh")
+scene <- surface_scene(
+  left = geometry,
+  layers = list(
+    surface_layer("effect", c(-2, -0.5, 1, 3), limits = c(-3, 3)),
+    surface_layer("atlas", c(1, 2, 1, 2), limits = c(1, 2))
+  ),
+  fallback = "Left cortical surface with effect and atlas maps.",
+  alt_text = "Interactive lateral view of a left cortical surface."
+)
+```
+
+```{r scene, echo=FALSE}
+surfwidget(scene, height = "480px")
+```

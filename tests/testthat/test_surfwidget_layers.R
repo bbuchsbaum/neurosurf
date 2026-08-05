@@ -1,64 +1,49 @@
-test_that("surfwidget keeps root overlay settings separate from explicit layers", {
-  verts <- matrix(
-    c(
-      0, 0, 0,
-      1, 0, 0,
-      0, 1, 0,
-      0, 0, 1
-    ),
-    ncol = 3,
-    byrow = TRUE
-  )
-  faces <- matrix(
-    c(
-      0L, 1L, 2L,
-      0L, 1L, 3L,
-      0L, 2L, 3L,
-      1L, 2L, 3L
-    ),
-    ncol = 3,
-    byrow = TRUE
-  )
-  geom <- SurfaceGeometry(verts, faces, hemi = "lh")
-  n_verts <- nrow(coords(geom))
-
+test_that("legacy surfwidget calls adapt to SurfaceScene", {
+  geom <- scene_test_geometry("lh")
   surface <- ColorMappedNeuroSurface(
-    geom,
-    seq_len(n_verts),
-    c(-1.5, -0.25, 0.4, 1.8),
-    colorRampPalette(c("blue", "white", "red"))(8),
-    c(-2, 2),
-    c(-1, 1)
+    geom, 1:4, c(-1.5, -0.25, 0.4, 1.8),
+    grDevices::colorRampPalette(c("blue", "white", "red"))(8),
+    c(-2, 2), c(-1, 1)
   )
-
   widget <- surfwidget(
     surface,
-    layers = list(
-      list(
-        label = "curvature",
-        data = rep(0.5, n_verts),
-        cmap = c("#707070", "#e0e0e0"),
-        color_range = c(0, 1),
-        alpha = 1
-      ),
-      list(label = "data")
-    )
+    layers = list(list(
+      label = "curvature",
+      data = rep(0.5, 4),
+      cmap = c("#707070", "#e0e0e0"),
+      color_range = c(0, 1)
+    ))
   )
 
-  expect_equal(widget$x$thresh, c(-1, 1))
-  expect_equal(widget$x$irange, c(-2, 2))
+  expect_s3_class(widget, "htmlwidget")
+  expect_identical(widget$x$scene$schemaVersion, "surfview.scene.v1")
+  expect_equal(names(widget$x$scene$layers), c("data", "curvature"))
+  expect_equal(widget$x$scene$layers$data$threshold, c(-1, 1))
+  expect_equal(widget$x$scene$layers$data$limits, c(-2, 2))
+  expect_equal(widget$x$scene$layers$curvature$colorMap,
+               c("#707070", "#e0e0e0"))
+  expect_true(widget$x$options$controls)
+  expect_identical(widget$x$options$preset, "paper-light")
+  expect_match(widget$x$fallback, "left-hemisphere")
+})
 
-  expect_equal(widget$x$layers[[1]]$id, "curvature")
-  expect_equal(widget$x$layers[[1]]$data, rep(0.5, n_verts))
-  expect_equal(widget$x$layers[[1]]$cmap, c("#707070", "#e0e0e0"))
-  expect_equal(widget$x$layers[[1]]$color_range, c(0, 1))
-  expect_null(widget$x$layers[[1]]$thresh)
-  expect_null(widget$x$layers[[1]]$indices)
+test_that("legacy empty layers fail instead of producing a blank map", {
+  geom <- scene_test_geometry("lh")
+  surface <- ColorMappedNeuroSurface(
+    geom, 1:4, 1:4, c("#440154", "#fde725"), c(1, 4), c(0, 0)
+  )
+  expect_error(surfwidget(surface, layers = list(list(label = "empty"))),
+               "must provide 'data'")
+})
 
-  expect_equal(widget$x$layers[[2]]$id, "data")
-  expect_null(widget$x$layers[[2]]$data)
-  expect_null(widget$x$layers[[2]]$cmap)
-  expect_null(widget$x$layers[[2]]$color_range)
-  expect_null(widget$x$layers[[2]]$thresh)
-  expect_null(widget$x$layers[[2]]$indices)
+test_that("Tweakpane-era config is explicitly deprecated", {
+  scene <- surface_scene(
+    left = scene_test_geometry("lh"),
+    layers = surface_layer("signal", 1:4),
+    fallback = "Fallback.", alt_text = "Alt text."
+  )
+  expect_warning(surfwidget(scene, config = list(showControls = TRUE)),
+                 "deprecated")
+  expect_warning(surfwidget(scene, config = list(controlType = "pane")),
+                 "Tweakpane")
 })

@@ -6,6 +6,7 @@
 \alias{surfwidget,NeuroSurface-method}
 \alias{surfwidget,ColorMappedNeuroSurface-method}
 \alias{surfwidget,VertexColoredNeuroSurface-method}
+\alias{surfwidget,SurfaceScene-method}
 \title{Create a Surface Widget}
 \usage{
 surfwidget(x, width = NULL, height = NULL, ...)
@@ -33,7 +34,7 @@ surfwidget(x, width = NULL, height = NULL, ...)
   width = NULL,
   height = NULL,
   cmap = jet_colors(256),
-  irange = range(x@data),
+  irange = NULL,
   thresh = c(0, 0),
   vertexColors = NULL,
   alpha = 1,
@@ -72,9 +73,12 @@ surfwidget(x, width = NULL, height = NULL, ...)
   config = list(),
   ...
 )
+
+\S4method{surfwidget}{SurfaceScene}(x, width = NULL, height = NULL, config = list(), ...)
 }
 \arguments{
-\item{x}{A SurfaceGeometry, NeuroSurface, ColorMappedNeuroSurface, or VertexColoredNeuroSurface object}
+\item{x}{A SurfaceScene, SurfaceGeometry, NeuroSurface,
+ColorMappedNeuroSurface, or VertexColoredNeuroSurface object.}
 
 \item{width}{The width of the widget}
 

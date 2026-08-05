@@ -238,18 +238,42 @@ vertex_widget
 
 ## Interactive Controls
 
-When the widgets display properly, they include several interactive controls:
+Report widgets include a deliberately small set of native controls:
 
 - **Rotation**: Click and drag to rotate the surface
 - **Zoom**: Mouse wheel or pinch gestures to zoom in/out
 - **Pan**: Right-click and drag to pan the view
-- **Control Panel**: Adjust lighting, materials, color mapping, and viewpoints
-  - **Lighting**: Ambient and directional light colors and intensity
-  - **Material**: Surface shininess (metalness/roughness)
-  - **Camera**: Reset camera position and orientation
-  - **Color Map**: Real-time adjustment of intensity and threshold ranges
-  - **Viewpoint**: Switch between anatomical views (lateral, medial, ventral, posterior)
-  - **SSAO**: Screen-space ambient occlusion for enhanced depth perception
+- **Map**: Select one of the named layers authored in the scene
+- **Viewpoint**: Switch among anatomical views and reset the camera
+- **Fullscreen**: Expand the report figure when the browser permits it
+- **PNG**: Export the current view using the active figure preset
+
+`paper-light` names the default visual preset. It combines a light background,
+lighting, material, and export defaults suited to papers and reports. It does
+not enable controls. The independent `SurfaceScene` `mode` controls behavior:
+`mode = "report"` adds the curated toolbar, while `mode = "viewer"` leaves a
+bare rotatable viewer.
+
+Tweakpane is deprecated for `surfwidget()` reports. Existing
+`config = list(showControls = ...)` and `controlType` calls warn during the
+migration; no Tweakpane code or CDN dependency is loaded.
+
+For a portable, explicitly authored report, construct a scene with required
+fallback and alternative text:
+
+```{r eval=FALSE}
+scene <- surface_scene(
+  left = white_lh_smooth,
+  layers = surface_layer("effect", random_vals, limits = c(-2, 2)),
+  fallback = "Left cortical surface showing the effect map from -2 to 2.",
+  alt_text = "Lateral view of the left cortex colored by effect size.",
+  preset = "paper-light",
+  mode = "report"
+)
+
+surfwidget(scene)
+write_surface_scene(scene, "surface-report", self_contained = FALSE)
+```
 
 ## Troubleshooting
 
