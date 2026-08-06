@@ -827,7 +827,8 @@ loadGIFTISurface <- function(meta_info) {
     return(x)
   }
   # A data.frame holding a 4x4 grid of numbers (some gifti versions parse this way)
-  if (is.data.frame(x) && nrow(x) == 4L && ncol(x) == 4L) {
+  if (is.data.frame(x) && nrow(x) == 4L && ncol(x) == 4L &&
+      all(vapply(x, is.numeric, logical(1)))) {
     m <- tryCatch(data.matrix(x), error = function(e) NULL)
     if (!is.null(m) && is.numeric(m) && nrow(m) == 4L && ncol(m) == 4L) {
       return(m)
@@ -883,12 +884,12 @@ loadGIFTISurface <- function(meta_info) {
     }
   }
 
-  # Prefer parsed_transformations, then the raw transformations field. Each is
-  # a list with one (possibly nested / possibly empty) entry per data array.
-  for (field in list(gii$parsed_transformations, gii$transformations)) {
+  # Each field is a list with one (possibly nested / possibly empty) entry per
+  # data array. Search the POINTSET entry in both representations before
+  # considering a transform attached to another data array.
+  fields <- list(gii$parsed_transformations, gii$transformations)
+  for (field in fields) {
     if (is.null(field)) next
-
-    # Try the POINTSET data array's transform first.
     if (!is.null(pointset_idx) && is.list(field) &&
         pointset_idx <= length(field)) {
       m <- .find_4x4(field[[pointset_idx]])
@@ -897,7 +898,12 @@ loadGIFTISurface <- function(meta_info) {
       }
     }
 
-    # Otherwise fall back to the first usable 4x4 anywhere in the field.
+  }
+
+  # If the POINTSET carries no usable transform, prefer the parsed
+  # representation and then fall back to the raw transformations field.
+  for (field in fields) {
+    if (is.null(field)) next
     m <- .find_4x4(field)
     if (!is.null(m)) {
       return(m)

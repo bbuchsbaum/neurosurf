@@ -286,6 +286,23 @@ test_that(".extract_gifti_transform prefers the POINTSET data array transform", 
   expect_equal(xform, pointset_xform)
 })
 
+test_that(".extract_gifti_transform prefers POINTSET across representations", {
+  pointset_xform <- diag(c(3, 3, 3, 1))
+  triangle_xform <- diag(c(9, 9, 9, 1))
+
+  gii <- list(
+    data_info = data.frame(
+      Intent = c("NIFTI_INTENT_TRIANGLE", "NIFTI_INTENT_POINTSET"),
+      name = c("triangle", "pointset"),
+      stringsAsFactors = FALSE
+    ),
+    parsed_transformations = list(triangle_xform, list()),
+    transformations = list(list(), pointset_xform)
+  )
+
+  expect_equal(neurosurf:::.extract_gifti_transform(gii), pointset_xform)
+})
+
 test_that(".extract_gifti_transform does not error on data.frame without transform", {
   gii <- list(
     data_info = data.frame(
@@ -313,6 +330,7 @@ test_that(".find_4x4 locates matrices in nested structures and rejects others", 
   m <- diag(4)
   expect_equal(neurosurf:::.find_4x4(m), m)
   expect_equal(neurosurf:::.find_4x4(list(list(list(m)))), m)
+  expect_equal(unname(neurosurf:::.find_4x4(as.data.frame(m))), m)
   # Length-16 row-major vector is reshaped to a 4x4 matrix
   vec <- 1:16
   expect_equal(neurosurf:::.find_4x4(vec),
@@ -320,6 +338,32 @@ test_that(".find_4x4 locates matrices in nested structures and rejects others", 
   expect_null(neurosurf:::.find_4x4(NULL))
   expect_null(neurosurf:::.find_4x4(matrix(0, 3, 3)))
   expect_null(neurosurf:::.find_4x4("not a matrix"))
+  expect_null(neurosurf:::.find_4x4(
+    as.data.frame(matrix(letters[1:16], nrow = 4))
+  ))
+})
+
+test_that("GIFTI file loaders preserve the POINTSET coordinate transform", {
+  skip_if_not_installed("gifti")
+  skip_if_not_installed("rgl")
+
+  fixture <- testthat::test_path("fixtures", "lh.transform.surf.gii")
+  expected <- matrix(c(
+    1, 0, 0, 10,
+    0, 2, 0, -20,
+    0, 0, 3, 30,
+    0, 0, 0, 1
+  ), nrow = 4, byrow = TRUE)
+
+  via_public_reader <- read_surf_geometry(fixture)
+  via_gifti_loader <- loadGIFTISurface(fixture)
+
+  expect_s4_class(via_public_reader, "SurfaceGeometry")
+  expect_s4_class(via_gifti_loader, "SurfaceGeometry")
+  expect_equal(surf_to_world(via_public_reader), expected)
+  expect_equal(surf_to_world(via_gifti_loader), expected)
+  expect_equal(vertices(via_public_reader), vertices(via_gifti_loader))
+  expect_equal(faces(via_public_reader), faces(via_gifti_loader))
 })
 
 
