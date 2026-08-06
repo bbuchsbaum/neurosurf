@@ -95,6 +95,150 @@ test_that("vol_to_surf supports normal_line sampling", {
   expect_true(all(!is.na(res@data)))
 })
 
+test_that("linear interpolation recovers an analytic 3-D field", {
+  skip_if_not_installed("rgl")
+
+  sp <- neuroim2::NeuroSpace(c(6, 6, 6), c(1, 1, 1), c(0, 0, 0))
+  template <- neuroim2::NeuroVol(array(0, c(6, 6, 6)), sp)
+  coord <- neuroim2::index_to_coord(template, seq_len(length(template)))
+  field <- 2 * coord[, 1] - 3 * coord[, 2] + 0.5 * coord[, 3] + 7
+  vol <- neuroim2::NeuroVol(array(field, c(6, 6, 6)), sp)
+
+  verts <- matrix(c(
+    1.25, 1.75, 2.20,
+    2.40, 2.10, 1.60,
+    3.15, 1.35, 3.40
+  ), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(0L, 1L, 2L), ncol = 3)
+  surf <- SurfaceGeometry(verts, faces, hemi = "lh")
+
+  res <- vol_to_surf(
+    surf, surf, vol,
+    interpolation = "linear",
+    sampling = "midpoint",
+    aggregate = "mean",
+    fill = NA_real_
+  )
+  expected <- 2 * verts[, 1] - 3 * verts[, 2] + 0.5 * verts[, 3] + 7
+  expect_equal(as.vector(res@data), expected, tolerance = 1e-10)
+})
+
+test_that("explicit interpolation preserves zeros and mask boundaries", {
+  skip_if_not_installed("rgl")
+
+  sp <- neuroim2::NeuroSpace(c(3, 3, 3), c(1, 1, 1), c(0, 0, 0))
+  vol <- neuroim2::NeuroVol(array(0, c(3, 3, 3)), sp)
+  verts <- matrix(c(
+    0.5, 0.5, 0.5,
+    1.0, 0.5, 0.5,
+    1.5, 0.5, 0.5
+  ), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(0L, 1L, 2L), ncol = 3)
+  surf <- SurfaceGeometry(verts, faces, hemi = "lh")
+
+  nearest <- vol_to_surf(
+    surf, surf, vol, interpolation = "nearest", fill = NA_real_
+  )
+  expect_equal(as.vector(nearest@data), c(0, 0, 0))
+
+  mask <- array(TRUE, c(3, 3, 3))
+  mask[2, 1, 1] <- FALSE
+  strict <- vol_to_surf(
+    surf, surf, vol, mask = mask, interpolation = "linear",
+    fill = NA_real_, na_rm = FALSE
+  )
+  expect_equal(strict@data[[1]], 0)
+  expect_true(is.na(strict@data[[2]]))
+  expect_true(is.na(strict@data[[3]]))
+})
+
+test_that("categorical mode remains a nearest-grid operation", {
+  skip_if_not_installed("rgl")
+  sp <- neuroim2::NeuroSpace(c(3, 1, 1), c(1, 1, 1), c(0, 0, 0))
+  vol <- neuroim2::NeuroVol(c(1, 2, 2), sp)
+  verts <- matrix(c(0.5, 0.5, 0.5, 1.5, 0.5, 0.5, 2.5, 0.5, 0.5),
+                  ncol = 3, byrow = TRUE)
+  faces <- matrix(c(0L, 1L, 2L), nrow = 1)
+  surf <- SurfaceGeometry(verts, faces, hemi = "lh")
+  categorical <- vol_to_surf(
+    surf, surf, vol, interpolation = "nearest", aggregate = "mode"
+  )
+  expect_equal(as.vector(categorical@data), c(1, 2, 2))
+})
+
+test_that("linear thickness projection has explicit aggregation semantics", {
+  skip_if_not_installed("rgl")
+
+  sp <- neuroim2::NeuroSpace(c(5, 3, 3), c(1, 1, 1), c(0, 0, 0))
+  template <- neuroim2::NeuroVol(array(0, c(5, 3, 3)), sp)
+  coord <- neuroim2::index_to_coord(template, seq_len(length(template)))
+  vol <- neuroim2::NeuroVol(array(coord[, 1], c(5, 3, 3)), sp)
+  wm_v <- matrix(c(0.5, 0.5, 0.5, 0.5, 1.5, 0.5, 0.5, 0.5, 1.5),
+                 ncol = 3, byrow = TRUE)
+  pial_v <- wm_v + matrix(rep(c(4, 0, 0), 3), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(0L, 1L, 2L), ncol = 3)
+  wm <- SurfaceGeometry(wm_v, faces, hemi = "lh")
+  pial <- SurfaceGeometry(pial_v, faces, hemi = "lh")
+
+  res <- vol_to_surf(
+    wm, pial, vol,
+    sampling = "thickness",
+    interpolation = "linear",
+    aggregate = "mean",
+    fill = NA_real_
+  )
+  expect_equal(as.vector(res@data), rep(2.5, 3), tolerance = 1e-10)
+  expect_error(
+    vol_to_surf(wm, pial, vol, sampling = "thickness",
+                interpolation = "linear", aggregate = "mode"),
+    "invalid with linear"
+  )
+  smoothed <- vol_to_surf(
+    wm, pial, vol, interpolation = "linear", sampling = "thickness",
+    surface_smooth_fwhm = 2
+  )
+  expect_length(smoothed@data, 3)
+})
+
+test_that("explicit legacy interpolation is exactly backward compatible", {
+  skip_if_not_installed("rgl")
+
+  sp <- neuroim2::NeuroSpace(c(4, 2, 2), c(1, 1, 1), c(0, 0, 0))
+  vol <- neuroim2::NeuroVol(array(seq_len(16), c(4, 2, 2)), sp)
+  verts <- matrix(c(
+    0.5, 0.5, 0.5,
+    1.5, 0.5, 0.5,
+    2.5, 0.5, 0.5
+  ), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(0L, 1L, 2L), ncol = 3)
+  surf <- SurfaceGeometry(verts, faces, hemi = "lh")
+
+  old <- vol_to_surf(surf, surf, vol, fun = "avg", knn = 3, sigma = 2)
+  explicit <- vol_to_surf(
+    surf, surf, vol, fun = "avg", knn = 3, sigma = 2,
+    interpolation = "legacy"
+  )
+  expect_identical(as.vector(explicit@data), as.vector(old@data))
+})
+
+test_that("tangential smoothing is separate, millimetre-scaled, and opt-in", {
+  skip_if_not_installed("rgl")
+  sp <- neuroim2::NeuroSpace(c(4, 2, 2), c(1, 1, 1), c(0, 0, 0))
+  vol <- neuroim2::NeuroVol(array(c(0, 10, 0, 0, rep(0, 12)), c(4, 2, 2)), sp)
+  verts <- matrix(c(0.5, 0.5, 0.5,
+                    1.5, 0.5, 0.5,
+                    2.5, 0.5, 0.5), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(0L, 1L, 2L), ncol = 3)
+  surf <- SurfaceGeometry(verts, faces, hemi = "lh")
+  raw <- vol_to_surf(surf, surf, vol, interpolation = "nearest",
+                     surface_smooth_fwhm = 0)
+  smooth <- vol_to_surf(surf, surf, vol, interpolation = "nearest",
+                        surface_smooth_fwhm = 2)
+  expect_equal(raw@data, c(0, 10, 0))
+  expect_lt(max(smooth@data), max(raw@data))
+  expect_gt(smooth@data[[1]], raw@data[[1]])
+})
+
 test_that("surface_sampler caches neighbor lookups", {
   skip_if_not_installed("rgl")
 

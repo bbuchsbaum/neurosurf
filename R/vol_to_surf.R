@@ -122,6 +122,139 @@ get_mode <- function(v) {
   pts
 }
 
+#' Sample a volume at world coordinates with explicit voxel interpolation
+#'
+#' neuroim2's continuous grid coordinates are offset by one half voxel from
+#' the integer indices returned by index_to_grid(). Subtracting 0.5 therefore
+#' puts voxel centres on integer array indices before nearest or trilinear
+#' interpolation.
+#'
+#' @noRd
+.ns_sample_volume <- function(vol, coords, interpolation = c("nearest", "linear"),
+                              mask = NULL, fill = 0, na_rm = FALSE) {
+  interpolation <- match.arg(interpolation)
+  grid <- neuroim2::coord_to_grid(vol, coords) - 0.5
+  dims <- dim(vol)[seq_len(3L)]
+  vol_arr <- as.array(vol)
+  mask_arr <- if (is.null(mask)) {
+    array(TRUE, dim = dims)
+  } else {
+    mask_vec <- as.logical(mask[])
+    if (length(mask_vec) != prod(dims)) {
+      stop("mask must be the same size as vol", call. = FALSE)
+    }
+    array(mask_vec, dim = dims)
+  }
+
+  n <- nrow(grid)
+  value <- rep(fill, n)
+  valid <- rep(FALSE, n)
+
+  if (identical(interpolation, "nearest")) {
+    idx <- round(grid)
+    inside <- apply(idx >= 1 & sweep(idx, 2L, dims, `<=`), 1L, all)
+    if (any(inside)) {
+      ii <- idx[inside, , drop = FALSE]
+      vv <- vol_arr[ii]
+      ok <- mask_arr[ii] & is.finite(vv)
+      pos <- which(inside)[ok]
+      value[pos] <- vv[ok]
+      valid[pos] <- TRUE
+    }
+    return(list(value = value, valid = valid))
+  }
+
+  lower <- floor(grid)
+  frac <- grid - lower
+  numerator <- numeric(n)
+  weight_sum <- numeric(n)
+  invalid_weight <- logical(n)
+
+  for (dx in 0:1) for (dy in 0:1) for (dz in 0:1) {
+    corner <- lower + matrix(c(dx, dy, dz), nrow = n, ncol = 3L,
+                             byrow = TRUE)
+    weight <- (if (dx == 0L) 1 - frac[, 1L] else frac[, 1L]) *
+      (if (dy == 0L) 1 - frac[, 2L] else frac[, 2L]) *
+      (if (dz == 0L) 1 - frac[, 3L] else frac[, 3L])
+    contributes <- weight > sqrt(.Machine$double.eps)
+    inside <- apply(corner >= 1 & sweep(corner, 2L, dims, `<=`), 1L, all)
+    usable <- contributes & inside
+    corner_valid <- rep(FALSE, n)
+
+    if (any(usable)) {
+      cc <- corner[usable, , drop = FALSE]
+      vv <- vol_arr[cc]
+      ok <- mask_arr[cc] & is.finite(vv)
+      pos <- which(usable)[ok]
+      numerator[pos] <- numerator[pos] + weight[pos] * vv[ok]
+      weight_sum[pos] <- weight_sum[pos] + weight[pos]
+      corner_valid[pos] <- TRUE
+    }
+    invalid_weight <- invalid_weight | (contributes & !corner_valid)
+  }
+
+  if (isTRUE(na_rm)) {
+    valid <- weight_sum > 0
+  } else {
+    valid <- weight_sum > 0 & !invalid_weight
+  }
+  value[valid] <- numerator[valid] / weight_sum[valid]
+  list(value = value, valid = valid)
+}
+
+#' @noRd
+.ns_aggregate_samples <- function(values, valid, aggregate, fill) {
+  n_vertices <- nrow(values)
+  centre <- (ncol(values) + 1) / 2
+  vapply(seq_len(n_vertices), function(i) {
+    keep <- which(valid[i, ])
+    if (!length(keep)) return(fill)
+    x <- values[i, keep]
+    switch(
+      aggregate,
+      mean = mean(x),
+      mode = get_mode(x),
+      closest = x[which.min(abs(keep - centre))],
+      stop("Unknown depth aggregation.", call. = FALSE)
+    )
+  }, numeric(1))
+}
+
+#' @noRd
+.ns_surface_smooth_mm <- function(values, coords, faces, fwhm) {
+  if (fwhm <= 0) return(values)
+  sigma <- fwhm / sqrt(8 * log(2))
+  edges <- rbind(faces[, c(1L, 2L), drop = FALSE],
+                 faces[, c(2L, 3L), drop = FALSE],
+                 faces[, c(3L, 1L), drop = FALSE])
+  edges <- t(apply(edges, 1L, sort))
+  edges <- unique(edges)
+  distance <- sqrt(rowSums((coords[edges[, 1L], , drop = FALSE] -
+                            coords[edges[, 2L], , drop = FALSE])^2))
+  weight <- exp(-(distance^2) / (2 * sigma^2))
+  numerator <- ifelse(is.finite(values), values, 0)
+  denominator <- as.numeric(is.finite(values))
+  out_num <- numerator
+  out_den <- denominator
+  for (i in seq_len(nrow(edges))) {
+    a <- edges[i, 1L]
+    b <- edges[i, 2L]
+    w <- weight[[i]]
+    if (is.finite(values[[b]])) {
+      out_num[[a]] <- out_num[[a]] + w * values[[b]]
+      out_den[[a]] <- out_den[[a]] + w
+    }
+    if (is.finite(values[[a]])) {
+      out_num[[b]] <- out_num[[b]] + w * values[[a]]
+      out_den[[b]] <- out_den[[b]] + w
+    }
+  }
+  out <- rep(NA_real_, length(values))
+  keep <- out_den > 0
+  out[keep] <- out_num[keep] / out_den[keep]
+  out
+}
+
 #' Map values from a 3D volume to a surface in the same coordinate space
 #'
 #' This function maps values from a 3D volume to a surface representation,
@@ -130,17 +263,23 @@ get_mode <- function(v) {
 #' @param surf_wm The white matter (inner) surface, typically of class \code{SurfaceGeometry}.
 #' @param surf_pial The pial (outer) surface, typically of class \code{SurfaceGeometry}.
 #' @param vol An image volume of type \code{NeuroVol} that is to be mapped to the surface.
-#' @param mask A mask defining the valid voxels in the image volume. If NULL, all non-zero voxels are considered valid.
+#' @param mask A mask defining valid voxels. In the legacy KNN contract, NULL
+#'   retains historical behavior and treats only finite non-zero voxels as
+#'   candidates. Explicit nearest/linear interpolation samples the full finite
+#'   voxel grid, including zeros; an explicit mask restricts that grid.
 #' @param fun The mapping function to use. Options are:
 #'   \itemize{
 #'     \item "avg": Average of nearby voxels (default)
 #'     \item "nn": Nearest neighbor
 #'     \item "mode": Most frequent value among nearby voxels
 #'   }
-#' @param knn The number of nearest neighbors to consider for mapping (default: 6).
-#' @param sigma The bandwidth of the smoothing kernel for the "avg" mapping function (default: 8).
-#' @param dthresh The maximum distance threshold for valid mapping. A voxel is only considered if it is less than \code{dthresh} units away from the vertex (default: 2 * sigma).
-#' @param fill Value used when no nearby voxels are found (default: 0 to preserve previous behavior).
+#' @param knn The number of nearest neighbors in the legacy KNN contract.
+#' @param sigma Legacy Gaussian-KNN bandwidth.
+#' @param dthresh Legacy KNN distance cutoff. Explicit nearest and linear
+#'   interpolation instead use grid bounds and mask validity.
+#' @param fill Value used when no valid sample is available. For strict linear
+#'   interpolation this includes an out-of-volume, NA, or masked corner; with
+#'   \code{na_rm = TRUE}, remaining corner weights are renormalized instead.
 #' @param sampling How to place sample points relative to the white/pial pair.
 #'   Options are:
 #'   \itemize{
@@ -153,8 +292,29 @@ get_mode <- function(v) {
 #' @param radius Radius (in voxel units) for normal-line sampling when
 #'   \code{sampling = "normal_line"}; also used as the distance scale when
 #'   interpreting \code{depth} offsets for that mode.
+#' @param knn Number of cached nearest voxel candidates per surface sample.
+#' @param dthresh Maximum cached candidate distance in volume world-coordinate
+#'   units.
 #' @param sampler Optional surface sampler object created by \code{surface_sampler()}.
 #'   When provided, the sampler is reused and other sampling-related arguments are ignored.
+#' @param interpolation Voxel interpolation contract. \code{"legacy"}
+#'   (default) preserves the historical midpoint Gaussian-KNN path and the
+#'   historical nearest-sample path for multi-depth sampling. \code{"nearest"}
+#'   samples the full voxel grid, including zero-valued voxels. \code{"linear"}
+#'   performs trilinear interpolation of the scalar field at each sample point.
+#' @param aggregate Explicit aggregation across cortical-depth samples for
+#'   non-legacy interpolation: \code{"mean"}, categorical \code{"mode"}, or
+#'   \code{"closest"} (the valid sample nearest the ribbon midpoint). If NULL,
+#'   it is inferred from \code{fun} for compatibility.
+#' @param na_rm For trilinear interpolation, whether a sample may renormalize
+#'   interpolation weights after NA, masked, or out-of-volume corners are
+#'   removed. The default FALSE returns \code{fill} for that sample, preventing
+#'   interpolation across a missing-data or mask boundary.
+#' @param surface_smooth_fwhm Tangential surface smoothing in mm. Zero
+#'   (default) disables smoothing. Positive values apply a topology-local
+#'   Gaussian edge-weighted pass whose spatial weights use surface-coordinate
+#'   millimetres; this is deliberately separate from voxel interpolation and
+#'   cortical-depth aggregation.
 #'
 #' @return A \code{NeuroSurface} object containing the mapped values.
 #'
@@ -190,11 +350,38 @@ vol_to_surf <- function(surf_wm, surf_pial, vol, mask = NULL,
                         n_samples = NULL,
                         depth = NULL,
                         radius = 3,
-                        sampler = NULL) {
+                        sampler = NULL,
+                        interpolation = c("legacy", "nearest", "linear"),
+                        aggregate = NULL,
+                        na_rm = FALSE,
+                        surface_smooth_fwhm = 0) {
   fun <- match.arg(fun)
   sampling <- match.arg(sampling)
+  interpolation <- match.arg(interpolation)
+
+  if (!is.numeric(surface_smooth_fwhm) ||
+      length(surface_smooth_fwhm) != 1L ||
+      !is.finite(surface_smooth_fwhm) || surface_smooth_fwhm < 0) {
+    stop("'surface_smooth_fwhm' must be a non-negative numeric scalar.",
+         call. = FALSE)
+  }
+  if (!is.logical(na_rm) || length(na_rm) != 1L || is.na(na_rm)) {
+    stop("'na_rm' must be TRUE or FALSE.", call. = FALSE)
+  }
+  if (is.null(aggregate)) {
+    aggregate <- switch(fun, avg = "mean", nn = "closest", mode = "mode")
+  }
+  aggregate <- match.arg(aggregate, c("mean", "mode", "closest"))
+  if (identical(interpolation, "linear") && identical(aggregate, "mode")) {
+    stop("aggregate = 'mode' is invalid with linear interpolation.",
+         call. = FALSE)
+  }
 
   if (!is.null(sampler)) {
+    if (!identical(interpolation, "legacy")) {
+      stop("A reusable sampler currently supports interpolation = 'legacy' only.",
+           call. = FALSE)
+    }
     return(.ns_apply_surface_sampler(sampler, vol, fun = fun,
                                      sigma = sigma, fill = fill))
   }
@@ -210,6 +397,48 @@ vol_to_surf <- function(surf_wm, surf_pial, vol, mask = NULL,
   va <- .ns_apply_affine(va_surf, xform)
   vb <- .ns_apply_affine(vb_surf, xform)
   vavg <- (va + vb) / 2
+
+  # The legacy KNN contract selects candidate voxels up front and historically
+  # treats zero-valued voxels as absent when no mask is supplied. Explicit
+  # nearest/linear interpolation instead samples the full grid; zeros remain
+  # legitimate scalar values and mask/NA validity is handled per sample.
+  if (!identical(interpolation, "legacy")) {
+    if (identical(sampling, "thickness") && is.null(depth) &&
+        is.null(n_samples)) {
+      depth <- seq(0.1, 0.9, length.out = 5L)
+    }
+    faces <- t(surf_wm@mesh$it)
+    samples <- .ns_make_samples(
+      va, vb, faces,
+      sampling = sampling,
+      n_samples = n_samples,
+      depth = depth,
+      radius = radius
+    )
+    n_vertices <- dim(samples)[1L]
+    n_samp <- dim(samples)[2L]
+    sample_mat <- do.call(
+      rbind,
+      lapply(seq_len(n_samp), function(i) samples[, i, , drop = FALSE][, 1, ])
+    )
+    sampled <- .ns_sample_volume(
+      vol = vol,
+      coords = sample_mat,
+      interpolation = interpolation,
+      mask = mask,
+      fill = fill,
+      na_rm = na_rm
+    )
+    vals_mat <- matrix(sampled$value, nrow = n_vertices, ncol = n_samp)
+    valid_mat <- matrix(sampled$valid, nrow = n_vertices, ncol = n_samp)
+    mapped_vals <- .ns_aggregate_samples(
+      vals_mat, valid_mat, aggregate = aggregate, fill = fill
+    )
+    mapped_vals <- .ns_surface_smooth_mm(
+      mapped_vals, va, faces, surface_smooth_fwhm
+    )
+    return(NeuroSurface(surf_wm, seq_along(mapped_vals), mapped_vals))
+  }
 
   # Build index set from mask if supplied; otherwise use non-zero voxels.
   if (!is.null(mask)) {
@@ -315,6 +544,10 @@ vol_to_surf <- function(surf_wm, surf_pial, vol, mask = NULL,
     }, numeric(1))
   }
 
+  faces <- t(surf_wm@mesh$it)
+  mapped_vals <- .ns_surface_smooth_mm(
+    mapped_vals, va, faces, surface_smooth_fwhm
+  )
   NeuroSurface(surf_wm, seq_along(mapped_vals), mapped_vals)
 }
 

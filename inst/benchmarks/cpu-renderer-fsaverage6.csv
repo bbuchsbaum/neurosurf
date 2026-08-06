@@ -1,0 +1,5 @@
+hemi,view,vertices,width,height,antialias,elapsed_seconds,png_bytes,coverage_pixels,overlay_pixels,rgba_xxhash64
+lh,lateral,40962,600,375,2,1.399,85555,126020,44376,c3a0e38d8379f1cb
+lh,medial,40962,600,375,2,0.812,75715,126020,44376,517e33ae88956cae
+rh,lateral,40962,600,375,2,0.743,88645,125525,44388,bb5eff41a256b72c
+rh,medial,40962,600,375,2,0.752,78349,125525,44388,312ea5bf55b7b29d

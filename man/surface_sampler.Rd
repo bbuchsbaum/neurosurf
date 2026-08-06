@@ -44,9 +44,10 @@ Options are:
 \code{sampling = "normal_line"}; also used as the distance scale when
 interpreting \code{depth} offsets for that mode.}
 
-\item{knn}{The number of nearest neighbors to consider for mapping (default: 6).}
+\item{knn}{Number of cached nearest voxel candidates per surface sample.}
 
-\item{dthresh}{The maximum distance threshold for valid mapping. A voxel is only considered if it is less than \code{dthresh} units away from the vertex (default: 2 * sigma).}
+\item{dthresh}{Maximum cached candidate distance in volume world-coordinate
+units.}
 }
 \value{
 A list with class \code{"surface_sampler"} containing precomputed

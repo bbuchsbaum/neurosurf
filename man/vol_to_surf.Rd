@@ -18,7 +18,11 @@ vol_to_surf(
   n_samples = NULL,
   depth = NULL,
   radius = 3,
-  sampler = NULL
+  sampler = NULL,
+  interpolation = c("legacy", "nearest", "linear"),
+  aggregate = NULL,
+  na_rm = FALSE,
+  surface_smooth_fwhm = 0
 )
 }
 \arguments{
@@ -28,7 +32,10 @@ vol_to_surf(
 
 \item{vol}{An image volume of type \code{NeuroVol} that is to be mapped to the surface.}
 
-\item{mask}{A mask defining the valid voxels in the image volume. If NULL, all non-zero voxels are considered valid.}
+\item{mask}{A mask defining valid voxels. In the legacy KNN contract, NULL
+retains historical behavior and treats only finite non-zero voxels as
+candidates. Explicit nearest/linear interpolation samples the full finite
+voxel grid, including zeros; an explicit mask restricts that grid.}
 
 \item{fun}{The mapping function to use. Options are:
 \itemize{
@@ -37,13 +44,16 @@ vol_to_surf(
   \item "mode": Most frequent value among nearby voxels
 }}
 
-\item{knn}{The number of nearest neighbors to consider for mapping (default: 6).}
+\item{knn}{Number of cached nearest voxel candidates per surface sample.}
 
-\item{sigma}{The bandwidth of the smoothing kernel for the "avg" mapping function (default: 8).}
+\item{sigma}{Legacy Gaussian-KNN bandwidth.}
 
-\item{dthresh}{The maximum distance threshold for valid mapping. A voxel is only considered if it is less than \code{dthresh} units away from the vertex (default: 2 * sigma).}
+\item{dthresh}{Maximum cached candidate distance in volume world-coordinate
+units.}
 
-\item{fill}{Value used when no nearby voxels are found (default: 0 to preserve previous behavior).}
+\item{fill}{Value used when no valid sample is available. For strict linear
+interpolation this includes an out-of-volume, NA, or masked corner; with
+\code{na_rm = TRUE}, remaining corner weights are renormalized instead.}
 
 \item{sampling}{How to place sample points relative to the white/pial pair.
 Options are:
@@ -63,6 +73,28 @@ interpreting \code{depth} offsets for that mode.}
 
 \item{sampler}{Optional surface sampler object created by \code{surface_sampler()}.
 When provided, the sampler is reused and other sampling-related arguments are ignored.}
+
+\item{interpolation}{Voxel interpolation contract. \code{"legacy"}
+(default) preserves the historical midpoint Gaussian-KNN path and the
+historical nearest-sample path for multi-depth sampling. \code{"nearest"}
+samples the full voxel grid, including zero-valued voxels. \code{"linear"}
+performs trilinear interpolation of the scalar field at each sample point.}
+
+\item{aggregate}{Explicit aggregation across cortical-depth samples for
+non-legacy interpolation: \code{"mean"}, categorical \code{"mode"}, or
+\code{"closest"} (the valid sample nearest the ribbon midpoint). If NULL,
+it is inferred from \code{fun} for compatibility.}
+
+\item{na_rm}{For trilinear interpolation, whether a sample may renormalize
+interpolation weights after NA, masked, or out-of-volume corners are
+removed. The default FALSE returns \code{fill} for that sample, preventing
+interpolation across a missing-data or mask boundary.}
+
+\item{surface_smooth_fwhm}{Tangential surface smoothing in mm. Zero
+(default) disables smoothing. Positive values apply a topology-local
+Gaussian edge-weighted pass whose spatial weights use surface-coordinate
+millimetres; this is deliberately separate from voxel interpolation and
+cortical-depth aggregation.}
 }
 \value{
 A \code{NeuroSurface} object containing the mapped values.
