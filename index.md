@@ -25,12 +25,18 @@ The pkgdown site includes a few good entry points:
   Structures](https://bbuchsbaum.github.io/neurosurf/articles/introduction-to-neurosurf.html)
 - [Displaying Surfaces with
   RGL](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html)
-- [Interactive Surface Visualization with
-  surfwidget](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html)
+- [Build bilateral interactive surface
+  reports](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html)
 - [Publication-quality surface
-  figures](https://bbuchsbaum.github.io/neurosurf/articles/index.html)
+  figures](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.html)
 - [Reference
   index](https://bbuchsbaum.github.io/neurosurf/reference/index.html)
+
+The interactive-report article shows how to place both hemispheres and
+several named maps in one `SurfaceScene`. The resulting
+[`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
+shares geometry across maps, runs without a CDN, and can also be written
+as a self-contained or adjacent-asset HTML page.
 
 ## Development setup
 
@@ -87,8 +93,9 @@ is deprecated and is not included in generated reports.
 
 This package uses the albersdown theme. Existing vignette theme hooks
 are replaced so `albers.css` and local `albers.js` render consistently
-on CRAN and GitHub Pages. The defaults are configured via
-`params$family` and `params$preset` (family = ‘teal’, preset =
-‘homage’). The pkgdown site uses `template: { package: albersdown }`
-together with generated `pkgdown/extra.css` and `pkgdown/extra.js` so
-the theme is linked and activated on site pages.
+on CRAN and GitHub Pages. The defaults are configured through
+`params$family` and `params$preset` (`family = "teal"`,
+`preset = "homage"`). The pkgdown site uses
+`template: { package: albersdown }` together with generated
+`pkgdown/extra.css` and `pkgdown/extra.js` so the theme is linked and
+activated on site pages.

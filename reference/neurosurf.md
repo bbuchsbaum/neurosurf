@@ -6,6 +6,8 @@ Data structures and IO for surface-based neuroimaging data.
 
 Useful links:
 
+- <https://bbuchsbaum.github.io/neurosurf>
+
 - <https://github.com/bbuchsbaum/neurosurf>
 
 - Report bugs at <https://github.com/bbuchsbaum/neurosurf/issues>

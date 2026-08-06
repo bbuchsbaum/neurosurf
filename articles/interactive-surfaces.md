@@ -1,271 +1,263 @@
-# Interactive Surface Visualization with surfwidget
+# Build bilateral interactive surface reports
 
-This vignette focuses on interactive 3D visualization using
-[`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md).
-For RGL-based 3D plots, see
-[`vignette("displaying-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.md).
-For multi-view, publication-quality figures with colourbars and atlas
-outlines, see
-[`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md).
-
-## Introduction
-
-The
+An HTML report often needs one interactive figure for both hemispheres
+and several result maps. Repeating a widget for every map wastes space
+and sends the same mesh to the browser many times.
+[`surface_scene()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_scene.md)
+describes the geometries, maps, labels, and fallback once;
 [`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
-function provides interactive 3D visualization of brain surfaces using
-HTML widgets. This creates web-based viewers with real-time rotation,
-zooming, and interactive exploration capabilities.
+displays that scene in R Markdown or Quarto; and
+[`write_surface_scene()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_scene.md)
+writes the same scene as an ordinary web page.
 
-## Quick Start
+This article builds one bilateral viewer with two selectable maps. The
+example uses package data, runs without a network connection, and keeps
+the scientific transformation in R.
 
-Create a small widget to confirm things are working, then jump to richer
-examples below.
+## What does a scene contain?
 
-``` r
+A `SurfaceScene` has one `SurfaceGeometry` per hemisphere and one or
+more named scalar layers. Each bilateral layer supplies a left and right
+value vector whose lengths match the corresponding geometry. A scene
+also records the initial map, legend metadata, provenance, alternative
+text, and fallback text.
 
-surfwidget(
-  white_lh_smooth,
-  width  = "100%",
-  height = "420px",
-  curvature = curv_vals,
-  config = list(
-    ambientLightColor = "#404040",
-    initialZoom = 2,
-    showControls = FALSE   # keep the panel hidden for the quick preview
-  )
-)
-```
-
-Interactive left-hemisphere surface; map: data.
-
-## Basic Surface Display
-
-The simplest usage is to pass a `SurfaceGeometry` object directly:
+The example surfaces are small meshes shipped with neurosurf:
 
 ``` r
 
-# Create basic interactive surface
-basic_widget <- surfwidget(
-  white_lh_smooth,
-  width  = "100%",
-  height = "400px",
-  curvature = curv_vals,
-  config = list(
-    ambientLightColor = "#404040",
-    initialZoom = 2
-  )
-)
-basic_widget
+left_geometry <- read_surf(system.file(
+  "extdata", "std.8_lh.smoothwm.asc", package = "neurosurf"
+))
+right_geometry <- read_surf(system.file(
+  "extdata", "std.8_rh.smoothwm.asc", package = "neurosurf"
+))
 ```
 
-Interactive left-hemisphere surface; map: data.
-
-## Data Visualization
-
-Display data mapped onto surface vertices using a `NeuroSurface` object:
+The browser renders the values that R supplies. Perform thresholding,
+capping, atlas projection, and other scientific transformations before
+constructing a layer. Here we create a deterministic coordinate-based
+demonstration map and replace sub-threshold values with `NA` in R:
 
 ``` r
 
-# Create NeuroSurface with data
-nsurf <- NeuroSurface(white_lh_smooth, indices=1:length(random_vals), data=random_vals)
+scaled_height <- function(geometry) {
+  value <- coords(geometry)[, 3]
+  3 * (value - mean(value)) / max(abs(value - mean(value)))
+}
 
-# Create widget with data overlay
-data_widget <- surfwidget(nsurf, 
-                         cmap = heat.colors(256), 
-                         irange = c(-2, 2),
-                         width = "100%", 
-                         height = "400px",
-                         curvature = curv_vals,
-                         config = list(
-                           ambientLightColor = "#404040",
-                           initialZoom = 2
-                         ))
-
-data_widget
+effect <- list(
+  left = scaled_height(left_geometry),
+  right = scaled_height(right_geometry)
+)
+effect <- lapply(effect, function(x) replace(x, abs(x) < 1.25, NA_real_))
 ```
 
-Interactive left-hemisphere surface; map: data.
-
-## Advanced Configuration
-
-Fine-tune the appearance with custom configuration:
+The second map is a simple two-region label used to demonstrate map
+switching:
 
 ``` r
 
-# Create ColorMappedNeuroSurface with threshold
-color_mapped_surf <- ColorMappedNeuroSurface(
-  white_lh_smooth, 
-  indices = 1:length(random_vals), 
-  data = random_vals,
-  cmap = rainbow(256),
-  irange = c(-2.5, 2.5),
-  thresh = c(-1, 1)
+region <- list(
+  left = as.numeric(coords(left_geometry)[, 2] > 0),
+  right = as.numeric(coords(right_geometry)[, 2] > 0)
 )
-
-# Advanced configuration
-advanced_config <- list(
-  shininess = 60,
-  specularColor = "#ffffff",
-  ambientLightColor = "#404040",
-  directionalLightColor = "#ffffff",
-  directionalLightIntensity = 0.7,
-  flatShading = FALSE
-)
-
-# Curvature is the anatomical underlay; the ColorMappedNeuroSurface supplies
-# the selectable data layer without copying it into a legacy layer list.
-advanced_widget <- surfwidget(color_mapped_surf,
-                             curvature = curv_vals,
-                             config = c(advanced_config, list(initialZoom = 2)), 
-                             alpha = 0.9,
-                             width = "100%", 
-                             height = "450px")
-
-advanced_widget
 ```
 
-Interactive left-hemisphere surface; map: data.
+## How do you build one bilateral, multi-map viewer?
 
-## Vertex-Colored Surfaces
-
-Create surfaces with direct vertex coloring:
-
-``` r
-
-# Create vertex colors based on coordinates
-x_coords <- coords(white_lh_smooth)[, 1]
-vertex_colors <- ifelse(x_coords > median(x_coords), "#FF6B6B", "#4ECDC4")
-
-# Create VertexColoredNeuroSurface
-vertex_surf <- VertexColoredNeuroSurface(
-  geometry = white_lh_smooth, 
-  indices = 1:length(vertex_colors), 
-  colors = vertex_colors
-)
-
-# Custom material settings
-material_config <- list(
-  shininess = 20,
-  specularColor = "#333333",
-  ambientLightColor = "#404040"
-)
-
-vertex_widget <- surfwidget(vertex_surf, 
-                           curvature = curv_vals,
-                           config = c(material_config, list(initialZoom = 2)), 
-                           alpha = 0.8,
-                           width = "100%", 
-                           height = "400px")
-
-vertex_widget
-```
-
-Interactive left-hemisphere surface; map: data.
-
-## Interactive Controls
-
-Report widgets include a deliberately small set of native controls:
-
-- **Rotation**: Click and drag to rotate the surface
-- **Zoom**: Mouse wheel or pinch gestures to zoom in/out
-- **Pan**: Right-click and drag to pan the view
-- **Map**: Select one of the named layers authored in the scene
-- **Viewpoint**: Switch among anatomical views and reset the camera
-- **Fullscreen**: Expand the report figure when the browser permits it
-- **PNG**: Export the current view using the active figure preset
-
-`paper-light` names the default visual preset. It combines a light
-background, lighting, material, and export defaults suited to papers and
-reports. It does not enable controls. The independent `SurfaceScene`
-`mode` controls behavior: `mode = "report"` adds the curated toolbar,
-while `mode = "viewer"` leaves a bare rotatable viewer.
-
-Tweakpane is deprecated for
-[`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
-reports. Existing `config = list(showControls = ...)` and `controlType`
-calls warn during the migration; no Tweakpane code or CDN dependency is
-loaded.
-
-For a portable, explicitly authored report, construct a scene with
-required fallback and alternative text:
+Create each named map with
+[`surface_layer()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_layer.md),
+then put both geometries and all layers in one scene. `selected_layer`
+chooses the map shown when the viewer opens.
 
 ``` r
 
 scene <- surface_scene(
-  left = white_lh_smooth,
-  layers = surface_layer("effect", random_vals, limits = c(-2, 2)),
-  fallback = "Left cortical surface showing the effect map from -2 to 2.",
-  alt_text = "Lateral view of the left cortex colored by effect size.",
+  left = left_geometry,
+  right = right_geometry,
+  layers = list(
+    surface_layer(
+      "effect", effect,
+      colormap = c("#2166ac", "#f7f7f7", "#b2182b"),
+      limits = c(-3, 3), units = "z",
+      legend = list(title = "Thresholded effect")
+    ),
+    surface_layer(
+      "region", region,
+      colormap = c("#d9d9d9", "#238b45"),
+      limits = c(0, 1), units = "class",
+      legend = list(title = "Demonstration region")
+    )
+  ),
+  selected_layer = "effect",
+  metadata = list(subject = "example"),
+  provenance = list(source = "neurosurf package data"),
+  fallback = "Static bilateral surface figure with effect and region maps.",
+  alt_text = paste(
+    "Bilateral cortical surfaces with selectable thresholded effect",
+    "and demonstration region maps."
+  ),
   preset = "paper-light",
   mode = "report"
 )
+```
 
-surfwidget(scene)
+Pass the scene to
+[`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
+once. The map selector changes the active values and legend without
+constructing another widget or another WebGL context.
+
+``` r
+
+surfwidget(scene, width = "100%", height = "520px")
+```
+
+Static bilateral surface figure with effect and region maps.
+
+The report toolbar provides the authored map selector, coordinated
+anatomical views, reset, and PNG export. Drag to rotate, use the wheel
+or a pinch gesture to zoom, and right-drag to pan.
+
+## Which option controls appearance and behavior?
+
+`paper-light` and `report` name different contracts:
+
+| Setting | Controls | What it changes |
+|----|----|----|
+| `preset = "paper-light"` | Appearance | Light background, restrained lighting and material values, labels, and PNG defaults. |
+| `mode = "report"` | Behavior | Lazy mounting, the compact report toolbar, deterministic initial framing, and fallback/print behavior. |
+| `mode = "viewer"` | Behavior | A bare rotatable viewer without the report toolbar. |
+
+Tweakpane is deprecated. The report runtime does not load it or contact
+a CDN. Legacy `showControls` and `controlType` configuration entries
+warn during the migration; use the scene `mode` instead.
+
+## How is geometry shared across maps?
+
+[`surface_scene_manifest()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_scene_manifest.md)
+converts numeric arrays to typed binary assets and addresses each asset
+by its SHA-256 digest. The scene refers to each hemisphere geometry
+once. Each additional full bilateral map contributes two value arrays,
+not another copy of the vertices or faces.
+
+``` r
+
+manifest <- surface_scene_manifest(scene, asset_mode = "inline")
+roles <- vapply(manifest$assets, `[[`, character(1), "role")
+bytes <- vapply(manifest$assets, `[[`, numeric(1), "byteLength")
+
+data.frame(
+  content = c("geometry", "map values"),
+  assets = c(sum(roles %in% c("vertices", "faces", "curvature")),
+             sum(roles == "values")),
+  bytes = c(sum(bytes[roles %in% c("vertices", "faces", "curvature")]),
+            sum(bytes[roles == "values"]))
+)
+#>      content assets bytes
+#> 1   geometry      3 30768
+#> 2 map values      4 10272
+```
+
+Missing map values remain IEEE `NaN` values in the binary payload. The
+browser verifies every adjacent asset’s byte length and checksum before
+constructing the scene.
+
+## How do you write an offline report?
+
+Use
+[`write_surface_scene()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_scene.md)
+when the viewer must live outside an R Markdown or Quarto document. Both
+output modes bundle the compatible surfviewjs runtime locally and make
+no network requests.
+
+``` r
+
+# index.html, the runtime, and content-addressed .bin files
 write_surface_scene(scene, "surface-report", self_contained = FALSE)
+
+# one index.html with the runtime and typed arrays inlined
+write_surface_scene(scene, "surface-report-inline", self_contained = TRUE)
 ```
 
-## Troubleshooting
+Choose adjacent assets for a site or a report directory: the browser can
+cache the runtime and SHA-addressed arrays, and repeated assets are
+deduplicated. Choose a self-contained file when a single portable HTML
+file matters more than file size or cross-page caching.
 
-**Testing in Interactive R:**
+## How do you mount the scene on a plain web page?
 
-All
+The HTML writer produces a minimal page that uses the public
+`surfview.mountSurfView()` API. You can customize its generated
+`index.html` or use the same lifecycle in another page. In this example,
+`manifest` is a `surfview.scene.v1` object produced by
+[`surface_scene_manifest()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_scene_manifest.md):
+
+``` html
+<div id="surface-report"></div>
+<script src="./surfview.embed.iife.js"></script>
+<script>
+  const handle = surfview.mountSurfView(
+    document.getElementById("surface-report"),
+    manifest,
+    {
+      lazy: true,
+      preset: "paper-light",
+      controls: true,
+      baseUrl: document.baseURI
+    }
+  );
+
+  handle.ready.then(() => handle.setView("lateral"));
+  window.addEventListener("pagehide", () => handle.dispose(), { once: true });
+</script>
+```
+
+The returned handle also provides `selectLayer()`, `resize()`,
+`exportPNG()`, and `dispose()`. Call `dispose()` when an application
+removes or replaces the viewer so it can release observers, listeners,
+animation frames, the WebGL context, and GPU resources.
+
+## What happens when interaction is unavailable?
+
+`fallback` is required plain text. The widget and standalone writer
+expose it when JavaScript is disabled or WebGL initialization fails, and
+print CSS shows it instead of a blank canvas. `alt_text` labels the
+interactive figure for assistive technology.
+
+The fallback text is not a bitmap renderer. If a report needs a visual
+print, PDF, or archival representation, include a static neurosurf
+figure from the same authoritative R values. See
+[`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md)
+for that workflow. This keeps the static and interactive views
+complementary without moving statistical decisions into JavaScript.
+
+## When should you use the legacy shortcuts?
+
 [`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
-examples should work perfectly when run in an interactive R console:
+still accepts `SurfaceGeometry`, `NeuroSurface`,
+`ColorMappedNeuroSurface`, and `VertexColoredNeuroSurface`. Those
+methods adapt a single surface to a `SurfaceScene` and are useful for
+quick exploration:
 
 ``` r
 
-# This should work in interactive R:
-library(neurosurf)
-white_lh_asc <- system.file("extdata", "std.8_lh.smoothwm.asc", package="neurosurf")
-white_lh <- read_surf(white_lh_asc)
-white_lh_smooth <- smooth(white_lh, type="HCLaplace", delta=.2, iteration=5)
-
-# Basic widget
-surfwidget(white_lh_smooth, width = "100%", height = "400px")
-
-# With data
-random_vals <- rnorm(length(nodes(white_lh_smooth)))
-nsurf <- NeuroSurface(white_lh_smooth, indices=1:length(random_vals), data=random_vals)
-surfwidget(nsurf, cmap = heat.colors(256), irange = c(-2, 2))
+values <- scaled_height(left_geometry)
+surface <- NeuroSurface(left_geometry, nodes(left_geometry), values)
+surfwidget(surface, irange = c(-3, 3))
 ```
 
-**Alternative: Save to File**
+Use an explicit `SurfaceScene` for bilateral figures, multiple named
+maps, portable assets, authored fallback text, provenance, or report
+behavior.
 
-For guaranteed display, save widgets to standalone HTML files:
+## What should you read next?
 
-``` r
-
-widget <- surfwidget(white_lh_smooth, width = "100%", height = "400px")
-htmlwidgets::saveWidget(widget, "interactive_surface.html", selfcontained = TRUE)
-# Open the resulting HTML file in your browser
-```
-
-## Advantages over Static Plots
-
-Interactive widgets offer several advantages:
-
-- **Real-time interaction**: Rotate, zoom, and pan without re-rendering
-- **Dynamic controls**: Adjust visualization parameters interactively
-- **Web-based**: Works in HTML documents, Shiny apps, and R Markdown
-- **Touch support**: Works on tablets and mobile devices
-- **High-quality rendering**: Uses WebGL for smooth,
-  hardware-accelerated graphics
-- **Data exploration**: Click on vertices to see coordinate and data
-  values
-- **Multiple viewpoints**: Easily switch between anatomical orientations
-
-These interactive capabilities make
-[`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
-ideal for exploratory data analysis and interactive presentations.
-
-## Next Steps
-
-- [`vignette("displaying-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.md)
-  — RGL-based 3D rendering with curvature shading, data overlays, and
-  PNG snapshots.
 - [`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md)
-  — publication-quality multi-view layouts with colourbars and atlas
-  outlines.
+  builds static, publication-quality multi-view layouts with colourbars
+  and atlas outlines.
+- [`vignette("displaying-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.md)
+  covers RGL-based 3D rendering, curvature shading, and PNG snapshots.
 - [`vignette("introduction-to-neurosurf")`](https://bbuchsbaum.github.io/neurosurf/articles/introduction-to-neurosurf.md)
-  — the data structures (`SurfaceGeometry`, `NeuroSurface`,
-  `NeuroSurfaceVector`) behind these visualizations.
+  introduces `SurfaceGeometry`, `NeuroSurface`, and the package’s other
+  core data structures.

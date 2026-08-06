@@ -1,9 +1,10 @@
 # A portable cortical surface scene
 
-\`SurfaceScene\` stores one or two hemisphere geometries and named
-scalar layers together with the presentation metadata needed to
-reconstruct a report viewer. Use \[surface_scene()\] to create validated
-instances.
+`SurfaceScene` stores one or two hemisphere geometries and named scalar
+layers together with the presentation metadata needed to reconstruct a
+report viewer. Use
+[`surface_scene`](https://bbuchsbaum.github.io/neurosurf/reference/surface_scene.md)
+to create validated instances.
 
 ## Usage
 
@@ -16,11 +17,11 @@ show(object)
 
 - object:
 
-  A \`SurfaceScene\` to summarize.
+  A `SurfaceScene` to summarize.
 
 ## Value
 
-A \`SurfaceScene\` object.
+A `SurfaceScene` object.
 
 ## Slots
 
@@ -30,7 +31,7 @@ A \`SurfaceScene\` object.
 
 - `geometries`:
 
-  A named list of \`SurfaceGeometry\` objects.
+  A named list of `SurfaceGeometry` objects.
 
 - `curvature`:
 
@@ -62,11 +63,11 @@ A \`SurfaceScene\` object.
 
 - `preset`:
 
-  A visual preset such as \`"paper-light"\`.
+  A visual preset such as `"paper-light"`.
 
 - `mode`:
 
-  Widget behavior mode. \`"report"\` enables curated controls.
+  Widget behavior mode. `"report"` enables curated controls.
 
 - `asset_mode`:
 

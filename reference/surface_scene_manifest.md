@@ -12,11 +12,11 @@ surface_scene_manifest(scene, asset_mode = scene@asset_mode, asset_dir = NULL)
 
 - scene:
 
-  A \`SurfaceScene\`.
+  A `SurfaceScene`.
 
 - asset_mode:
 
-  \`"inline"\` or \`"directory"\`.
+  `"inline"` or `"directory"`.
 
 - asset_dir:
 
@@ -25,4 +25,4 @@ surface_scene_manifest(scene, asset_mode = scene@asset_mode, asset_dir = NULL)
 ## Value
 
 A JSON-compatible named list. Directory mode also writes canonical
-content-addressed assets to \`asset_dir\`.
+content-addressed assets to `asset_dir`.

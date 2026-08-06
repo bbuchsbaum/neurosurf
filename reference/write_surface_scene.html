@@ -18,9 +18,9 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
-    <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
-    <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
+    <li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
+    <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Build bilateral interactive surface reports</a></li>
     <li><a class="dropdown-item" href="../articles/surface-figures.html">Publication-quality surface figures</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -54,7 +54,7 @@
 
 
 <dl><dt id="arg-scene">scene<a class="anchor" aria-label="anchor" href="#arg-scene"></a></dt>
-<dd><p>A `SurfaceScene`.</p></dd>
+<dd><p>A <code>SurfaceScene</code>.</p></dd>
 
 
 <dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
@@ -62,8 +62,9 @@
 
 
 <dt id="arg-self-contained">self_contained<a class="anchor" aria-label="anchor" href="#arg-self-contained"></a></dt>
-<dd><p>If `TRUE`, inline both assets and the browser runtime.
-Otherwise, write the runtime and SHA-addressed assets beside `index.html`.</p></dd>
+<dd><p>If <code>TRUE</code>, inline both assets and the browser runtime.
+Otherwise, write the runtime and SHA-addressed assets beside
+<code>index.html</code>.</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
@@ -72,7 +73,18 @@ Otherwise, write the runtime and SHA-addressed assets beside `index.html`.</p></
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The path to `index.html`, invisibly.</p>
+    <p>The path to <code>index.html</code>, invisibly.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>With <code>self_contained = FALSE</code>, the function writes <code>index.html</code>, the local
+surfview runtime, and content-addressed binary assets. With
+<code>self_contained = TRUE</code>, it inlines the runtime and assets into one HTML
+file. Neither mode requires a runtime network connection.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="surface_scene.html">surface_scene</a></code>, <code><a href="surfwidget-methods.html">surfwidget</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

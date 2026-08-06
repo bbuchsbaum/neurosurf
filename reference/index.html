@@ -18,9 +18,9 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
-    <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
-    <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
+    <li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
+    <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Build bilateral interactive surface reports</a></li>
     <li><a class="dropdown-item" href="../articles/surface-figures.html">Publication-quality surface figures</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -39,9 +39,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="read-surfaces">read surfaces<a class="anchor" aria-label="anchor" href="#read-surfaces"></a></h2>
+      <h2 id="read-surfaces">Read surfaces<a class="anchor" aria-label="anchor" href="#read-surfaces"></a></h2>
 
-      <div class="section-desc"><p>read different surface files into R</p></div>
+      <div class="section-desc"><p>Read surface geometry and data files into R.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -90,9 +90,74 @@
         </dt>
         <dd>Write Surface Data to File</dd>
       </dl></div><div class="section level2">
-      <h2 id="surface-based-operations-and-functions">surface-based operations and functions<a class="anchor" aria-label="anchor" href="#surface-based-operations-and-functions"></a></h2>
+      <h2 id="interactive-surface-reports">Interactive surface reports<a class="anchor" aria-label="anchor" href="#interactive-surface-reports"></a></h2>
 
-      <div class="section-desc"><p>process of manipulate surface data and geometry</p></div>
+      <div class="section-desc"><p>Build bilateral, multi-map viewers and portable offline reports.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="surface_scene.html">surface_scene()</a></code>
+
+        </dt>
+        <dd>Construct a validated portable surface scene</dd>
+
+        <dt>
+
+          <code><a href="surface_layer.html">surface_layer()</a></code>
+
+        </dt>
+        <dd>Define a named scalar layer for a surface scene</dd>
+
+        <dt>
+
+          <code><a href="SurfaceScene-class.html">show(<i>&lt;SurfaceScene&gt;</i>)</a></code>
+
+        </dt>
+        <dd>A portable cortical surface scene</dd>
+
+        <dt>
+
+          <code><a href="surfwidget-methods.html">surfwidget()</a></code>
+
+        </dt>
+        <dd>Create an interactive surface viewer</dd>
+
+        <dt>
+
+          <code><a href="show_surface_widget.html">show_surface_widget()</a></code>
+
+        </dt>
+        <dd>Show an interactive surface widget</dd>
+
+        <dt>
+
+          <code><a href="write_surface_scene.html">write_surface_scene()</a></code>
+
+        </dt>
+        <dd>Write a standalone portable surface report</dd>
+
+        <dt>
+
+          <code><a href="surface_scene_manifest.html">surface_scene_manifest()</a></code>
+
+        </dt>
+        <dd>Serialize a SurfaceScene as a surfview.scene.v1 manifest</dd>
+
+        <dt>
+
+          <code><a href="debug_surfwidget.html">debug_surfwidget()</a></code>
+
+        </dt>
+        <dd>Debugging Helper for surfwidget</dd>
+      </dl></div><div class="section level2">
+      <h2 id="surface-based-operations">Surface-based operations<a class="anchor" aria-label="anchor" href="#surface-based-operations"></a></h2>
+
+      <div class="section-desc"><p>Transform surface data and geometry.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -120,9 +185,9 @@
         </dt>
         <dd>Compute Surface Curvature Vector</dd>
       </dl></div><div class="section level2">
-      <h2 id="extractors">extractors<a class="anchor" aria-label="anchor" href="#extractors"></a></h2>
+      <h2 id="extractors">Extractors<a class="anchor" aria-label="anchor" href="#extractors"></a></h2>
 
-      <div class="section-desc"><p>extract infromation from surface data structures</p></div>
+      <div class="section-desc"><p>Extract information from surface data structures.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -1123,7 +1188,7 @@
           <code><a href="surfwidget-methods.html">surfwidget()</a></code>
 
         </dt>
-        <dd>Create a Surface Widget</dd>
+        <dd>Create an interactive surface viewer</dd>
 
         <dt>
 

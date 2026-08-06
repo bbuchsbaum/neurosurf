@@ -1,10 +1,8 @@
-# Create a Surface Widget
+# Create an interactive surface viewer
 
-This generic function creates a widget for visualizing surface data,
-allowing for different implementations based on the type of surface
-object.
-
-Create a surfwidget to display brain surface data.
+Create an HTML widget from a portable `SurfaceScene` or adapt a legacy
+single-surface object to one. Use `SurfaceScene` for bilateral viewers,
+multiple named maps, authored fallbacks, and portable report assets.
 
 ## Usage
 
@@ -86,21 +84,20 @@ surfwidget(x, width = NULL, height = NULL, config = list(), ...)
 
 - x:
 
-  A SurfaceScene, SurfaceGeometry, NeuroSurface,
-  ColorMappedNeuroSurface, or VertexColoredNeuroSurface object.
+  A `SurfaceScene`, `SurfaceGeometry`, `NeuroSurface`,
+  `ColorMappedNeuroSurface`, or `VertexColoredNeuroSurface`.
 
 - width:
 
-  The width of the widget
+  Optional widget width.
 
 - height:
 
-  The height of the widget
+  Optional widget height.
 
 - ...:
 
-  Additional arguments for customizing the widget appearance and
-  behavior.
+  Arguments passed to the method for `x`.
 
 - data:
 
@@ -143,13 +140,25 @@ surfwidget(x, width = NULL, height = NULL, config = list(), ...)
 
 - layers:
 
-  Optional list of additional data layers to display on the surface.
-  Each layer should be a list with elements such as `data`, `cmap`,
-  `alpha`, and optionally outline-specific parameters.
+  Legacy list of additional single-surface data layers. New code should
+  pass
+  [`surface_layer`](https://bbuchsbaum.github.io/neurosurf/reference/surface_layer.md)
+  objects to
+  [`surface_scene`](https://bbuchsbaum.github.io/neurosurf/reference/surface_scene.md).
 
 - config:
 
-  A list of configuration options for the surface rendering:
+  Configuration for legacy single-surface calls:
+
+  `preset`
+
+  :   Appearance preset used while adapting the object. The default is
+      `"paper-light"`.
+
+  `mode`
+
+  :   `"report"` for the curated report toolbar or `"viewer"` for a bare
+      viewer.
 
   `shininess`
 
@@ -181,26 +190,33 @@ surfwidget(x, width = NULL, height = NULL, config = list(), ...)
   :   Numeric between 0 and 1. Intensity of the directional light.
       Default is 0.5.
 
-  Unknown elements in `config` are ignored with a warning.
+  Unknown elements are ignored with a warning. `showControls` and
+  `controlType` are deprecated; report widgets do not load Tweakpane.
 
 ## Value
 
-An HTMLWidget object representing the surface visualization.
-
-An HTMLWidget object
+An `htmlwidget` containing the local surfview runtime and scene.
 
 ## Details
 
-The surfwidget function creates an interactive widget for visualizing
-surface data, such as brain surfaces. The specific implementation
-depends on the class of the object provided, allowing for customized
-behavior for different types of surface representations.
+The browser renders the values supplied by R. Perform statistical
+thresholding, capping, atlas projection, and other scientific
+transformations before constructing the widget. The legacy
+single-surface methods create a one-hemisphere `SurfaceScene`; they do
+not expose the full bilateral and portable-scene contract.
+
+`preset = "paper-light"` controls appearance. `mode = "report"` controls
+behavior and enables the compact map, anatomical-view, reset, and PNG
+controls. Set these fields on
+[`surface_scene`](https://bbuchsbaum.github.io/neurosurf/reference/surface_scene.md)
+for an explicit scene.
 
 ## See also
 
-[`plot_js`](https://bbuchsbaum.github.io/neurosurf/reference/plot_js-methods.md),
-[`SurfaceGeometry`](https://bbuchsbaum.github.io/neurosurf/reference/SurfaceGeometry.md),
-[`NeuroSurface`](https://bbuchsbaum.github.io/neurosurf/reference/NeuroSurface.md)
+[`surface_scene`](https://bbuchsbaum.github.io/neurosurf/reference/surface_scene.md),
+[`surface_layer`](https://bbuchsbaum.github.io/neurosurf/reference/surface_layer.md),
+[`write_surface_scene`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_scene.md),
+[`plot_js`](https://bbuchsbaum.github.io/neurosurf/reference/plot_js-methods.md)
 
 ## Examples
 

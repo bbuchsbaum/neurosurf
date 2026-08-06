@@ -12,7 +12,7 @@ write_surface_scene(scene, path, self_contained = FALSE, title = scene@id)
 
 - scene:
 
-  A \`SurfaceScene\`.
+  A `SurfaceScene`.
 
 - path:
 
@@ -20,8 +20,8 @@ write_surface_scene(scene, path, self_contained = FALSE, title = scene@id)
 
 - self_contained:
 
-  If \`TRUE\`, inline both assets and the browser runtime. Otherwise,
-  write the runtime and SHA-addressed assets beside \`index.html\`.
+  If `TRUE`, inline both assets and the browser runtime. Otherwise,
+  write the runtime and SHA-addressed assets beside `index.html`.
 
 - title:
 
@@ -29,4 +29,16 @@ write_surface_scene(scene, path, self_contained = FALSE, title = scene@id)
 
 ## Value
 
-The path to \`index.html\`, invisibly.
+The path to `index.html`, invisibly.
+
+## Details
+
+With `self_contained = FALSE`, the function writes `index.html`, the
+local surfview runtime, and content-addressed binary assets. With
+`self_contained = TRUE`, it inlines the runtime and assets into one HTML
+file. Neither mode requires a runtime network connection.
+
+## See also
+
+[`surface_scene`](https://bbuchsbaum.github.io/neurosurf/reference/surface_scene.md),
+[`surfwidget`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)

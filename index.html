@@ -36,9 +36,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
-    <li><a class="dropdown-item" href="articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
-    <li><a class="dropdown-item" href="articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
+<li><a class="dropdown-item" href="articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
+    <li><a class="dropdown-item" href="articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
+    <li><a class="dropdown-item" href="articles/interactive-surfaces.html">Build bilateral interactive surface reports</a></li>
     <li><a class="dropdown-item" href="articles/surface-figures.html">Publication-quality surface figures</a></li>
   </ul>
 </li>
@@ -77,10 +77,11 @@
 <ul>
 <li><a href="https://bbuchsbaum.github.io/neurosurf/articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
 <li><a href="https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
-<li><a href="https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html">Interactive Surface Visualization with surfwidget</a></li>
-<li><a href="https://bbuchsbaum.github.io/neurosurf/articles/index.html">Publication-quality surface figures</a></li>
+<li><a href="https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html">Build bilateral interactive surface reports</a></li>
+<li><a href="https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.html">Publication-quality surface figures</a></li>
 <li><a href="https://bbuchsbaum.github.io/neurosurf/reference/index.html">Reference index</a></li>
 </ul>
+<p>The interactive-report article shows how to place both hemispheres and several named maps in one <code>SurfaceScene</code>. The resulting <code><a href="reference/surfwidget-methods.html">surfwidget()</a></code> shares geometry across maps, runs without a CDN, and can also be written as a self-contained or adjacent-asset HTML page.</p>
 </div>
 <div class="section level2">
 <h2 id="development-setup">Development setup<a class="anchor" aria-label="anchor" href="#development-setup"></a>
@@ -124,7 +125,7 @@
 <div class="section level2">
 <h2 id="albers-theme">Albers theme<a class="anchor" aria-label="anchor" href="#albers-theme"></a>
 </h2>
-<p>This package uses the albersdown theme. Existing vignette theme hooks are replaced so <code>albers.css</code> and local <code>albers.js</code> render consistently on CRAN and GitHub Pages. The defaults are configured via <code>params$family</code> and <code>params$preset</code> (family = ‘teal’, preset = ‘homage’). The pkgdown site uses <code>template: { package: albersdown }</code> together with generated <code>pkgdown/extra.css</code> and <code>pkgdown/extra.js</code> so the theme is linked and activated on site pages. <!-- albersdown:theme-note:end --></p>
+<p>This package uses the albersdown theme. Existing vignette theme hooks are replaced so <code>albers.css</code> and local <code>albers.js</code> render consistently on CRAN and GitHub Pages. The defaults are configured through <code>params$family</code> and <code>params$preset</code> (<code>family = "teal"</code>, <code>preset = "homage"</code>). The pkgdown site uses <code>template: { package: albersdown }</code> together with generated <code>pkgdown/extra.css</code> and <code>pkgdown/extra.js</code> so the theme is linked and activated on site pages. <!-- albersdown:theme-note:end --></p>
 </div>
 </div>
 

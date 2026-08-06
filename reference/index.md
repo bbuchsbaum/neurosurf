@@ -1,8 +1,8 @@
 # Package index
 
-## read surfaces
+## Read surfaces
 
-read different surface files into R
+Read surface geometry and data files into R.
 
 - [`read_surf()`](https://bbuchsbaum.github.io/neurosurf/reference/read_surf.md)
   : Read Surface Data from a File
@@ -24,9 +24,30 @@ read different surface files into R
 - [`write_surf_data()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surf_data.md)
   : Write Surface Data to File
 
-## surface-based operations and functions
+## Interactive surface reports
 
-process of manipulate surface data and geometry
+Build bilateral, multi-map viewers and portable offline reports.
+
+- [`surface_scene()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_scene.md)
+  : Construct a validated portable surface scene
+- [`surface_layer()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_layer.md)
+  : Define a named scalar layer for a surface scene
+- [`show(`*`<SurfaceScene>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/SurfaceScene-class.md)
+  : A portable cortical surface scene
+- [`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
+  : Create an interactive surface viewer
+- [`show_surface_widget()`](https://bbuchsbaum.github.io/neurosurf/reference/show_surface_widget.md)
+  : Show an interactive surface widget
+- [`write_surface_scene()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_scene.md)
+  : Write a standalone portable surface report
+- [`surface_scene_manifest()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_scene_manifest.md)
+  : Serialize a SurfaceScene as a surfview.scene.v1 manifest
+- [`debug_surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/debug_surfwidget.md)
+  : Debugging Helper for surfwidget
+
+## Surface-based operations
+
+Transform surface data and geometry.
 
 - [`smooth()`](https://bbuchsbaum.github.io/neurosurf/reference/smooth-methods.md)
   : Generic Function for Smoothing a Surface or Associated Data
@@ -35,9 +56,9 @@ process of manipulate surface data and geometry
 - [`curvature()`](https://bbuchsbaum.github.io/neurosurf/reference/curvature-methods.md)
   : Compute Surface Curvature Vector
 
-## extractors
+## Extractors
 
-extract infromation from surface data structures
+Extract information from surface data structures.
 
 - [`vertices()`](https://bbuchsbaum.github.io/neurosurf/reference/vertices-methods.md)
   : Extract Vertices from a Surface Object
@@ -523,7 +544,7 @@ Catch-all index to include any remaining topics.
   : Construct a SurfaceSet
 
 - [`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
-  : Create a Surface Widget
+  : Create an interactive surface viewer
 
 - [`updateColorMap()`](https://bbuchsbaum.github.io/neurosurf/reference/updateColorMap.md)
   : Update Surface Color Map

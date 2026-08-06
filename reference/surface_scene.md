@@ -26,12 +26,14 @@ surface_scene(
 
 - left, right:
 
-  Optional left and right \`SurfaceGeometry\` or \`SurfaceSet\` objects.
+  Optional left and right `SurfaceGeometry` or `SurfaceSet` objects.
   Supply at least one.
 
 - layers:
 
-  A \`surface_layer()\` object or a list of them.
+  A
+  [`surface_layer`](https://bbuchsbaum.github.io/neurosurf/reference/surface_layer.md)
+  object or a list of them.
 
 - curvature:
 
@@ -61,13 +63,13 @@ surface_scene(
 
 - preset:
 
-  Visual appearance preset. \`"paper-light"\` is intended for
+  Visual appearance preset. `"paper-light"` is intended for
   light-background figures and does not change widget behavior.
 
 - mode:
 
-  \`"report"\` for curated controls and fallback behavior, or
-  \`"viewer"\` for a bare interactive viewer.
+  `"report"` for curated controls and fallback behavior, or `"viewer"`
+  for a bare interactive viewer.
 
 - asset_mode:
 
@@ -76,4 +78,41 @@ surface_scene(
 
 ## Value
 
-A validated \`SurfaceScene\` object.
+A validated `SurfaceScene` object.
+
+## Details
+
+A scene owns the portable report description, not the statistical
+analysis. `preset` changes appearance; `mode` changes viewer behavior.
+Inline and adjacent asset modes encode the same typed-array bytes and
+preserve missing values. Use
+[`surfwidget`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
+inside an R Markdown or Quarto document and
+[`write_surface_scene`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_scene.md)
+for an ordinary HTML page.
+
+## See also
+
+[`surface_layer`](https://bbuchsbaum.github.io/neurosurf/reference/surface_layer.md),
+[`surfwidget`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md),
+[`surface_scene_manifest`](https://bbuchsbaum.github.io/neurosurf/reference/surface_scene_manifest.md),
+[`write_surface_scene`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_scene.md)
+
+## Examples
+
+``` r
+geometry <- example_surface_geometry()
+scene <- surface_scene(
+  left = geometry,
+  layers = surface_layer(
+    "effect", seq_len(nrow(coords(geometry))), limits = c(1, 4)
+  ),
+  fallback = "Static left-hemisphere surface figure.",
+  alt_text = "Left cortical surface colored by an example effect."
+)
+scene
+#> SurfaceScene 'surface-scene'
+#>   hemispheres: left
+#>   layers: effect
+#>   selected: effect
+```
