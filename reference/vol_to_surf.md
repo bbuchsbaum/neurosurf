@@ -20,7 +20,11 @@ vol_to_surf(
   n_samples = NULL,
   depth = NULL,
   radius = 3,
-  sampler = NULL
+  sampler = NULL,
+  interpolation = c("legacy", "nearest", "linear"),
+  aggregate = NULL,
+  na_rm = FALSE,
+  surface_smooth_fwhm = 0
 )
 ```
 
@@ -42,8 +46,11 @@ vol_to_surf(
 
 - mask:
 
-  A mask defining the valid voxels in the image volume. If NULL, all
-  non-zero voxels are considered valid.
+  A mask defining valid voxels. In the legacy KNN contract, NULL retains
+  historical behavior and treats only finite non-zero voxels as
+  candidates. Explicit nearest/linear interpolation samples the full
+  finite voxel grid, including zeros; an explicit mask restricts that
+  grid.
 
 - fun:
 
@@ -57,23 +64,22 @@ vol_to_surf(
 
 - knn:
 
-  The number of nearest neighbors to consider for mapping (default: 6).
+  Number of cached nearest voxel candidates per surface sample.
 
 - sigma:
 
-  The bandwidth of the smoothing kernel for the "avg" mapping function
-  (default: 8).
+  Legacy Gaussian-KNN bandwidth.
 
 - dthresh:
 
-  The maximum distance threshold for valid mapping. A voxel is only
-  considered if it is less than `dthresh` units away from the vertex
-  (default: 2 \* sigma).
+  Maximum cached candidate distance in volume world-coordinate units.
 
 - fill:
 
-  Value used when no nearby voxels are found (default: 0 to preserve
-  previous behavior).
+  Value used when no valid sample is available. For strict linear
+  interpolation this includes an out-of-volume, NA, or masked corner;
+  with `na_rm = TRUE`, remaining corner weights are renormalized
+  instead.
 
 - sampling:
 
@@ -113,6 +119,36 @@ vol_to_surf(
   [`surface_sampler()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_sampler.md).
   When provided, the sampler is reused and other sampling-related
   arguments are ignored.
+
+- interpolation:
+
+  Voxel interpolation contract. `"legacy"` (default) preserves the
+  historical midpoint Gaussian-KNN path and the historical
+  nearest-sample path for multi-depth sampling. `"nearest"` samples the
+  full voxel grid, including zero-valued voxels. `"linear"` performs
+  trilinear interpolation of the scalar field at each sample point.
+
+- aggregate:
+
+  Explicit aggregation across cortical-depth samples for non-legacy
+  interpolation: `"mean"`, categorical `"mode"`, or `"closest"` (the
+  valid sample nearest the ribbon midpoint). If NULL, it is inferred
+  from `fun` for compatibility.
+
+- na_rm:
+
+  For trilinear interpolation, whether a sample may renormalize
+  interpolation weights after NA, masked, or out-of-volume corners are
+  removed. The default FALSE returns `fill` for that sample, preventing
+  interpolation across a missing-data or mask boundary.
+
+- surface_smooth_fwhm:
+
+  Tangential surface smoothing in mm. Zero (default) disables smoothing.
+  Positive values apply a topology-local Gaussian edge-weighted pass
+  whose spatial weights use surface-coordinate millimetres; this is
+  deliberately separate from voxel interpolation and cortical-depth
+  aggregation.
 
 ## Value
 

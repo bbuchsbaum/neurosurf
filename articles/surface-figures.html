@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Publication-quality surface figures • neurosurf</title>
+<title>Publication-quality continuous surface figures • neurosurf</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<script src="../extra.js"></script><meta property="og:title" content="Publication-quality surface figures">
+<script src="../extra.js"></script><meta property="og:title" content="Publication-quality continuous surface figures">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -37,7 +37,7 @@
 <li><a class="dropdown-item" href="../articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
     <li><a class="dropdown-item" href="../articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
     <li><a class="dropdown-item" href="../articles/interactive-surfaces.html">Build bilateral interactive surface reports</a></li>
-    <li><a class="dropdown-item" href="../articles/surface-figures.html">Publication-quality surface figures</a></li>
+    <li><a class="dropdown-item" href="../articles/surface-figures.html">Publication-quality continuous surface figures</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -60,7 +60,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Publication-quality surface figures</h1>
+      <h1>Publication-quality continuous surface figures</h1>
                         <h4 data-toc-skip class="author">neurosurf
 authors</h4>
             
@@ -72,142 +72,178 @@ authors</h4>
 
     
     
-<p>This vignette builds a multi-view, publication-ready surface figure
-from fsaverage surfaces and an atlas, using neurosurf’s high-level
-plotting API: <code><a href="../reference/surface_plot.html">surface_plot()</a></code>,
-<code><a href="../reference/add_surface_layer.html">add_surface_layer()</a></code>, <code><a href="../reference/add_atlas_outline.html">add_atlas_outline()</a></code>, and
-<code><a href="../reference/draw_surface_plot.html">draw_surface_plot()</a></code>.</p>
-<p>We will:</p>
-<ul>
-<li>load the bundled fsaverage <code>std.8</code> surfaces;</li>
-<li>map a Schaefer 200-parcel atlas from MNI152 volume space onto the
-surface;</li>
-<li>overlay a continuous statistical map with a colourbar; and</li>
-<li>add crisp atlas outlines for anatomical reference.</li>
-</ul>
-<script>document.addEventListener("DOMContentLoaded",function(){document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-interaction","preset-study","preset-structural","preset-adobe","preset-midnight");document.body.classList.add("palette-teal","preset-homage");});</script><div class="section level2">
-<h2 id="load-surfaces-and-an-atlas">Load surfaces and an atlas<a class="anchor" aria-label="anchor" href="#load-surfaces-and-an-atlas"></a>
+<script>document.addEventListener("DOMContentLoaded",function(){document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-interaction","preset-study","preset-structural","preset-adobe","preset-midnight");document.body.classList.add("palette-teal","preset-homage");});</script><p>You have a continuous value at every cortical vertex–for example a
+<em>t</em>, <em>z</em>, thickness, or connectivity map–and need a static
+figure that remains scientifically interpretable after thresholding. The
+important distinction is that the value is a <strong>field on a triangle
+mesh</strong>, not a parcel label. A polished figure should therefore
+interpolate the scalar within each triangle, test visibility with a real
+depth buffer, and add anatomy without drawing atlas or occlusion lines
+over the result.</p>
+<p><code><a href="../reference/render_surface_rgba.html">render_surface_rgba()</a></code> is neurosurf’s deterministic,
+headless primitive for that task. It returns an RGBA raster plus
+diagnostic buffers and provenance; <code><a href="../reference/write_surface_rgba.html">write_surface_rgba()</a></code>
+writes the result to PNG. Higher-level packages can compose several such
+panels with vector labels and legends.</p>
+<div class="section level2">
+<h2 id="what-are-the-inputs">What are the inputs?<a class="anchor" aria-label="anchor" href="#what-are-the-inputs"></a>
 </h2>
-<p>The package ships decimated fsaverage surfaces (<code>std.8</code>).
-We use the <strong>inflated</strong> surfaces for display, and the
-<strong>white</strong>/<strong>pial</strong> surfaces to project the
-atlas from the volume onto the surface.</p>
+<p>You need a display geometry and one numeric value per vertex. For
+anatomical context, use a curvature or sulcal-depth metric from a
+corresponding white, pial, or midthickness surface rather than computing
+curvature on the inflated display shape.</p>
+<p>The package includes matching decimated fsaverage surfaces, which
+keep this example fast and offline.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fs_infl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_fsaverage_std8.html">load_fsaverage_std8</a></span><span class="op">(</span><span class="st">"inflated"</span><span class="op">)</span></span>
-<span><span class="va">lh</span> <span class="op">&lt;-</span> <span class="va">fs_infl</span><span class="op">$</span><span class="va">lh</span></span>
-<span><span class="va">rh</span> <span class="op">&lt;-</span> <span class="va">fs_infl</span><span class="op">$</span><span class="va">rh</span></span>
+<code class="sourceCode R"><span><span class="va">inflated</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_fsaverage_std8.html">load_fsaverage_std8</a></span><span class="op">(</span><span class="st">"inflated"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">read_geom</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">name</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/read_surf_geometry.html">read_surf_geometry</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="va">name</span>, package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="va">lh_white</span> <span class="op">&lt;-</span> <span class="fu">read_geom</span><span class="op">(</span><span class="st">"std.8_lh.white.asc"</span><span class="op">)</span></span>
-<span><span class="va">lh_pial</span>  <span class="op">&lt;-</span> <span class="fu">read_geom</span><span class="op">(</span><span class="st">"std.8_lh.pial.asc"</span><span class="op">)</span></span>
-<span><span class="va">rh_white</span> <span class="op">&lt;-</span> <span class="fu">read_geom</span><span class="op">(</span><span class="st">"std.8_rh.white.asc"</span><span class="op">)</span></span>
-<span><span class="va">rh_pial</span>  <span class="op">&lt;-</span> <span class="fu">read_geom</span><span class="op">(</span><span class="st">"std.8_rh.pial.asc"</span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="../reference/vol_to_surf.html">vol_to_surf()</a></code> maps each surface vertex to the most
-common atlas label among the voxels between the white and pial surfaces,
-giving a per-vertex parcel id for each hemisphere.</p>
+<span><span class="va">white_lh</span> <span class="op">&lt;-</span> <span class="fu">read_geom</span><span class="op">(</span><span class="st">"std.8_lh.white.asc"</span><span class="op">)</span></span>
+<span><span class="va">white_rh</span> <span class="op">&lt;-</span> <span class="fu">read_geom</span><span class="op">(</span><span class="st">"std.8_rh.white.asc"</span><span class="op">)</span></span></code></pre></div>
+<p>Here a smooth coordinate-based field stands in for your measured
+statistic. The renderer treats it exactly like any other vertex-wise
+numeric vector.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">atlas</span> <span class="op">&lt;-</span> <span class="fu">neuroim2</span><span class="fu">::</span><span class="fu"><a href="https://bbuchsbaum.github.io/neuroim2/reference/read_vol.html" class="external-link">read_vol</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"extdata"</span>,</span>
-<span>  <span class="st">"Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii.gz"</span>,</span>
-<span>  package <span class="op">=</span> <span class="st">"neurosurf"</span></span>
-<span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">lh_parcels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="../reference/vol_to_surf.html">vol_to_surf</a></span><span class="op">(</span><span class="va">lh_white</span>, <span class="va">lh_pial</span>, <span class="va">atlas</span>, fun <span class="op">=</span> <span class="st">"mode"</span><span class="op">)</span><span class="op">@</span><span class="va">data</span><span class="op">)</span></span>
-<span><span class="va">rh_parcels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="../reference/vol_to_surf.html">vol_to_surf</a></span><span class="op">(</span><span class="va">rh_white</span>, <span class="va">rh_pial</span>, <span class="va">atlas</span>, fun <span class="op">=</span> <span class="st">"mode"</span><span class="op">)</span><span class="op">@</span><span class="va">data</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># A single left-to-right vector matching the plotting geometry</span></span>
-<span><span class="va">parcel_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lh_parcels</span>, <span class="va">rh_parcels</span><span class="op">)</span></span></code></pre></div>
-<blockquote>
-<p><strong>A note on resolution.</strong> <code>std.8</code> is a
-heavily decimated mesh (642 vertices per hemisphere), so a 200-parcel
-atlas is represented coarsely. The outlines below trace whatever parcels
-land on the mesh; on a full-resolution surface the same code produces
-finer borders.</p>
-</blockquote>
-</div>
-<div class="section level2">
-<h2 id="a-continuous-overlay-with-a-colourbar">A continuous overlay with a colourbar<a class="anchor" aria-label="anchor" href="#a-continuous-overlay-with-a-colourbar"></a>
-</h2>
-<p>We build a <code>neurosurf_plot</code> with a bilateral grid layout
-and two views (<code>lateral</code> and <code>medial</code>), then add a
-continuous map. Here the map is a smooth synthetic statistic standing in
-for, e.g., a contrast or connectivity value; in practice you would pass
-your own per-vertex values.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Smooth synthetic per-vertex statistic (replace with your own map)</span></span>
-<span><span class="va">example_statistic</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">geom</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">xyz</span> <span class="op">&lt;-</span> <span class="fu">coords</span><span class="op">(</span><span class="va">geom</span><span class="op">)</span></span>
-<span>  <span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">xyz</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">/</span> <span class="fl">18</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">xyz</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">/</span> <span class="fl">22</span><span class="op">)</span></span>
-<span>  <span class="op">(</span><span class="va">v</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">example_statistic</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">geometry</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">xyz</span> <span class="op">&lt;-</span> <span class="fu">coords</span><span class="op">(</span><span class="va">geometry</span><span class="op">)</span></span>
+<span>  <span class="va">value</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">xyz</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">/</span> <span class="fl">18</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">xyz</span><span class="op">[</span>, <span class="fl">3</span><span class="op">]</span> <span class="op">/</span> <span class="fl">14</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fl">0.7</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">xyz</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">/</span> <span class="fl">12</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="va">stat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu">example_statistic</span><span class="op">(</span><span class="va">lh</span><span class="op">)</span>, <span class="fu">example_statistic</span><span class="op">(</span><span class="va">rh</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surface_plot.html">surface_plot</a></span><span class="op">(</span>lh <span class="op">=</span> <span class="va">lh</span>, rh <span class="op">=</span> <span class="va">rh</span>,</span>
-<span>                  views <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lateral"</span>, <span class="st">"medial"</span><span class="op">)</span>,</span>
-<span>                  layout <span class="op">=</span> <span class="st">"grid"</span>, zoom <span class="op">=</span> <span class="fl">2.5</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_surface_layer.html">add_surface_layer</a></span><span class="op">(</span></span>
-<span>  <span class="va">p</span>,</span>
-<span>  data          <span class="op">=</span> <span class="va">stat</span>,</span>
-<span>  cmap          <span class="op">=</span> <span class="st">"viridis"</span>,</span>
-<span>  show_colorbar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  label         <span class="op">=</span> <span class="st">"Example statistic"</span>,</span>
-<span>  alpha         <span class="op">=</span> <span class="fl">0.95</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p</span>, colorbar <span class="op">=</span> <span class="cn">TRUE</span>, cbar_location <span class="op">=</span> <span class="st">"bottom"</span>,</span>
-<span>     cbar_kws <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n_ticks <span class="op">=</span> <span class="fl">3</span>, digits <span class="op">=</span> <span class="fl">1</span>, label_cex <span class="op">=</span> <span class="fl">0.7</span>, title_cex <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="surface-figures_files/figure-html/continuous-map-1.png" class="r-plt" alt="" width="100%"></p>
+<span><span class="va">stat_lh</span> <span class="op">&lt;-</span> <span class="fu">example_statistic</span><span class="op">(</span><span class="va">inflated</span><span class="op">$</span><span class="va">lh</span><span class="op">)</span></span>
+<span><span class="va">stat_rh</span> <span class="op">&lt;-</span> <span class="fu">example_statistic</span><span class="op">(</span><span class="va">inflated</span><span class="op">$</span><span class="va">rh</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="adding-atlas-outlines">Adding atlas outlines<a class="anchor" aria-label="anchor" href="#adding-atlas-outlines"></a>
+<h2 id="how-do-you-render-one-thresholded-view">How do you render one thresholded view?<a class="anchor" aria-label="anchor" href="#how-do-you-render-one-thresholded-view"></a>
 </h2>
-<p><code><a href="../reference/add_atlas_outline.html">add_atlas_outline()</a></code> overlays parcel boundaries. By
-default it uses the <code>"midpoint"</code> boundary method, which draws
-a single crisp contour running between differing labels (no double
-lines), with a subtle halo for legibility against the colour map. On
-this decimated mesh a full 200-parcel atlas is visually dense, so the
-example highlights a representative subset of parcels; omit
-<code>rois</code> to draw every parcel boundary.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">roi_counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">parcel_labels</span><span class="op">[</span><span class="va">parcel_labels</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span><span class="op">)</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">outline_rois</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">roi_counts</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">24L</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">roi_counts</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">p_outline</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_atlas_outline.html">add_atlas_outline</a></span><span class="op">(</span></span>
-<span>  <span class="va">p</span>,</span>
-<span>  labels         <span class="op">=</span> <span class="va">parcel_labels</span>,</span>
-<span>  rois           <span class="op">=</span> <span class="va">outline_rois</span>,</span>
-<span>  label          <span class="op">=</span> <span class="st">"Schaefer-200"</span>,</span>
-<span>  outline_lwd    <span class="op">=</span> <span class="fl">1.0</span>,</span>
-<span>  outline_offset <span class="op">=</span> <span class="fl">0.5</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_outline</span>, colorbar <span class="op">=</span> <span class="cn">TRUE</span>, cbar_location <span class="op">=</span> <span class="st">"bottom"</span>,</span>
-<span>     cbar_kws <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n_ticks <span class="op">=</span> <span class="fl">3</span>, digits <span class="op">=</span> <span class="fl">1</span>, label_cex <span class="op">=</span> <span class="fl">0.7</span>, title_cex <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="surface-figures_files/figure-html/outlined-figure-1.png" class="r-plt" alt="" width="100%"></p>
-<p>The figure now shows left and right inflated surfaces in lateral and
-medial views, a continuous map with a clean colourbar, and parcel
-outlines for anatomical reference. The same pattern works for any
-surface + atlas combination that can be loaded as a
-<code>SurfaceGeometry</code> plus per-vertex labels.</p>
+<p>Choose the threshold and colour limits as scientific inputs. In this
+example, the colour scale stays fixed at <code>[-2.5, 2.5]</code>, while
+an opacity ramp softens only the visual transition immediately above
+<code>|z| = 1</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lh_lateral</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/render_surface_rgba.html">render_surface_rgba</a></span><span class="op">(</span></span>
+<span>  <span class="va">inflated</span><span class="op">$</span><span class="va">lh</span>,</span>
+<span>  vertex_values <span class="op">=</span> <span class="va">stat_lh</span>,</span>
+<span>  anatomy_metric <span class="op">=</span> <span class="va">curv_lh</span>,</span>
+<span>  camera <span class="op">=</span> <span class="st">"lateral"</span>,</span>
+<span>  threshold <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  tail <span class="op">=</span> <span class="st">"two_sided"</span>,</span>
+<span>  limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span><span class="op">)</span>,</span>
+<span>  alpha_ramp <span class="op">=</span> <span class="fl">0.25</span>,</span>
+<span>  antialias <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="surface-figures_files/figure-html/show-one-view-1.-cpu-lh-lateral.png" class="r-plt" alt="" width="80%"></p>
+<p>The colour at each covered sample comes from the barycentrically
+interpolated scalar. Thresholding and palette mapping happen after that
+interpolation, so a threshold boundary may cross a triangle instead of
+jumping from one mesh edge to the next. The per-sample z-buffer
+independently decides which folded surface fragment is visible.</p>
 </div>
 <div class="section level2">
-<h2 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
+<h2 id="how-do-you-build-the-four-canonical-views">How do you build the four canonical views?<a class="anchor" aria-label="anchor" href="#how-do-you-build-the-four-canonical-views"></a>
+</h2>
+<p>Use the same limits, threshold, opacity, and anatomy convention in
+every panel. The camera contract is explicit:
+<code>camera_mode = "canonical"</code> is strict orthographic output,
+while <code>"presentation"</code> adds a small declared obliquity.</p>
+<p><img src="surface-figures_files/figure-html/render-four-views-1.-cpu-lh_lateral.png" class="r-plt" alt="" width="49%"><img src="surface-figures_files/figure-html/render-four-views-1.-cpu-rh_lateral.png" class="r-plt" alt="" width="49%"><img src="surface-figures_files/figure-html/render-four-views-1.-cpu-lh_medial.png" class="r-plt" alt="" width="49%"><img src="surface-figures_files/figure-html/render-four-views-1.-cpu-rh_medial.png" class="r-plt" alt="" width="49%"></p>
+<p>The lateral and medial views differ because each panel rasterizes the
+visible triangles from its own camera. Internal sulcal occlusion edges
+are not drawn as outlines; <code>outer_contour = TRUE</code> marks only
+cortex touching background that is connected to the image exterior.</p>
+</div>
+<div class="section level2">
+<h2 id="where-do-the-medial-wall-and-cortex-mask-enter">Where do the medial wall and cortex mask enter?<a class="anchor" aria-label="anchor" href="#where-do-the-medial-wall-and-cortex-mask-enter"></a>
+</h2>
+<p>A real cortex mask is a separate domain object, not a consequence of
+parcel value zero. Pass one logical value per vertex. Triangles touching
+a masked vertex never receive overlay colour. <code>medial_wall</code>
+then controls whether the excluded domain is quietly shaded, omitted, or
+outlined.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">masked_panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/render_surface_rgba.html">render_surface_rgba</a></span><span class="op">(</span></span>
+<span>  <span class="va">inflated</span><span class="op">$</span><span class="va">lh</span>,</span>
+<span>  vertex_values <span class="op">=</span> <span class="va">statistic</span>,</span>
+<span>  anatomy_metric <span class="op">=</span> <span class="va">white_surface_curvature</span>,</span>
+<span>  cortex_mask <span class="op">=</span> <span class="va">cortex_label</span>,</span>
+<span>  medial_wall <span class="op">=</span> <span class="st">"shade"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Atlas-aware callers such as <code>neuroatlas::plot_brain()</code> can
+resolve the mask and its provenance from an atlas annotation. At this
+low level, neurosurf requires the caller to supply the domain explicitly
+rather than guessing that an atlas label of zero always means medial
+wall.</p>
+</div>
+<div class="section level2">
+<h2 id="how-should-a-volume-become-a-continuous-surface-field">How should a volume become a continuous surface field?<a class="anchor" aria-label="anchor" href="#how-should-a-volume-become-a-continuous-surface-field"></a>
+</h2>
+<p>For a continuous image, use explicit trilinear sampling through the
+cortical ribbon. Interpolation, aggregation across depth, and tangential
+smoothing are separate choices. The following contract samples five
+depths, averages them, and applies no surface smoothing:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mapped</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/vol_to_surf.html">vol_to_surf</a></span><span class="op">(</span></span>
+<span>  <span class="va">white_surface</span>,</span>
+<span>  <span class="va">pial_surface</span>,</span>
+<span>  <span class="va">statistic_volume</span>,</span>
+<span>  fun <span class="op">=</span> <span class="st">"avg"</span>,</span>
+<span>  sampling <span class="op">=</span> <span class="st">"thickness"</span>,</span>
+<span>  interpolation <span class="op">=</span> <span class="st">"linear"</span>,</span>
+<span>  depth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, length.out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
+<span>  aggregate <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<span>  surface_smooth_fwhm <span class="op">=</span> <span class="fl">0</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Use <code>interpolation = "nearest"</code> for discrete nearest-voxel
+sampling. The historical Gaussian KNN behaviour remains available as
+<code>interpolation = "legacy"</code>. Categorical
+<code>aggregate = "mode"</code> is intentionally incompatible with
+linear interpolation.</p>
+</div>
+<div class="section level2">
+<h2 id="which-renderer-should-you-use">Which renderer should you use?<a class="anchor" aria-label="anchor" href="#which-renderer-should-you-use"></a>
+</h2>
+<ul>
+<li>Use <code><a href="../reference/render_surface_rgba.html">render_surface_rgba()</a></code> for deterministic,
+scalar-first static output in CI, Slurm, Quarto, or PDF workflows. It
+requires neither OpenGL nor a browser.</li>
+<li>Use <code><a href="../reference/surface_plot.html">surface_plot()</a></code>, <code><a href="../reference/view_surface.html">view_surface()</a></code>, or
+<code><a href="../reference/surfwidget-methods.html">surfwidget()</a></code> for interactive exploration, atlas inspection,
+and report widgets. Those paths provide rich 3D interaction, but they
+are not the scalar-threshold oracle for static continuous maps.</li>
+<li>Use
+<code>neuroatlas::plot_brain(style = "stat_publication", static_backend = "cpu")</code>
+when you need anatomical masks, curvature resolution, a four-view
+layout, orientation marks, and an overlay legend.</li>
+<li>Use <code>neuromosaic::surf_montage()</code> when the starting point
+is a statistic volume and the figure belongs in a reproducible
+report.</li>
+</ul>
+<p>Atlas outlines remain useful when the atlas itself is the subject of
+the figure. They are deliberately not part of the default
+continuous-statistic view, where parcel boundaries would imply structure
+that is absent from the scalar field.</p>
+</div>
+<div class="section level2">
+<h2 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
 </h2>
 <ul>
 <li>
-<code><a href="../articles/displaying-surfaces.html">vignette("displaying-surfaces")</a></code> — lower-level RGL
-rendering with curvature shading, data overlays, thresholds, and PNG
-snapshots.</li>
+<code><a href="../articles/displaying-surfaces.html">vignette("displaying-surfaces")</a></code> covers lower-level RGL
+rendering and local snapshots.</li>
 <li>
-<code><a href="../articles/interactive-surfaces.html">vignette("interactive-surfaces")</a></code> — interactive HTML
-widgets with <code><a href="../reference/surfwidget-methods.html">surfwidget()</a></code> for exploratory analysis.</li>
+<code><a href="../articles/interactive-surfaces.html">vignette("interactive-surfaces")</a></code> builds interactive
+bilateral report widgets with <code><a href="../reference/surfwidget-methods.html">surfwidget()</a></code>.</li>
 <li>
-<code><a href="../articles/introduction-to-neurosurf.html">vignette("introduction-to-neurosurf")</a></code> — the data
-structures (<code>SurfaceGeometry</code>, <code>NeuroSurface</code>,
-<code>NeuroSurfaceVector</code>) that underpin these workflows.</li>
+<code><a href="../articles/introduction-to-neurosurf.html">vignette("introduction-to-neurosurf")</a></code> introduces
+<code>SurfaceGeometry</code>, <code>NeuroSurface</code>, and related
+data structures.</li>
+<li>
+<code><a href="../reference/render_surface_rgba.html">?render_surface_rgba</a></code>,
+<code><a href="../reference/surface_threshold_segments.html">?surface_threshold_segments</a></code>, and <code><a href="../reference/vol_to_surf.html">?vol_to_surf</a></code>
+document the complete computational contracts.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

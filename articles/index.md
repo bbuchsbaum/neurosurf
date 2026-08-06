@@ -8,5 +8,5 @@
   RGL](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.md):
 - [Build bilateral interactive surface
   reports](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.md):
-- [Publication-quality surface
+- [Publication-quality continuous surface
   figures](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md):

@@ -126,6 +126,7 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/read_surf_geometry.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/remeshSurface.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/render_surface_plot.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/right-methods.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/sampler_to_triplets.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/series-methods.html</loc></url>
@@ -153,6 +154,7 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_scene.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_scene_manifest.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_set.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_threshold_segments.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-shiny.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/updateColorMap.html</loc></url>
@@ -162,6 +164,7 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/vol_to_surf.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/vol_to_surf_sdf.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/write_surf_data.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/write_surface_rgba.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/write_surface_scene.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/vol2surf.html</loc></url>
 </urlset>

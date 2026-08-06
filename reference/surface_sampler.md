@@ -75,13 +75,11 @@ surface_sampler(
 
 - knn:
 
-  The number of nearest neighbors to consider for mapping (default: 6).
+  Number of cached nearest voxel candidates per surface sample.
 
 - dthresh:
 
-  The maximum distance threshold for valid mapping. A voxel is only
-  considered if it is less than `dthresh` units away from the vertex
-  (default: 2 \* sigma).
+  Maximum cached candidate distance in volume world-coordinate units.
 
 ## Value
 

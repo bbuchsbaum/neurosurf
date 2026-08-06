@@ -456,6 +456,9 @@ Catch-all index to include any remaining topics.
 - [`render_surface_plot()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_plot.md)
   : Render a neurosurf plot using rgl
 
+- [`render_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md)
+  : Deterministic scalar-first surface rasterization
+
 - [`right()`](https://bbuchsbaum.github.io/neurosurf/reference/right-methods.md)
   : Get Right Hemisphere
 
@@ -543,6 +546,9 @@ Catch-all index to include any remaining topics.
 - [`surface_set()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_set.md)
   : Construct a SurfaceSet
 
+- [`surface_threshold_segments()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_threshold_segments.md)
+  : Marching-triangle threshold segments
+
 - [`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
   : Create an interactive surface viewer
 
@@ -569,6 +575,9 @@ Catch-all index to include any remaining topics.
 
 - [`write_surf_data()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surf_data.md)
   : Write Surface Data to File
+
+- [`write_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_rgba.md)
+  : Write a deterministic surface raster to PNG
 
 - [`write_surface_scene()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_scene.md)
   : Write a standalone portable surface report
