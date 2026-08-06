@@ -7,16 +7,16 @@
 surface_scene_manifest(scene, asset_mode = scene@asset_mode, asset_dir = NULL)
 }
 \arguments{
-\item{scene}{A `SurfaceScene`.}
+\item{scene}{A \code{SurfaceScene}.}
 
-\item{asset_mode}{`"inline"` or `"directory"`.}
+\item{asset_mode}{\code{"inline"} or \code{"directory"}.}
 
 \item{asset_dir}{Directory for adjacent binary assets. Required for directory
 mode.}
 }
 \value{
 A JSON-compatible named list. Directory mode also writes canonical
-  content-addressed assets to `asset_dir`.
+  content-addressed assets to \code{asset_dir}.
 }
 \description{
 Serialize a SurfaceScene as a surfview.scene.v1 manifest

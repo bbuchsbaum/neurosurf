@@ -85,7 +85,8 @@ Suggests:
     viridis,
     albersdown,
     rappdirs
-URL: https://github.com/bbuchsbaum/neurosurf
+URL: https://bbuchsbaum.github.io/neurosurf,
+    https://github.com/bbuchsbaum/neurosurf
 BugReports: https://github.com/bbuchsbaum/neurosurf/issues
 VignetteBuilder: knitr
 Encoding: UTF-8

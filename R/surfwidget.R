@@ -1,11 +1,3 @@
-#' surfwidget
-#'
-#' Create a surfwidget to display brain surface data.
-#'
-#' @param x A SurfaceScene, SurfaceGeometry, NeuroSurface,
-#'   ColorMappedNeuroSurface, or VertexColoredNeuroSurface object.
-#' @param width The width of the widget
-#' @param height The height of the widget
 #' @param data Optional. Numeric vector of data values for each vertex.
 #' @param cmap Optional. Color map for data visualization.
 #' @param irange Optional. Intensity range for data visualization.
@@ -18,11 +10,15 @@
 #' @param colorbar Logical; if \code{TRUE} (default), render a colorbar when a
 #'   colormap is used.
 #' @param colorbar_label Optional character label shown alongside the colorbar.
-#' @param layers Optional list of additional data layers to display on the surface.
-#'   Each layer should be a list with elements such as \code{data}, \code{cmap},
-#'   \code{alpha}, and optionally outline-specific parameters.
-#' @param config A list of configuration options for the surface rendering:
+#' @param layers Legacy list of additional single-surface data layers. New code
+#'   should pass \code{\link{surface_layer}} objects to
+#'   \code{\link{surface_scene}}.
+#' @param config Configuration for legacy single-surface calls:
 #'   \describe{
+#'     \item{\code{preset}}{Appearance preset used while adapting the object.
+#'       The default is \code{"paper-light"}.}
+#'     \item{\code{mode}}{\code{"report"} for the curated report toolbar or
+#'       \code{"viewer"} for a bare viewer.}
 #'     \item{\code{shininess}}{Numeric between 0 and 100. Controls the shininess of the material. Higher values create a more polished appearance. Default is 30.}
 #'     \item{\code{specularColor}}{Character. Hex color code for the specular highlights. Default is "#111111".}
 #'     \item{\code{flatShading}}{Logical scalar. If \code{TRUE}, uses flat shading; if \code{FALSE}, uses smooth shading. Default is \code{FALSE}.}
@@ -30,12 +26,11 @@
 #'     \item{\code{directionalLightColor}}{Character. Hex color code for the directional light. Default is "#ffffff".}
 #'     \item{\code{directionalLightIntensity}}{Numeric between 0 and 1. Intensity of the directional light. Default is 0.5.}
 #'   }
-#'   Unknown elements in \code{config} are ignored with a warning.
+#'   Unknown elements are ignored with a warning. \code{showControls} and
+#'   \code{controlType} are deprecated; report widgets do not load Tweakpane.
 #'
 #' @import htmlwidgets
 #' @importFrom grDevices col2rgb rgb rainbow colorRampPalette
-#'
-#' @return An HTMLWidget object
 #'
 #' @examples
 #' \donttest{

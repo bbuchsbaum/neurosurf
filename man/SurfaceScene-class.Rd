@@ -9,22 +9,22 @@
 \S4method{show}{SurfaceScene}(object)
 }
 \arguments{
-\item{object}{A `SurfaceScene` to summarize.}
+\item{object}{A \code{SurfaceScene} to summarize.}
 }
 \value{
-A `SurfaceScene` object.
+A \code{SurfaceScene} object.
 }
 \description{
-`SurfaceScene` stores one or two hemisphere geometries and named scalar
+\code{SurfaceScene} stores one or two hemisphere geometries and named scalar
 layers together with the presentation metadata needed to reconstruct a
-report viewer. Use [surface_scene()] to create validated instances.
+report viewer. Use \code{\link{surface_scene}} to create validated instances.
 }
 \section{Slots}{
 
 \describe{
 \item{\code{id}}{A stable scene identifier.}
 
-\item{\code{geometries}}{A named list of `SurfaceGeometry` objects.}
+\item{\code{geometries}}{A named list of \code{SurfaceGeometry} objects.}
 
 \item{\code{curvature}}{Optional named curvature vectors.}
 
@@ -40,9 +40,9 @@ report viewer. Use [surface_scene()] to create validated instances.
 
 \item{\code{alt_text}}{Alternative text for the interactive figure.}
 
-\item{\code{preset}}{A visual preset such as `"paper-light"`.}
+\item{\code{preset}}{A visual preset such as \code{"paper-light"}.}
 
-\item{\code{mode}}{Widget behavior mode. `"report"` enables curated controls.}
+\item{\code{mode}}{Widget behavior mode. \code{"report"} enables curated controls.}
 
 \item{\code{asset_mode}}{Default asset serialization mode.}
 }}

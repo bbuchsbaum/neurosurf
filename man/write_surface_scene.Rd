@@ -7,18 +7,28 @@
 write_surface_scene(scene, path, self_contained = FALSE, title = scene@id)
 }
 \arguments{
-\item{scene}{A `SurfaceScene`.}
+\item{scene}{A \code{SurfaceScene}.}
 
 \item{path}{Output directory.}
 
-\item{self_contained}{If `TRUE`, inline both assets and the browser runtime.
-Otherwise, write the runtime and SHA-addressed assets beside `index.html`.}
+\item{self_contained}{If \code{TRUE}, inline both assets and the browser runtime.
+Otherwise, write the runtime and SHA-addressed assets beside
+\code{index.html}.}
 
 \item{title}{HTML document title.}
 }
 \value{
-The path to `index.html`, invisibly.
+The path to \code{index.html}, invisibly.
 }
 \description{
 Write a standalone portable surface report
+}
+\details{
+With \code{self_contained = FALSE}, the function writes \code{index.html}, the local
+surfview runtime, and content-addressed binary assets. With
+\code{self_contained = TRUE}, it inlines the runtime and assets into one HTML
+file. Neither mode requires a runtime network connection.
+}
+\seealso{
+\code{\link{surface_scene}}, \code{\link{surfwidget}}
 }

@@ -26,7 +26,7 @@ surface_layer(
 one numeric vector per hemisphere.}
 
 \item{indices}{Optional 1-based vertex indices with the same structure and
-lengths as `values`. Omit for full-vertex maps.}
+lengths as \code{values}. Omit for full-vertex maps.}
 
 \item{colormap}{A surfview colormap name or a character vector of colors.}
 
@@ -37,8 +37,8 @@ from finite values across hemispheres.}
 
 \item{units}{Optional measurement units.}
 
-\item{legend}{A list with optional `title`, `units`, `visible`, and
-`metadata` fields.}
+\item{legend}{A list with optional \code{title}, \code{units},
+\code{visible}, and \code{metadata} fields.}
 
 \item{metadata, provenance}{Arbitrary lists carried into the manifest.}
 
@@ -48,8 +48,21 @@ from finite values across hemispheres.}
 legacy display thresholds; report mode does not add a threshold control.}
 }
 \value{
-A validated layer specification for [surface_scene()].
+A validated layer specification for \code{\link{surface_scene}}.
 }
 \description{
 Define a named scalar layer for a surface scene
+}
+\details{
+The browser renders these values as supplied. Apply inferential thresholds,
+tail selection, capping, and atlas projection in R. \code{threshold} preserves an
+explicitly authored display threshold for legacy compatibility; report mode
+does not add an exploratory threshold control.
+}
+\examples{
+surface_layer(
+  "effect", c(-1.5, 0, 2),
+  colormap = c("#2166ac", "#f7f7f7", "#b2182b"),
+  limits = c(-2, 2), units = "z"
+)
 }

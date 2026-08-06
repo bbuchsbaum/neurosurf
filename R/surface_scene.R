@@ -1,11 +1,11 @@
 #' A portable cortical surface scene
 #'
-#' `SurfaceScene` stores one or two hemisphere geometries and named scalar
+#' \code{SurfaceScene} stores one or two hemisphere geometries and named scalar
 #' layers together with the presentation metadata needed to reconstruct a
-#' report viewer. Use [surface_scene()] to create validated instances.
+#' report viewer. Use \code{\link{surface_scene}} to create validated instances.
 #'
 #' @slot id A stable scene identifier.
-#' @slot geometries A named list of `SurfaceGeometry` objects.
+#' @slot geometries A named list of \code{SurfaceGeometry} objects.
 #' @slot curvature Optional named curvature vectors.
 #' @slot layers A named list of validated surface-layer specifications.
 #' @slot selected_layer The initially selected layer name.
@@ -13,11 +13,11 @@
 #' @slot provenance Arbitrary scene provenance.
 #' @slot fallback Plain-text content shown when JavaScript or WebGL is absent.
 #' @slot alt_text Alternative text for the interactive figure.
-#' @slot preset A visual preset such as `"paper-light"`.
-#' @slot mode Widget behavior mode. `"report"` enables curated controls.
+#' @slot preset A visual preset such as \code{"paper-light"}.
+#' @slot mode Widget behavior mode. \code{"report"} enables curated controls.
 #' @slot asset_mode Default asset serialization mode.
 #'
-#' @return A `SurfaceScene` object.
+#' @return A \code{SurfaceScene} object.
 #' @exportClass SurfaceScene
 setClass(
   "SurfaceScene",
@@ -173,20 +173,33 @@ setClass(
 #' @param values A numeric vector for a unilateral scene, or a named list with
 #'   one numeric vector per hemisphere.
 #' @param indices Optional 1-based vertex indices with the same structure and
-#'   lengths as `values`. Omit for full-vertex maps.
+#'   lengths as \code{values}. Omit for full-vertex maps.
 #' @param colormap A surfview colormap name or a character vector of colors.
 #' @param limits Optional finite display limits. By default they are computed
 #'   from finite values across hemispheres.
 #' @param opacity Numeric scalar between zero and one.
 #' @param units Optional measurement units.
-#' @param legend A list with optional `title`, `units`, `visible`, and
-#'   `metadata` fields.
+#' @param legend A list with optional \code{title}, \code{units},
+#'   \code{visible}, and \code{metadata} fields.
 #' @param metadata,provenance Arbitrary lists carried into the manifest.
 #' @param visible Whether this layer is a candidate for initial selection.
 #' @param threshold Optional static threshold pair. This preserves explicit
 #'   legacy display thresholds; report mode does not add a threshold control.
 #'
-#' @return A validated layer specification for [surface_scene()].
+#' @return A validated layer specification for \code{\link{surface_scene}}.
+#'
+#' @details
+#' The browser renders these values as supplied. Apply inferential thresholds,
+#' tail selection, capping, and atlas projection in R. \code{threshold} preserves an
+#' explicitly authored display threshold for legacy compatibility; report mode
+#' does not add an exploratory threshold control.
+#'
+#' @examples
+#' surface_layer(
+#'   "effect", c(-1.5, 0, 2),
+#'   colormap = c("#2166ac", "#f7f7f7", "#b2182b"),
+#'   limits = c(-2, 2), units = "z"
+#' )
 #' @export
 surface_layer <- function(name, values, indices = NULL, colormap = "viridis",
                           limits = NULL, opacity = 1, units = NULL,
@@ -315,9 +328,10 @@ surface_layer <- function(name, values, indices = NULL, colormap = "viridis",
 
 #' Construct a validated portable surface scene
 #'
-#' @param left,right Optional left and right `SurfaceGeometry` or `SurfaceSet`
+#' @param left,right Optional left and right \code{SurfaceGeometry} or
+#'   \code{SurfaceSet}
 #'   objects. Supply at least one.
-#' @param layers A `surface_layer()` object or a list of them.
+#' @param layers A \code{\link{surface_layer}} object or a list of them.
 #' @param curvature Optional numeric vector for a unilateral scene or named
 #'   hemisphere list.
 #' @param selected_layer Initially selected layer name. Defaults to the first
@@ -326,14 +340,36 @@ surface_layer <- function(name, values, indices = NULL, colormap = "viridis",
 #' @param metadata,provenance Arbitrary lists carried into the manifest.
 #' @param fallback Required plain-text fallback content.
 #' @param alt_text Required alternative text for the interactive figure.
-#' @param preset Visual appearance preset. `"paper-light"` is intended for
+#' @param preset Visual appearance preset. \code{"paper-light"} is intended for
 #'   light-background figures and does not change widget behavior.
-#' @param mode `"report"` for curated controls and fallback behavior, or
-#'   `"viewer"` for a bare interactive viewer.
+#' @param mode \code{"report"} for curated controls and fallback behavior, or
+#'   \code{"viewer"} for a bare interactive viewer.
 #' @param asset_mode Default serialization mode: inline base64 or adjacent
 #'   content-addressed files.
 #'
-#' @return A validated `SurfaceScene` object.
+#' @return A validated \code{SurfaceScene} object.
+#'
+#' @details
+#' A scene owns the portable report description, not the statistical analysis.
+#' \code{preset} changes appearance; \code{mode} changes viewer behavior. Inline and
+#' adjacent asset modes encode the same typed-array bytes and preserve missing
+#' values. Use \code{\link{surfwidget}} inside an R Markdown or Quarto document
+#' and \code{\link{write_surface_scene}} for an ordinary HTML page.
+#'
+#' @examples
+#' geometry <- example_surface_geometry()
+#' scene <- surface_scene(
+#'   left = geometry,
+#'   layers = surface_layer(
+#'     "effect", seq_len(nrow(coords(geometry))), limits = c(1, 4)
+#'   ),
+#'   fallback = "Static left-hemisphere surface figure.",
+#'   alt_text = "Left cortical surface colored by an example effect."
+#' )
+#' scene
+#'
+#' @seealso \code{\link{surface_layer}}, \code{\link{surfwidget}},
+#'   \code{\link{surface_scene_manifest}}, \code{\link{write_surface_scene}}
 #' @export
 surface_scene <- function(left = NULL, right = NULL, layers,
                           curvature = NULL, selected_layer = NULL,
@@ -429,13 +465,13 @@ surface_scene <- function(left = NULL, right = NULL, layers,
 
 #' Serialize a SurfaceScene as a surfview.scene.v1 manifest
 #'
-#' @param scene A `SurfaceScene`.
-#' @param asset_mode `"inline"` or `"directory"`.
+#' @param scene A \code{SurfaceScene}.
+#' @param asset_mode \code{"inline"} or \code{"directory"}.
 #' @param asset_dir Directory for adjacent binary assets. Required for directory
 #'   mode.
 #'
 #' @return A JSON-compatible named list. Directory mode also writes canonical
-#'   content-addressed assets to `asset_dir`.
+#'   content-addressed assets to \code{asset_dir}.
 #' @export
 surface_scene_manifest <- function(scene, asset_mode = scene@asset_mode,
                                    asset_dir = NULL) {
@@ -566,13 +602,22 @@ surface_scene_manifest <- function(scene, asset_mode = scene@asset_mode,
 
 #' Write a standalone portable surface report
 #'
-#' @param scene A `SurfaceScene`.
+#' @param scene A \code{SurfaceScene}.
 #' @param path Output directory.
-#' @param self_contained If `TRUE`, inline both assets and the browser runtime.
-#'   Otherwise, write the runtime and SHA-addressed assets beside `index.html`.
+#' @param self_contained If \code{TRUE}, inline both assets and the browser runtime.
+#'   Otherwise, write the runtime and SHA-addressed assets beside
+#'   \code{index.html}.
 #' @param title HTML document title.
 #'
-#' @return The path to `index.html`, invisibly.
+#' @return The path to \code{index.html}, invisibly.
+#'
+#' @details
+#' With \code{self_contained = FALSE}, the function writes \code{index.html}, the local
+#' surfview runtime, and content-addressed binary assets. With
+#' \code{self_contained = TRUE}, it inlines the runtime and assets into one HTML
+#' file. Neither mode requires a runtime network connection.
+#'
+#' @seealso \code{\link{surface_scene}}, \code{\link{surfwidget}}
 #' @export
 write_surface_scene <- function(scene, path, self_contained = FALSE,
                                 title = scene@id) {
@@ -646,7 +691,7 @@ write_surface_scene <- function(scene, path, self_contained = FALSE,
 
 #' @export
 #' @rdname SurfaceScene-class
-#' @param object A `SurfaceScene` to summarize.
+#' @param object A \code{SurfaceScene} to summarize.
 #' @export
 setMethod("show", "SurfaceScene", function(object) {
   cat("SurfaceScene '", object@id, "'\n", sep = "")

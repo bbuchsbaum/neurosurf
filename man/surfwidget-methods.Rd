@@ -7,7 +7,7 @@
 \alias{surfwidget,ColorMappedNeuroSurface-method}
 \alias{surfwidget,VertexColoredNeuroSurface-method}
 \alias{surfwidget,SurfaceScene-method}
-\title{Create a Surface Widget}
+\title{Create an interactive surface viewer}
 \usage{
 surfwidget(x, width = NULL, height = NULL, ...)
 
@@ -77,14 +77,14 @@ surfwidget(x, width = NULL, height = NULL, ...)
 \S4method{surfwidget}{SurfaceScene}(x, width = NULL, height = NULL, config = list(), ...)
 }
 \arguments{
-\item{x}{A SurfaceScene, SurfaceGeometry, NeuroSurface,
-ColorMappedNeuroSurface, or VertexColoredNeuroSurface object.}
+\item{x}{A \code{SurfaceScene}, \code{SurfaceGeometry}, \code{NeuroSurface},
+\code{ColorMappedNeuroSurface}, or \code{VertexColoredNeuroSurface}.}
 
-\item{width}{The width of the widget}
+\item{width}{Optional widget width.}
 
-\item{height}{The height of the widget}
+\item{height}{Optional widget height.}
 
-\item{...}{Additional arguments for customizing the widget appearance and behavior.}
+\item{...}{Arguments passed to the method for \code{x}.}
 
 \item{data}{Optional. Numeric vector of data values for each vertex.}
 
@@ -107,12 +107,16 @@ colormap is used.}
 
 \item{colorbar_label}{Optional character label shown alongside the colorbar.}
 
-\item{layers}{Optional list of additional data layers to display on the surface.
-Each layer should be a list with elements such as \code{data}, \code{cmap},
-\code{alpha}, and optionally outline-specific parameters.}
+\item{layers}{Legacy list of additional single-surface data layers. New code
+should pass \code{\link{surface_layer}} objects to
+\code{\link{surface_scene}}.}
 
-\item{config}{A list of configuration options for the surface rendering:
+\item{config}{Configuration for legacy single-surface calls:
 \describe{
+  \item{\code{preset}}{Appearance preset used while adapting the object.
+    The default is \code{"paper-light"}.}
+  \item{\code{mode}}{\code{"report"} for the curated report toolbar or
+    \code{"viewer"} for a bare viewer.}
   \item{\code{shininess}}{Numeric between 0 and 100. Controls the shininess of the material. Higher values create a more polished appearance. Default is 30.}
   \item{\code{specularColor}}{Character. Hex color code for the specular highlights. Default is "#111111".}
   \item{\code{flatShading}}{Logical scalar. If \code{TRUE}, uses flat shading; if \code{FALSE}, uses smooth shading. Default is \code{FALSE}.}
@@ -120,24 +124,28 @@ Each layer should be a list with elements such as \code{data}, \code{cmap},
   \item{\code{directionalLightColor}}{Character. Hex color code for the directional light. Default is "#ffffff".}
   \item{\code{directionalLightIntensity}}{Numeric between 0 and 1. Intensity of the directional light. Default is 0.5.}
 }
-Unknown elements in \code{config} are ignored with a warning.}
+Unknown elements are ignored with a warning. \code{showControls} and
+\code{controlType} are deprecated; report widgets do not load Tweakpane.}
 }
 \value{
-An HTMLWidget object representing the surface visualization.
-
-An HTMLWidget object
+An \code{htmlwidget} containing the local surfview runtime and scene.
 }
 \description{
-This generic function creates a widget for visualizing surface data,
-allowing for different implementations based on the type of surface object.
-
-Create a surfwidget to display brain surface data.
+Create an HTML widget from a portable \code{SurfaceScene} or adapt a legacy
+single-surface object to one. Use \code{SurfaceScene} for bilateral viewers,
+multiple named maps, authored fallbacks, and portable report assets.
 }
 \details{
-The surfwidget function creates an interactive widget for visualizing
-surface data, such as brain surfaces. The specific implementation depends
-on the class of the object provided, allowing for customized behavior
-for different types of surface representations.
+The browser renders the values supplied by R. Perform statistical
+thresholding, capping, atlas projection, and other scientific
+transformations before constructing the widget. The legacy single-surface
+methods create a one-hemisphere \code{SurfaceScene}; they do not expose the full
+bilateral and portable-scene contract.
+
+\code{preset = "paper-light"} controls appearance. \code{mode = "report"}
+controls behavior and enables the compact map, anatomical-view, reset, and
+PNG controls. Set these fields on \code{\link{surface_scene}} for an explicit
+scene.
 }
 \examples{
 \donttest{
@@ -147,5 +155,6 @@ surfwidget(geom)
 
 }
 \seealso{
-\code{\link{plot_js}}, \code{\link{SurfaceGeometry}}, \code{\link{NeuroSurface}}
+\code{\link{surface_scene}}, \code{\link{surface_layer}},
+  \code{\link{write_surface_scene}}, \code{\link{plot_js}}
 }

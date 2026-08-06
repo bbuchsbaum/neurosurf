@@ -21,10 +21,11 @@ surface_scene(
 )
 }
 \arguments{
-\item{left, right}{Optional left and right `SurfaceGeometry` or `SurfaceSet`
+\item{left, right}{Optional left and right \code{SurfaceGeometry} or
+\code{SurfaceSet}
 objects. Supply at least one.}
 
-\item{layers}{A `surface_layer()` object or a list of them.}
+\item{layers}{A \code{\link{surface_layer}} object or a list of them.}
 
 \item{curvature}{Optional numeric vector for a unilateral scene or named
 hemisphere list.}
@@ -40,18 +41,42 @@ visible layer, then the first layer.}
 
 \item{alt_text}{Required alternative text for the interactive figure.}
 
-\item{preset}{Visual appearance preset. `"paper-light"` is intended for
+\item{preset}{Visual appearance preset. \code{"paper-light"} is intended for
 light-background figures and does not change widget behavior.}
 
-\item{mode}{`"report"` for curated controls and fallback behavior, or
-`"viewer"` for a bare interactive viewer.}
+\item{mode}{\code{"report"} for curated controls and fallback behavior, or
+\code{"viewer"} for a bare interactive viewer.}
 
 \item{asset_mode}{Default serialization mode: inline base64 or adjacent
 content-addressed files.}
 }
 \value{
-A validated `SurfaceScene` object.
+A validated \code{SurfaceScene} object.
 }
 \description{
 Construct a validated portable surface scene
+}
+\details{
+A scene owns the portable report description, not the statistical analysis.
+\code{preset} changes appearance; \code{mode} changes viewer behavior. Inline and
+adjacent asset modes encode the same typed-array bytes and preserve missing
+values. Use \code{\link{surfwidget}} inside an R Markdown or Quarto document
+and \code{\link{write_surface_scene}} for an ordinary HTML page.
+}
+\examples{
+geometry <- example_surface_geometry()
+scene <- surface_scene(
+  left = geometry,
+  layers = surface_layer(
+    "effect", seq_len(nrow(coords(geometry))), limits = c(1, 4)
+  ),
+  fallback = "Static left-hemisphere surface figure.",
+  alt_text = "Left cortical surface colored by an example effect."
+)
+scene
+
+}
+\seealso{
+\code{\link{surface_layer}}, \code{\link{surfwidget}},
+  \code{\link{surface_scene_manifest}}, \code{\link{write_surface_scene}}
 }

@@ -2,9 +2,9 @@ url: https://bbuchsbaum.github.io/neurosurf
 code:
   run_dont_run: no
 reference:
-- title: read surfaces
+- title: Read surfaces
   desc: |
-    read different surface files into R
+    Read surface geometry and data files into R.
   contents:
   - read_surf
   - read_surf_data
@@ -12,16 +12,28 @@ reference:
   - read_freesurfer_annot
   - read_surf_geometry
   - write_surf_data
-- title: surface-based operations and functions
+- title: Interactive surface reports
   desc: |
-    process of manipulate surface data and geometry
+    Build bilateral, multi-map viewers and portable offline reports.
+  contents:
+  - surface_scene
+  - surface_layer
+  - SurfaceScene-class
+  - surfwidget
+  - show_surface_widget
+  - write_surface_scene
+  - surface_scene_manifest
+  - debug_surfwidget
+- title: Surface-based operations
+  desc: |
+    Transform surface data and geometry.
   contents:
   - smooth
   - cluster_threshold
   - curvature
-- title: extractors
+- title: Extractors
   desc: |
-    extract infromation from surface data structures
+    Extract information from surface data structures.
   contents:
   - vertices
   - nodes
@@ -35,6 +47,14 @@ reference:
   desc: |
     Catch-all index to include any remaining topics.
   contents: starts_with("")
+articles:
+- title: Start here
+  navbar: ~
+  contents:
+  - introduction-to-neurosurf
+  - displaying-surfaces
+  - interactive-surfaces
+  - surface-figures
 template:
   package: albersdown
   bootstrap: 5.0

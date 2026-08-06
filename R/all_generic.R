@@ -305,26 +305,35 @@ if (!isGeneric("read_meta_info")) {
 
 
 
-#' Create a Surface Widget
+#' Create an interactive surface viewer
 #'
 #' @description
-#' This generic function creates a widget for visualizing surface data,
-#' allowing for different implementations based on the type of surface object.
+#' Create an HTML widget from a portable \code{SurfaceScene} or adapt a legacy
+#' single-surface object to one. Use \code{SurfaceScene} for bilateral viewers,
+#' multiple named maps, authored fallbacks, and portable report assets.
 #'
-#' @param x An object representing a surface (e.g., SurfaceGeometry, NeuroSurface).
-#' @param width The width of the widget (optional).
-#' @param height The height of the widget (optional).
-#' @param ... Additional arguments for customizing the widget appearance and behavior.
+#' @param x A \code{SurfaceScene}, \code{SurfaceGeometry}, \code{NeuroSurface},
+#'   \code{ColorMappedNeuroSurface}, or \code{VertexColoredNeuroSurface}.
+#' @param width Optional widget width.
+#' @param height Optional widget height.
+#' @param ... Arguments passed to the method for \code{x}.
 #'
-#' @return An HTMLWidget object representing the surface visualization.
+#' @return An \code{htmlwidget} containing the local surfview runtime and scene.
 #'
 #' @details
-#' The surfwidget function creates an interactive widget for visualizing
-#' surface data, such as brain surfaces. The specific implementation depends
-#' on the class of the object provided, allowing for customized behavior
-#' for different types of surface representations.
+#' The browser renders the values supplied by R. Perform statistical
+#' thresholding, capping, atlas projection, and other scientific
+#' transformations before constructing the widget. The legacy single-surface
+#' methods create a one-hemisphere \code{SurfaceScene}; they do not expose the full
+#' bilateral and portable-scene contract.
 #'
-#' @seealso \code{\link{plot_js}}, \code{\link{SurfaceGeometry}}, \code{\link{NeuroSurface}}
+#' \code{preset = "paper-light"} controls appearance. \code{mode = "report"}
+#' controls behavior and enables the compact map, anatomical-view, reset, and
+#' PNG controls. Set these fields on \code{\link{surface_scene}} for an explicit
+#' scene.
+#'
+#' @seealso \code{\link{surface_scene}}, \code{\link{surface_layer}},
+#'   \code{\link{write_surface_scene}}, \code{\link{plot_js}}
 #'
 #' @export
 #' @rdname surfwidget-methods
