@@ -124,16 +124,15 @@ get_mode <- function(v) {
 
 #' Sample a volume at world coordinates with explicit voxel interpolation
 #'
-#' neuroim2's continuous grid coordinates are offset by one half voxel from
-#' the integer indices returned by index_to_grid(). Subtracting 0.5 therefore
-#' puts voxel centres on integer array indices before nearest or trilinear
-#' interpolation.
+#' neuroim2's continuous grid coordinates use the same 1-based convention as
+#' array indices and \code{index_to_grid()}. Voxel centres therefore already
+#' land on integer array indices before nearest or trilinear interpolation.
 #'
 #' @noRd
 .ns_sample_volume <- function(vol, coords, interpolation = c("nearest", "linear"),
                               mask = NULL, fill = 0, na_rm = FALSE) {
   interpolation <- match.arg(interpolation)
-  grid <- neuroim2::coord_to_grid(vol, coords) - 0.5
+  grid <- neuroim2::coord_to_grid(vol, coords)
   dims <- dim(vol)[seq_len(3L)]
   vol_arr <- as.array(vol)
   mask_arr <- if (is.null(mask)) {

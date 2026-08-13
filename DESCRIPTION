@@ -85,8 +85,10 @@ Suggests:
     ggplot2,
     viridis,
     albersdown,
-    rappdirs
-URL: https://bbuchsbaum.github.io/neurosurf,
+    rappdirs,
+    ragg,
+    systemfonts
+URL: https://bbuchsbaum.github.io/neurosurf/,
     https://github.com/bbuchsbaum/neurosurf
 BugReports: https://github.com/bbuchsbaum/neurosurf/issues
 VignetteBuilder: knitr

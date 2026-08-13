@@ -64,8 +64,10 @@ for (const [name, url] of reports) {
     await page.getByRole("combobox", {
       name: "Displayed surface map"
     }).selectOption("atlas");
-    await page.getByRole("button", { name: "Medial" }).click();
+    await page.getByRole("radio", { name: "Medial" }).check();
+    await expect(page.getByRole("radio", { name: "Medial" })).toBeChecked();
     await page.getByRole("button", { name: "Reset", exact: true }).click();
+    await expect(page.getByRole("radio", { name: "Lateral" })).toBeChecked();
     await expect(page.getByRole("button", {
       name: "Show surface viewer fullscreen"
     })).toBeEnabled();
@@ -76,6 +78,9 @@ for (const [name, url] of reports) {
         revision: window.surfview?.SURFVIEW_EMBED_THREE_REVISION,
         contexts: window.__contexts.size,
         png: handle.exportPNG().slice(0, 22),
+        views: Array.from(document.querySelectorAll(
+          ".surfview-report-controls input[type='radio']"
+        )).map(input => input.closest("label")?.textContent.trim()),
         buttons: Array.from(document.querySelectorAll(
           ".surfview-report-controls button"
         )).map(button => button.textContent.trim())
@@ -84,8 +89,11 @@ for (const [name, url] of reports) {
     expect(proof.revision).toBe("185");
     expect(proof.contexts).toBe(1);
     expect(proof.png).toBe("data:image/png;base64,");
+    expect(proof.views).toEqual(expect.arrayContaining([
+      "Lateral", "Medial", "Dorsal", "Ventral", "Anterior", "Posterior"
+    ]));
     expect(proof.buttons).toEqual(expect.arrayContaining([
-      "Lateral", "Medial", "Reset", "PNG", "Fullscreen"
+      "Reset", "PNG", "Fullscreen"
     ]));
     await page.emulateMedia({ media: "print" });
     await expect(page.locator(

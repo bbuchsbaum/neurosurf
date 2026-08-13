@@ -11,7 +11,7 @@ Data structures and IO for surface-based neuroimaging data.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://bbuchsbaum.github.io/neurosurf}
+  \item \url{https://bbuchsbaum.github.io/neurosurf/}
   \item \url{https://github.com/bbuchsbaum/neurosurf}
   \item Report bugs at \url{https://github.com/bbuchsbaum/neurosurf/issues}
 }
