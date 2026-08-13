@@ -204,7 +204,12 @@ The HTML writer produces a minimal page that uses the public
       lazy: true,
       preset: "paper-light",
       controls: true,
-      baseUrl: document.baseURI
+      baseUrl: document.baseURI,
+      bilateralGroup: {
+        id: "bilateral",
+        leftSurfaceId: "left",
+        rightSurfaceId: "right"
+      }
     }
   );
 
@@ -212,6 +217,14 @@ The HTML writer produces a minimal page that uses the public
   window.addEventListener("pagehide", () => handle.dispose(), { once: true });
 </script>
 ```
+
+A manifest with both hemispheres must name a `bilateralGroup` that pairs
+the left and right surface ids; without it the report runtime refuses to
+mount.
+[`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
+and
+[`write_surface_scene()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_scene.md)
+supply this option automatically.
 
 The returned handle also provides `selectLayer()`, `resize()`,
 `exportPNG()`, and `dispose()`. Call `dispose()` when an application
