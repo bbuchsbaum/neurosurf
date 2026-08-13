@@ -46,3 +46,4 @@ report viewer. Use \code{\link{surface_scene}} to create validated instances.
 
 \item{\code{asset_mode}}{Default asset serialization mode.}
 }}
+

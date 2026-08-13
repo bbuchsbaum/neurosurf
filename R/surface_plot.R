@@ -672,6 +672,10 @@ add_vector_layer <- function(x,
 
 #' Render a neurosurf plot using rgl
 #'
+#' Most code calls \code{plot()} on a \code{\link{surface_plot}} object, which
+#' renders and draws in one step. This function exposes the rendering stage
+#' alone for custom composition.
+#'
 #' @param x A \code{"neurosurf_plot"} object.
 #' @param offscreen Logical; if \code{TRUE}, rendering is performed with
 #'   \code{rgl.useNULL = TRUE} so that plots can be captured as images.
@@ -985,6 +989,9 @@ render_surface_plot <- function(x,
 #' arranges rendered panels into a single static figure using the \pkg{grid}
 #' graphics system. It supersamples, crops whitespace, and preserves per-panel
 #' aspect ratios to avoid tiny or distorted brains when assembled.
+#'
+#' Most code calls \code{plot()} on a \code{\link{surface_plot}} object, which
+#' draws this grob for you; call this directly when you need the grob itself.
 #'
 #' @param x A \code{"neurosurf_plot"} object.
 #' @param colorbar Logical; if \code{TRUE}, draws one or more colour bars for

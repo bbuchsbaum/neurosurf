@@ -26,7 +26,9 @@ Convenience helper for vignettes and reports: renders a surface with
 \code{view_surface()} onto an off-screen rgl device and saves a PNG.
 When \code{rgl.useNULL()} is \code{TRUE} (headless builds), a proper snapshot
 requires the \code{webshot2} package; otherwise a blank image is likely and an
-empty path is returned.
+empty path is returned. For static output that does not depend on a GL
+session, use \code{\link{render_surface_rgba}} or
+\code{\link{surface_figure}}.
 }
 \examples{
 \donttest{

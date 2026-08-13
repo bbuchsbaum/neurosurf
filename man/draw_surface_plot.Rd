@@ -32,6 +32,10 @@ arranges rendered panels into a single static figure using the \pkg{grid}
 graphics system. It supersamples, crops whitespace, and preserves per-panel
 aspect ratios to avoid tiny or distorted brains when assembled.
 }
+\details{
+Most code calls \code{plot()} on a \code{\link{surface_plot}} object, which
+draws this grob for you; call this directly when you need the grob itself.
+}
 \examples{
 \donttest{
 # Requires FreeSurfer-like surface files

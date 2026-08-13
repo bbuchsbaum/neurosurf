@@ -318,10 +318,8 @@ it instead of a blank canvas. `alt_text` labels the interactive figure for
 assistive technology.
 
 The fallback text is not a bitmap renderer. If a report needs a visual print,
-PDF, or archival representation, include a static neurosurf figure from the
-same authoritative R values. See `vignette("surface-figures")` for that
-workflow. This keeps the static and interactive views complementary without
-moving statistical decisions into JavaScript.
+PDF, or archival representation, build a static figure from the same R values
+with `surface_figure()`; see `vignette("surface-figures")`.
 
 ## When should you use the legacy shortcuts?
 
@@ -341,7 +339,7 @@ portable assets, authored fallback text, provenance, or report behavior.
 ## What should you read next?
 
 - `vignette("surface-figures")` builds static, publication-quality multi-view
-  layouts with colourbars and atlas outlines.
+  figures with `surface_figure()`.
 - `vignette("displaying-surfaces")` covers RGL-based 3D rendering, curvature
   shading, and PNG snapshots.
 - `vignette("introduction-to-neurosurf")` introduces `SurfaceGeometry`,

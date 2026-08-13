@@ -64,6 +64,7 @@ Collate:
     'sdf_alignment.R'
     'snapshot_surface.R'
     'spec.R'
+    'surface_figure.R'
     'surface_montage.R'
     'surface_plot.R'
     'surface_scene.R'

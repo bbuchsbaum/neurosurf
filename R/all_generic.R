@@ -264,6 +264,9 @@ setGeneric(name="cluster_threshold", def=function(x, threshold, size, ...) stand
 
 #' Plot Surface as an HTMLWidget
 #'
+#' `plot_js()` is the older name for the interactive HTML widget; new code
+#' should call [surfwidget()] directly.
+#'
 #' @param x Surface object to plot
 #' @param width The width of the widget (optional)
 #' @param height The height of the widget (optional)

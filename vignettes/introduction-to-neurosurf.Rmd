@@ -30,7 +30,7 @@ For visualization, see the companion vignettes:
 
 - `vignette("displaying-surfaces")` for interactive 3D plots based on `plot()` and `view_surface()`.
 - `vignette("interactive-surfaces")` for HTML-widget based exploration.
-- `vignette("surface-figures")` for multi-view, publication-quality layouts built with `surface_plot()` and friends.
+- `vignette("surface-figures")` for multi-view, publication-quality figures built with `surface_figure()`.
 
 ## Setup
 
@@ -284,4 +284,4 @@ Now that you understand the core data structures, explore the visualization vign
 
 - `vignette("displaying-surfaces")` — render surfaces with RGL, overlay data, and snapshot to PNG.
 - `vignette("interactive-surfaces")` — create interactive HTML widgets with `surfwidget()`.
-- `vignette("surface-figures")` — build publication-quality multi-view figures with colourbars and atlas outlines.
+- `vignette("surface-figures")` — build publication-quality multi-view figures with `surface_figure()`.

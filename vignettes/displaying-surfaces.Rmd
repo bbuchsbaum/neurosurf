@@ -29,7 +29,7 @@ vignette: |
 This vignette demonstrates how to display 3D brain surface meshes using the `rgl` plotting tools provided by the `neurosurf` package, primarily through the `plot()` method which utilizes the `view_surface()` function internally.
 
 For interactive HTML widgets, see `vignette("interactive-surfaces")`.
-For high-level, multi-view layouts with colourbars and atlas outlines, see `vignette("surface-figures")`.
+For static, publication-quality multi-view figures with `surface_figure()`, see `vignette("surface-figures")`.
 
 ## Setup and Loading Data
 

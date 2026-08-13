@@ -26,7 +26,9 @@ A list containing rendered panel images (with aspect ratios) and
   higher-level figure drawing utilities.
 }
 \description{
-Render a neurosurf plot using rgl
+Most code calls \code{plot()} on a \code{\link{surface_plot}} object, which
+renders and draws in one step. This function exposes the rendering stage
+alone for custom composition.
 }
 \examples{
 \donttest{

@@ -60,6 +60,11 @@ written to \code{file}. If snapshots are unavailable, the panels are drawn
 into a single \code{\link[rgl]{mfrow3d}} scene and returned as one
 \code{\link[rgl]{rglwidget}} (a single combined widget, never one widget per
 panel).
+
+\code{surface_montage()} captures \pkg{rgl} scenes, so its output depends on
+the session's GL stack. For a deterministic, headless multi-view figure use
+\code{\link{surface_figure}}. It is also distinct from
+\code{neuromosaic::surf_montage()}, which starts from a statistic volume.
 }
 \details{
 Each static panel is rendered in its own fresh \code{rgl} scene, so lighting

@@ -22,7 +22,8 @@ plot_js(x, width = NULL, height = NULL, ...)
 An HTMLWidget object
 }
 \description{
-Plot Surface as an HTMLWidget
+`plot_js()` is the older name for the interactive HTML widget; new code
+should call [surfwidget()] directly.
 }
 \examples{
 \donttest{

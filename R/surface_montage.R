@@ -156,6 +156,11 @@
 #' \code{\link[rgl]{rglwidget}} (a single combined widget, never one widget per
 #' panel).
 #'
+#' \code{surface_montage()} captures \pkg{rgl} scenes, so its output depends on
+#' the session's GL stack. For a deterministic, headless multi-view figure use
+#' \code{\link{surface_figure}}. It is also distinct from
+#' \code{neuromosaic::surf_montage()}, which starts from a statistic volume.
+#'
 #' @param panels A list of panels. Each element is either a surface object
 #'   (\code{\link{SurfaceGeometry}}, \code{\link{NeuroSurface}} and its
 #'   subclasses, or a \code{SurfaceSet}), a file path readable by
