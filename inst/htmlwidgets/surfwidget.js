@@ -29,8 +29,23 @@
           button.title = "Fullscreen could not be opened; the surface remains available here";
         });
       });
+      el.addEventListener("fullscreenchange", function () { fitViewer(el); });
     }
     toolbar.appendChild(button);
+  }
+
+  // The surfview runtime sizes its canvas to the height we pass and stacks
+  // the report toolbar above it, so size the canvas to what remains of the
+  // container after the toolbar or the widget overflows into the page.
+  function fitViewer(el) {
+    var handle = el.__surfviewHandle;
+    var mount = el.querySelector(".surfwidget-mount");
+    if (!handle || !mount) return;
+    var toolbar = mount.querySelector(".surfview-report-controls");
+    var extra = toolbar ? toolbar.getBoundingClientRect().height : 0;
+    var w = mount.clientWidth;
+    var h = mount.clientHeight - extra;
+    if (w > 0 && h > 0) handle.resize(w, h);
   }
 
   function applyCall(handle, call) {
@@ -76,6 +91,7 @@
           var fallback = document.createElement("div");
           fallback.className = "surfwidget-author-fallback";
           fallback.textContent = x.fallback || "Interactive surface view unavailable.";
+          fallback.hidden = true;
           el.append(mount, fallback);
 
           var options = Object.assign({}, x.options || {}, {
@@ -96,6 +112,7 @@
                 handle.viewer.updateConfig(x.config);
               }
               installFullscreen(el);
+              fitViewer(el);
               (x.calls || []).forEach(function (call) { applyCall(handle, call); });
             }).catch(options.onError);
           } catch (error) {
@@ -103,10 +120,8 @@
           }
         },
 
-        resize: function (newWidth, newHeight) {
-          if (el.__surfviewHandle) {
-            el.__surfviewHandle.resize(newWidth, newHeight);
-          }
+        resize: function () {
+          fitViewer(el);
         }
       };
     }

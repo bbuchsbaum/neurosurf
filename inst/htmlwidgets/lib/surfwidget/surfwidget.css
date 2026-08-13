@@ -5,14 +5,21 @@
   min-height: 320px;
 }
 
+/* The widget container has a fixed height in documents; never let viewer
+   internals spill over the content that follows. */
+.surfwidget-mount {
+  overflow: hidden;
+}
+
 .surfwidget-root:fullscreen {
   background: #fff;
   padding: 1rem;
   box-sizing: border-box;
 }
 
+/* Visibility is controlled by the [hidden] attribute (toggled in
+   surfwidget.js); print always shows the fallback instead of the canvas. */
 .surfwidget-author-fallback {
-  display: none;
   padding: 1rem;
   border: 1px solid #d1d5db;
   background: #f8fafc;
