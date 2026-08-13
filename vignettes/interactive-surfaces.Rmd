@@ -287,7 +287,12 @@ use the same lifecycle in another page. In this example, `manifest` is a
       lazy: true,
       preset: "paper-light",
       controls: true,
-      baseUrl: document.baseURI
+      baseUrl: document.baseURI,
+      bilateralGroup: {
+        id: "bilateral",
+        leftSurfaceId: "left",
+        rightSurfaceId: "right"
+      }
     }
   );
 
@@ -295,6 +300,10 @@ use the same lifecycle in another page. In this example, `manifest` is a
   window.addEventListener("pagehide", () => handle.dispose(), { once: true });
 </script>
 ```
+
+A manifest with both hemispheres must name a `bilateralGroup` that pairs the
+left and right surface ids; without it the report runtime refuses to mount.
+`surfwidget()` and `write_surface_scene()` supply this option automatically.
 
 The returned handle also provides `selectLayer()`, `resize()`, `exportPNG()`,
 and `dispose()`. Call `dispose()` when an application removes or replaces the

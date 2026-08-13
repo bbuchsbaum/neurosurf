@@ -194,14 +194,16 @@ setMethod("surfwidget", signature(x = "VertexColoredNeuroSurface"),
 setMethod("surfwidget", signature(x = "SurfaceScene"),
   function(x, width = NULL, height = NULL, config = list(), ...) {
     config <- process_config(config)
+    mount_options <- list(
+      lazy = TRUE,
+      preset = x@preset,
+      controls = identical(x@mode, "report"),
+      mode = x@mode
+    )
+    mount_options$bilateralGroup <- .scene_bilateral_group(x)
     widget_data <- list(
       scene = surface_scene_manifest(x, asset_mode = "inline"),
-      options = list(
-        lazy = TRUE,
-        preset = x@preset,
-        controls = identical(x@mode, "report"),
-        mode = x@mode
-      ),
+      options = mount_options,
       config = config,
       fallback = x@fallback,
       altText = x@alt_text,

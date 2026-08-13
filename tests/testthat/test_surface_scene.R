@@ -112,6 +112,39 @@ test_that("manifest modes carry equivalent content-addressed bytes", {
   expect_equal(decoded[2], 1e-20, tolerance = 1e-26)
 })
 
+test_that("bilateral scenes mount with an explicit bilateralGroup option", {
+  bilateral <- surface_scene(
+    left = scene_test_geometry("lh"),
+    right = scene_test_geometry("rh", 3),
+    layers = surface_layer(
+      "signal", values = list(left = 1:4, right = 5:8), limits = c(1, 8)
+    ),
+    fallback = "Bilateral fallback.",
+    alt_text = "Bilateral alt text."
+  )
+  unilateral <- surface_scene(
+    left = scene_test_geometry("lh"),
+    layers = surface_layer("signal", 1:4),
+    fallback = "Unilateral fallback.",
+    alt_text = "Unilateral alt text."
+  )
+
+  widget <- surfwidget(bilateral)
+  expect_identical(
+    widget$x$options$bilateralGroup,
+    list(id = "bilateral", leftSurfaceId = "left", rightSurfaceId = "right")
+  )
+  expect_null(surfwidget(unilateral)$x$options$bilateralGroup)
+
+  report_dir <- tempfile("surface-scene-bilateral-")
+  report <- write_surface_scene(bilateral, report_dir, self_contained = TRUE)
+  expect_match(
+    paste(readLines(report), collapse = "\n"),
+    '"bilateralGroup":{"id":"bilateral","leftSurfaceId":"left","rightSurfaceId":"right"}',
+    fixed = TRUE
+  )
+})
+
 test_that("standalone reports support inline and adjacent assets", {
   scene <- surface_scene(
     left = scene_test_geometry("lh"),

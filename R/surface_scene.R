@@ -586,6 +586,17 @@ surface_scene_manifest <- function(scene, asset_mode = scene@asset_mode,
   )
 }
 
+# The surfview report runtime refuses to mount more than one surface unless
+# the mount options name an explicit bilateral group pairing the hemispheres.
+#' @noRd
+.scene_bilateral_group <- function(scene) {
+  ids <- names(scene@geometries)
+  if (!all(c("left", "right") %in% ids)) {
+    return(NULL)
+  }
+  list(id = "bilateral", leftSurfaceId = "left", rightSurfaceId = "right")
+}
+
 .scene_embed_path <- function() {
   installed <- system.file(
     "htmlwidgets/lib/neurosurface/surfview.embed.iife.js",
@@ -646,14 +657,13 @@ write_surface_scene <- function(scene, path, self_contained = FALSE,
   title_text <- htmltools::htmlEscape(.scene_nonempty_string(title, "title"))
   fallback_text <- htmltools::htmlEscape(scene@fallback)
   alt_text <- jsonlite::toJSON(scene@alt_text, auto_unbox = TRUE)
-  options_json <- jsonlite::toJSON(
-    list(
-      lazy = TRUE,
-      preset = scene@preset,
-      controls = identical(scene@mode, "report")
-    ),
-    auto_unbox = TRUE
+  mount_options <- list(
+    lazy = TRUE,
+    preset = scene@preset,
+    controls = identical(scene@mode, "report")
   )
+  mount_options$bilateralGroup <- .scene_bilateral_group(scene)
+  options_json <- jsonlite::toJSON(mount_options, auto_unbox = TRUE)
   html <- paste0(
     '<!doctype html><html lang="en"><head><meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width,initial-scale=1">',
