@@ -145,6 +145,7 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/sub-sub-NeuroSurfaceVector-numeric-method.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surf_to_world-methods.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surf_to_world-set-methods.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_labels.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_layer.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_montage.html</loc></url>
@@ -164,6 +165,7 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/vol_to_surf.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/vol_to_surf_sdf.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/write_surf_data.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/write_surface_figure.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/write_surface_rgba.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/write_surface_scene.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/vol2surf.html</loc></url>

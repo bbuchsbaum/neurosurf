@@ -8,12 +8,18 @@ parcel label. A polished figure should therefore interpolate the scalar
 within each triangle, test visibility with a real depth buffer, and add
 anatomy without drawing atlas or occlusion lines over the result.
 
+Two functions cover this task.
+[`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
+renders both hemispheres from several views and returns one finished
+figure with a shared colour bar;
+[`write_surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_figure.md)
+writes it to PNG. Underneath it,
 [`render_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md)
-is neurosurf’s deterministic, headless primitive for that task. It
-returns an RGBA raster plus diagnostic buffers and provenance;
+is the deterministic, headless single-panel primitive: it returns an
+RGBA raster plus diagnostic buffers and provenance, and
 [`write_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_rgba.md)
-writes the result to PNG. Higher-level packages can compose several such
-panels with vector labels and legends.
+writes one panel to PNG. Both run identically in CI, on a cluster, and
+on a laptop, with no OpenGL and no browser.
 
 ## What are the inputs?
 
@@ -84,12 +90,35 @@ independently decides which folded surface fragment is visible.
 
 ## How do you build the four canonical views?
 
-Use the same limits, threshold, opacity, and anatomy convention in every
-panel. The camera contract is explicit: `camera_mode = "canonical"` is
-strict orthographic output, while `"presentation"` adds a small declared
-obliquity.
+[`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
+renders every hemisphere-view combination with one shared threshold,
+colour limit, and palette, and adds the colour bar. The camera contract
+is explicit: `camera_mode = "canonical"` is strict orthographic output,
+while `"presentation"` adds a small declared obliquity.
 
-![](surface-figures_files/figure-html/render-four-views-1.-cpu-lh_lateral.png)![](surface-figures_files/figure-html/render-four-views-1.-cpu-rh_lateral.png)![](surface-figures_files/figure-html/render-four-views-1.-cpu-lh_medial.png)![](surface-figures_files/figure-html/render-four-views-1.-cpu-rh_medial.png)
+``` r
+
+figure <- surface_figure(
+  lh = inflated$lh,
+  rh = inflated$rh,
+  values = list(lh = stat_lh, rh = stat_rh),
+  anatomy = list(lh = curv_lh, rh = curv_rh),
+  views = c("lateral", "medial"),
+  threshold = 1,
+  tail = "two_sided",
+  limits = c(-2.5, 2.5),
+  alpha_ramp = 0.25,
+  legend_title = "z",
+  panel_width = 720,
+  panel_height = 450,
+  antialias = 2
+)
+```
+
+![](surface-figures_files/figure-html/show-four-views-1.-cpu-four-views.png)
+
+In an interactive session, `plot(figure)` draws the same figure on the
+current graphics device.
 
 The lateral and medial views differ because each panel rasterizes the
 visible triangles from its own camera. Internal sulcal occlusion edges
@@ -147,31 +176,26 @@ historical Gaussian KNN behaviour remains available as
 `interpolation = "legacy"`. Categorical `aggregate = "mode"` is
 intentionally incompatible with linear interpolation.
 
-## Which renderer should you use?
+## Which function draws what you need?
 
-- Use
-  [`render_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md)
-  for deterministic, scalar-first static output in CI, Slurm, Quarto, or
-  PDF workflows. It requires neither OpenGL nor a browser.
-- Use
-  [`surface_plot()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_plot.md),
-  [`view_surface()`](https://bbuchsbaum.github.io/neurosurf/reference/view_surface.md),
-  or
-  [`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
-  for interactive exploration, atlas inspection, and report widgets.
-  Those paths provide rich 3D interaction, but they are not the
-  scalar-threshold oracle for static continuous maps.
-- Use
-  `neuroatlas::plot_brain(style = "stat_publication", static_backend = "cpu")`
-  when you need anatomical masks, curvature resolution, a four-view
-  layout, orientation marks, and an overlay legend.
-- Use `neuromosaic::surf_montage()` when the starting point is a
-  statistic volume and the figure belongs in a reproducible report.
+Start from the output you want:
 
-Atlas outlines remain useful when the atlas itself is the subject of the
-figure. They are deliberately not part of the default
-continuous-statistic view, where parcel boundaries would imply structure
-that is absent from the scalar field.
+| You want | Use |
+|----|----|
+| A finished static figure: views by hemispheres, one colour bar | [`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md), then [`write_surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_figure.md) |
+| One panel, or a custom layout you compose yourself | [`render_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md), then [`write_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_rgba.md) |
+| To rotate and inspect a map on your desktop during analysis | [`view_surface()`](https://bbuchsbaum.github.io/neurosurf/reference/view_surface.md) |
+| An interactive figure in an HTML report or Shiny app | [`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md); see [`vignette("interactive-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.md) |
+
+The first two run headlessly and deterministically; the last two are
+interactive sessions.
+
+Two companion packages build on the same renderer, so their pixels agree
+with the figures here: `neuroatlas::plot_brain()` adds atlas-derived
+masks, labels, and orientation marks, and `neuromosaic::surf_montage()`
+starts from a statistic volume rather than vertex values. Atlas outlines
+belong in figures about the atlas; the default continuous-statistic view
+omits them.
 
 ## Next steps
 
@@ -183,7 +207,8 @@ that is absent from the scalar field.
 - [`vignette("introduction-to-neurosurf")`](https://bbuchsbaum.github.io/neurosurf/articles/introduction-to-neurosurf.md)
   introduces `SurfaceGeometry`, `NeuroSurface`, and related data
   structures.
-- [`?render_surface_rgba`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md),
+- [`?surface_figure`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md),
+  [`?render_surface_rgba`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md),
   [`?surface_threshold_segments`](https://bbuchsbaum.github.io/neurosurf/reference/surface_threshold_segments.md),
   and
   [`?vol_to_surf`](https://bbuchsbaum.github.io/neurosurf/reference/vol_to_surf.md)

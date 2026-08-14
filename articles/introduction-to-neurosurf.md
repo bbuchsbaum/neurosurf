@@ -13,9 +13,8 @@ For visualization, see the companion vignettes:
 - [`vignette("interactive-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.md)
   for HTML-widget based exploration.
 - [`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md)
-  for multi-view, publication-quality layouts built with
-  [`surface_plot()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_plot.md)
-  and friends.
+  for multi-view, publication-quality figures built with
+  [`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md).
 
 ## Setup
 
@@ -96,9 +95,9 @@ head(vertex_coords, 3)
 
 # The underlying igraph connectivity object
 neurosurf::graph(lh_geom)
-#> IGRAPH 0641e37 U--- 642 1920 -- 
+#> IGRAPH ca51548 U--- 642 1920 -- 
 #> + attr: x (v/n), y (v/n), z (v/n), dist (e/n)
-#> + edges from 0641e37:
+#> + edges from ca51548:
 #>  [1]  1-- 13  1-- 27  1-- 55  1-- 90  1--125  2--188  2--195  2--223  2--258
 #> [10]  2--293  3--264  3--271  3--300  3--356  3--391  4-- 96  4--103  4--132
 #> [19]  4--517  4--545  5-- 19  5-- 26  5-- 62  5--201  5--334  6--397  6--404
@@ -346,5 +345,5 @@ visualization vignettes:
   — create interactive HTML widgets with
   [`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md).
 - [`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md)
-  — build publication-quality multi-view figures with colourbars and
-  atlas outlines.
+  — build publication-quality multi-view figures with
+  [`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md).

@@ -1,6 +1,10 @@
 # Render a neurosurf plot using rgl
 
-Render a neurosurf plot using rgl
+Most code calls [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
+on a
+[`surface_plot`](https://bbuchsbaum.github.io/neurosurf/reference/surface_plot.md)
+object, which renders and draws in one step. This function exposes the
+rendering stage alone for custom composition.
 
 ## Usage
 

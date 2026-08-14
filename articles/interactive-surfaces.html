@@ -64,7 +64,7 @@
                         <h4 data-toc-skip class="author">Bradley
 Buchsbaum</h4>
             
-            <h4 data-toc-skip class="date">2026-08-13</h4>
+            <h4 data-toc-skip class="date">2026-08-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bbuchsbaum/neurosurf/blob/master/vignettes/interactive-surfaces.Rmd" class="external-link"><code>vignettes/interactive-surfaces.Rmd</code></a></small>
       <div class="d-none name"><code>interactive-surfaces.Rmd</code></div>
@@ -306,11 +306,9 @@ initialization fails, and print CSS shows it instead of a blank canvas.
 <code>alt_text</code> labels the interactive figure for assistive
 technology.</p>
 <p>The fallback text is not a bitmap renderer. If a report needs a
-visual print, PDF, or archival representation, include a static
-neurosurf figure from the same authoritative R values. See
-<code><a href="../articles/surface-figures.html">vignette("surface-figures")</a></code> for that workflow. This keeps
-the static and interactive views complementary without moving
-statistical decisions into JavaScript.</p>
+visual print, PDF, or archival representation, build a static figure
+from the same R values with <code><a href="../reference/surface_figure.html">surface_figure()</a></code>; see
+<code><a href="../articles/surface-figures.html">vignette("surface-figures")</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="when-should-you-use-the-legacy-shortcuts">When should you use the legacy shortcuts?<a class="anchor" aria-label="anchor" href="#when-should-you-use-the-legacy-shortcuts"></a>
@@ -334,8 +332,8 @@ provenance, or report behavior.</p>
 <ul>
 <li>
 <code><a href="../articles/surface-figures.html">vignette("surface-figures")</a></code> builds static,
-publication-quality multi-view layouts with colourbars and atlas
-outlines.</li>
+publication-quality multi-view figures with
+<code><a href="../reference/surface_figure.html">surface_figure()</a></code>.</li>
 <li>
 <code><a href="../articles/displaying-surfaces.html">vignette("displaying-surfaces")</a></code> covers RGL-based 3D
 rendering, curvature shading, and PNG snapshots.</li>

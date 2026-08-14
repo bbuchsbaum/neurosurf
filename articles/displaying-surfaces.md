@@ -9,7 +9,8 @@ function internally.
 
 For interactive HTML widgets, see
 [`vignette("interactive-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.md).
-For high-level, multi-view layouts with colourbars and atlas outlines,
+For static, publication-quality multi-view figures with
+[`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md),
 see
 [`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md).
 

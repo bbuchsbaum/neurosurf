@@ -1,6 +1,7 @@
 # Plot Surface as an HTMLWidget
 
-Plot Surface as an HTMLWidget
+\`plot_js()\` is the older name for the interactive HTML widget; new
+code should call \[surfwidget()\] directly.
 
 ## Usage
 

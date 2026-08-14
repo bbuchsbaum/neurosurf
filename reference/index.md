@@ -522,6 +522,11 @@ Catch-all index to include any remaining topics.
 - [`` `surf_to_world<-`() ``](https://bbuchsbaum.github.io/neurosurf/reference/surf_to_world-set-methods.md)
   : Set Surface-to-World Transform
 
+- [`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
+  [`plot(`*`<surface_figure>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
+  [`print(`*`<surface_figure>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
+  : Static multi-view surface figure with a shared colour scale
+
 - [`surface_labels()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_labels.md)
   : List available surface labels
 
@@ -575,6 +580,9 @@ Catch-all index to include any remaining topics.
 
 - [`write_surf_data()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surf_data.md)
   : Write Surface Data to File
+
+- [`write_surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_figure.md)
+  : Write a surface figure to PNG
 
 - [`write_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_rgba.md)
   : Write a deterministic surface raster to PNG

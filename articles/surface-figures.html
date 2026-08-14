@@ -64,7 +64,7 @@
                         <h4 data-toc-skip class="author">neurosurf
 authors</h4>
             
-            <h4 data-toc-skip class="date">2026-08-13</h4>
+            <h4 data-toc-skip class="date">2026-08-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bbuchsbaum/neurosurf/blob/master/vignettes/surface-figures.Rmd" class="external-link"><code>vignettes/surface-figures.Rmd</code></a></small>
       <div class="d-none name"><code>surface-figures.Rmd</code></div>
@@ -80,11 +80,15 @@ mesh</strong>, not a parcel label. A polished figure should therefore
 interpolate the scalar within each triangle, test visibility with a real
 depth buffer, and add anatomy without drawing atlas or occlusion lines
 over the result.</p>
-<p><code><a href="../reference/render_surface_rgba.html">render_surface_rgba()</a></code> is neurosurf’s deterministic,
-headless primitive for that task. It returns an RGBA raster plus
-diagnostic buffers and provenance; <code><a href="../reference/write_surface_rgba.html">write_surface_rgba()</a></code>
-writes the result to PNG. Higher-level packages can compose several such
-panels with vector labels and legends.</p>
+<p>Two functions cover this task. <code><a href="../reference/surface_figure.html">surface_figure()</a></code> renders
+both hemispheres from several views and returns one finished figure with
+a shared colour bar; <code><a href="../reference/write_surface_figure.html">write_surface_figure()</a></code> writes it to
+PNG. Underneath it, <code><a href="../reference/render_surface_rgba.html">render_surface_rgba()</a></code> is the
+deterministic, headless single-panel primitive: it returns an RGBA
+raster plus diagnostic buffers and provenance, and
+<code><a href="../reference/write_surface_rgba.html">write_surface_rgba()</a></code> writes one panel to PNG. Both run
+identically in CI, on a cluster, and on a laptop, with no OpenGL and no
+browser.</p>
 <div class="section level2">
 <h2 id="what-are-the-inputs">What are the inputs?<a class="anchor" aria-label="anchor" href="#what-are-the-inputs"></a>
 </h2>
@@ -145,11 +149,30 @@ independently decides which folded surface fragment is visible.</p>
 <div class="section level2">
 <h2 id="how-do-you-build-the-four-canonical-views">How do you build the four canonical views?<a class="anchor" aria-label="anchor" href="#how-do-you-build-the-four-canonical-views"></a>
 </h2>
-<p>Use the same limits, threshold, opacity, and anatomy convention in
-every panel. The camera contract is explicit:
+<p><code><a href="../reference/surface_figure.html">surface_figure()</a></code> renders every hemisphere-view
+combination with one shared threshold, colour limit, and palette, and
+adds the colour bar. The camera contract is explicit:
 <code>camera_mode = "canonical"</code> is strict orthographic output,
 while <code>"presentation"</code> adds a small declared obliquity.</p>
-<p><img src="surface-figures_files/figure-html/render-four-views-1.-cpu-lh_lateral.png" class="r-plt" alt="" width="49%"><img src="surface-figures_files/figure-html/render-four-views-1.-cpu-rh_lateral.png" class="r-plt" alt="" width="49%"><img src="surface-figures_files/figure-html/render-four-views-1.-cpu-lh_medial.png" class="r-plt" alt="" width="49%"><img src="surface-figures_files/figure-html/render-four-views-1.-cpu-rh_medial.png" class="r-plt" alt="" width="49%"></p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">figure</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surface_figure.html">surface_figure</a></span><span class="op">(</span></span>
+<span>  lh <span class="op">=</span> <span class="va">inflated</span><span class="op">$</span><span class="va">lh</span>,</span>
+<span>  rh <span class="op">=</span> <span class="va">inflated</span><span class="op">$</span><span class="va">rh</span>,</span>
+<span>  values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lh <span class="op">=</span> <span class="va">stat_lh</span>, rh <span class="op">=</span> <span class="va">stat_rh</span><span class="op">)</span>,</span>
+<span>  anatomy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lh <span class="op">=</span> <span class="va">curv_lh</span>, rh <span class="op">=</span> <span class="va">curv_rh</span><span class="op">)</span>,</span>
+<span>  views <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lateral"</span>, <span class="st">"medial"</span><span class="op">)</span>,</span>
+<span>  threshold <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  tail <span class="op">=</span> <span class="st">"two_sided"</span>,</span>
+<span>  limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span><span class="op">)</span>,</span>
+<span>  alpha_ramp <span class="op">=</span> <span class="fl">0.25</span>,</span>
+<span>  legend_title <span class="op">=</span> <span class="st">"z"</span>,</span>
+<span>  panel_width <span class="op">=</span> <span class="fl">720</span>,</span>
+<span>  panel_height <span class="op">=</span> <span class="fl">450</span>,</span>
+<span>  antialias <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="surface-figures_files/figure-html/show-four-views-1.-cpu-four-views.png" class="r-plt" alt="" width="100%"></p>
+<p>In an interactive session, <code>plot(figure)</code> draws the same
+figure on the current graphics device.</p>
 <p>The lateral and medial views differ because each panel rasterizes the
 visible triangles from its own camera. Internal sulcal occlusion edges
 are not drawn as outlines; <code>outer_contour = TRUE</code> marks only
@@ -163,7 +186,7 @@ parcel value zero. Pass one logical value per vertex. Triangles touching
 a masked vertex never receive overlay colour. <code>medial_wall</code>
 then controls whether the excluded domain is quietly shaded, omitted, or
 outlined.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">masked_panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/render_surface_rgba.html">render_surface_rgba</a></span><span class="op">(</span></span>
 <span>  <span class="va">inflated</span><span class="op">$</span><span class="va">lh</span>,</span>
 <span>  vertex_values <span class="op">=</span> <span class="va">statistic</span>,</span>
@@ -184,7 +207,7 @@ wall.</p>
 cortical ribbon. Interpolation, aggregation across depth, and tangential
 smoothing are separate choices. The following contract samples five
 depths, averages them, and applies no surface smoothing:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mapped</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/vol_to_surf.html">vol_to_surf</a></span><span class="op">(</span></span>
 <span>  <span class="va">white_surface</span>,</span>
 <span>  <span class="va">pial_surface</span>,</span>
@@ -203,28 +226,54 @@ sampling. The historical Gaussian KNN behaviour remains available as
 linear interpolation.</p>
 </div>
 <div class="section level2">
-<h2 id="which-renderer-should-you-use">Which renderer should you use?<a class="anchor" aria-label="anchor" href="#which-renderer-should-you-use"></a>
+<h2 id="which-function-draws-what-you-need">Which function draws what you need?<a class="anchor" aria-label="anchor" href="#which-function-draws-what-you-need"></a>
 </h2>
-<ul>
-<li>Use <code><a href="../reference/render_surface_rgba.html">render_surface_rgba()</a></code> for deterministic,
-scalar-first static output in CI, Slurm, Quarto, or PDF workflows. It
-requires neither OpenGL nor a browser.</li>
-<li>Use <code><a href="../reference/surface_plot.html">surface_plot()</a></code>, <code><a href="../reference/view_surface.html">view_surface()</a></code>, or
-<code><a href="../reference/surfwidget-methods.html">surfwidget()</a></code> for interactive exploration, atlas inspection,
-and report widgets. Those paths provide rich 3D interaction, but they
-are not the scalar-threshold oracle for static continuous maps.</li>
-<li>Use
-<code>neuroatlas::plot_brain(style = "stat_publication", static_backend = "cpu")</code>
-when you need anatomical masks, curvature resolution, a four-view
-layout, orientation marks, and an overlay legend.</li>
-<li>Use <code>neuromosaic::surf_montage()</code> when the starting point
-is a statistic volume and the figure belongs in a reproducible
-report.</li>
-</ul>
-<p>Atlas outlines remain useful when the atlas itself is the subject of
-the figure. They are deliberately not part of the default
-continuous-statistic view, where parcel boundaries would imply structure
-that is absent from the scalar field.</p>
+<p>Start from the output you want:</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>You want</th>
+<th>Use</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>A finished static figure: views by hemispheres, one colour bar</td>
+<td>
+<code><a href="../reference/surface_figure.html">surface_figure()</a></code>, then
+<code><a href="../reference/write_surface_figure.html">write_surface_figure()</a></code>
+</td>
+</tr>
+<tr class="even">
+<td>One panel, or a custom layout you compose yourself</td>
+<td>
+<code><a href="../reference/render_surface_rgba.html">render_surface_rgba()</a></code>, then
+<code><a href="../reference/write_surface_rgba.html">write_surface_rgba()</a></code>
+</td>
+</tr>
+<tr class="odd">
+<td>To rotate and inspect a map on your desktop during analysis</td>
+<td><code><a href="../reference/view_surface.html">view_surface()</a></code></td>
+</tr>
+<tr class="even">
+<td>An interactive figure in an HTML report or Shiny app</td>
+<td>
+<code><a href="../reference/surfwidget-methods.html">surfwidget()</a></code>; see
+<code><a href="../articles/interactive-surfaces.html">vignette("interactive-surfaces")</a></code>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The first two run headlessly and deterministically; the last two are
+interactive sessions.</p>
+<p>Two companion packages build on the same renderer, so their pixels
+agree with the figures here: <code>neuroatlas::plot_brain()</code> adds
+atlas-derived masks, labels, and orientation marks, and
+<code>neuromosaic::surf_montage()</code> starts from a statistic volume
+rather than vertex values. Atlas outlines belong in figures about the
+atlas; the default continuous-statistic view omits them.</p>
 </div>
 <div class="section level2">
 <h2 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
@@ -241,7 +290,7 @@ bilateral report widgets with <code><a href="../reference/surfwidget-methods.htm
 <code>SurfaceGeometry</code>, <code>NeuroSurface</code>, and related
 data structures.</li>
 <li>
-<code><a href="../reference/render_surface_rgba.html">?render_surface_rgba</a></code>,
+<code><a href="../reference/surface_figure.html">?surface_figure</a></code>, <code><a href="../reference/render_surface_rgba.html">?render_surface_rgba</a></code>,
 <code><a href="../reference/surface_threshold_segments.html">?surface_threshold_segments</a></code>, and <code><a href="../reference/vol_to_surf.html">?vol_to_surf</a></code>
 document the complete computational contracts.</li>
 </ul>

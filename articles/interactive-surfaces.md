@@ -239,11 +239,11 @@ print CSS shows it instead of a blank canvas. `alt_text` labels the
 interactive figure for assistive technology.
 
 The fallback text is not a bitmap renderer. If a report needs a visual
-print, PDF, or archival representation, include a static neurosurf
-figure from the same authoritative R values. See
-[`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md)
-for that workflow. This keeps the static and interactive views
-complementary without moving statistical decisions into JavaScript.
+print, PDF, or archival representation, build a static figure from the
+same R values with
+[`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md);
+see
+[`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md).
 
 ## When should you use the legacy shortcuts?
 
@@ -267,8 +267,8 @@ behavior.
 ## What should you read next?
 
 - [`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md)
-  builds static, publication-quality multi-view layouts with colourbars
-  and atlas outlines.
+  builds static, publication-quality multi-view figures with
+  [`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md).
 - [`vignette("displaying-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.md)
   covers RGL-based 3D rendering, curvature shading, and PNG snapshots.
 - [`vignette("introduction-to-neurosurf")`](https://bbuchsbaum.github.io/neurosurf/articles/introduction-to-neurosurf.md)

@@ -44,6 +44,14 @@ draw_surface_plot(
 A `grob` object that can be drawn with
 [`grid::grid.draw()`](https://rdrr.io/r/grid/grid.draw.html).
 
+## Details
+
+Most code calls [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
+on a
+[`surface_plot`](https://bbuchsbaum.github.io/neurosurf/reference/surface_plot.md)
+object, which draws this grob for you; call this directly when you need
+the grob itself.
+
 ## Examples
 
 ``` r

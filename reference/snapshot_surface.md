@@ -5,7 +5,10 @@ Convenience helper for vignettes and reports: renders a surface with
 onto an off-screen rgl device and saves a PNG. When `rgl.useNULL()` is
 `TRUE` (headless builds), a proper snapshot requires the `webshot2`
 package; otherwise a blank image is likely and an empty path is
-returned.
+returned. For static output that does not depend on a GL session, use
+[`render_surface_rgba`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md)
+or
+[`surface_figure`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md).
 
 ## Usage
 

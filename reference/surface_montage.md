@@ -16,6 +16,12 @@ scene and returned as one
 [`rglwidget`](https://dmurdoch.github.io/rgl/dev/reference/rglwidget.html)
 (a single combined widget, never one widget per panel).
 
+`surface_montage()` captures rgl scenes, so its output depends on the
+session's GL stack. For a deterministic, headless multi-view figure use
+[`surface_figure`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md).
+It is also distinct from `neuromosaic::surf_montage()`, which starts
+from a statistic volume.
+
 ## Usage
 
 ``` r

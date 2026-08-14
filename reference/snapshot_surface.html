@@ -3,11 +3,15 @@
 view_surface() onto an off-screen rgl device and saves a PNG.
 When rgl.useNULL() is TRUE (headless builds), a proper snapshot
 requires the webshot2 package; otherwise a blank image is likely and an
-empty path is returned."><meta property="og:description" content="Convenience helper for vignettes and reports: renders a surface with
+empty path is returned. For static output that does not depend on a GL
+session, use render_surface_rgba or
+surface_figure."><meta property="og:description" content="Convenience helper for vignettes and reports: renders a surface with
 view_surface() onto an off-screen rgl device and saves a PNG.
 When rgl.useNULL() is TRUE (headless builds), a proper snapshot
 requires the webshot2 package; otherwise a blank image is likely and an
-empty path is returned."></head><body>
+empty path is returned. For static output that does not depend on a GL
+session, use render_surface_rgba or
+surface_figure."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -53,7 +57,9 @@ empty path is returned."></head><body>
 <code><a href="view_surface.html">view_surface()</a></code> onto an off-screen rgl device and saves a PNG.
 When <code>rgl.useNULL()</code> is <code>TRUE</code> (headless builds), a proper snapshot
 requires the <code>webshot2</code> package; otherwise a blank image is likely and an
-empty path is returned.</p>
+empty path is returned. For static output that does not depend on a GL
+session, use <code><a href="render_surface_rgba.html">render_surface_rgba</a></code> or
+<code><a href="surface_figure.html">surface_figure</a></code>.</p>
     </div>
 
     <div class="section level2">
