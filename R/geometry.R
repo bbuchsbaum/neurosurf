@@ -63,11 +63,20 @@ SurfaceGeometrySource <- function(surface_name) {
 #' @export
 SurfaceGeometry <- function(vert, faces, hemi, label = NA_character_,
                             surf_to_world = diag(4)) {
-  if (!is.matrix(vert) || ncol(vert) != 3) {
+  if (!is.matrix(vert) || ncol(vert) != 3L || nrow(vert) < 1L) {
     stop("vert must be a numeric matrix with 3 columns (x, y, z).")
   }
-  if (!is.matrix(faces) || ncol(faces) != 3) {
+  if (!is.numeric(vert) || anyNA(vert) || any(!is.finite(vert))) {
+    stop("vert must contain finite numeric coordinates.")
+  }
+  if (!is.matrix(faces) || ncol(faces) != 3L || nrow(faces) < 1L) {
     stop("faces must be a matrix with 3 columns (triangles).")
+  }
+  if (!is.numeric(faces) || anyNA(faces) || any(!is.finite(faces))) {
+    stop("faces must contain finite numeric 0-based indices.")
+  }
+  if (any(faces != floor(faces))) {
+    stop("faces must contain integer-valued 0-based indices.")
   }
   if (any(faces < 0)) {
     stop("faces contain negative indices; expected 0-based, non-negative.")
@@ -76,14 +85,18 @@ SurfaceGeometry <- function(vert, faces, hemi, label = NA_character_,
   if (max_idx >= nrow(vert)) {
     stop("faces reference vertices beyond available rows in vert.")
   }
-  if (!is.numeric(vert)) {
-    stop("vert must be numeric.")
+  if (length(hemi) != 1L || is.na(hemi) || !is.character(hemi) ||
+      !nzchar(hemi)) {
+    stop("hemi must be one non-empty string.")
   }
-  if (!is.numeric(faces)) {
-    stop("faces must be numeric (0-based).")
+  if (length(label) != 1L || !is.character(label) ||
+      (!is.na(label) && !nzchar(label))) {
+    stop("label must be one non-empty string or NA.")
   }
-  if (!is.matrix(surf_to_world) || nrow(surf_to_world) != 4 || ncol(surf_to_world) != 4) {
-    stop("surf_to_world must be a 4x4 matrix.")
+  if (!is.matrix(surf_to_world) || !is.numeric(surf_to_world) ||
+      !identical(dim(surf_to_world), c(4L, 4L)) ||
+      anyNA(surf_to_world) || any(!is.finite(surf_to_world))) {
+    stop("surf_to_world must be a finite numeric 4x4 matrix.")
   }
 
   graph <- meshToGraph(vert, faces)

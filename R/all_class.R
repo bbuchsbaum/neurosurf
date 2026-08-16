@@ -9,6 +9,109 @@ is_surface_like <- function(x) {
   is(x, "SurfaceGeometry") || (methods::isClass("SurfaceSet") && is(x, "SurfaceSet"))
 }
 
+.validation_result <- function(errors) {
+  if (length(errors)) errors else TRUE
+}
+
+.surface_geometry_for_validation <- function(x) {
+  if (is(x, "SurfaceGeometry")) {
+    return(x)
+  }
+
+  if (methods::isClass("SurfaceSet") && is(x, "SurfaceSet") &&
+      length(x@surfaces) > 0L && length(x@default_label) == 1L &&
+      !is.na(x@default_label) &&
+      x@default_label %in% names(x@surfaces)) {
+    return(x@surfaces[[x@default_label]])
+  }
+
+  NULL
+}
+
+.surface_vertex_count <- function(x) {
+  geometry <- .surface_geometry_for_validation(x)
+  if (is.null(geometry) || !is.matrix(geometry@mesh$vb)) {
+    return(NA_integer_)
+  }
+  ncol(geometry@mesh$vb)
+}
+
+.surface_index_errors <- function(indices, geometry, field = "'indices'") {
+  errors <- character()
+  if (anyNA(indices)) {
+    errors <- c(errors, paste(field, "must not contain missing values"))
+  }
+  if (any(indices < 1L, na.rm = TRUE)) {
+    errors <- c(errors, paste(field, "must contain positive indices"))
+  }
+  if (anyDuplicated(indices)) {
+    errors <- c(errors, paste(field, "must not contain duplicates"))
+  }
+
+  vertex_count <- .surface_vertex_count(geometry)
+  if (!is.na(vertex_count) && any(indices > vertex_count, na.rm = TRUE)) {
+    errors <- c(errors, paste(field, "contains indices outside the geometry"))
+  }
+  errors
+}
+
+.coerce_surface_indices <- function(indices, field = "'indices'") {
+  if (!is.numeric(indices)) {
+    stop(field, " must be numeric", call. = FALSE)
+  }
+  if (anyNA(indices) || any(!is.finite(indices))) {
+    stop(field, " must not contain missing or non-finite values", call. = FALSE)
+  }
+  if (any(indices != floor(indices))) {
+    stop(field, " must contain integer-valued indices", call. = FALSE)
+  }
+  if (any(abs(indices) > .Machine$integer.max)) {
+    stop(field, " contains values outside the integer range", call. = FALSE)
+  }
+  as.integer(indices)
+}
+
+.valid_hex_colors <- function(x) {
+  length(x) == 0L ||
+    all(!is.na(x) & grepl("^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$", x))
+}
+
+.descriptor_validity <- function(object, expected_format) {
+  errors <- character()
+  slots <- c(
+    "file_format", "header_encoding", "header_extension",
+    "data_encoding", "data_extension"
+  )
+  for (slot_name in slots) {
+    value <- methods::slot(object, slot_name)
+    if (length(value) != 1L || is.na(value) || !nzchar(value)) {
+      errors <- c(errors, paste0("'", slot_name,
+                                "' must be one non-empty string"))
+    }
+  }
+  if (length(object@file_format) == 1L &&
+      !is.na(object@file_format) &&
+      object@file_format != expected_format) {
+    errors <- c(errors, paste0("'file_format' must be '",
+                              expected_format, "'"))
+  }
+  .validation_result(errors)
+}
+
+.hemisphere_side <- function(x) {
+  if (length(x) != 1L || is.na(x)) {
+    return(NA_character_)
+  }
+  value <- tolower(trimws(x))
+  if (value %in% c("l", "lh", "left")) {
+    "left"
+  } else if (value %in% c("r", "rh", "right")) {
+    "right"
+  } else {
+    NA_character_
+  }
+}
+
 
 #' SurfaceGeometry Class
 #'
@@ -57,7 +160,53 @@ setClass("SurfaceGeometry",
          prototype = list(
            label = NA_character_,
            surf_to_world = diag(4)
-         ))
+         ),
+         validity = function(object) {
+           errors <- character()
+           vb <- object@mesh$vb
+           it <- object@mesh$it
+
+           if (!is.matrix(vb) || !is.numeric(vb) || nrow(vb) < 3L ||
+               ncol(vb) < 1L || any(!is.finite(vb))) {
+             errors <- c(errors,
+                         "'mesh$vb' must contain finite vertex coordinates")
+           }
+
+           vertex_count <- if (is.matrix(vb)) ncol(vb) else NA_integer_
+           if (!is.matrix(it) || !is.numeric(it) || nrow(it) != 3L ||
+               ncol(it) < 1L || anyNA(it) || any(!is.finite(it)) ||
+               any(it != floor(it))) {
+             errors <- c(errors,
+                         "'mesh$it' must be a 3-row matrix of triangle indices")
+           } else if (!is.na(vertex_count) &&
+                      (any(it < 1L) || any(it > vertex_count))) {
+             errors <- c(errors,
+                         "'mesh$it' contains indices outside 'mesh$vb'")
+           }
+
+           if (!is.na(vertex_count) &&
+               igraph::vcount(object@graph) != vertex_count) {
+             errors <- c(errors,
+                         "'graph' vertex count must match 'mesh$vb'")
+           }
+           if (length(object@hemi) != 1L || is.na(object@hemi) ||
+               !nzchar(object@hemi)) {
+             errors <- c(errors, "'hemi' must be one non-empty string")
+           }
+           if (length(object@label) != 1L ||
+               (!is.na(object@label) && !nzchar(object@label))) {
+             errors <- c(errors,
+                         "'label' must be one non-empty string or NA")
+           }
+           if (!is.matrix(object@surf_to_world) ||
+               !is.numeric(object@surf_to_world) ||
+               !identical(dim(object@surf_to_world), c(4L, 4L)) ||
+               any(!is.finite(object@surf_to_world))) {
+             errors <- c(errors,
+                         "'surf_to_world' must be a finite numeric 4x4 matrix")
+           }
+           .validation_result(errors)
+         })
 
 
 
@@ -112,7 +261,42 @@ setClass("SurfaceGeometryMetaInfo",
            label = "character",
            hemi = "character",
            embed_dimension = "integer"
-         ))
+         ),
+         validity = function(object) {
+           errors <- character()
+           if (length(object@header_file) != 1L ||
+               is.na(object@header_file) || !nzchar(object@header_file)) {
+             errors <- c(errors,
+                         "'header_file' must be one non-empty string")
+           }
+           if (length(object@data_file) != 1L ||
+               is.na(object@data_file) || !nzchar(object@data_file)) {
+             errors <- c(errors,
+                         "'data_file' must be one non-empty string")
+           }
+           if (length(object@vertices) != 1L || is.na(object@vertices) ||
+               object@vertices < 1L) {
+             errors <- c(errors, "'vertices' must be one positive integer")
+           }
+           if (length(object@faces) != 1L || is.na(object@faces) ||
+               object@faces < 1L) {
+             errors <- c(errors, "'faces' must be one positive integer")
+           }
+           if (length(object@embed_dimension) != 1L ||
+               is.na(object@embed_dimension) || object@embed_dimension < 1L) {
+             errors <- c(errors,
+                         "'embed_dimension' must be one positive integer")
+           }
+           if (length(object@label) != 1L || is.na(object@label) ||
+               !nzchar(object@label)) {
+             errors <- c(errors, "'label' must be one non-empty string")
+           }
+           if (length(object@hemi) != 1L || is.na(object@hemi) ||
+               !nzchar(object@hemi)) {
+             errors <- c(errors, "'hemi' must be one non-empty string")
+           }
+           .validation_result(errors)
+         })
 
 #' FreesurferSurfaceGeometryMetaInfo Class
 #'
@@ -183,7 +367,34 @@ setClass("SurfaceDataMetaInfo",
              file_descriptor="FileFormat",
              node_count="integer",
              nels="integer",
-             label="character"))
+             label="character"),
+         validity = function(object) {
+           errors <- character()
+           if (length(object@header_file) != 1L ||
+               is.na(object@header_file) || !nzchar(object@header_file)) {
+             errors <- c(errors,
+                         "'header_file' must be one non-empty string")
+           }
+           if (length(object@data_file) != 1L ||
+               is.na(object@data_file) || !nzchar(object@data_file)) {
+             errors <- c(errors,
+                         "'data_file' must be one non-empty string")
+           }
+           if (length(object@node_count) != 1L ||
+               is.na(object@node_count) || object@node_count < 0L) {
+             errors <- c(errors,
+                         "'node_count' must be one non-negative integer")
+           }
+           if (length(object@nels) != 1L || is.na(object@nels) ||
+               object@nels < 1L) {
+             errors <- c(errors, "'nels' must be one positive integer")
+           }
+           if (length(object@label) != 1L || is.na(object@label) ||
+               !nzchar(object@label)) {
+             errors <- c(errors, "'label' must be one non-empty string")
+           }
+           .validation_result(errors)
+         })
 
 
 #' NIMLSurfaceDataMetaInfo
@@ -227,7 +438,36 @@ setClass("NIMLSurfaceDataMetaInfo",
            representation(
              data="matrix",
              node_indices="integer"),
-         contains=c("SurfaceDataMetaInfo"))
+         contains=c("SurfaceDataMetaInfo"),
+         validity = function(object) {
+           errors <- character()
+           if (length(object@node_count) == 1L &&
+               !is.na(object@node_count) &&
+               nrow(object@data) != object@node_count) {
+             errors <- c(errors,
+                         "'nrow(data)' must equal 'node_count'")
+           }
+           if (length(object@nels) == 1L && !is.na(object@nels) &&
+               ncol(object@data) != object@nels) {
+             errors <- c(errors,
+                         "'ncol(data)' must equal 'nels'")
+           }
+           if (length(object@node_count) == 1L &&
+               !is.na(object@node_count) &&
+               length(object@node_indices) != object@node_count) {
+             errors <- c(errors,
+                         "length of 'node_indices' must equal 'node_count'")
+           }
+           if (anyNA(object@node_indices) ||
+               any(object@node_indices < 0L, na.rm = TRUE)) {
+             errors <- c(errors,
+                         "'node_indices' must be non-negative and non-missing")
+           }
+           if (anyDuplicated(object@node_indices)) {
+             errors <- c(errors, "'node_indices' must not contain duplicates")
+           }
+           .validation_result(errors)
+         })
 
 
 #' GIFTISurfaceGeometryMetaInfo
@@ -462,7 +702,31 @@ setClass("NeuroSurfaceSource",
            data_meta_info = "SurfaceDataMetaInfo",
            colind = "integer",
            nodeind = "integer"
-         ))
+         ),
+         validity = function(object) {
+           errors <- character()
+           if (length(object@colind) < 1L || anyNA(object@colind) ||
+               any(object@colind < 1L, na.rm = TRUE)) {
+             errors <- c(errors,
+                         "'colind' must contain positive, non-missing indices")
+           }
+           if (length(object@data_meta_info@nels) == 1L &&
+               !is.na(object@data_meta_info@nels) &&
+               any(object@colind > object@data_meta_info@nels,
+                   na.rm = TRUE)) {
+             errors <- c(errors,
+                         "'colind' contains columns outside 'data_meta_info'")
+           }
+           if (anyDuplicated(object@colind)) {
+             errors <- c(errors, "'colind' must not contain duplicates")
+           }
+           errors <- c(
+             errors,
+             .surface_index_errors(object@nodeind, object@geometry,
+                                   field = "'nodeind'")
+           )
+           .validation_result(errors)
+         })
 
 #' NeuroSurfaceVectorSource
 #'
@@ -497,7 +761,18 @@ setClass("NeuroSurfaceVectorSource", representation=
 #'
 #' @rdname NIMLSurfaceFileDescriptor-class
 #' @export
-setClass("NIMLSurfaceFileDescriptor", contains=c("FileFormat"))
+setClass("NIMLSurfaceFileDescriptor",
+         contains = c("FileFormat"),
+         prototype = list(
+           file_format = "NIML",
+           header_encoding = "raw",
+           header_extension = "niml.dset",
+           data_encoding = "raw",
+           data_extension = "niml.dset"
+         ),
+         validity = function(object) {
+           .descriptor_validity(object, "NIML")
+         })
 
 
 #' AFNISurfaceFileDescriptor
@@ -508,7 +783,18 @@ setClass("NIMLSurfaceFileDescriptor", contains=c("FileFormat"))
 #'
 #' @rdname AFNISurfaceFileDescriptor-class
 #' @export
-setClass("AFNISurfaceFileDescriptor", contains=c("FileFormat"))
+setClass("AFNISurfaceFileDescriptor",
+         contains = c("FileFormat"),
+         prototype = list(
+           file_format = "1D",
+           header_encoding = "raw",
+           header_extension = "1D.dset",
+           data_encoding = "raw",
+           data_extension = "1D.dset"
+         ),
+         validity = function(object) {
+           .descriptor_validity(object, "1D")
+         })
 
 #' GIFTISurfaceFileDescriptor
 #'
@@ -518,7 +804,18 @@ setClass("AFNISurfaceFileDescriptor", contains=c("FileFormat"))
 #'
 #' @rdname GIFTISurfaceFileDescriptor-class
 #' @export
-setClass("GIFTISurfaceFileDescriptor", contains=c("FileFormat"))
+setClass("GIFTISurfaceFileDescriptor",
+         contains = c("FileFormat"),
+         prototype = list(
+           file_format = "GIFTI",
+           header_encoding = "raw",
+           header_extension = "gii",
+           data_encoding = "gii",
+           data_extension = "gii"
+         ),
+         validity = function(object) {
+           .descriptor_validity(object, "GIFTI")
+         })
 
 
 #' FresurferAsciiSurfaceFileDescriptor
@@ -543,7 +840,18 @@ setClass("GIFTISurfaceFileDescriptor", contains=c("FileFormat"))
 #' @return An object of class \code{FreesurferAsciiSurfaceFileDescriptor}.
 #'
 #' @export
-setClass("FreesurferAsciiSurfaceFileDescriptor", contains=c("FileFormat"))
+setClass("FreesurferAsciiSurfaceFileDescriptor",
+         contains = c("FileFormat"),
+         prototype = list(
+           file_format = "Freesurfer_ASCII",
+           header_encoding = "text",
+           header_extension = "asc",
+           data_encoding = "raw",
+           data_extension = "asc"
+         ),
+         validity = function(object) {
+           .descriptor_validity(object, "Freesurfer_ASCII")
+         })
 
 #' FresurferBinarySurfaceFileDescriptor
 #'
@@ -567,7 +875,18 @@ setClass("FreesurferAsciiSurfaceFileDescriptor", contains=c("FileFormat"))
 #' @return An object of class \code{FreesurferBinarySurfaceFileDescriptor}.
 #'
 #' @export
-setClass("FreesurferBinarySurfaceFileDescriptor", contains=c("FileFormat"))
+setClass("FreesurferBinarySurfaceFileDescriptor",
+         contains = c("FileFormat"),
+         prototype = list(
+           file_format = "Freesurfer_BINARY",
+           header_encoding = "raw",
+           header_extension = ".",
+           data_encoding = "raw",
+           data_extension = "."
+         ),
+         validity = function(object) {
+           .descriptor_validity(object, "Freesurfer_BINARY")
+         })
 
 
 
@@ -662,12 +981,35 @@ setClass("ROISurface",
          representation=representation(geometry="SurfaceGeometry", data="numeric",
                                        coords="matrix", indices="integer"),
          validity = function(object) {
+           errors <- character()
            if (ncol(object@coords) != 3) {
-             stop("coords slot must be a matrix with 3 columns")
+             errors <- c(errors,
+                         "'coords' must be a matrix with 3 columns")
            }
            if (nrow(object@coords) != length(object@indices)) {
-             stop("length of indices must equal nrow(coords)")
+             errors <- c(errors,
+                         "length of 'indices' must equal 'nrow(coords)'")
            }
+           if (length(object@data) != length(object@indices)) {
+             errors <- c(errors,
+                         "length of 'data' must equal length of 'indices'")
+           }
+           index_errors <- .surface_index_errors(object@indices,
+                                                 object@geometry)
+           errors <- c(errors, index_errors)
+           if (!length(index_errors) &&
+               ncol(object@coords) == 3L &&
+               nrow(object@coords) == length(object@indices)) {
+             expected <- t(object@geometry@mesh$vb[
+               1:3, object@indices, drop = FALSE
+             ])
+             if (!isTRUE(all.equal(object@coords, expected,
+                                   check.attributes = FALSE))) {
+               errors <- c(errors,
+                           "'coords' must match geometry at 'indices'")
+             }
+           }
+           .validation_result(errors)
          }, contains="ROI")
 
 #' ROISurfaceVector
@@ -766,16 +1108,35 @@ setClass("ROISurfaceVector",
          representation=representation(geometry="SurfaceGeometry", data="matrix",
                                        coords="matrix", indices="integer"),
          validity = function(object) {
+           errors <- character()
            if (ncol(object@coords) != 3) {
-             stop("coords slot must be a matrix with 3 columns")
+             errors <- c(errors,
+                         "'coords' must be a matrix with 3 columns")
            }
            if (nrow(object@coords) != length(object@indices)) {
-             stop("length of indices must equal nrow(coords)")
+             errors <- c(errors,
+                         "length of 'indices' must equal 'nrow(coords)'")
            }
 
            if (ncol(object@data) != nrow(object@coords)) {
-             stop("'ncol(data)' must equal 'nrow(coords)'")
+             errors <- c(errors,
+                         "'ncol(data)' must equal 'nrow(coords)'")
            }
+           index_errors <- .surface_index_errors(object@indices,
+                                                 object@geometry)
+           errors <- c(errors, index_errors)
+           if (!length(index_errors) && ncol(object@coords) == 3L &&
+               nrow(object@coords) == length(object@indices)) {
+             expected <- t(object@geometry@mesh$vb[
+               1:3, object@indices, drop = FALSE
+             ])
+             if (!isTRUE(all.equal(object@coords, expected,
+                                   check.attributes = FALSE))) {
+               errors <- c(errors,
+                           "'coords' must match geometry at 'indices'")
+             }
+           }
+           .validation_result(errors)
          }, contains="ROI")
 
 
@@ -837,9 +1198,20 @@ setClass("VertexData",
          representation=representation(indices="integer",
                                        data="data.frame"),
          validity = function(object) {
+           errors <- character()
            if (nrow(object@data) != length(object@indices)) {
-             stop("length of 'data' must equal length of 'indices'")
+             errors <- c(errors,
+                         "'nrow(data)' must equal length of 'indices'")
            }
+           if (anyNA(object@indices) ||
+               any(object@indices < 1L, na.rm = TRUE)) {
+             errors <- c(errors,
+                         "'indices' must be positive and non-missing")
+           }
+           if (anyDuplicated(object@indices)) {
+             errors <- c(errors, "'indices' must not contain duplicates")
+           }
+           .validation_result(errors)
          })
 
 
@@ -931,12 +1303,20 @@ setClass("NeuroSurface",
                  indices="integer",
                  data="numeric"),
          validity = function(object) {
+           errors <- character()
            if (!is_surface_like(object@geometry)) {
-             stop("geometry must be a SurfaceGeometry or SurfaceSet")
+             errors <- c(errors,
+                         "'geometry' must be a SurfaceGeometry or SurfaceSet")
            }
            if (length(object@data) != length(object@indices)) {
-             stop("length of 'data' must equal length of 'indices'")
+             errors <- c(errors,
+                         "length of 'data' must equal length of 'indices'")
            }
+           errors <- c(
+             errors,
+             .surface_index_errors(object@indices, object@geometry)
+           )
+           .validation_result(errors)
          })
 
 #' ColorMappedNeuroSurface
@@ -1047,22 +1427,33 @@ setClass("ColorMappedNeuroSurface",
          ),
          contains = "NeuroSurface",
          validity = function(object) {
+           errors <- character()
            if (length(object@irange) != 2) {
-             stop("'irange' must be a numeric vector of length 2")
+             errors <- c(errors,
+                         "'irange' must be a numeric vector of length 2")
+           } else if (anyNA(object@irange) ||
+                      any(!is.finite(object@irange))) {
+             errors <- c(errors, "'irange' must contain finite values")
+           } else if (object@irange[1] > object@irange[2]) {
+             errors <- c(errors,
+                         "'irange[1]' must be less than or equal to 'irange[2]'")
            }
            if (length(object@thresh) != 2) {
-             stop("'thresh' must be a numeric vector of length 2")
-           }
-          if (!(object@irange[1] <= object@irange[2])) {
-            stop("'irange[1]' must be less than or equal to 'irange[2]'")
-          }
-           if (!(object@thresh[1] <= object@thresh[1])) {
-             stop("'thresh[1]' must be less than or equal to 'thresh[2]'")
+             errors <- c(errors,
+                         "'thresh' must be a numeric vector of length 2")
+           } else if (anyNA(object@thresh)) {
+             errors <- c(errors, "'thresh' must not contain missing values")
+           } else if (object@thresh[1] > object@thresh[2]) {
+             errors <- c(errors,
+                         "'thresh[1]' must be less than or equal to 'thresh[2]'")
            }
            if (length(object@cmap) < 2) {
-             stop("'cmap' must contain at least 2 colors")
+             errors <- c(errors, "'cmap' must contain at least 2 colors")
+           } else if (!.valid_hex_colors(object@cmap)) {
+             errors <- c(errors,
+                         "all elements in 'cmap' must be valid hex colors")
            }
-           TRUE
+           .validation_result(errors)
          })
 
 #' VertexColoredNeuroSurface
@@ -1152,13 +1543,16 @@ setClass("VertexColoredNeuroSurface",
          ),
          contains = "NeuroSurface",
          validity = function(object) {
+           errors <- character()
            if (length(object@colors) != length(object@indices)) {
-             stop("Length of 'colors' must equal length of 'indices'")
+             errors <- c(errors,
+                         "Length of 'colors' must equal length of 'indices'")
            }
-           if (!all(grepl("^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$", object@colors))) {
-             stop("All elements in 'colors' must be valid hex color codes")
+           if (!.valid_hex_colors(object@colors)) {
+             errors <- c(errors,
+                         "All elements in 'colors' must be valid hex color codes")
            }
-           TRUE
+           .validation_result(errors)
          })
 
 
@@ -1253,7 +1647,16 @@ setClass("LabeledNeuroSurface",
            if (length(object@cols) != length(object@labels)) {
              errors <- c(errors, "Number of colors must match number of labels")
            }
-           if (length(errors) == 0) TRUE else errors
+           if (length(object@labels) < 1L || anyNA(object@labels) ||
+               any(!nzchar(object@labels))) {
+             errors <- c(errors,
+                         "'labels' must contain non-empty, non-missing strings")
+           }
+           if (!.valid_hex_colors(object@cols)) {
+             errors <- c(errors,
+                         "all elements in 'cols' must be valid hex colors")
+           }
+           .validation_result(errors)
          })
 
 #' NeuroSurfaceVector Class
@@ -1356,10 +1759,21 @@ setClass("NeuroSurfaceVector",
            data = "Matrix"
          ),
          validity = function(object) {
+           errors <- character()
            if (!is_surface_like(object@geometry)) {
-             stop("geometry must be a SurfaceGeometry or SurfaceSet")
+             errors <- c(errors,
+                         "'geometry' must be a SurfaceGeometry or SurfaceSet")
            }
-           TRUE
+           errors <- c(
+             errors,
+             .surface_index_errors(object@indices, object@geometry)
+           )
+           vertex_count <- .surface_vertex_count(object@geometry)
+           if (!is.na(vertex_count) && nrow(object@data) != vertex_count) {
+             errors <- c(errors,
+                         "'nrow(data)' must equal the geometry vertex count")
+           }
+           .validation_result(errors)
          })
 
 
@@ -1485,5 +1899,26 @@ setClass("BilatNeuroSurfaceVector",
   representation = representation(
     left = "NeuroSurfaceVector",
     right = "NeuroSurfaceVector"
-  )
+  ),
+  validity = function(object) {
+    errors <- character()
+    if (ncol(object@left@data) != ncol(object@right@data)) {
+      errors <- c(errors,
+                  "left and right data must have the same number of columns")
+    }
+
+    left_geometry <- .surface_geometry_for_validation(object@left@geometry)
+    right_geometry <- .surface_geometry_for_validation(object@right@geometry)
+    if (is.null(left_geometry) ||
+        !identical(.hemisphere_side(left_geometry@hemi), "left")) {
+      errors <- c(errors,
+                  "'left' geometry must identify the left hemisphere")
+    }
+    if (is.null(right_geometry) ||
+        !identical(.hemisphere_side(right_geometry@hemi), "right")) {
+      errors <- c(errors,
+                  "'right' geometry must identify the right hemisphere")
+    }
+    .validation_result(errors)
+  }
 )

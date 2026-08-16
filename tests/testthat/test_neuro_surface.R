@@ -632,46 +632,22 @@ test_that("map_values with list lookup works", {
 # BilatNeuroSurfaceVector Tests ----------------------------------------------
 
 test_that("BilatNeuroSurfaceVector left accessor works", {
-  geom <- example_surface_geometry()
-  n_verts <- nrow(coords(geom))
-  indices <- seq_len(n_verts)
-  mat_left <- matrix(rnorm(n_verts * 3), nrow = n_verts, ncol = 3)
-  mat_right <- matrix(rnorm(n_verts * 3), nrow = n_verts, ncol = 3)
-
-  nsv_left <- NeuroSurfaceVector(geom, indices, mat_left)
-  nsv_right <- NeuroSurfaceVector(geom, indices, mat_right)
-
-  bilat <- new("BilatNeuroSurfaceVector", left = nsv_left, right = nsv_right)
+  bilat <- make_bilat(3L)
+  nsv_left <- bilat@left
 
   expect_identical(left(bilat), nsv_left)
 })
 
 test_that("BilatNeuroSurfaceVector right accessor works", {
-  geom <- example_surface_geometry()
-  n_verts <- nrow(coords(geom))
-  indices <- seq_len(n_verts)
-  mat_left <- matrix(rnorm(n_verts * 3), nrow = n_verts, ncol = 3)
-  mat_right <- matrix(rnorm(n_verts * 3), nrow = n_verts, ncol = 3)
-
-  nsv_left <- NeuroSurfaceVector(geom, indices, mat_left)
-  nsv_right <- NeuroSurfaceVector(geom, indices, mat_right)
-
-  bilat <- new("BilatNeuroSurfaceVector", left = nsv_left, right = nsv_right)
+  bilat <- make_bilat(3L)
+  nsv_right <- bilat@right
 
   expect_identical(right(bilat), nsv_right)
 })
 
 test_that("BilatNeuroSurfaceVector as.matrix works", {
-  geom <- example_surface_geometry()
-  n_verts <- nrow(coords(geom))
-  indices <- seq_len(n_verts)
-  mat_left <- matrix(1:(n_verts * 3), nrow = n_verts, ncol = 3)
-  mat_right <- matrix((n_verts * 3 + 1):(n_verts * 6), nrow = n_verts, ncol = 3)
-
-  nsv_left <- NeuroSurfaceVector(geom, indices, mat_left)
-  nsv_right <- NeuroSurfaceVector(geom, indices, mat_right)
-
-  bilat <- new("BilatNeuroSurfaceVector", left = nsv_left, right = nsv_right)
+  bilat <- make_bilat(3L)
+  n_verts <- nrow(coords(bilat@left@geometry))
 
   result <- as.matrix(bilat)
 

@@ -21,14 +21,7 @@
 #' @export
 ROISurface <- function(geometry, indices, data) {
   all_nodes <- nodes(geometry)
-
-  if (!is.integer(indices)) {
-    if (is.numeric(indices) && all(indices == as.integer(indices))) {
-      indices <- as.integer(indices)
-    } else {
-      stop("'indices' must be integer")
-    }
-  }
+  indices <- .coerce_surface_indices(indices)
 
   if (any(indices < 1L) || any(indices > length(all_nodes))) {
     stop("'indices' are out of bounds for provided 'geometry'")
@@ -63,14 +56,7 @@ ROISurface <- function(geometry, indices, data) {
 #' @export
 ROISurfaceVector <- function(geometry, indices, data) {
   all_nodes <- nodes(geometry)
-
-  if (!is.integer(indices)) {
-    if (is.numeric(indices) && all(indices == as.integer(indices))) {
-      indices <- as.integer(indices)
-    } else {
-      stop("'indices' must be integer")
-    }
-  }
+  indices <- .coerce_surface_indices(indices)
 
   if (any(indices < 1L) || any(indices > length(all_nodes))) {
     stop("'indices' are out of bounds for provided 'geometry'")

@@ -27,16 +27,19 @@ NeuroSurfaceSource <- function(surface_geom, surface_data_name, colind=NULL, nod
     nodeind <- nodes(surface_geom)
   }
 
+  colind <- .coerce_surface_indices(colind, field = "'colind'")
+  nodeind <- .coerce_surface_indices(nodeind, field = "'nodeind'")
+
   if (length(colind) > 1 && data_meta_info@nels > 1) {
     new("NeuroSurfaceVectorSource", geometry=surface_geom,
         data_meta_info=data_meta_info,
-        colind=as.integer(colind),
-        nodeind=as.integer(nodeind))
+        colind=colind,
+        nodeind=nodeind)
   } else {
     new("NeuroSurfaceSource", geometry=surface_geom,
         data_meta_info=data_meta_info,
-        colind=as.integer(colind),
-        nodeind=as.integer(nodeind))
+        colind=colind,
+        nodeind=nodeind)
   }
 
 }
@@ -448,7 +451,8 @@ setMethod("graph", signature(x="NeuroSurfaceVector"),
 #' @return A \code{\linkS4class{NeuroSurfaceVector}} object containing the geometry, node indices, and data matrix.
 #' @export
 NeuroSurfaceVector <- function(geometry, indices, mat) {
-  new("NeuroSurfaceVector", geometry=geometry, indices=as.integer(indices),
+  indices <- .coerce_surface_indices(indices)
+  new("NeuroSurfaceVector", geometry=geometry, indices=indices,
       data=Matrix::Matrix(mat))
 
 }
@@ -488,7 +492,8 @@ NeuroSurfaceVector <- function(geometry, indices, mat) {
 #'
 #' @export
 NeuroSurface <- function(geometry, indices, data) {
-  new("NeuroSurface", geometry=geometry, indices=as.integer(indices),
+  indices <- .coerce_surface_indices(indices)
+  new("NeuroSurface", geometry=geometry, indices=indices,
       data=data)
 
 }
@@ -548,7 +553,8 @@ NeuroSurface <- function(geometry, indices, data) {
 #' @seealso \code{\link{SurfaceGeometry}}, \code{\link{NeuroSurface}}
 #' @export
 ColorMappedNeuroSurface <- function(geometry, indices, data, cmap, irange, thresh) {
-  new("ColorMappedNeuroSurface", geometry=geometry, indices=as.integer(indices),
+  indices <- .coerce_surface_indices(indices)
+  new("ColorMappedNeuroSurface", geometry=geometry, indices=indices,
       data=data, cmap=cmap, irange=irange, thresh=thresh)
 }
 
@@ -600,10 +606,11 @@ ColorMappedNeuroSurface <- function(geometry, indices, data, cmap, irange, thres
 #' @seealso \code{\link{SurfaceGeometry}}, \code{\link{NeuroSurface}}, \code{\link{ColorMappedNeuroSurface}}
 #' @export
 VertexColoredNeuroSurface <- function(geometry, indices, colors, data = NULL) {
+  indices <- .coerce_surface_indices(indices)
   if (is.null(data)) {
     data <- rep(0, length(indices))
   }
-  new("VertexColoredNeuroSurface", geometry=geometry, indices=as.integer(indices),
+  new("VertexColoredNeuroSurface", geometry=geometry, indices=indices,
       data=data, colors=colors)
 }
 

@@ -1155,11 +1155,19 @@ FreesurferSurfaceGeometryMetaInfo <- function(descriptor, header) {
 SurfaceDataMetaInfo <- function(descriptor, header) {
   stopifnot(is.numeric(header$nodes))
 
+  node_count <- if (!is.null(header$node_count)) {
+    header$node_count
+  } else if (length(header$nodes) == 1L) {
+    header$nodes
+  } else {
+    length(header$nodes)
+  }
+
   new("SurfaceDataMetaInfo",
       header_file=header$header_file,
       data_file=header$data_file,
       file_descriptor=descriptor,
-      node_count=as.integer(header$nodes),
+      node_count=as.integer(node_count),
       nels=as.integer(header$nels),
       label=as.character(header$label))
 }

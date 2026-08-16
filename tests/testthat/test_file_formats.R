@@ -1,6 +1,17 @@
 # Tests for IO.R file format support
 # This file adds coverage for internal parsing functions and file descriptors
 
+make_file_format_geometry <- function(n_vertices = 10L) {
+  theta <- seq(0, 2 * pi, length.out = n_vertices + 1L)[-1L]
+  vertices <- cbind(cos(theta), sin(theta), seq_len(n_vertices) / n_vertices)
+  faces <- cbind(
+    0L,
+    seq_len(n_vertices - 2L),
+    seq.int(2L, n_vertices - 1L)
+  )
+  SurfaceGeometry(vertices, faces, hemi = "lh")
+}
+
 # Tests for NIML parsing internal functions --------------------------------
 
 test_that(".parse_niml_element handles multiple attributes", {
@@ -117,7 +128,7 @@ test_that("read_meta_info stores correct hemisphere", {
 # Tests for write_surf_data with NeuroSurfaceVector ------------------------
 
 test_that("write_surf_data handles multi-column NeuroSurfaceVector", {
-  geom <- example_surface_geometry()
+  geom <- make_file_format_geometry()
   idx <- 1:10
   mat <- matrix(rnorm(30), nrow = 10, ncol = 3)
   surfv <- NeuroSurfaceVector(geometry = geom, indices = idx, mat = mat)
@@ -134,7 +145,7 @@ test_that("write_surf_data handles multi-column NeuroSurfaceVector", {
 })
 
 test_that("write_surf_data preserves data values", {
-  geom <- example_surface_geometry()
+  geom <- make_file_format_geometry()
   idx <- c(1L, 5L, 10L)
   vals <- c(1.5, 2.5, 3.5)
   surf <- NeuroSurface(geometry = geom, indices = idx, data = vals)
@@ -406,7 +417,7 @@ test_that("readFreesurferBinaryHeader fails on truncated file", {
 # Tests for NeuroSurfaceSource construction --------------------------------
 
 test_that("NeuroSurfaceSource can be created with geometry object", {
-  geom <- example_surface_geometry()
+  geom <- make_file_format_geometry()
 
   # Create a temporary 1D.dset file
   idx <- 1:10
