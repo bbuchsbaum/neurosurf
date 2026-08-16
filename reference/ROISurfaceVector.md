@@ -80,7 +80,6 @@ try(ROISurfaceVector(geom, c(1L,4L), vec))   # out of range
 #> Error in ROISurfaceVector(geom, c(1L, 4L), vec) : 
 #>   'indices' are out of bounds for provided 'geometry'
 try(ROISurfaceVector(geom, c(1,2.5), vec))   # non-integer
-#> Error in ROISurfaceVector(geom, c(1, 2.5), vec) : 
-#>   'indices' must be integer
+#> Error : 'indices' must contain integer-valued indices
 # }
 ```

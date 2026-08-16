@@ -50,6 +50,6 @@ try(ROISurface(geom, 4L, 1))      # out of range
 #> Error in ROISurface(geom, 4L, 1) : 
 #>   'indices' are out of bounds for provided 'geometry'
 try(ROISurface(geom, 1.5, 1))     # non-integer
-#> Error in ROISurface(geom, 1.5, 1) : 'indices' must be integer
+#> Error : 'indices' must contain integer-valued indices
 # }
 ```
