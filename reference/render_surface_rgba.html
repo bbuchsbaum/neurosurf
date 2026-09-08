@@ -13,7 +13,7 @@ CPU implementation and requires neither OpenGL nor a browser."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,7 +77,11 @@ CPU implementation and requires neither OpenGL nor a browser.</p>
 <span>  outer_contour <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  outer_contour_color <span class="op">=</span> <span class="st">"#595959"</span>,</span>
 <span>  background <span class="op">=</span> <span class="st">"#FBFBF8"</span>,</span>
-<span>  return_buffers <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  return_buffers <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  anatomy_style <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"publication"</span>, <span class="st">"continuous"</span>, <span class="st">"binary"</span><span class="op">)</span>,</span>
+<span>  anatomy_midpoint <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  anatomy_invert <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  anatomy_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.72</span>, <span class="fl">0.9</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -174,6 +178,19 @@ depth discontinuities are not treated as outer contour.</p></dd>
 
 <dt id="arg-return-buffers">return_buffers<a class="anchor" aria-label="anchor" href="#arg-return-buffers"></a></dt>
 <dd><p>Include scalar and depth buffers for diagnostics.</p></dd>
+
+
+<dt id="arg-anatomy-style">anatomy_style<a class="anchor" aria-label="anchor" href="#arg-anatomy-style"></a></dt>
+<dd><p>Underlay mapping: legacy publication shading, centered
+continuous contrast, or binary folding contrast.</p></dd>
+
+
+<dt id="arg-anatomy-midpoint-anatomy-invert">anatomy_midpoint, anatomy_invert<a class="anchor" aria-label="anchor" href="#arg-anatomy-midpoint-anatomy-invert"></a></dt>
+<dd><p>Passed to [normalize_surface_anatomy()].</p></dd>
+
+
+<dt id="arg-anatomy-range">anatomy_range<a class="anchor" aria-label="anchor" href="#arg-anatomy-range"></a></dt>
+<dd><p>Dark and light gray levels in [0, 1].</p></dd>
 
 </dl></div>
     <div class="section level2">

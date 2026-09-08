@@ -30,7 +30,11 @@ render_surface_rgba(
   outer_contour = TRUE,
   outer_contour_color = "#595959",
   background = "#FBFBF8",
-  return_buffers = FALSE
+  return_buffers = FALSE,
+  anatomy_style = c("publication", "continuous", "binary"),
+  anatomy_midpoint = NULL,
+  anatomy_invert = FALSE,
+  anatomy_range = c(0.72, 0.9)
 )
 ```
 
@@ -125,6 +129,19 @@ render_surface_rgba(
 - return_buffers:
 
   Include scalar and depth buffers for diagnostics.
+
+- anatomy_style:
+
+  Underlay mapping: legacy publication shading, centered continuous
+  contrast, or binary folding contrast.
+
+- anatomy_midpoint, anatomy_invert:
+
+  Passed to \[normalize_surface_anatomy()\].
+
+- anatomy_range:
+
+  Dark and light gray levels in \[0, 1\].
 
 ## Value
 

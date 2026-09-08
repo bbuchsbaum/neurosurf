@@ -57,6 +57,7 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/add_surface_layer.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/add_vector_layer.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/adjacency-methods.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/anatomical_curvature.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/apply_surface_sampler.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/as-methods.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/as.matrix-methods.html</loc></url>
@@ -108,6 +109,7 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/neurosurf_has_testdata.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/neurosurf_testdata_path.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/nodes-methods.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/normalize_surface_anatomy.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/parcel_boundary_contact.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/parcel_geodesic_centroid.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/parcel_geodesic_distance_matrix.html</loc></url>
@@ -146,6 +148,7 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surf_to_world-methods.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surf_to_world-set-methods.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_heat_colors.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_labels.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_layer.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_montage.html</loc></url>

@@ -1,0 +1,7 @@
+source=bbuchsbaum/surfviewjs
+commit=be3d6df79507f746edd44928fe82426774608b0f
+patch=tools/surfview-runtime.patch
+patch_sha256=0d5791034173fbd3ff5933794bfeb2fe7488fdecfd47998241cc2517b7e12ba7
+version=2.2.0
+sha256=b2442a5891448c0bf68df1d2e3dc7d9a33892af1397fb58dea8e4395e71ce15c
+three_revision=185

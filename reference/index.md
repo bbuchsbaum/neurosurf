@@ -242,6 +242,9 @@ Catch-all index to include any remaining topics.
 - [`adjacency()`](https://bbuchsbaum.github.io/neurosurf/reference/adjacency-methods.md)
   : Get Adjacency Graph
 
+- [`anatomical_curvature()`](https://bbuchsbaum.github.io/neurosurf/reference/anatomical_curvature.md)
+  : Derive a stable anatomical curvature underlay
+
 - [`apply_surface_sampler()`](https://bbuchsbaum.github.io/neurosurf/reference/apply_surface_sampler.md)
   : Apply a precomputed surface sampler to a volume
 
@@ -392,6 +395,9 @@ Catch-all index to include any remaining topics.
 - [`nodes()`](https://bbuchsbaum.github.io/neurosurf/reference/nodes-methods.md)
   : Extract Surface Node Numbers
 
+- [`normalize_surface_anatomy()`](https://bbuchsbaum.github.io/neurosurf/reference/normalize_surface_anatomy.md)
+  : Normalize an anatomical surface underlay
+
 - [`parcel_boundary_contact()`](https://bbuchsbaum.github.io/neurosurf/reference/parcel_boundary_contact.md)
   : Parcel boundary contact matrix
 
@@ -526,6 +532,9 @@ Catch-all index to include any remaining topics.
   [`plot(`*`<surface_figure>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
   [`print(`*`<surface_figure>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
   : Static multi-view surface figure with a shared colour scale
+
+- [`surface_heat_colors()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_heat_colors.md)
+  : Saturated signed surface overlay colors
 
 - [`surface_labels()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_labels.md)
   : List available surface labels
