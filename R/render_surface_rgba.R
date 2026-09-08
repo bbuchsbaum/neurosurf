@@ -9,6 +9,10 @@
 #' @param vertex_values Numeric value per vertex.
 #' @param anatomy_metric Optional numeric anatomy metric per vertex. Values are
 #'   robustly scaled to [0, 1] and modulate a quiet grey substrate.
+#' @param anatomy_style Underlay mapping: legacy publication shading, centered
+#'   continuous contrast, or binary folding contrast.
+#' @param anatomy_midpoint,anatomy_invert Passed to [normalize_surface_anatomy()].
+#' @param anatomy_range Dark and light gray levels in [0, 1].
 #' @param cortex_mask Logical cortex-domain mask per vertex. Overlay color is
 #'   never painted on triangles touching a masked vertex.
 #' @param camera One of `"lateral"`, `"medial"`, `"dorsal"`, or `"ventral"`.
@@ -59,7 +63,11 @@ render_surface_rgba <- function(geometry,
                                 outer_contour = TRUE,
                                 outer_contour_color = "#595959",
                                 background = "#FBFBF8",
-                                return_buffers = FALSE) {
+                                return_buffers = FALSE,
+                                anatomy_style = c("publication", "continuous", "binary"),
+                                anatomy_midpoint = NULL,
+                                anatomy_invert = FALSE,
+                                anatomy_range = c(0.72, 0.90)) {
   if (!inherits(geometry, "SurfaceGeometry")) {
     stop("'geometry' must be a SurfaceGeometry object.", call. = FALSE)
   }
@@ -79,7 +87,20 @@ render_surface_rgba <- function(geometry,
     stop("'cortex_mask' must be a non-missing logical value per vertex.",
          call. = FALSE)
   }
-  anatomy <- .ns_scale_anatomy_metric(anatomy_metric, n)
+  anatomy_style <- match.arg(anatomy_style)
+  if (!is.numeric(anatomy_range) || length(anatomy_range) != 2L ||
+      any(!is.finite(anatomy_range)) || any(anatomy_range < 0 | anatomy_range > 1) ||
+      anatomy_range[1] >= anatomy_range[2]) {
+    stop("'anatomy_range' must be two increasing gray levels in [0, 1].", call. = FALSE)
+  }
+  anatomy <- if (anatomy_style == "publication") {
+    .ns_scale_anatomy_metric(anatomy_metric, n)
+  } else {
+    if (is.null(anatomy_metric)) anatomy_metric <- rep(0, n)
+    if (length(anatomy_metric) != n) stop("Anatomy length must match vertices.")
+    normalize_surface_anatomy(anatomy_metric, anatomy_style,
+                              anatomy_midpoint, anatomy_invert) + 0.5
+  }
   if (is.null(limits)) {
     finite <- vertex_values[is.finite(vertex_values)]
     limits <- if (length(finite)) range(finite) else c(-1, 1)
@@ -130,8 +151,8 @@ render_surface_rgba <- function(geometry,
     palette = palette_rgba,
     overlay_alpha = overlay_alpha,
     alpha_ramp = alpha_ramp,
-    base_low = 0.72,
-    base_high = 0.90,
+    base_low = anatomy_range[1],
+    base_high = anatomy_range[2],
     medial_wall_policy = if (medial_wall == "mask") 1L else 0L,
     background = as.numeric(bg[, 1L]),
     supersample = antialias,
@@ -173,7 +194,11 @@ render_surface_rgba <- function(geometry,
     threshold = threshold,
     tail = tail,
     limits = limits,
-    medial_wall = medial_wall
+    medial_wall = medial_wall,
+    anatomy_style = anatomy_style,
+    anatomy_midpoint = anatomy_midpoint,
+    anatomy_invert = anatomy_invert,
+    anatomy_range = anatomy_range
   )
   class(out) <- c("surface_rgba", "list")
   out
@@ -387,4 +412,89 @@ surface_threshold_segments <- function(vertices, faces, values, threshold,
   y <- height / 2 - (xy[, 2] - mean(yr)) * scale
   depth <- as.numeric(vertices %*% view_dir)
   cbind(x, y, depth)
+}
+
+#' Normalize an anatomical surface underlay
+#'
+#' Converts curvature or sulcal depth to a centered display metric in
+#' [-0.5, 0.5], suitable for the surfview curvature layer. This changes only
+#' anatomical shading, never statistical values or surface coordinates.
+#' @param metric Finite numeric anatomy values, one per vertex.
+#' @param style Continuous robust scaling or binary folding contrast.
+#' @param midpoint Boundary between dark and light. NULL uses the median,
+#'   including for the historical [0, 1] output of [curvature()]. Use zero
+#'   for a native signed metric whose anatomical boundary is zero.
+#' @param invert Reverse dark/light polarity. Select this from the source
+#'   metric's sign convention; signs differ between curvature producers.
+#' @return A numeric vector in [-0.5, 0.5]. Constant metrics remain neutral.
+#' @export
+normalize_surface_anatomy <- function(metric,
+                                      style = c("continuous", "binary"),
+                                      midpoint = NULL, invert = FALSE) {
+  style <- match.arg(style)
+  if (!is.numeric(metric) || !length(metric) || any(!is.finite(metric))) {
+    stop("'metric' must be a non-empty finite numeric vector.", call. = FALSE)
+  }
+  if (!is.null(midpoint) && (!is.numeric(midpoint) || length(midpoint) != 1L ||
+                           !is.finite(midpoint))) {
+    stop("'midpoint' must be NULL or one finite number.", call. = FALSE)
+  }
+  if (!is.logical(invert) || length(invert) != 1L || is.na(invert)) {
+    stop("'invert' must be TRUE or FALSE.", call. = FALSE)
+  }
+  if (diff(range(metric)) == 0) return(rep(0, length(metric)))
+  centered <- metric - (midpoint %||% stats::median(metric))
+  if (style == "binary") {
+    out <- 0.5 * sign(centered)
+  } else {
+    scale <- as.numeric(stats::quantile(abs(centered), 0.98, type = 8))
+    if (scale == 0) scale <- max(abs(centered))
+    out <- pmax(-0.5, pmin(0.5, centered / (2 * scale)))
+  }
+  if (invert) -out else out
+}
+
+#' Saturated signed surface overlay colors
+#' @param signed Include the negative blue/cyan ramp as well as red/yellow.
+#' @return Hexadecimal color anchors, ordered from low to high values.
+#' @export
+surface_heat_colors <- function(signed = TRUE) {
+  if (!is.logical(signed) || length(signed) != 1L || is.na(signed)) {
+    stop("'signed' must be TRUE or FALSE.", call. = FALSE)
+  }
+  positive <- grDevices::colorRampPalette(c("#FF0000", "#FF0000", "#FFFF00"))(128)
+  if (signed) c(grDevices::colorRampPalette(c("#00FFFF", "#0000FF", "#0000FF"))(128),
+                positive) else positive
+}
+
+#' Derive a stable anatomical curvature underlay
+#'
+#' Averages computed curvature over mesh neighbors before display. This is an
+#' anatomical texture operation: neither coordinates nor statistical overlays
+#' are modified. Prefer a native curvature/sulcal metric when available.
+#' @param geometry Matching folded (usually white) [SurfaceGeometry].
+#' @param iterations Number of adjacency averaging steps, including the vertex
+#'   itself. Zero returns [curvature()] unchanged. This is not an FWHM in mm.
+#' @return Numeric anatomical metric with one value per vertex.
+#' @export
+anatomical_curvature <- function(geometry, iterations = 5L) {
+  if (!is.numeric(iterations) || length(iterations) != 1L ||
+      !is.finite(iterations) || iterations < 0 || iterations != as.integer(iterations)) {
+    stop("'iterations' must be a non-negative integer.", call. = FALSE)
+  }
+  metric <- curvature(geometry)
+  if (iterations == 0L) return(metric)
+  f <- faces(geometry)
+  edges <- unique(rbind(f[,c(1,2)], f[,c(2,3)], f[,c(3,1)],
+                        f[,c(2,1)], f[,c(3,2)], f[,c(1,3)]))
+  # Include the vertex itself, and retain isolated vertices unchanged.
+  edges <- unique(rbind(edges, cbind(seq_along(metric), seq_along(metric))))
+  from <- edges[,1]
+  to <- edges[,2]
+  counts <- tabulate(from, length(metric))
+  for (i in seq_len(iterations)) {
+    sums <- rowsum(metric[to], from, reorder=TRUE)
+    metric <- as.numeric(sums) / counts
+  }
+  metric
 }

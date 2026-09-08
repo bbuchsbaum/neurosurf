@@ -1,6 +1,6 @@
 dependencies:
   - name: surfview
-    version: 2.2.0
+    version: 2.2.0.9001
     src: htmlwidgets/lib/neurosurface
     script:
       - surfview.embed.iife.js

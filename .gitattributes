@@ -1,3 +1,6 @@
 
 # Use bd merge for beads JSONL files
 .beads/issues.jsonl merge=beads
+
+# Unified patches preserve upstream context whitespace.
+tools/surfview-runtime.patch whitespace=-blank-at-eol
