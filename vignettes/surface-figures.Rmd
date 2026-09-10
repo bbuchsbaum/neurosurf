@@ -114,7 +114,9 @@ example_statistic <- function(geometry) {
   xyz <- coords(geometry)
   value <- sin(xyz[, 2] / 18) + cos(xyz[, 3] / 14) +
     0.7 * sin(xyz[, 1] / 12)
-  as.numeric(scale(value))
+  # Prefer base::scale: neuroim2 exports an S4 scale() that does not
+  # dispatch on plain numeric vectors.
+  as.numeric(base::scale(value))
 }
 
 stat_lh <- example_statistic(inflated$lh)
