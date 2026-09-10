@@ -10,7 +10,9 @@ figure_test_geometries <- function() {
 }
 
 figure_test_values <- function(geoms) {
-  lapply(geoms, function(g) as.numeric(scale(coords(g)[, 3])))
+  # Prefer base::scale: neuroim2 exports an S4 scale() that does not
+  # dispatch on plain numeric vectors.
+  lapply(geoms, function(g) as.numeric(base::scale(coords(g)[, 3])))
 }
 
 test_that("surface_figure composes hemisphere-by-view panels", {
