@@ -33,9 +33,19 @@ jobs:
 
       - name: Test coverage
         run: |
+          # Match CLAUDE.md coverage-target exclusions (interactive / widget /
+          # package-init code that is not meaningfully unit-testable headlessly).
+          line_exclusions <- list(
+            "R/snapshot_surface.R" = Inf,
+            "R/surfwidget.R" = Inf,
+            "R/view_surface.R" = Inf,
+            "R/zzz.R" = Inf,
+            "R/spec.R" = Inf
+          )
           cov <- covr::package_coverage(
             quiet = FALSE,
             clean = FALSE,
+            line_exclusions = line_exclusions,
             install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
           )
           print(cov)

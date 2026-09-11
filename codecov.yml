@@ -1,5 +1,15 @@
 comment: false
 
+# Files documented in CLAUDE.md as excluded from coverage targets:
+# interactive graphics, HTMLWidget/JS runtime, and package hooks with no
+# meaningful unit-testable logic outside an interactive session.
+ignore:
+  - "R/snapshot_surface.R"
+  - "R/surfwidget.R"
+  - "R/view_surface.R"
+  - "R/zzz.R"
+  - "R/spec.R"
+
 coverage:
   status:
     project:
