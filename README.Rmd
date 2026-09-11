@@ -11,9 +11,13 @@ knitr::opts_chunk$set(
   fig.path = "README-"
 )
 ```
-[![Travis-CI Build Status](https://app.travis-ci.com/bbuchsbaum/neurosurf.svg?branch=master)](https://app.travis-ci.com/bbuchsbaum/neurosurf)
-
 # neurosurf
+
+<!-- badges: start -->
+[![Travis-CI Build Status](https://app.travis-ci.com/bbuchsbaum/neurosurf.svg?branch=master)](https://app.travis-ci.com/bbuchsbaum/neurosurf)
+[![test-coverage](https://github.com/bbuchsbaum/neurosurf/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/bbuchsbaum/neurosurf/actions/workflows/test-coverage.yaml)
+[![Codecov test coverage](https://codecov.io/gh/bbuchsbaum/neurosurf/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bbuchsbaum/neurosurf?branch=master)
+<!-- badges: end -->
 
 `neurosurf` is an R package for reading, manipulating, and visualizing
 surface-based neuroimaging data represented as triangle meshes. It focuses on
