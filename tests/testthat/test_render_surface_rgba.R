@@ -199,3 +199,113 @@ test_that("constant limits and extreme values fail or clamp explicitly", {
   expect_true(any(extreme$coverage))
   expect_false(anyNA(extreme$rgba))
 })
+
+test_that("every camera basis is a proper rotation and medial views are not mirrored", {
+  for (camera in c("lateral", "medial", "dorsal", "ventral")) {
+    for (hemi in c("lh", "rh")) {
+      b <- neurosurf:::.ns_camera_basis(camera, hemi)
+      expect_equal(crossprod(b), diag(3), tolerance = 1e-12)
+      expect_equal(det(b), 1, tolerance = 1e-12)
+    }
+  }
+  landmarks <- rbind(anterior = c(0, 10, 0), posterior = c(0, -10, 0))
+  lh_medial <- neurosurf:::.ns_project_surface_camera(
+    landmarks, "medial", "lh", width = 100, height = 80
+  )
+  rh_medial <- neurosurf:::.ns_project_surface_camera(
+    landmarks, "medial", "rh", width = 100, height = 80
+  )
+  # Viewed from the midline, the left hemisphere's anterior pole is on the
+  # right of the image and the right hemisphere's is on the left.
+  expect_gt(lh_medial["anterior", 1], lh_medial["posterior", 1])
+  expect_lt(rh_medial["anterior", 1], rh_medial["posterior", 1])
+})
+
+test_that("butterfly subdivision interpolates and adds no scalar extrema", {
+  geom <- load_fsaverage_std8("inflated")$lh
+  v <- coords(geom)
+  f <- t(geom@mesh$it)
+  values <- sin(v[, 2] / 9) * 3
+  res <- neurosurf:::cpp_butterfly_subdivide(f, cbind(v, values), 3L)
+  n <- nrow(v)
+  expect_identical(nrow(res$faces), 4L * nrow(f))
+  expect_equal(res$attrs[seq_len(n), ], unname(cbind(v, values)))
+  new <- seq.int(n + 1L, nrow(res$attrs))
+  p <- res$parents[new, ]
+  lo <- pmin(values[p[, 1]], values[p[, 2]])
+  hi <- pmax(values[p[, 1]], values[p[, 2]])
+  expect_true(all(res$attrs[new, 4] >= lo - 1e-12 &
+                    res$attrs[new, 4] <= hi + 1e-12))
+  # New vertices lie near, not exactly on, the chord between their parents.
+  mid <- (v[p[, 1], ] + v[p[, 2], ]) / 2
+  offset <- sqrt(rowSums((res$attrs[new, 1:3] - mid)^2))
+  edge <- sqrt(rowSums((v[p[, 1], ] - v[p[, 2], ])^2))
+  expect_true(all(offset < 0.5 * edge))
+  expect_gt(stats::median(offset), 0)
+})
+
+test_that("butterfly subdivision reproduces linear fields on a regular grid", {
+  g <- expand.grid(x = 0:6, y = 0:6)
+  idx <- function(i, j) i * 7 + j + 1
+  faces <- NULL
+  for (i in 0:5) for (j in 0:5) {
+    faces <- rbind(faces, c(idx(i, j), idx(i + 1, j), idx(i + 1, j + 1)),
+                   c(idx(i, j), idx(i + 1, j + 1), idx(i, j + 1)))
+  }
+  attrs <- cbind(g$x, g$y, 0, 2 * g$x - g$y)
+  res <- neurosurf:::cpp_butterfly_subdivide(faces, attrs, 3L)
+  expect_equal(res$attrs[, 4], 2 * res$attrs[, 1] - res$attrs[, 2],
+               tolerance = 1e-12)
+})
+
+test_that("display subdivision is automatic for coarse meshes only", {
+  geom <- load_fsaverage_std8("inflated")$lh
+  values <- coords(geom)[, 3]
+  coarse <- render_surface_rgba(geom, values, width = 400, height = 250,
+                                antialias = 1)
+  expect_gt(coarse$provenance$subdivision_levels, 0L)
+  small <- render_surface_rgba(geom, values, width = 40, height = 25,
+                               antialias = 1)
+  expect_identical(small$provenance$subdivision_levels, 0L)
+  off <- render_surface_rgba(geom, values, width = 400, height = 250,
+                             antialias = 1, subdivide = FALSE)
+  expect_identical(off$provenance$subdivision_levels, 0L)
+  expect_error(render_surface_rgba(geom, values, subdivide = "yes"),
+               "subdivide")
+})
+
+test_that("overlay lookup spans only the suprathreshold range", {
+  pal <- c("#0000FF", "#00FFFF", "#FFFF00", "#FF0000")
+  lut <- neurosurf:::.ns_overlay_lut(pal, c(-4, 4), 2, "two_sided", 257L)
+  at <- function(v) lut[round((v + 4) / 8 * 256) + 1L, 1:3]
+  expect_equal(at(2), c(1, 1, 0), tolerance = 0.02)   # weakest positive
+  expect_equal(at(4), c(1, 0, 0), tolerance = 0.02)   # strongest positive
+  expect_equal(at(-2), c(0, 1, 1), tolerance = 0.02)  # weakest negative
+  expect_equal(at(-4), c(0, 0, 1), tolerance = 0.02)  # strongest negative
+  pos <- neurosurf:::.ns_overlay_lut(c("#FFFF00", "#FF0000"), c(0, 4), 2,
+                                     "positive", 257L)
+  expect_equal(pos[129L, 1:3], c(1, 1, 0), tolerance = 0.02)
+  flat <- neurosurf:::.ns_overlay_lut(c("#000000", "#FFFFFF"), c(0, 1), 0,
+                                      "two_sided", 3L)
+  # Without a threshold the palette spans the limits (interpolated in Lab,
+  # so perceptual mid-grey is slightly below 0.5 in sRGB).
+  expect_equal(flat[c(1, 3), 1], c(0, 1), tolerance = 0.02)
+  expect_true(flat[2, 1] > 0.4 && flat[2, 1] < 0.5)
+})
+
+test_that("lighting shades the surface and validates its parameters", {
+  geom <- load_fsaverage_std8("inflated")$lh
+  values <- rep(0, nrow(coords(geom)))
+  lit <- render_surface_rgba(geom, values, width = 120, height = 80,
+                             antialias = 1, subdivide = FALSE)
+  flat <- render_surface_rgba(geom, values, width = 120, height = 80,
+                              antialias = 1, subdivide = FALSE,
+                              lighting = FALSE)
+  grey <- function(x) as.integer(x$rgba[, , 1])[as.vector(x$coverage)]
+  expect_gt(stats::sd(grey(lit)), stats::sd(grey(flat)))
+  expect_identical(lit$coverage, flat$coverage)
+  expect_error(render_surface_rgba(geom, values, lighting = list(glow = 1)),
+               "lighting")
+  expect_error(render_surface_rgba(geom, values, lighting = "on"),
+               "lighting")
+})

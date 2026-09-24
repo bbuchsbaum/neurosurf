@@ -15,8 +15,8 @@ surface_figure(
   threshold = 0,
   tail = c("two_sided", "positive", "negative"),
   limits = NULL,
-  palette = c("#3B4CC0", "#F7F7F7", "#B40426"),
-  overlay_alpha = 0.85,
+  palette = NULL,
+  overlay_alpha = 1,
   alpha_ramp = 0,
   camera_mode = c("canonical", "presentation"),
   cortex_mask = NULL,
@@ -24,7 +24,8 @@ surface_figure(
   legend_title = NULL,
   panel_width = 720,
   panel_height = 450,
-  antialias = 2L,
+  antialias = 3L,
+  labels = TRUE,
   ...
 )
 
@@ -44,8 +45,10 @@ vector or a one-element named list.}
 matching white surface), in the same form as `values`.}
 
 \item{views}{Character vector of camera views drawn for each hemisphere,
-from `"lateral"`, `"medial"`, `"dorsal"`, `"ventral"`. Views are rows of
-the figure; hemispheres are columns.}
+from `"lateral"`, `"medial"`, `"dorsal"`, `"ventral"`. Lateral and medial
+views are rows with one column per hemisphere. With both hemispheres,
+dorsal and ventral views show the hemispheres together in one panel,
+placed as a column beside the other views.}
 
 \item{threshold, tail, limits, palette, overlay_alpha, alpha_ramp, camera_mode}{Shared rendering contract applied to every panel; see
 [render_surface_rgba()]. `limits` defaults to the finite range of
@@ -62,6 +65,8 @@ its units.}
 \item{panel_width, panel_height}{Pixel dimensions of each rendered panel.}
 
 \item{antialias}{Integer supersampling factor per panel.}
+
+\item{labels}{Draw hemisphere and view headers above the panels.}
 
 \item{...}{Additional arguments passed to every [render_surface_rgba()]
 call.}

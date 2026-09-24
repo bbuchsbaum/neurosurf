@@ -336,7 +336,8 @@ render_surface_parcels <- function(x,
                 ifelse(s1 >= s2, x$labels[v1], x$labels[v2]))
 
   # Lighting from interpolated normals in camera space.
-  basis <- .ns_camera_basis(camera, x$hemi, projected, x$vertices)
+  b <- attr(projected, "basis")
+  basis <- list(right = b[, 1], up = b[, 2], toward = b[, 3])
   nrm <- x$normals[v0, , drop = FALSE] * w0 +
     x$normals[v1, , drop = FALSE] * w1 + x$normals[v2, , drop = FALSE] * w2
   nx <- as.numeric(nrm %*% basis$right)
@@ -528,18 +529,6 @@ render_surface_parcels <- function(x,
   ramp <- grDevices::colorRamp(palette, space = "Lab")
   t01 <- pmin(1, pmax(0, (values[keep] - limits[1]) / diff(limits)))
   list(labels = as.integer(keys[keep]), rgb = ramp(t01) / 255, limits = limits)
-}
-
-.ns_camera_basis <- function(camera, hemi, projected, vertices) {
-  # Recover the screen axes of .ns_project_surface_camera() by regressing the
-  # projected coordinates on the vertex coordinates (exact for an affine map).
-  design <- cbind(1, vertices)
-  coef <- qr.coef(qr(design), projected)
-  right <- coef[2:4, 1]
-  up <- -coef[2:4, 2]
-  toward <- coef[2:4, 3]
-  unit <- function(v) v / max(sqrt(sum(v^2)), .Machine$double.eps)
-  list(right = unit(right), up = unit(up), toward = unit(toward))
 }
 
 .ns_outward_normals <- function(vertices, faces) {

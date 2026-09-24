@@ -11,9 +11,22 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// cpp_butterfly_subdivide
+Rcpp::List cpp_butterfly_subdivide(const IntegerMatrix& faces, const NumericMatrix& attrs, const IntegerVector& clamp_cols);
+RcppExport SEXP _neurosurf_cpp_butterfly_subdivide(SEXP facesSEXP, SEXP attrsSEXP, SEXP clamp_colsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type faces(facesSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type attrs(attrsSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type clamp_cols(clamp_colsSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_butterfly_subdivide(faces, attrs, clamp_cols));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpp_rasterize_surface_scalar
-Rcpp::List cpp_rasterize_surface_scalar(const NumericMatrix& projected, const IntegerMatrix& faces, const NumericVector& values, const NumericVector& anatomy, const LogicalVector& cortex_mask, int width, int height, double threshold, int tail, const NumericVector& limits, const NumericMatrix& palette, double overlay_alpha, double alpha_ramp, double base_low, double base_high, int medial_wall_policy, const NumericVector& background, int supersample, bool return_buffers);
-RcppExport SEXP _neurosurf_cpp_rasterize_surface_scalar(SEXP projectedSEXP, SEXP facesSEXP, SEXP valuesSEXP, SEXP anatomySEXP, SEXP cortex_maskSEXP, SEXP widthSEXP, SEXP heightSEXP, SEXP thresholdSEXP, SEXP tailSEXP, SEXP limitsSEXP, SEXP paletteSEXP, SEXP overlay_alphaSEXP, SEXP alpha_rampSEXP, SEXP base_lowSEXP, SEXP base_highSEXP, SEXP medial_wall_policySEXP, SEXP backgroundSEXP, SEXP supersampleSEXP, SEXP return_buffersSEXP) {
+Rcpp::List cpp_rasterize_surface_scalar(const NumericMatrix& projected, const IntegerMatrix& faces, const NumericVector& values, const NumericVector& anatomy, const LogicalVector& cortex_mask, int width, int height, double threshold, int tail, const NumericVector& limits, const NumericMatrix& palette, double overlay_alpha, double alpha_ramp, double base_low, double base_high, int medial_wall_policy, const NumericVector& background, int supersample, bool return_buffers, Rcpp::Nullable<Rcpp::NumericMatrix> normals, Rcpp::Nullable<Rcpp::NumericVector> lighting, Rcpp::Nullable<Rcpp::NumericVector> contour);
+RcppExport SEXP _neurosurf_cpp_rasterize_surface_scalar(SEXP projectedSEXP, SEXP facesSEXP, SEXP valuesSEXP, SEXP anatomySEXP, SEXP cortex_maskSEXP, SEXP widthSEXP, SEXP heightSEXP, SEXP thresholdSEXP, SEXP tailSEXP, SEXP limitsSEXP, SEXP paletteSEXP, SEXP overlay_alphaSEXP, SEXP alpha_rampSEXP, SEXP base_lowSEXP, SEXP base_highSEXP, SEXP medial_wall_policySEXP, SEXP backgroundSEXP, SEXP supersampleSEXP, SEXP return_buffersSEXP, SEXP normalsSEXP, SEXP lightingSEXP, SEXP contourSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -36,7 +49,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const NumericVector& >::type background(backgroundSEXP);
     Rcpp::traits::input_parameter< int >::type supersample(supersampleSEXP);
     Rcpp::traits::input_parameter< bool >::type return_buffers(return_buffersSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_rasterize_surface_scalar(projected, faces, values, anatomy, cortex_mask, width, height, threshold, tail, limits, palette, overlay_alpha, alpha_ramp, base_low, base_high, medial_wall_policy, background, supersample, return_buffers));
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type normals(normalsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type lighting(lightingSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type contour(contourSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_rasterize_surface_scalar(projected, faces, values, anatomy, cortex_mask, width, height, threshold, tail, limits, palette, overlay_alpha, alpha_ramp, base_low, base_high, medial_wall_policy, background, supersample, return_buffers, normals, lighting, contour));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -114,7 +130,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_neurosurf_cpp_rasterize_surface_scalar", (DL_FUNC) &_neurosurf_cpp_rasterize_surface_scalar, 19},
+    {"_neurosurf_cpp_butterfly_subdivide", (DL_FUNC) &_neurosurf_cpp_butterfly_subdivide, 3},
+    {"_neurosurf_cpp_rasterize_surface_scalar", (DL_FUNC) &_neurosurf_cpp_rasterize_surface_scalar, 22},
     {"_neurosurf_cpp_rasterize_surface_gbuffer", (DL_FUNC) &_neurosurf_cpp_rasterize_surface_gbuffer, 4},
     {"_neurosurf_compute_hull_world_cpp", (DL_FUNC) &_neurosurf_compute_hull_world_cpp, 6},
     {"_neurosurf_estimate_sdf_rigid_cpp", (DL_FUNC) &_neurosurf_estimate_sdf_rigid_cpp, 7},

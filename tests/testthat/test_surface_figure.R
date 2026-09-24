@@ -103,17 +103,27 @@ test_that("surface_figure draws and writes PNG output", {
   out <- write_surface_figure(fig, tempfile(fileext = ".png"))
   expect_true(file.exists(out))
   img <- png::readPNG(out)
-  expect_identical(dim(img)[2], 2L * 120L)
-  expect_gt(dim(img)[1], 2L * 80L) # legend strip adds height
+  expect_gt(dim(img)[2], 2L * 120L) # row-label strip adds width
+  expect_gt(dim(img)[1], 2L * 80L)  # header and legend strips add height
+  expect_identical(fig$row_labels, c("Lateral", "Medial"))
 
   no_legend <- surface_figure(
     lh = geoms$lh, rh = geoms$rh,
-    values = values, legend = FALSE,
+    values = values, legend = FALSE, labels = FALSE,
     views = "lateral",
     panel_width = 120, panel_height = 80, antialias = 1L
   )
   out2 <- write_surface_figure(no_legend, tempfile(fileext = ".png"))
   expect_identical(dim(png::readPNG(out2))[1:2], c(80L, 240L))
+
+  labelled <- surface_figure(
+    lh = geoms$lh, rh = geoms$rh,
+    values = values, legend = FALSE, views = "lateral",
+    panel_width = 120, panel_height = 80, antialias = 1L
+  )
+  expect_identical(labelled$headers, c("Left", "Right"))
+  out3 <- write_surface_figure(labelled, tempfile(fileext = ".png"))
+  expect_gt(dim(png::readPNG(out3))[1], 80L) # header strip adds height
 
   # plot()/print() draw on the active device without error
   device_file <- tempfile(fileext = ".png")
@@ -125,4 +135,35 @@ test_that("surface_figure draws and writes PNG output", {
 
   expect_error(write_surface_figure(list(), tempfile()), "surface_figure")
   expect_error(write_surface_figure(fig, tempfile(), scale = 0), "positive")
+})
+
+test_that("dorsal and ventral views of both hemispheres are side columns", {
+  skip_on_cran()
+  fs <- load_fsaverage_std8("inflated")
+  values <- lapply(fs[c("lh", "rh")], function(g) coords(g)[, 3] / 10)
+  fig <- surface_figure(lh = fs$lh, rh = fs$rh, values = values,
+                        views = c("lateral", "medial", "dorsal"),
+                        threshold = 1, panel_width = 120, panel_height = 80,
+                        legend = FALSE, labels = FALSE, antialias = 1L)
+  expect_named(fig$panels, c("lh_lateral", "rh_lateral", "lh_medial",
+                             "rh_medial", "both_dorsal"))
+  expect_identical(unname(fig$placement$both_dorsal), c(1L, 2L, 3L, 3L))
+  dorsal <- fig$panels$both_dorsal
+  expect_identical(dim(dorsal$rgba)[1], 160L)
+  expect_identical(dim(dorsal$rgba)[2], fig$col_widths[3])
+  # The bilateral dorsal panel is taller than wide and covers both hemispheres.
+  expect_lt(fig$col_widths[3], 160L)
+  covered_cols <- which(colSums(dorsal$coverage) > 0)
+  expect_gt(length(covered_cols), 0.8 * fig$col_widths[3])
+  out <- tempfile(fileext = ".png")
+  write_surface_figure(fig, out)
+  img <- png::readPNG(out)
+  expect_identical(dim(img)[1:2], c(160L, 240L + fig$col_widths[3]))
+
+  only_dorsal <- surface_figure(lh = fs$lh, rh = fs$rh, values = values,
+                                views = "dorsal", legend = FALSE,
+                                labels = FALSE, panel_width = 120,
+                                panel_height = 80, antialias = 1L)
+  expect_named(only_dorsal$panels, "both_dorsal")
+  expect_identical(only_dorsal$nrow, 1L)
 })

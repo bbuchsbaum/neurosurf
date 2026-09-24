@@ -35,6 +35,42 @@ inline void palette_color(const NumericMatrix& palette, double value,
   b = palette(i0, 2) * (1.0 - f) + palette(i1, 2) * f;
 }
 
+inline void normalize3(double& x, double& y, double& z) {
+  const double len = std::sqrt(x * x + y * y + z * z);
+  if (len > 0) {
+    x /= len;
+    y /= len;
+    z /= len;
+  }
+}
+
+// Two-light Blinn-Phong shading in view space (x right, y up, z toward the
+// viewer). Returns the diffuse multiplier and the additive specular term.
+struct Lighting {
+  bool enabled = false;
+  double ambient = 1.0, key = 0.0, fill = 0.0, specular = 0.0, shininess = 1.0;
+  double overlay_shading = 1.0, sky = 0.0, reference = 1.0;
+  double lx = 0, ly = 0, lz = 1, fx = 0, fy = 0, fz = 1, hx = 0, hy = 0, hz = 1;
+
+  void shade(double nx, double ny, double nz, double& diffuse,
+             double& spec) const {
+    normalize3(nx, ny, nz);
+    // Interpolated normals can tip slightly away at the silhouette; light
+    // the visible side.
+    if (nz < 0) {
+      nx = -nx;
+      ny = -ny;
+      nz = -nz;
+    }
+    const double nl = std::max(0.0, nx * lx + ny * ly + nz * lz);
+    const double nf = std::max(0.0, nx * fx + ny * fy + nz * fz);
+    const double nh = std::max(0.0, nx * hx + ny * hy + nz * hz);
+    // Hemispheric ambient: surfaces facing up receive more sky light.
+    diffuse = ambient * (1.0 - sky + sky * ny) + key * nl + fill * nf;
+    spec = specular * std::pow(nh, shininess);
+  }
+};
+
 inline bool passes_threshold(double value, double threshold, int tail) {
   if (!std::isfinite(value)) return false;
   if (tail == 1) return value >= threshold;
@@ -66,7 +102,10 @@ Rcpp::List cpp_rasterize_surface_scalar(
     int medial_wall_policy,
     const NumericVector& background,
     int supersample,
-    bool return_buffers) {
+    bool return_buffers,
+    Rcpp::Nullable<Rcpp::NumericMatrix> normals = R_NilValue,
+    Rcpp::Nullable<Rcpp::NumericVector> lighting = R_NilValue,
+    Rcpp::Nullable<Rcpp::NumericVector> contour = R_NilValue) {
 
   const int nvert = projected.nrow();
   if (projected.ncol() != 3 || faces.ncol() != 3) {
@@ -82,6 +121,41 @@ Rcpp::List cpp_rasterize_surface_scalar(
   if (limits.size() != 2 || palette.ncol() < 3 || palette.nrow() < 2 ||
       background.size() < 3) {
     stop("invalid limits, palette, or background");
+  }
+
+  // Optional per-vertex view-space normals and lighting parameters:
+  // ambient, key, fill, specular, shininess, key direction (3), fill
+  // direction (3), the fraction of the shading applied to overlay colour, and
+  // the hemispheric (sky) ambient fraction.
+  Lighting light;
+  NumericMatrix nrm;
+  if (normals.isNotNull() && lighting.isNotNull()) {
+    nrm = NumericMatrix(normals.get());
+    NumericVector lp(lighting.get());
+    if (nrm.nrow() != nvert || nrm.ncol() != 3 || lp.size() != 13) {
+      stop("normals must be nvert x 3 and lighting must have 13 values");
+    }
+    light.overlay_shading = lp[11];
+    light.sky = lp[12];
+    light.enabled = true;
+    light.ambient = lp[0];
+    light.key = lp[1];
+    light.fill = lp[2];
+    light.specular = lp[3];
+    light.shininess = lp[4];
+    light.lx = lp[5]; light.ly = lp[6]; light.lz = lp[7];
+    light.fx = lp[8]; light.fy = lp[9]; light.fz = lp[10];
+    normalize3(light.lx, light.ly, light.lz);
+    normalize3(light.fx, light.fy, light.fz);
+    light.hx = light.lx;
+    light.hy = light.ly;
+    light.hz = light.lz + 1.0;
+    normalize3(light.hx, light.hy, light.hz);
+    // Shading of a surface facing the viewer; overlay colour is modulated
+    // relative to it so camera-facing overlay matches the colour bar.
+    double ref_spec;
+    light.shade(0.0, 0.0, 1.0, light.reference, ref_spec);
+    if (light.reference <= 0) light.reference = 1.0;
   }
 
   const int sw = width * supersample;
@@ -166,7 +240,15 @@ Rcpp::List cpp_rasterize_surface_scalar(
         if (!std::isfinite(av)) av = 0.5;
         double base = base_low + clamp01(av) * (base_high - base_low);
         if (!face_cortex) base = 0.78;
-        double rr = base, gg = base, bl = base;
+        double diffuse = 1.0, spec = 0.0;
+        if (light.enabled) {
+          light.shade(w0 * nrm(i0, 0) + w1 * nrm(i1, 0) + w2 * nrm(i2, 0),
+                      w0 * nrm(i0, 1) + w1 * nrm(i1, 1) + w2 * nrm(i2, 1),
+                      w0 * nrm(i0, 2) + w1 * nrm(i1, 2) + w2 * nrm(i2, 2),
+                      diffuse, spec);
+        }
+        const double lit_base = base * diffuse + spec;
+        double rr = lit_base, gg = lit_base, bl = lit_base;
         double aa = 0.0;
 
         if (face_cortex && passes_threshold(sv, threshold, tail)) {
@@ -176,10 +258,15 @@ Rcpp::List cpp_rasterize_surface_scalar(
           }
           double pr, pg, pb;
           palette_color(palette, sv, limits[0], limits[1], pr, pg, pb);
-          // Premultiplied-alpha source-over composition onto opaque anatomy.
-          rr = pr * aa + rr * (1.0 - aa);
-          gg = pg * aa + gg * (1.0 - aa);
-          bl = pb * aa + bl * (1.0 - aa);
+          // Overlay colour receives a reduced share of the shading so its
+          // hue and value stay readable against the colour bar.
+          const double k = light.overlay_shading;
+          const double od = 1.0 + (diffuse / light.reference - 1.0) * k;
+          const double os = spec * k;
+          // Source-over composition onto the lit anatomy.
+          rr = (pr * od + os) * aa + rr * (1.0 - aa);
+          gg = (pg * od + os) * aa + gg * (1.0 - aa);
+          bl = (pb * od + os) * aa + bl * (1.0 - aa);
         }
 
         rgba[pos * 4] = static_cast<std::uint8_t>(std::round(255 * clamp01(rr)));
@@ -187,6 +274,58 @@ Rcpp::List cpp_rasterize_surface_scalar(
         rgba[pos * 4 + 2] = static_cast<std::uint8_t>(std::round(255 * clamp01(bl)));
         rgba[pos * 4 + 3] = 255;
         overlay_a[pos] = static_cast<std::uint8_t>(std::round(255 * clamp01(aa)));
+      }
+    }
+  }
+
+  // Outer silhouette contour at sample resolution: covered samples within
+  // `radius` samples of background connected to the image border. Enclosed
+  // holes are not exterior. Drawn before the box filter, so it is
+  // anti-aliased. contour = (r, g, b, alpha, width in output pixels).
+  if (contour.isNotNull()) {
+    NumericVector cp(contour.get());
+    if (cp.size() != 5) stop("contour must have 5 values");
+    const int radius = std::max(1, static_cast<int>(std::round(cp[4] * supersample)));
+    std::vector<std::uint8_t> exterior(npix, 0);
+    std::vector<std::size_t> queue;
+    queue.reserve(npix / 4);
+    auto push = [&](int x, int y) {
+      if (x < 0 || y < 0 || x >= sw || y >= sh) return;
+      const std::size_t q = static_cast<std::size_t>(y) * sw + x;
+      if (coverage[q] || exterior[q]) return;
+      exterior[q] = 1;
+      queue.push_back(q);
+    };
+    for (int x = 0; x < sw; ++x) { push(x, 0); push(x, sh - 1); }
+    for (int y = 0; y < sh; ++y) { push(0, y); push(sw - 1, y); }
+    for (std::size_t head = 0; head < queue.size(); ++head) {
+      const int x = static_cast<int>(queue[head] % sw);
+      const int y = static_cast<int>(queue[head] / sw);
+      push(x - 1, y); push(x + 1, y); push(x, y - 1); push(x, y + 1);
+    }
+    // Distance (in 4-neighbour steps) from the exterior, up to `radius`.
+    std::vector<std::uint8_t> near(exterior);
+    for (int step = 0; step < radius; ++step) {
+      std::vector<std::uint8_t> grown(near);
+      for (int y = 0; y < sh; ++y) {
+        for (int x = 0; x < sw; ++x) {
+          const std::size_t q = static_cast<std::size_t>(y) * sw + x;
+          if (near[q]) continue;
+          if ((x > 0 && near[q - 1]) || (x < sw - 1 && near[q + 1]) ||
+              (y > 0 && near[q - sw]) || (y < sh - 1 && near[q + sw])) {
+            grown[q] = 1;
+          }
+        }
+      }
+      near.swap(grown);
+    }
+    const double a = clamp01(cp[3]);
+    for (std::size_t q = 0; q < npix; ++q) {
+      if (!coverage[q] || !near[q]) continue;
+      for (int c = 0; c < 3; ++c) {
+        const double v = rgba[q * 4 + c] / 255.0;
+        rgba[q * 4 + c] = static_cast<std::uint8_t>(
+          std::round(255 * clamp01(cp[c] * a + v * (1.0 - a))));
       }
     }
   }

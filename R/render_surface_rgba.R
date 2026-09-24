@@ -1,17 +1,31 @@
 #' Deterministic scalar-first surface rasterization
 #'
-#' Rasterizes a cortical triangle mesh with a per-pixel z-buffer and
+#' Rasterizes a cortical triangle mesh with a per-sample z-buffer and
 #' barycentric interpolation of the scalar field. Thresholding and palette
-#' mapping occur after scalar interpolation at each sample. The backend is a
-#' CPU implementation and requires neither OpenGL nor a browser.
+#' mapping occur after scalar interpolation at each sample. Surfaces are lit
+#' with interpolated (Phong) normals, and coarse meshes are subdivided for
+#' display. The backend is a CPU implementation and requires neither OpenGL
+#' nor a browser.
+#'
+#' Display subdivision uses the interpolating modified-butterfly scheme:
+#' original vertices keep their positions and values, and each new vertex's
+#' scalar value is clamped to the range of its edge's endpoints, so
+#' subdivision smooths threshold contours without creating suprathreshold
+#' regions that linear interpolation would not.
 #'
 #' @param geometry A [SurfaceGeometry] object.
 #' @param vertex_values Numeric value per vertex.
-#' @param anatomy_metric Optional numeric anatomy metric per vertex. Values are
-#'   robustly scaled to [0, 1] and modulate a quiet grey substrate.
+#' @param anatomy_metric Optional numeric anatomy metric per vertex, such as
+#'   sulcal depth or curvature. Values are robustly scaled and mapped to the
+#'   grey levels in `anatomy_range`, with sulci darker than gyri.
 #' @param anatomy_style Underlay mapping: legacy publication shading, centered
 #'   continuous contrast, or binary folding contrast.
-#' @param anatomy_midpoint,anatomy_invert Passed to [normalize_surface_anatomy()].
+#' @param anatomy_midpoint Passed to [normalize_surface_anatomy()].
+#' @param anatomy_invert Reverse the metric's polarity. `"auto"` (default)
+#'   inverts metrics that are larger in sulci (FreeSurfer `sulc` and `curv`)
+#'   and keeps metrics that are larger on gyral crowns (such as
+#'   [curvature()]), judged by the metric's correlation with the displayed
+#'   mesh's mean curvature. The decision is recorded in the provenance.
 #' @param anatomy_range Dark and light gray levels in [0, 1].
 #' @param cortex_mask Logical cortex-domain mask per vertex. Overlay color is
 #'   never painted on triangles touching a masked vertex.
@@ -23,19 +37,38 @@
 #' @param width,height Output dimensions in pixels.
 #' @param threshold Non-negative absolute scalar threshold.
 #' @param tail Threshold tail: two-sided, positive, or negative.
-#' @param palette Character vector of at least two colors.
+#' @param palette Character vector of at least two colours, ordered from low to
+#'   high values. With a positive threshold the palette spans only the
+#'   suprathreshold range: for a two-sided map the first half of the colours
+#'   is the negative ramp and the second half the positive ramp. `NULL` uses a
+#'   default suited to `tail`.
 #' @param limits Numeric scalar-color limits.
 #' @param overlay_alpha Maximum overlay opacity.
 #' @param alpha_ramp Width of the opacity ramp above threshold.
-#' @param antialias Integer supersampling factor.
+#' @param antialias Integer supersampling factor per axis.
 #' @param margin Fractional panel margin.
 #' @param medial_wall Whether masked-domain triangles are neutrally shaded,
 #'   omitted, or independently outlined.
-#' @param outer_contour Draw a one-pixel contour only where covered cortex
-#'   touches background connected to the image exterior. Enclosed holes and
-#'   depth discontinuities are not treated as outer contour.
-#' @param outer_contour_color Contour color.
+#' @param outer_contour Draw an anti-aliased silhouette contour, about one
+#'   pixel wide, where covered cortex touches background connected to the
+#'   image exterior. Enclosed holes and depth discontinuities are not treated
+#'   as outer contour.
+#' @param outer_contour_color Contour colour; an alpha channel sets its
+#'   opacity.
 #' @param background Background color.
+#' @param lighting `TRUE` for the default two-light Blinn-Phong shading,
+#'   `FALSE` for flat (unlit) rendering, or a named list overriding any of
+#'   `ambient`, `key`, `fill`, `specular`, `shininess`, `key_dir`, `fill_dir`
+#'   (view-space directions: x right, y up, z toward the viewer),
+#'   `overlay_shading` (share of the shading applied to overlay colour), and
+#'   `sky` (hemispheric ambient fraction). Overlay shading is normalized so a
+#'   surface facing the camera shows exactly the colour-bar colour.
+#' @param subdivide `"auto"` subdivides coarse meshes for display until the
+#'   median projected edge is at most four pixels (up to three levels);
+#'   `FALSE` disables it; an integer sets the number of levels.
+#' @param pixel_scale Output pixels per surface coordinate unit (usually
+#'   mm). `NULL` fits the surface to the panel; a common value gives several
+#'   panels one scale.
 #' @param return_buffers Include scalar and depth buffers for diagnostics.
 #'
 #' @return A `surface_rgba` list with raw RGBA, coverage, and overlay-alpha
@@ -53,21 +86,24 @@ render_surface_rgba <- function(geometry,
                                 height = 750L,
                                 threshold = 0,
                                 tail = c("two_sided", "positive", "negative"),
-                                palette = c("#3B4CC0", "#F7F7F7", "#B40426"),
+                                palette = NULL,
                                 limits = NULL,
-                                overlay_alpha = 0.85,
+                                overlay_alpha = 1,
                                 alpha_ramp = 0,
-                                antialias = 2L,
+                                antialias = 3L,
                                 margin = 0.04,
                                 medial_wall = c("shade", "mask", "outline"),
                                 outer_contour = TRUE,
-                                outer_contour_color = "#595959",
-                                background = "#FBFBF8",
+                                outer_contour_color = "#6E6E6ED9",
+                                background = "#FFFFFF",
+                                lighting = TRUE,
+                                subdivide = "auto",
+                                pixel_scale = NULL,
                                 return_buffers = FALSE,
                                 anatomy_style = c("publication", "continuous", "binary"),
                                 anatomy_midpoint = NULL,
-                                anatomy_invert = FALSE,
-                                anatomy_range = c(0.72, 0.90)) {
+                                anatomy_invert = "auto",
+                                anatomy_range = c(0.70, 0.93)) {
   if (!inherits(geometry, "SurfaceGeometry")) {
     stop("'geometry' must be a SurfaceGeometry object.", call. = FALSE)
   }
@@ -93,8 +129,15 @@ render_surface_rgba <- function(geometry,
       anatomy_range[1] >= anatomy_range[2]) {
     stop("'anatomy_range' must be two increasing gray levels in [0, 1].", call. = FALSE)
   }
+  if (identical(anatomy_invert, "auto")) {
+    anatomy_invert <- .ns_anatomy_is_sulcal_positive(anatomy_metric, geometry)
+  } else if (!is.logical(anatomy_invert) || length(anatomy_invert) != 1L ||
+             is.na(anatomy_invert)) {
+    stop("'anatomy_invert' must be TRUE, FALSE, or \"auto\".", call. = FALSE)
+  }
   anatomy <- if (anatomy_style == "publication") {
-    .ns_scale_anatomy_metric(anatomy_metric, n)
+    a <- .ns_scale_anatomy_metric(anatomy_metric, n)
+    if (anatomy_invert && !is.null(anatomy_metric)) 1 - a else a
   } else {
     if (is.null(anatomy_metric)) anatomy_metric <- rep(0, n)
     if (length(anatomy_metric) != n) stop("Anatomy length must match vertices.")
@@ -123,17 +166,58 @@ render_surface_rgba <- function(geometry,
     stop("'antialias' must be a positive integer.", call. = FALSE)
   }
 
-  projected <- .ns_project_surface_camera(
-    vertices, camera = camera, hemi = geometry@hemi,
-    width = width, height = height, margin = margin,
-    presentation_obliquity = if (camera_mode == "presentation") {
-      presentation_obliquity
-    } else {
-      0
-    }
+  out <- .ns_render_rgba_mesh(
+    vertices, t(geometry@mesh$it), vertex_values, anatomy, cortex_mask,
+    hemi = geometry@hemi, camera = camera, camera_mode = camera_mode,
+    presentation_obliquity = presentation_obliquity, width = width,
+    height = height, threshold = threshold, tail = tail, palette = palette,
+    limits = limits, overlay_alpha = overlay_alpha, alpha_ramp = alpha_ramp,
+    antialias = antialias, margin = margin, medial_wall = medial_wall,
+    outer_contour = outer_contour, outer_contour_color = outer_contour_color,
+    background = background, lighting = lighting, subdivide = subdivide,
+    return_buffers = return_buffers, anatomy_range = anatomy_range,
+    extent = if (!is.null(pixel_scale)) list(scale = pixel_scale)
   )
-  faces <- t(geometry@mesh$it)
-  palette_rgba <- .ns_palette_matrix(palette, 256L)
+  out$provenance[c("anatomy_style", "anatomy_midpoint", "anatomy_invert")] <-
+    list(anatomy_style, anatomy_midpoint, anatomy_invert)
+  out
+}
+
+# Rasterize a prepared mesh (1-based faces, per-vertex values, anatomy in
+# [0, 1], and cortex mask). `extent` optionally fixes the projected window
+# and scale so several renders share one pixel scale.
+.ns_render_rgba_mesh <- function(vertices, faces, vertex_values, anatomy,
+                                 cortex_mask, hemi, camera, camera_mode,
+                                 presentation_obliquity, width, height,
+                                 threshold, tail, palette, limits,
+                                 overlay_alpha, alpha_ramp, antialias, margin,
+                                 medial_wall, outer_contour,
+                                 outer_contour_color, background, lighting,
+                                 subdivide, return_buffers, anatomy_range,
+                                 extent = NULL) {
+  obliquity <- if (camera_mode == "presentation") presentation_obliquity else 0
+  levels <- .ns_subdivision_levels(subdivide, vertices, faces, camera,
+                                   hemi, width, height, margin,
+                                   obliquity, extent)
+  if (levels > 0L) {
+    display <- .ns_subdivide_display_mesh(vertices, faces, vertex_values,
+                                          anatomy, cortex_mask, levels)
+    vertices <- display$vertices
+    faces <- display$faces
+    vertex_values <- display$values
+    anatomy <- display$anatomy
+    cortex_mask <- display$cortex_mask
+  }
+  projected <- .ns_project_surface_camera(
+    vertices, camera = camera, hemi = hemi,
+    width = width, height = height, margin = margin,
+    presentation_obliquity = obliquity, extent = extent
+  )
+  if (is.null(palette)) palette <- .ns_default_palette(tail)
+  palette_rgba <- .ns_overlay_lut(palette, limits, threshold, tail, 256L)
+  light <- .ns_resolve_lighting(lighting)
+  view_normals <- if (is.null(light)) NULL else
+    .ns_mesh_vertex_normals(vertices, faces) %*% attr(projected, "basis")
   bg <- grDevices::col2rgb(background) / 255
   tail_code <- switch(tail, two_sided = 0L, positive = 1L, negative = -1L)
 
@@ -156,17 +240,13 @@ render_surface_rgba <- function(geometry,
     medial_wall_policy = if (medial_wall == "mask") 1L else 0L,
     background = as.numeric(bg[, 1L]),
     supersample = antialias,
-    return_buffers = isTRUE(return_buffers)
-  )
-  if (isTRUE(outer_contour)) {
-    edge <- .ns_outer_contour_mask(out$coverage)
-    col <- as.raw(grDevices::col2rgb(outer_contour_color, alpha = TRUE)[, 1L])
-    for (channel in seq_len(4L)) {
-      plane <- out$rgba[, , channel]
-      plane[edge] <- col[[channel]]
-      out$rgba[, , channel] <- plane
+    return_buffers = isTRUE(return_buffers),
+    normals = view_normals,
+    lighting = light,
+    contour = if (isTRUE(outer_contour)) {
+      c(grDevices::col2rgb(outer_contour_color, alpha = TRUE)[, 1L] / 255, 0.9)
     }
-  }
+  )
   if (identical(medial_wall, "outline")) {
     wall_edge <- .ns_domain_boundary_mask(out$cortex_coverage, out$coverage)
     for (channel in seq_len(3L)) {
@@ -183,7 +263,7 @@ render_surface_rgba <- function(geometry,
     } else {
       0
     },
-    hemi = geometry@hemi,
+    hemi = hemi,
     margin = margin
   )
   out$provenance <- list(
@@ -195,10 +275,9 @@ render_surface_rgba <- function(geometry,
     tail = tail,
     limits = limits,
     medial_wall = medial_wall,
-    anatomy_style = anatomy_style,
-    anatomy_midpoint = anatomy_midpoint,
-    anatomy_invert = anatomy_invert,
-    anatomy_range = anatomy_range
+    anatomy_range = anatomy_range,
+    lighting = !is.null(light),
+    subdivision_levels = levels
   )
   class(out) <- c("surface_rgba", "list")
   out
@@ -347,6 +426,22 @@ surface_threshold_segments <- function(vertices, faces, values, threshold,
   do.call(rbind, out)
 }
 
+# TRUE when larger anatomy values mark sulci (as FreeSurfer sulc and curv
+# do), judged by correlation with the display mesh's mean curvature, which is
+# larger on convex (gyral) vertices. Such metrics are inverted so sulci
+# render dark. Weak or undefined correlations leave the metric as given.
+.ns_anatomy_is_sulcal_positive <- function(metric, geometry) {
+  if (is.null(metric)) return(FALSE)
+  convexity <- tryCatch(Rvcg::vcgCurve(geometry@mesh)$meanvb,
+                        error = function(e) NULL)
+  if (is.null(convexity) || length(convexity) != length(metric)) return(FALSE)
+  ok <- is.finite(metric) & is.finite(convexity)
+  if (sum(ok) < 10L) return(FALSE)
+  r <- suppressWarnings(stats::cor(metric[ok], convexity[ok],
+                                   method = "spearman"))
+  isTRUE(r < -0.1)
+}
+
 .ns_scale_anatomy_metric <- function(metric, n) {
   if (is.null(metric)) return(rep(0.65, n))
   if (!is.numeric(metric) || length(metric) != n) {
@@ -362,6 +457,8 @@ surface_threshold_segments <- function(vertices, faces, values, threshold,
   } else {
     out <- (metric - lim[1L]) / diff(lim)
     out <- pmax(0, pmin(1, out))
+    # Smoothstep separates sulci from gyri while keeping gradations.
+    out <- out * out * (3 - 2 * out)
     out[!finite] <- 0.65
   }
   out
@@ -376,42 +473,193 @@ surface_threshold_segments <- function(vertices, faces, values, threshold,
   t(rgb)
 }
 
-.ns_project_surface_camera <- function(vertices, camera, hemi, width, height,
-                                       margin = 0.04,
-                                       presentation_obliquity = 0) {
+# Default overlay palettes, ordered from low to high values. A two-sided
+# palette has an even number of anchors: the first half is the negative ramp
+# (strongest to weakest), the second the positive ramp (weakest to strongest).
+.ns_default_palette <- function(tail) {
+  switch(tail,
+    two_sided = c("#123A7C", "#2F6DB5", "#6FA6DD",
+                  "#EE8F66", "#CF3E2F", "#7A0A1F"),
+    positive = c("#F7A541", "#E8622C", "#C22A2C", "#7A0A1F"),
+    negative = c("#0B2A63", "#1F5AA8", "#3B82CC", "#6DB0E6")
+  )
+}
+
+# Colour lookup table evaluated on an even grid over `limits`, as the
+# rasterizer indexes it. With a positive threshold the palette spans only the
+# suprathreshold range, so the weakest displayed value receives the palette's
+# threshold-end colour rather than an interior (often pale) colour.
+.ns_overlay_lut <- function(palette, limits, threshold, tail, n = 256L) {
+  v <- seq(limits[1], limits[2], length.out = n)
+  ramp <- function(cols, t) {
+    if (!length(t)) return(matrix(0, 0L, 3L))
+    rgb <- grDevices::colorRamp(cols, space = "Lab")(pmin(1, pmax(0, t)))
+    rgb / 255
+  }
+  if (threshold <= 0 && tail == "two_sided") {
+    t <- (v - limits[1]) / diff(limits)
+    out <- ramp(palette, t)
+  } else if (tail == "two_sided") {
+    half <- length(palette) %/% 2L
+    neg <- palette[seq_len(length(palette) - half)]
+    pos <- palette[(length(palette) - half + 1L):length(palette)]
+    if (length(neg) < 2L) neg <- rep(neg, 2L)
+    if (length(pos) < 2L) pos <- rep(pos, 2L)
+    out <- matrix(0.5, n, 3)
+    hi <- max(limits[2], threshold)
+    lo <- min(limits[1], -threshold)
+    ip <- v >= 0
+    out[ip, ] <- ramp(pos, (v[ip] - threshold) / max(hi - threshold, 1e-12))
+    out[!ip, ] <- ramp(neg, (v[!ip] - lo) / max(-threshold - lo, 1e-12))
+  } else if (tail == "positive") {
+    lo <- max(threshold, limits[1])
+    out <- ramp(palette, (v - lo) / max(limits[2] - lo, 1e-12))
+  } else {
+    hi <- min(-threshold, limits[2])
+    out <- ramp(palette, (v - limits[1]) / max(hi - limits[1], 1e-12))
+  }
+  cbind(out, 1)
+}
+
+# Number of display subdivision levels. "auto" subdivides until the median
+# projected edge is at most `target_px` output pixels (at most three levels),
+# so coarse meshes render with smooth silhouettes and threshold contours.
+.ns_subdivision_levels <- function(subdivide, vertices, faces, camera, hemi,
+                                   width, height, margin, obliquity,
+                                   extent = NULL, target_px = 4) {
+  if (isFALSE(subdivide)) return(0L)
+  if (is.numeric(subdivide)) {
+    if (length(subdivide) != 1L || !is.finite(subdivide) || subdivide < 0 ||
+        subdivide != round(subdivide)) {
+      stop("'subdivide' must be \"auto\", FALSE, or a non-negative integer.",
+           call. = FALSE)
+    }
+    return(as.integer(subdivide))
+  }
+  if (!identical(subdivide, "auto")) {
+    stop("'subdivide' must be \"auto\", FALSE, or a non-negative integer.",
+         call. = FALSE)
+  }
+  scale <- attr(.ns_project_surface_camera(
+    vertices, camera, hemi, width, height, margin, obliquity, extent
+  ), "scale")
+  edge_mm <- stats::median(sqrt(rowSums(
+    (vertices[faces[, 1], , drop = FALSE] -
+       vertices[faces[, 2], , drop = FALSE])^2
+  )))
+  px <- edge_mm * scale
+  if (!is.finite(px) || px <= target_px) return(0L)
+  as.integer(min(3, ceiling(log2(px / target_px))))
+}
+
+# Interpolating butterfly subdivision of geometry and per-vertex fields for
+# display. Original vertices keep their positions and values.
+.ns_subdivide_display_mesh <- function(vertices, faces, values, anatomy,
+                                       cortex_mask, levels) {
+  attrs <- cbind(vertices, values, anatomy)
+  for (i in seq_len(levels)) {
+    res <- cpp_butterfly_subdivide(faces, attrs, clamp_cols = c(3L, 4L))
+    p <- res$parents
+    cortex_mask <- cortex_mask[p[, 1]] & cortex_mask[p[, 2]]
+    faces <- res$faces
+    attrs <- res$attrs
+  }
+  list(vertices = attrs[, 1:3, drop = FALSE], faces = faces,
+       values = attrs[, 4], anatomy = attrs[, 5], cortex_mask = cortex_mask)
+}
+
+# Orthographic camera basis. Returns a 3 x 3 matrix whose columns are the
+# screen-right, screen-up, and toward-viewer axes in world coordinates, so
+# `vertices %*% basis` gives (x, y, depth) with larger depth nearer. Every
+# view is a proper rotation (determinant +1): no view is a mirror image.
+.ns_camera_basis <- function(camera, hemi, presentation_obliquity = 0) {
   left <- hemi %in% c("lh", "left", "L")
+  toward <- switch(camera,
+    lateral = if (left) c(-1, 0, 0) else c(1, 0, 0),
+    medial = if (left) c(1, 0, 0) else c(-1, 0, 0),
+    dorsal = c(0, 0, 1),
+    ventral = c(0, 0, -1)
+  )
+  up <- switch(camera, lateral = , medial = c(0, 0, 1),
+               dorsal = c(0, 1, 0), ventral = c(0, -1, 0))
+  right <- c(up[2] * toward[3] - up[3] * toward[2],
+             up[3] * toward[1] - up[1] * toward[3],
+             up[1] * toward[2] - up[2] * toward[1])
+  basis <- cbind(right, up, toward)
   if (presentation_obliquity != 0 && camera %in% c("lateral", "medial")) {
+    # Rotate the object about the superior axis so the view turns slightly
+    # toward the anterior pole.
     direction <- if (camera == "lateral") 1 else -1
     if (!left) direction <- -direction
     theta <- direction * presentation_obliquity * pi / 180
-    x <- vertices[, 1] * cos(theta) - vertices[, 2] * sin(theta)
-    y <- vertices[, 1] * sin(theta) + vertices[, 2] * cos(theta)
-    vertices[, 1] <- x
-    vertices[, 2] <- y
+    rot <- rbind(c(cos(theta), sin(theta), 0),
+                 c(-sin(theta), cos(theta), 0),
+                 c(0, 0, 1))
+    basis <- rot %*% basis
   }
-  if (camera == "lateral") {
-    view_dir <- if (left) c(-1, 0, 0) else c(1, 0, 0)
-    xy <- cbind(if (left) -vertices[, 2] else vertices[, 2], vertices[, 3])
-  } else if (camera == "medial") {
-    view_dir <- if (left) c(1, 0, 0) else c(-1, 0, 0)
-    xy <- cbind(if (left) -vertices[, 2] else vertices[, 2], vertices[, 3])
-  } else if (camera == "dorsal") {
-    view_dir <- c(0, 0, 1)
-    xy <- cbind(vertices[, 1], vertices[, 2])
-  } else {
-    view_dir <- c(0, 0, -1)
-    xy <- cbind(vertices[, 1], -vertices[, 2])
-  }
-  xr <- range(xy[, 1], finite = TRUE)
-  yr <- range(xy[, 2], finite = TRUE)
+  unname(basis)
+}
+
+.ns_project_surface_camera <- function(vertices, camera, hemi, width, height,
+                                       margin = 0.04,
+                                       presentation_obliquity = 0,
+                                       extent = NULL) {
+  basis <- .ns_camera_basis(camera, hemi, presentation_obliquity)
+  view <- vertices %*% basis
+  xr <- extent$x %||% range(view[, 1], finite = TRUE)
+  yr <- extent$y %||% range(view[, 2], finite = TRUE)
   avail_w <- width * (1 - 2 * margin)
   avail_h <- height * (1 - 2 * margin)
-  scale <- min(avail_w / max(diff(xr), .Machine$double.eps),
-               avail_h / max(diff(yr), .Machine$double.eps))
-  x <- (xy[, 1] - mean(xr)) * scale + width / 2
-  y <- height / 2 - (xy[, 2] - mean(yr)) * scale
-  depth <- as.numeric(vertices %*% view_dir)
-  cbind(x, y, depth)
+  scale <- extent$scale %||%
+    min(avail_w / max(diff(xr), .Machine$double.eps),
+        avail_h / max(diff(yr), .Machine$double.eps))
+  x <- (view[, 1] - mean(xr)) * scale + width / 2
+  y <- height / 2 - (view[, 2] - mean(yr)) * scale
+  out <- cbind(x, y, depth = view[, 3])
+  attr(out, "basis") <- basis
+  attr(out, "scale") <- scale
+  out
+}
+
+# Area-weighted vertex normals of a triangle mesh (faces are 1-based rows).
+.ns_mesh_vertex_normals <- function(vertices, faces) {
+  a <- vertices[faces[, 1], , drop = FALSE]
+  e1 <- vertices[faces[, 2], , drop = FALSE] - a
+  e2 <- vertices[faces[, 3], , drop = FALSE] - a
+  fn <- cbind(e1[, 2] * e2[, 3] - e1[, 3] * e2[, 2],
+              e1[, 3] * e2[, 1] - e1[, 1] * e2[, 3],
+              e1[, 1] * e2[, 2] - e1[, 2] * e2[, 1])
+  acc <- rowsum(fn[rep(seq_len(nrow(faces)), 3L), , drop = FALSE], c(faces))
+  n <- matrix(0, nrow(vertices), 3)
+  n[as.integer(rownames(acc)), ] <- acc
+  len <- sqrt(rowSums(n^2))
+  len[len == 0] <- 1
+  n / len
+}
+
+.ns_lighting_defaults <- list(
+  ambient = 0.58, key = 0.40, fill = 0.12, specular = 0.05, shininess = 24,
+  key_dir = c(-0.5, 0.6, 0.62), fill_dir = c(0.35, -0.6, 0.72),
+  overlay_shading = 0.6, sky = 0.15
+)
+
+# Resolve the public `lighting` argument into the rasterizer's parameter
+# vector, or NULL for unlit (flat) rendering.
+.ns_resolve_lighting <- function(lighting) {
+  if (isFALSE(lighting) || is.null(lighting)) return(NULL)
+  params <- .ns_lighting_defaults
+  if (is.list(lighting)) {
+    unknown <- setdiff(names(lighting), names(params))
+    if (length(unknown) || is.null(names(lighting))) {
+      stop("'lighting' list may contain only: ",
+           paste(names(params), collapse = ", "), call. = FALSE)
+    }
+    params[names(lighting)] <- lighting
+  } else if (!isTRUE(lighting)) {
+    stop("'lighting' must be TRUE, FALSE, or a named list.", call. = FALSE)
+  }
+  with(params, c(ambient, key, fill, specular, shininess, key_dir, fill_dir,
+                 overlay_shading, sky))
 }
 
 #' Normalize an anatomical surface underlay
