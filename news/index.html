@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,10 +40,15 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="neurosurf-development-version">neurosurf (development version)<a class="anchor" aria-label="anchor" href="#neurosurf-development-version"></a></h2>
+<ul><li>New publication parcel-map renderer: <code><a href="../reference/prepare_surface_parcels.html">prepare_surface_parcels()</a></code> and <code><a href="../reference/render_surface_parcels.html">render_surface_parcels()</a></code> rasterize a labelled surface with deferred per-pixel shading. Parcel boundaries follow smoothed label memberships, so they are smooth and antialiased rather than stair-stepped along triangle edges; the underlay combines a sulcal-depth proxy with soft Lambert lighting; filled parcels get a thin outline and the medial wall is drawn flat. <code><a href="../reference/surface_parcel_style.html">surface_parcel_style()</a></code> collects the settings, and <code><a href="../reference/surface_sulcal_proxy.html">surface_sulcal_proxy()</a></code> estimates sulcal depth from white and inflated meshes.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="neurosurf-010">neurosurf 0.1.0<a class="anchor" aria-label="anchor" href="#neurosurf-010"></a></h2>
 <ul><li>Initial CRAN submission.</li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

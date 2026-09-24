@@ -118,6 +118,7 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/plot.SurfaceSet.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/plot.neurosurf_plot.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/plot_js-methods.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/prepare_surface_parcels.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/print.Searchlight.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/projectCoordinates.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/read_freesurfer_annot.html</loc></url>
@@ -127,6 +128,7 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/read_surf_data_seq.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/read_surf_geometry.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/remeshSurface.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/render_surface_parcels.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/render_surface_plot.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/right-methods.html</loc></url>
@@ -152,12 +154,14 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_labels.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_layer.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_montage.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_parcel_style.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_plot.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_plot_helpers.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_sampler.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_scene.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_scene_manifest.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_set.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_sulcal_proxy.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_threshold_segments.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-shiny.html</loc></url>

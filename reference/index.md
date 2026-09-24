@@ -426,6 +426,9 @@ Catch-all index to include any remaining topics.
 - [`plot_js()`](https://bbuchsbaum.github.io/neurosurf/reference/plot_js-methods.md)
   : Plot Surface as an HTMLWidget
 
+- [`prepare_surface_parcels()`](https://bbuchsbaum.github.io/neurosurf/reference/prepare_surface_parcels.md)
+  : Prepare a labelled surface for parcel rendering
+
 - [`print(`*`<Searchlight>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/print.Searchlight.md)
   : Print Method for Searchlight Iterator
 
@@ -458,6 +461,9 @@ Catch-all index to include any remaining topics.
 
 - [`remeshSurface()`](https://bbuchsbaum.github.io/neurosurf/reference/remeshSurface.md)
   : Remesh a SurfaceGeometry object
+
+- [`render_surface_parcels()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_parcels.md)
+  : Render a parcel map on a surface
 
 - [`render_surface_plot()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_plot.md)
   : Render a neurosurf plot using rgl
@@ -545,6 +551,9 @@ Catch-all index to include any remaining topics.
 - [`surface_montage()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_montage.md)
   : Arrange multiple surface views into a single montage figure
 
+- [`surface_parcel_style()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_parcel_style.md)
+  : Style settings for parcel surface rendering
+
 - [`surface_plot()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_plot.md)
   : Create a surface plot specification
 
@@ -559,6 +568,9 @@ Catch-all index to include any remaining topics.
 
 - [`surface_set()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_set.md)
   : Construct a SurfaceSet
+
+- [`surface_sulcal_proxy()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_sulcal_proxy.md)
+  : Approximate sulcal depth from white and inflated surfaces
 
 - [`surface_threshold_segments()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_threshold_segments.md)
   : Marching-triangle threshold segments
