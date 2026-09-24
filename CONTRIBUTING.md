@@ -42,24 +42,25 @@ The bundle is pinned in
 `inst/htmlwidgets/lib/neurosurface/surfview.embed.commit`, which records
 the surfviewjs commit, a runtime patch (`tools/surfview-runtime.patch`)
 and its checksum, the package version, the artifact SHA-256, and the
-Three.js revision. To reproduce the shipped bundle from source you need
-git, Node.js 18 or later, npm, and a surfviewjs checkout containing the
-pinned commit:
+Three.js revision.
+
+The build targets need git, Node.js 18 or later, npm, and a surfviewjs
+checkout (default `~/code/jscode/surfviewjs`; override with
+`SURFVIEWJS_DIR=...`):
 
 ``` bash
-python3 tools/rebuild-surfview-runtime.py ~/code/jscode/surfviewjs
-make show-version    # print the recorded provenance
+make verify-build     # offline: bundle, patch, and marker checksums agree
+make surfview         # rebuild the pinned commit; must reproduce the SHA-256
+make surfview-repin   # pin the checkout's HEAD (or COMMIT=<sha>) and rewrite the marker
+make show-version     # print the recorded provenance
 ```
 
-The script builds a clean archive of the pinned commit with the patch
-applied, and installs the result only if its SHA-256 matches the
-recorded one. Moving to a new surfviewjs commit or patch therefore means
-updating the marker’s `commit`, `patch_sha256`, `version`, and `sha256`
-fields together with the bundle.
-
-`make surfview` builds from the checkout’s current `HEAD` without the
-runtime patch and rewrites the marker without the patch fields, so it
-does not reproduce the shipped bundle.
+Both build targets work from a clean `git archive` of the source commit
+with the runtime patch applied, so uncommitted changes in the checkout
+never reach the bundle. `make surfview` installs nothing unless the
+rebuilt bundle matches the recorded SHA-256. To change the runtime
+patch, edit `tools/surfview-runtime.patch` and run
+`make surfview-repin`; commit the bundle, marker, and patch together.
 
 ## Code of Conduct
 
