@@ -122,15 +122,15 @@ The `surfwidget()` function creates interactive 3D visualizations. Key features:
 
 ## Issue Tracking
 
-This project uses **beads** for issue tracking. See AGENTS.md for full workflow.
+This project uses **mote** for issue tracking (beads is retired). See AGENTS.md for the workflow.
 
 ```bash
-bd list                   # List open issues
-bd ready                  # Find tasks without blockers
-bd create "title" -p 1    # Create issue (P0-P3 priority)
-bd show neurosurf-xxx     # View issue details
-bd close neurosurf-xxx    # Close issue
-bd sync                   # Sync to git
+mote ready                # Open issues without blockers
+mote ls                   # List open issues
+mote new "title" -p 1     # Create issue (0 = highest, 3 = lowest)
+mote show <id>            # View issue details
+mote begin <id>           # Claim and start work
+mote done <id>            # Close with a completion note
 ```
 
 ## Session Management
@@ -140,7 +140,7 @@ When ending a work session, always "land the plane":
 1. File issues for remaining work
 2. Run quality gates (`devtools::check()`, `devtools::test()`)
 3. Update issue status
-4. `bd sync && git push`
+4. `mote doctor && git push`
 5. Provide handoff context for next session
 
 ## MCP Agent Mail: coordination for multi-agent workflows

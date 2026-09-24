@@ -35,3 +35,10 @@ Rd2.pdf
 
 # Local Mote coordination store (append-only machine-local tracker state)
 .mote/
+
+# Local scratch output (browser automation, rendered previews)
+.playwright-mcp/
+..Rcheck/
+README.html
+vignettes/*.html
+!vignettes/albers-header.html

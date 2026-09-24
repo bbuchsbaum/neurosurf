@@ -28,46 +28,23 @@
 - Reference related issues in commits/PRs when applicable (`#<issue-number>`).
 - For PRs, describe motivation, key changes, and testing performed; include screenshots for UI/plot changes where helpful.
 
-## Issue Tracking with Beads
+## Issue Tracking with Mote
 
-This project uses **beads** (`bd`) for git-backed issue tracking. See https://github.com/steveyegge/beads
-
-### Essential Commands
+This project uses **mote** for issue tracking. The store lives in `.mote/`,
+which is machine-local and not committed. Beads/`bd` is retired; `mote new`
+still mints `bd-*` ids, but those are mote issues.
 
 | Command | Purpose |
 |---------|---------|
-| `bd ready` | List tasks without blockers (your next work) |
-| `bd create "title" -p 1` | Create task (P0=critical, P1=high, P2=medium, P3=low) |
-| `bd show <id>` | View issue details and history |
-| `bd update <id> --status in_progress` | Mark task as in progress |
-| `bd close <id> --reason "text"` | Close completed task |
-| `bd dep add <child> <parent>` | Add dependency |
-| `bd list --json` | List all open issues |
-| `bd vc status` | Check Beads database version-control state |
-| `bd dolt commit -m "message"` | Commit pending Beads changes if `bd vc status` reports any |
-
-### Critical Rules for Agents
-
-1. **NEVER use `bd edit`** - it opens an interactive editor. Use flag-based updates:
-   ```bash
-   bd update <id> --description "new description"
-   bd update <id> --title "new title"
-   ```
-
-2. **Always use `--json` flag** for programmatic access
-
-3. **Check Beads state after changes** with `bd vc status`; this checkout
-   uses the embedded Dolt backend with auto-commit enabled, so the older
-   manual sync subcommand is not available. If pending Beads changes are
-   reported, run `bd dolt commit -m "message"`.
-
-### Finding Work
-
-```bash
-bd ready --json          # Tasks without blockers
-bd list --status open    # All open tasks
-bd stale --days 7        # Neglected tasks
-```
+| `mote ready` | List open issues with no open blockers (your next work) |
+| `mote ls` | List open issues (`--all` includes closed) |
+| `mote new "title" -p 1` | Create an issue (0 = highest priority, 3 = lowest) |
+| `mote show <id>` | View issue details |
+| `mote begin <id>` | Claim the issue, reserve paths, and mark it in progress |
+| `mote note <id> --kind note "text"` | Append durable context (kinds: note, progress, decision, handoff, blocker) |
+| `mote done <id>` | Add a completion note, close, and release the claim |
+| `mote dep ...` | Manage blocking dependencies |
+| `mote doctor` | Check the store if anything looks inconsistent |
 
 ## Landing the Plane (Session Completion)
 
@@ -81,7 +58,7 @@ bd stale --days 7        # Neglected tasks
 4. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
    git pull --rebase
-   bd vc status
+   mote doctor
    git push
    git status  # MUST show "up to date with origin"
    ```
