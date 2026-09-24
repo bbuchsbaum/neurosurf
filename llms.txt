@@ -33,33 +33,38 @@ remotes::install_github("bbuchsbaum/neurosurf")
 
 ## Quick start
 
-Render a thresholded map on both hemispheres of the bundled fsaverage
-surface:
+Render a thresholded map on both hemispheres of the bundled fsaverage5
+surface, with sulcal depth as the anatomical underlay:
 
 ``` r
 
 library(neurosurf)
 
-surf <- load_fsaverage_std8("inflated")
-white <- load_fsaverage_std8("white")
+surf <- load_fsaverage("fsaverage5", "inflated")
+white <- load_fsaverage("fsaverage5", "white")
+sulc <- load_fsaverage_sulc("fsaverage5")
 
-# Any numeric vector with one value per vertex; here a synthetic z-map
-zmap <- function(g) {
-  xyz <- coords(g)
-  as.numeric(scale(sin(xyz[, 2] / 18) + cos(xyz[, 3] / 14) + 0.7 * sin(xyz[, 1] / 12)))
+# A synthetic z-map: smooth clusters centred in white-surface (x, y, z) space.
+# Any numeric vector with one value per vertex works.
+zmap <- function(g, side) {
+  cluster <- function(centre, z, width = 12) {
+    z * exp(-colSums((t(coords(g)) - centre)^2) / (2 * width^2))
+  }
+  cluster(c(45 * side, -60, 20), 4) + cluster(c(40 * side, 20, 30), 3) +
+    cluster(c(55 * side, -20, 0), -3.5) + cluster(c(8 * side, 40, 10), -3)
 }
 
 fig <- surface_figure(
   lh = surf$lh, rh = surf$rh,
-  values = list(lh = zmap(surf$lh), rh = zmap(surf$rh)),
-  anatomy = list(lh = curvature(white$lh), rh = curvature(white$rh)),
-  threshold = 1, limits = c(-2.5, 2.5), legend_title = "z"
+  values = list(lh = zmap(white$lh, -1), rh = zmap(white$rh, 1)),
+  anatomy = sulc,
+  threshold = 1.5, limits = c(-4, 4), legend_title = "z"
 )
 plot(fig)
 ```
 
-![Lateral and medial views of both fsaverage hemispheres with red and
-blue thresholded z-map clusters over grey curvature
+![Lateral and medial views of both fsaverage5 hemispheres with red and
+blue thresholded z-map clusters over lit grey sulcal
 shading](reference/figures/README-quickstart-1.png)
 
 `write_surface_figure(fig, "figure.png")` saves the same figure.
@@ -73,9 +78,9 @@ cluster node, or CI, with no OpenGL device or browser.
   ([`read_surf()`](https://bbuchsbaum.github.io/neurosurf/reference/read_surf.md),
   [`read_surf_geometry()`](https://bbuchsbaum.github.io/neurosurf/reference/read_surf_geometry.md),
   [`write_surf_data()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surf_data.md)),
-  plus bundled fsaverage templates
+  plus bundled fsaverage5 surfaces and sulcal depth
   ([`load_fsaverage()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage.md),
-  [`load_fsaverage_std8()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_std8.md)).
+  [`load_fsaverage_sulc()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_sulc.md)).
 - **Map volumes to surfaces**: sample a volumetric image onto a mesh
   with
   [`vol_to_surf()`](https://bbuchsbaum.github.io/neurosurf/reference/vol_to_surf.md)
@@ -86,7 +91,8 @@ cluster node, or CI, with no OpenGL device or browser.
 - **Surface searchlights** for multivariate pattern analysis
   ([`SurfaceSearchlight()`](https://bbuchsbaum.github.io/neurosurf/reference/SurfaceSearchlight.md),
   [`RandomSurfaceSearchlight()`](https://bbuchsbaum.github.io/neurosurf/reference/RandomSurfaceSearchlight.md)).
-- **Figures**: headless, deterministic multi-view figures
+- **Figures**: lit, headless, deterministic multi-view figures with a
+  shared colour scale
   ([`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)),
   and interactive rgl display
   ([`view_surface()`](https://bbuchsbaum.github.io/neurosurf/reference/view_surface.md)).
@@ -496,13 +502,16 @@ Catch-all index to include any remaining topics.
   : load_data
 
 - [`load_fsaverage()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage.md)
-  : Fetch fsaverage surfaces
+  : Load packaged fsaverage surfaces
 
 - [`load_fsaverage_bundle()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_bundle.md)
   : Load a bundle of fsaverage surface variants as a SurfaceSet
 
 - [`load_fsaverage_std8()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_std8.md)
   : Load fsaverage std.8 surfaces packaged with neurosurf
+
+- [`load_fsaverage_sulc()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_sulc.md)
+  : Sulcal depth for a packaged fsaverage template
 
 - [`map_values(`*`<NeuroSurface>`*`,`*`<list>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/map_values-NeuroSurface-list-method.md)
   : Map Values for NeuroSurface with List Lookup

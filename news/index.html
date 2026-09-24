@@ -56,6 +56,14 @@
 <li>Medial views are now true camera views (the left hemisphere’s anterior pole is on the right). Previously they were mirror images.</li>
 <li>
 <code><a href="../reference/surface_figure.html">surface_figure()</a></code> shows dorsal and ventral views of both hemispheres in one bilateral panel beside the lateral/medial rows, adds hemisphere and view headers (<code>labels</code>), and draws a colour bar with only the suprathreshold segments, labelled at limits and thresholds.</li>
+<li>Overlay colour stays within a few percent of its colour-bar colour at any viewing angle; lighting conveys form, the palette conveys value.</li>
+<li>Bilateral dorsal and ventral panels carry anterior/posterior markers.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="templates-and-io-development-version">Templates and I/O<a class="anchor" aria-label="anchor" href="#templates-and-io-development-version"></a></h3>
+<ul><li>The fsaverage5 template (inflated and white surfaces, sulcal depth) is bundled: <code>load_fsaverage("fsaverage5")</code> and <code><a href="../reference/load_fsaverage_sulc.html">load_fsaverage_sulc()</a></code>. The README and figure vignette use it instead of the legacy std.8 mesh.</li>
+<li>
+<code><a href="../reference/read_surf_geometry.html">read_surf_geometry()</a></code> reads gzipped GIFTI (<code>.gii.gz</code>) surfaces; it previously failed on them.</li>
 </ul></div>
 </div>
     <div class="section level2">

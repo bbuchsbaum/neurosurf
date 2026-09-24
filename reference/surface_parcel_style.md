@@ -10,20 +10,22 @@ unfilled parcels, and a flat light medial wall that reads as "no data".
 
 ``` r
 surface_parcel_style(
-  gyrus = 0.9,
-  sulcus = 0.77,
-  ambient = 0.62,
-  diffuse = 0.38,
+  gyrus = 0.89,
+  sulcus = 0.68,
+  ambient = 0.68,
+  diffuse = 0.32,
   light = c(-0.3, 0.45, 0.85),
-  medial = 0.875,
-  medial_light = 0.75,
+  medial = 0.7,
+  medial_light = 0.9,
+  medial_views = "medial",
   fill_light = 0.4,
-  fill_anatomy = 0.08,
-  fill_line = list(col = "darken", alpha = 0.35, radius = 1L),
-  parcel_line = list(col = "#FFFFFF", alpha = 0.4, radius = 0L),
-  medial_line = list(col = "#B5B5B5", alpha = 0.8, radius = 0L),
+  fill_anatomy = 0.06,
+  fill_line = list(col = "#1A1A1A", alpha = 0.3, radius = 1L),
+  parcel_line = list(col = "#FFFFFF", alpha = 0.35, radius = 0L),
+  medial_line = list(col = "#8C8C8C", alpha = 0.6, radius = 0L),
   contour = list(col = "#8A8A8A", alpha = 0.75, radius = 1L),
   rim_fade = 3L,
+  line_light_fade = TRUE,
   ...
 )
 ```
@@ -50,6 +52,12 @@ surface_parcel_style(
 
   Fraction of the medial-wall tone held constant; the remainder follows
   the lighting, so 1 is completely flat.
+
+- medial_views:
+
+  Cameras in which label 0 is drawn as medial wall. In other views
+  (where only slivers of it show, e.g. at the temporal pole) it takes
+  the anatomical underlay instead.
 
 - fill_light:
 
@@ -79,6 +87,11 @@ surface_parcel_style(
 
   Supersampled-pixel distance from the silhouette within which
   unfilled-parcel boundaries are suppressed.
+
+- line_light_fade:
+
+  Fade unfilled-parcel boundaries out on surfaces turned away from the
+  light, where they read as scratches.
 
 - ...:
 

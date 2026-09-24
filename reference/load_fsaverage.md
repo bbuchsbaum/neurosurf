@@ -1,46 +1,54 @@
-# Fetch fsaverage surfaces
+# Load packaged fsaverage surfaces
 
-This is a high-level wrapper that mirrors the API of neuromaps'
-`fetch_fsaverage()` but is currently limited to the `"std.8"` decimated
-fsaverage surfaces that ship with neurosurf. The function name uses
-"load" rather than "fetch" to follow common R idioms.
+Loads a FreeSurfer fsaverage template that ships with neurosurf and
+returns it as
+[`SurfaceGeometry`](https://bbuchsbaum.github.io/neurosurf/reference/SurfaceGeometry-class.md)
+objects. Two densities are bundled: `"fsaverage5"` (10,242 vertices per
+hemisphere; inflated and white surfaces) and the legacy `"std.8"` mesh
+(642 vertices per hemisphere; smoothwm, pial, inflated, white, and
+sphere surfaces). Use fsaverage5 for figures and examples; std.8 is kept
+for small tests.
 
 ## Usage
 
 ``` r
-load_fsaverage(
-  density = "std.8",
-  surf = c("smoothwm", "pial", "inflated", "white", "sphere")
-)
+load_fsaverage(density = c("std.8", "fsaverage5"), surf = NULL)
 ```
 
 ## Arguments
 
 - density:
 
-  Character string specifying surface density. At present only `"std.8"`
-  is supported.
+  Surface density: `"std.8"` (default, for backward compatibility) or
+  `"fsaverage5"`.
 
 - surf:
 
   Character string specifying which surface to load. One of
-  `"smoothwm"`, `"pial"`, `"inflated"`, `"white"`, or `"sphere"`.
-  Defaults to `"smoothwm"`.
+  `"smoothwm"`, `"pial"`, `"inflated"`, `"white"`, or `"sphere"` for
+  std.8; `"inflated"` or `"white"` for fsaverage5. Defaults to
+  `"smoothwm"` for std.8 and `"inflated"` for fsaverage5.
 
 ## Value
 
 A named list with elements `"lh"` and `"rh"`, each a `SurfaceGeometry`
 instance.
 
+## Details
+
+The fsaverage5 files are the FreeSurfer fsaverage5 template as
+redistributed by nilearn, under the FreeSurfer license.
+
+## See also
+
+\[load_fsaverage_sulc()\] for the matching sulcal depth.
+
 ## Examples
 
 ``` r
 # \donttest{
-fs <- load_fsaverage(density = "std.8", surf = "inflated")
-#> loading /home/runner/work/_temp/Library/neurosurf/extdata/std.8_lh.inflated.asc
-#> loading /home/runner/work/_temp/Library/neurosurf/extdata/std.8_rh.inflated.asc
-if (interactive()) {
-  show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
-}
+fs <- load_fsaverage("fsaverage5", "inflated")
+nrow(coords(fs$lh))
+#> [1] 10242
 # }
 ```

@@ -364,13 +364,16 @@ Catch-all index to include any remaining topics.
   : load_data
 
 - [`load_fsaverage()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage.md)
-  : Fetch fsaverage surfaces
+  : Load packaged fsaverage surfaces
 
 - [`load_fsaverage_bundle()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_bundle.md)
   : Load a bundle of fsaverage surface variants as a SurfaceSet
 
 - [`load_fsaverage_std8()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_std8.md)
   : Load fsaverage std.8 surfaces packaged with neurosurf
+
+- [`load_fsaverage_sulc()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_sulc.md)
+  : Sulcal depth for a packaged fsaverage template
 
 - [`map_values(`*`<NeuroSurface>`*`,`*`<list>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/map_values-NeuroSurface-list-method.md)
   : Map Values for NeuroSurface with List Lookup
