@@ -157,13 +157,13 @@
 </div>
 <div class="section level2">
 <h2 id="issue-tracking">Issue Tracking<a class="anchor" aria-label="anchor" href="#issue-tracking"></a></h2>
-<p>This project uses <strong>beads</strong> for issue tracking. See AGENTS.md for full workflow.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">bd</span> list                   <span class="co"># List open issues</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="ex">bd</span> ready                  <span class="co"># Find tasks without blockers</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="ex">bd</span> create <span class="st">"title"</span> <span class="at">-p</span> 1    <span class="co"># Create issue (P0-P3 priority)</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="ex">bd</span> show neurosurf-xxx     <span class="co"># View issue details</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="ex">bd</span> close neurosurf-xxx    <span class="co"># Close issue</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="ex">bd</span> sync                   <span class="co"># Sync to git</span></span></code></pre></div>
+<p>This project uses <strong>mote</strong> for issue tracking (beads is retired). See AGENTS.md for the workflow.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">mote</span> ready                <span class="co"># Open issues without blockers</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="ex">mote</span> ls                   <span class="co"># List open issues</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="ex">mote</span> new <span class="st">"title"</span> <span class="at">-p</span> 1     <span class="co"># Create issue (0 = highest, 3 = lowest)</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="ex">mote</span> show <span class="op">&lt;</span>id<span class="op">&gt;</span>            <span class="co"># View issue details</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="ex">mote</span> begin <span class="op">&lt;</span>id<span class="op">&gt;</span>           <span class="co"># Claim and start work</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="ex">mote</span> done <span class="op">&lt;</span>id<span class="op">&gt;</span>            <span class="co"># Close with a completion note</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="session-management">Session Management<a class="anchor" aria-label="anchor" href="#session-management"></a></h2>
@@ -171,7 +171,7 @@
 <ol style="list-style-type: decimal"><li>File issues for remaining work</li>
 <li>Run quality gates (<code>devtools::check()</code>, <code>devtools::test()</code>)</li>
 <li>Update issue status</li>
-<li><code>bd sync &amp;&amp; git push</code></li>
+<li><code>mote doctor &amp;&amp; git push</code></li>
 <li>Provide handoff context for next session</li>
 </ol></div>
 <div class="section level2">

@@ -56,79 +56,99 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9">
-<div class="section level1">
+  <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="neurosurf">neurosurf<a class="anchor" aria-label="anchor" href="#neurosurf"></a>
 </h1></div>
-<p><code>neurosurf</code> is an R package for reading, manipulating, and visualizing surface-based neuroimaging data represented as triangle meshes. It focuses on surface geometry, vertex-wise data, smoothing, geodesic neighborhoods, and both static and interactive rendering workflows.</p>
-<p>The package is under active development.</p>
+<p><a href="https://bbuchsbaum.r-universe.dev/neurosurf" class="external-link"><img src="https://bbuchsbaum.r-universe.dev/badges/neurosurf" alt="r-universe"></a> <a href="https://bbuchsbaum.github.io/neurosurf/">Documentation</a> · <a href="https://bbuchsbaum.github.io/neurosurf/reference/index.html">Reference</a> · <a href="NEWS.html">News</a></p>
+<p>neurosurf is an R package for cortical surface data. It reads FreeSurfer, GIFTI, and AFNI/SUMA meshes, keeps vertex-wise values attached to their geometry, and turns them into publication figures and self-contained interactive HTML reports.</p>
+<blockquote>
+<p><strong>Status:</strong> Pre-release (0.1.0.9001) and not on CRAN. APIs may change.</p>
+</blockquote>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install the development version from GitHub with:</p>
+<p>Install a prebuilt binary from r-universe:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"bbuchsbaum/neurosurf"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"neurosurf"</span>,</span>
+<span>  repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://bbuchsbaum.r-universe.dev"</span>, <span class="st">"https://cloud.r-project.org"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>or build the development version from GitHub (requires a C++ toolchain):</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"bbuchsbaum/neurosurf"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="start-here">Start here<a class="anchor" aria-label="anchor" href="#start-here"></a>
+<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
-<p>The pkgdown site includes a few good entry points:</p>
+<p>Render a thresholded map on both hemispheres of the bundled fsaverage surface:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bbuchsbaum.github.io/neurosurf/">neurosurf</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">surf</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_fsaverage_std8.html">load_fsaverage_std8</a></span><span class="op">(</span><span class="st">"inflated"</span><span class="op">)</span></span>
+<span><span class="va">white</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_fsaverage_std8.html">load_fsaverage_std8</a></span><span class="op">(</span><span class="st">"white"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Any numeric vector with one value per vertex; here a synthetic z-map</span></span>
+<span><span class="va">zmap</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">xyz</span> <span class="op">&lt;-</span> <span class="fu">coords</span><span class="op">(</span><span class="va">g</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">xyz</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">/</span> <span class="fl">18</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">xyz</span><span class="op">[</span>, <span class="fl">3</span><span class="op">]</span> <span class="op">/</span> <span class="fl">14</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.7</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">xyz</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">/</span> <span class="fl">12</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">fig</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/surface_figure.html">surface_figure</a></span><span class="op">(</span></span>
+<span>  lh <span class="op">=</span> <span class="va">surf</span><span class="op">$</span><span class="va">lh</span>, rh <span class="op">=</span> <span class="va">surf</span><span class="op">$</span><span class="va">rh</span>,</span>
+<span>  values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lh <span class="op">=</span> <span class="fu">zmap</span><span class="op">(</span><span class="va">surf</span><span class="op">$</span><span class="va">lh</span><span class="op">)</span>, rh <span class="op">=</span> <span class="fu">zmap</span><span class="op">(</span><span class="va">surf</span><span class="op">$</span><span class="va">rh</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  anatomy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lh <span class="op">=</span> <span class="fu"><a href="reference/curvature-methods.html">curvature</a></span><span class="op">(</span><span class="va">white</span><span class="op">$</span><span class="va">lh</span><span class="op">)</span>, rh <span class="op">=</span> <span class="fu"><a href="reference/curvature-methods.html">curvature</a></span><span class="op">(</span><span class="va">white</span><span class="op">$</span><span class="va">rh</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  threshold <span class="op">=</span> <span class="fl">1</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span><span class="op">)</span>, legend_title <span class="op">=</span> <span class="st">"z"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fig</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-quickstart-1.png" alt="Lateral and medial views of both fsaverage hemispheres with red and blue thresholded z-map clusters over grey curvature shading" width="100%"></p>
+<p><code>write_surface_figure(fig, "figure.png")</code> saves the same figure. Rendering runs on the CPU, so it works identically on a laptop, a cluster node, or CI, with no OpenGL device or browser.</p>
+</div>
+<div class="section level2">
+<h2 id="what-it-covers">What it covers<a class="anchor" aria-label="anchor" href="#what-it-covers"></a>
+</h2>
 <ul>
-<li><a href="https://bbuchsbaum.github.io/neurosurf/articles/introduction-to-neurosurf.html">Introduction to NeuroSurf Data Structures</a></li>
-<li><a href="https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html">Displaying Surfaces with RGL</a></li>
-<li><a href="https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html">Build bilateral interactive surface reports</a></li>
-<li><a href="https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.html">Publication-quality surface figures</a></li>
-<li><a href="https://bbuchsbaum.github.io/neurosurf/reference/index.html">Reference index</a></li>
+<li>
+<strong>Read and write surfaces and data</strong>: FreeSurfer, GIFTI, AFNI/SUMA, and NIML (<code><a href="reference/read_surf.html">read_surf()</a></code>, <code><a href="reference/read_surf_geometry.html">read_surf_geometry()</a></code>, <code><a href="reference/write_surf_data.html">write_surf_data()</a></code>), plus bundled fsaverage templates (<code><a href="reference/load_fsaverage.html">load_fsaverage()</a></code>, <code><a href="reference/load_fsaverage_std8.html">load_fsaverage_std8()</a></code>).</li>
+<li>
+<strong>Map volumes to surfaces</strong>: sample a volumetric image onto a mesh with <code><a href="reference/vol_to_surf.html">vol_to_surf()</a></code> or <code><a href="reference/vol_to_surf_sdf.html">vol_to_surf_sdf()</a></code>.</li>
+<li>
+<strong>Analyse on the mesh</strong>: smoothing, curvature, geodesic distances, neighbourhood graphs, cluster thresholding, and ROI boundaries.</li>
+<li>
+<strong>Surface searchlights</strong> for multivariate pattern analysis (<code><a href="reference/SurfaceSearchlight.html">SurfaceSearchlight()</a></code>, <code><a href="reference/RandomSurfaceSearchlight.html">RandomSurfaceSearchlight()</a></code>).</li>
+<li>
+<strong>Figures</strong>: headless, deterministic multi-view figures (<code><a href="reference/surface_figure.html">surface_figure()</a></code>), and interactive rgl display (<code><a href="reference/view_surface.html">view_surface()</a></code>).</li>
+<li>
+<strong>Interactive reports</strong>: combine both hemispheres and several named maps in one <code><a href="reference/surface_scene.html">surface_scene()</a></code>, show it with <code><a href="reference/surfwidget-methods.html">surfwidget()</a></code> in R Markdown or Quarto, or write it as a standalone HTML page with <code><a href="reference/write_surface_scene.html">write_surface_scene()</a></code>. The viewer is bundled, so reports need no CDN or network access.</li>
 </ul>
-<p>The interactive-report article shows how to place both hemispheres and several named maps in one <code>SurfaceScene</code>. The resulting <code><a href="reference/surfwidget-methods.html">surfwidget()</a></code> shares geometry across maps, runs without a CDN, and can also be written as a self-contained or adjacent-asset HTML page.</p>
+<p>Volumetric data structures come from <a href="https://github.com/bbuchsbaum/neuroim2" class="external-link">neuroim2</a>.</p>
 </div>
 <div class="section level2">
-<h2 id="development-setup">Development setup<a class="anchor" aria-label="anchor" href="#development-setup"></a>
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
-<p><code>neurosurf</code> includes an interactive 3D visualization component powered by <a href="https://github.com/bbuchsbaum/surfviewjs" class="external-link">surfviewjs</a>. The report-safe embed bundle is committed, so package users do not need Node. Maintainers control the source checkout at <code>~/code/jscode/surfviewjs</code>; <code>make surfview</code> rebuilds it and records the exact source commit and artifact checksum in <code>inst/htmlwidgets/lib/neurosurface/surfview.embed.commit</code>.</p>
-<div class="section level3">
-<h3 id="prerequisites">Prerequisites<a class="anchor" aria-label="anchor" href="#prerequisites"></a>
-</h3>
 <ul>
-<li>Node.js 18 or higher</li>
-<li>npm</li>
+<li>
+<a href="https://bbuchsbaum.github.io/neurosurf/articles/introduction-to-neurosurf.html">Introduction to neurosurf data structures</a>: geometry, vertex data, and the core classes.</li>
+<li>
+<a href="https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.html">Publication-quality surface figures</a>: static figures for papers.</li>
+<li>
+<a href="https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html">Bilateral interactive surface reports</a>: browser-based reports with several maps.</li>
+<li>
+<a href="https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html">Displaying surfaces with rgl</a>: interactive exploration from an R session.</li>
+<li>
+<a href="https://bbuchsbaum.github.io/neurosurf/reference/index.html">Function reference</a>.</li>
 </ul>
 </div>
-<div class="section level3">
-<h3 id="building-surfviewjs">Building surfviewjs<a class="anchor" aria-label="anchor" href="#building-surfviewjs"></a>
-</h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Build the surfviewjs library and copy it into neurosurf</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">make</span> surfview</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># Verify the copied artifact and provenance marker</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">make</span> verify-build</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co"># Clean build artifacts</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">make</span> clean-surfview</span></code></pre></div>
-<p>The Makefile will:</p>
-<ol style="list-style-type: decimal">
-<li>Build the dedicated embed bundle from the controlled <code>surfviewjs</code> checkout</li>
-<li>Copy <code>surfview.embed.iife.js</code> into the R package</li>
-<li>Record its source commit, package version, SHA-256, and Three.js revision</li>
-<li>Verify that <code>surfwidget.yaml</code> loads that one self-contained dependency</li>
-</ol>
-</div>
-<div class="section level3">
-<h3 id="version-and-provenance">Version and provenance<a class="anchor" aria-label="anchor" href="#version-and-provenance"></a>
-</h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">make</span> show-version</span></code></pre></div>
-<p><code>paper-light</code> is the default appearance preset: a white-background, publication-oriented combination of lighting, material, and figure-export defaults. It is not a widget class or an interaction mode. <code>mode = "report"</code> separately enables the compact map, anatomical-view, reset, fullscreen, and PNG controls. The old Tweakpane control surface is deprecated and is not included in generated reports.</p>
-<!-- albersdown:theme-note:start -->
-</div>
+<div class="section level2">
+<h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
+</h2>
+<p>See <a href="CONTRIBUTING.html">CONTRIBUTING.md</a>, including how to rebuild the bundled JavaScript viewer. Bug reports go to the <a href="https://github.com/bbuchsbaum/neurosurf/issues" class="external-link">issue tracker</a>.</p>
 </div>
 <div class="section level2">
-<h2 id="albers-theme">Albers theme<a class="anchor" aria-label="anchor" href="#albers-theme"></a>
+<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>This package uses the albersdown theme. Existing vignette theme hooks are replaced so <code>albers.css</code> and local <code>albers.js</code> render consistently on CRAN and GitHub Pages. The defaults are configured through <code>params$family</code> and <code>params$preset</code> (<code>family = "teal"</code>, <code>preset = "homage"</code>). The pkgdown site uses <code>template: { package: albersdown }</code> together with generated <code>pkgdown/extra.css</code> and <code>pkgdown/extra.js</code> so the theme is linked and activated on site pages. <!-- albersdown:theme-note:end --></p>
+<p>GPL (&gt;= 2)</p>
 </div>
 </div>
-
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
@@ -166,12 +186,7 @@
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://app.travis-ci.com/bbuchsbaum/neurosurf" class="external-link"><img src="https://app.travis-ci.com/bbuchsbaum/neurosurf.svg?branch=master" alt="Travis-CI Build Status"></a></li>
-</ul>
-</div>
+
 
   </aside>
 </div>

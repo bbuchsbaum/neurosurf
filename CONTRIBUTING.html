@@ -59,6 +59,19 @@
 <li>Open a pull request with a clear description of the change.</li>
 </ol></div>
 <div class="section level2">
+<h2 id="editing-the-readme">Editing the README<a class="anchor" aria-label="anchor" href="#editing-the-readme"></a></h2>
+<p>Edit <code>README.Rmd</code>, not <code>README.md</code>, and regenerate with <code>devtools::build_readme()</code>. The quick-start chunk is evaluated, so the README fails to build if its example stops working.</p>
+</div>
+<div class="section level2">
+<h2 id="rebuilding-the-javascript-viewer">Rebuilding the JavaScript viewer<a class="anchor" aria-label="anchor" href="#rebuilding-the-javascript-viewer"></a></h2>
+<p>The interactive viewer used by <code><a href="reference/surfwidget-methods.html">surfwidget()</a></code> and <code><a href="reference/write_surface_scene.html">write_surface_scene()</a></code> is <a href="https://github.com/bbuchsbaum/surfviewjs" class="external-link">surfviewjs</a>. Its report-safe embed bundle is committed at <code>inst/htmlwidgets/lib/neurosurface/surfview.embed.iife.js</code>, so package users and most contributors never need Node.</p>
+<p>The bundle is pinned in <code>inst/htmlwidgets/lib/neurosurface/surfview.embed.commit</code>, which records the surfviewjs commit, a runtime patch (<code>tools/surfview-runtime.patch</code>) and its checksum, the package version, the artifact SHA-256, and the Three.js revision. To reproduce the shipped bundle from source you need git, Node.js 18 or later, npm, and a surfviewjs checkout containing the pinned commit:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="ex">python3</span> tools/rebuild-surfview-runtime.py ~/code/jscode/surfviewjs</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">make</span> show-version    <span class="co"># print the recorded provenance</span></span></code></pre></div>
+<p>The script builds a clean archive of the pinned commit with the patch applied, and installs the result only if its SHA-256 matches the recorded one. Moving to a new surfviewjs commit or patch therefore means updating the marker’s <code>commit</code>, <code>patch_sha256</code>, <code>version</code>, and <code>sha256</code> fields together with the bundle.</p>
+<p><code>make surfview</code> builds from the checkout’s current <code>HEAD</code> without the runtime patch and rewrites the marker without the patch fields, so it does not reproduce the shipped bundle.</p>
+</div>
+<div class="section level2">
 <h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a></h2>
 <p>Please be respectful and constructive in all interactions.</p>
 </div>
