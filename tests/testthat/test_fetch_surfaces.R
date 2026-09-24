@@ -100,3 +100,29 @@ test_that("loaded fsaverage surfaces have expected properties", {
   # LH and RH should have the same number of vertices (std.8 decimation)
   expect_equal(nrow(vertices(fs$lh)), nrow(vertices(fs$rh)))
 })
+
+test_that("fsaverage5 surfaces and sulcal depth load with matching sizes", {
+  infl <- load_fsaverage("fsaverage5")
+  white <- load_fsaverage("fsaverage5", "white")
+  sulc <- load_fsaverage_sulc("fsaverage5")
+  for (h in c("lh", "rh")) {
+    expect_s4_class(infl[[h]], "SurfaceGeometry")
+    expect_identical(infl[[h]]@hemi, h)
+    expect_identical(nrow(coords(infl[[h]])), 10242L)
+    expect_identical(nrow(coords(white[[h]])), 10242L)
+    expect_length(sulc[[h]], 10242L)
+    expect_true(all(is.finite(sulc[[h]])))
+  }
+  # Hemispheres sit on their own side of the midline in white-surface space.
+  expect_lt(mean(coords(white$lh)[, 1]), 0)
+  expect_gt(mean(coords(white$rh)[, 1]), 0)
+  expect_error(load_fsaverage("fsaverage5", "sphere"))
+})
+
+test_that("gzipped GIFTI surfaces are read by read_surf_geometry", {
+  path <- system.file("extdata", "fsaverage5", "infl_left.gii.gz",
+                      package = "neurosurf")
+  g <- read_surf_geometry(path)
+  expect_s4_class(g, "SurfaceGeometry")
+  expect_identical(nrow(coords(g)), 10242L)
+})

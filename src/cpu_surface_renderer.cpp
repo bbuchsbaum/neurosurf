@@ -261,8 +261,12 @@ Rcpp::List cpp_rasterize_surface_scalar(
           // Overlay colour receives a reduced share of the shading so its
           // hue and value stay readable against the colour bar.
           const double k = light.overlay_shading;
-          const double od = 1.0 + (diffuse / light.reference - 1.0) * k;
-          const double os = spec * k;
+          // The modulation is bounded so a constant value keeps a readable
+          // colour at grazing incidence: lighting conveys form, the palette
+          // conveys value.
+          const double rel = std::max(0.85, std::min(1.08, diffuse / light.reference));
+          const double od = 1.0 + (rel - 1.0) * k;
+          const double os = std::min(spec, 0.05) * k;
           // Source-over composition onto the lit anatomy.
           rr = (pr * od + os) * aa + rr * (1.0 - aa);
           gg = (pg * od + os) * aa + gg * (1.0 - aa);

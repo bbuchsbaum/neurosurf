@@ -39,35 +39,86 @@ load_fsaverage_std8 <- function(surf = c("smoothwm", "pial", "inflated", "white"
 }
 
 
-#' Fetch fsaverage surfaces
+#' Load packaged fsaverage surfaces
 #'
-#' This is a high-level wrapper that mirrors the API of neuromaps'
-#' \code{fetch_fsaverage()} but is currently limited to the \code{"std.8"}
-#' decimated fsaverage surfaces that ship with neurosurf. The function name
-#' uses "load" rather than "fetch" to follow common R idioms.
+#' Loads a FreeSurfer fsaverage template that ships with neurosurf and returns
+#' it as \code{\linkS4class{SurfaceGeometry}} objects. Two densities are
+#' bundled: \code{"fsaverage5"} (10,242 vertices per hemisphere; inflated and
+#' white surfaces) and the legacy \code{"std.8"} mesh (642 vertices per
+#' hemisphere; smoothwm, pial, inflated, white, and sphere surfaces). Use
+#' fsaverage5 for figures and examples; std.8 is kept for small tests.
 #'
-#' @param density Character string specifying surface density. At present only
-#'   \code{"std.8"} is supported.
+#' @param density Surface density: \code{"std.8"} (default, for backward
+#'   compatibility) or \code{"fsaverage5"}.
 #' @param surf Character string specifying which surface to load. One of
 #'   \code{"smoothwm"}, \code{"pial"}, \code{"inflated"}, \code{"white"},
-#'   or \code{"sphere"}. Defaults to \code{"smoothwm"}.
+#'   or \code{"sphere"} for std.8; \code{"inflated"} or \code{"white"} for
+#'   fsaverage5. Defaults to \code{"smoothwm"} for std.8 and
+#'   \code{"inflated"} for fsaverage5.
 #'
 #' @return A named list with elements \code{"lh"} and \code{"rh"}, each a
 #'   \code{SurfaceGeometry} instance.
 #'
+#' @details The fsaverage5 files are the FreeSurfer fsaverage5 template as
+#'   redistributed by nilearn, under the FreeSurfer license.
+#'
+#' @seealso [load_fsaverage_sulc()] for the matching sulcal depth.
+#'
 #' @examples
 #' \donttest{
-#' fs <- load_fsaverage(density = "std.8", surf = "inflated")
-#' if (interactive()) {
-#'   show_surface_plot(fs$lh, fs$rh, views = c("lateral", "medial"))
-#' }
+#' fs <- load_fsaverage("fsaverage5", "inflated")
+#' nrow(coords(fs$lh))
 #' }
 #'
 #' @export
-load_fsaverage <- function(density = "std.8",
-                           surf = c("smoothwm", "pial", "inflated", "white", "sphere")) {
-  density <- match.arg(density, choices = "std.8")
-  load_fsaverage_std8(surf = surf)
+load_fsaverage <- function(density = c("std.8", "fsaverage5"), surf = NULL) {
+  density <- match.arg(density)
+  if (density == "std.8") {
+    return(load_fsaverage_std8(surf = surf %||% "smoothwm"))
+  }
+  surf <- match.arg(surf %||% "inflated", c("inflated", "white"))
+  prefix <- c(inflated = "infl", white = "white")[[surf]]
+  geoms <- lapply(c(lh = "left", rh = "right"), function(side) {
+    path <- .ns_fsaverage5_file(paste0(prefix, "_", side, ".gii.gz"))
+    g <- read_surf_geometry(path)
+    SurfaceGeometry(coords(g), faces(g) - 1L,
+                    hemi = if (side == "left") "lh" else "rh",
+                    label = paste0("fsaverage5_", surf))
+  })
+  geoms
+}
+
+#' Sulcal depth for a packaged fsaverage template
+#'
+#' Returns FreeSurfer sulcal depth (\code{sulc}) for each hemisphere of a
+#' bundled fsaverage template, suitable as the anatomy underlay of
+#' [surface_figure()] or [render_surface_rgba()]. Positive values are deeper
+#' (sulcal); the renderers detect this polarity automatically.
+#'
+#' @param density Template density; currently \code{"fsaverage5"}.
+#' @return A named list with numeric vectors \code{"lh"} and \code{"rh"},
+#'   one value per vertex of [load_fsaverage()] for the same density.
+#' @examples
+#' \donttest{
+#' sulc <- load_fsaverage_sulc("fsaverage5")
+#' range(sulc$lh)
+#' }
+#' @export
+load_fsaverage_sulc <- function(density = "fsaverage5") {
+  density <- match.arg(density, "fsaverage5")
+  lapply(c(lh = "left", rh = "right"), function(side) {
+    path <- .ns_fsaverage5_file(paste0("sulc_", side, ".gii.gz"))
+    as.numeric(gifti::readgii(path)$data[[1]])
+  })
+}
+
+.ns_fsaverage5_file <- function(name) {
+  path <- system.file("extdata", "fsaverage5", name, package = "neurosurf")
+  if (!nzchar(path)) {
+    stop("Could not find fsaverage5 file '", name,
+         "' in the package extdata directory.", call. = FALSE)
+  }
+  path
 }
 
 

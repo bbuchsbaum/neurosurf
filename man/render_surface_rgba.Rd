@@ -28,11 +28,12 @@ render_surface_rgba(
   background = "#FFFFFF",
   lighting = TRUE,
   subdivide = "auto",
+  pixel_scale = NULL,
   return_buffers = FALSE,
   anatomy_style = c("publication", "continuous", "binary"),
   anatomy_midpoint = NULL,
   anatomy_invert = "auto",
-  anatomy_range = c(0.58, 0.92)
+  anatomy_range = c(0.7, 0.93)
 )
 }
 \arguments{
@@ -101,6 +102,10 @@ surface facing the camera shows exactly the colour-bar colour.}
 \item{subdivide}{`"auto"` subdivides coarse meshes for display until the
 median projected edge is at most four pixels (up to three levels);
 `FALSE` disables it; an integer sets the number of levels.}
+
+\item{pixel_scale}{Output pixels per surface coordinate unit (usually
+mm). `NULL` fits the surface to the panel; a common value gives several
+panels one scale.}
 
 \item{return_buffers}{Include scalar and depth buffers for diagnostics.}
 

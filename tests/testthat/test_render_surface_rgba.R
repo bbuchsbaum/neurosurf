@@ -309,3 +309,32 @@ test_that("lighting shades the surface and validates its parameters", {
   expect_error(render_surface_rgba(geom, values, lighting = "on"),
                "lighting")
 })
+
+test_that("overlay colour stays readable at grazing incidence", {
+  # A flat square rotated about the vertical axis: the overlay colour of a
+  # constant value may shift only a little between 0 and 70 degrees.
+  square <- function(deg) {
+    a <- deg * pi / 180
+    s <- c(-1, 1, 1, -1)
+    # Face-on to the right-lateral camera (+x) at 0 degrees.
+    v <- cbind(s * sin(a), s * cos(a), c(-1, -1, 1, 1))
+    SurfaceGeometry(v * 10, rbind(c(0L, 1L, 2L), c(0L, 2L, 3L)), hemi = "rh")
+  }
+  colour_at <- function(deg) {
+    out <- render_surface_rgba(square(deg), rep(3, 4), camera = "lateral",
+                               threshold = 1, limits = c(-4, 4), width = 60,
+                               height = 60, antialias = 1, subdivide = FALSE,
+                               outer_contour = FALSE)
+    px <- out$coverage
+    c(mean(as.integer(out$rgba[, , 1])[px]),
+      mean(as.integer(out$rgba[, , 2])[px]),
+      mean(as.integer(out$rgba[, , 3])[px]))
+  }
+  front <- colour_at(0)
+  # Turning toward and away from the key light.
+  for (deg in c(70, -70)) {
+    edge <- colour_at(deg)
+    expect_lt(max(abs(front - edge)), 0.12 * 255)
+    expect_gt(sum(edge), 0.88 * sum(front))
+  }
+})

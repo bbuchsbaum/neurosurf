@@ -39,6 +39,17 @@ figures by default:
   bilateral panel beside the lateral/medial rows, adds hemisphere and view
   headers (`labels`), and draws a colour bar with only the suprathreshold
   segments, labelled at limits and thresholds.
+* Overlay colour stays within a few percent of its colour-bar colour at any
+  viewing angle; lighting conveys form, the palette conveys value.
+* Bilateral dorsal and ventral panels carry anterior/posterior markers.
+
+## Templates and I/O
+
+* The fsaverage5 template (inflated and white surfaces, sulcal depth) is
+  bundled: `load_fsaverage("fsaverage5")` and `load_fsaverage_sulc()`. The
+  README and figure vignette use it instead of the legacy std.8 mesh.
+* `read_surf_geometry()` reads gzipped GIFTI (`.gii.gz`) surfaces; it
+  previously failed on them.
 
 # neurosurf 0.1.0
 

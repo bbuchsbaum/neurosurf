@@ -160,6 +160,25 @@ test_that("dorsal and ventral views of both hemispheres are side columns", {
   img <- png::readPNG(out)
   expect_identical(dim(img)[1:2], c(160L, 240L + fig$col_widths[3]))
 
+  labels_of <- function(g) {
+    out <- character()
+    walk <- function(x) {
+      if (inherits(x, "text")) out <<- c(out, x$label)
+      kids <- if (!is.null(x$children)) x$children else x$grobs
+      for (k in kids) walk(k)
+    }
+    walk(g)
+    out
+  }
+  marked <- labels_of(neurosurf:::.ns_surface_figure_grob(fig))
+  expect_true(all(c("A", "P") %in% marked))
+  ventral <- surface_figure(lh = fs$lh, rh = fs$rh, values = values,
+                            views = c("lateral", "ventral"), legend = FALSE,
+                            panel_width = 120, panel_height = 80,
+                            antialias = 1L)
+  expect_true(all(c("A", "P") %in%
+                    labels_of(neurosurf:::.ns_surface_figure_grob(ventral))))
+
   only_dorsal <- surface_figure(lh = fs$lh, rh = fs$rh, values = values,
                                 views = "dorsal", legend = FALSE,
                                 labels = FALSE, panel_width = 120,

@@ -34,31 +34,36 @@ remotes::install_github("bbuchsbaum/neurosurf")
 
 ## Quick start
 
-Render a thresholded map on both hemispheres of the bundled fsaverage
-surface:
+Render a thresholded map on both hemispheres of the bundled fsaverage5
+surface, with sulcal depth as the anatomical underlay:
 
 ``` r
 library(neurosurf)
 
-surf <- load_fsaverage_std8("inflated")
-white <- load_fsaverage_std8("white")
+surf <- load_fsaverage("fsaverage5", "inflated")
+white <- load_fsaverage("fsaverage5", "white")
+sulc <- load_fsaverage_sulc("fsaverage5")
 
-# Any numeric vector with one value per vertex; here a synthetic z-map
-zmap <- function(g) {
-  xyz <- coords(g)
-  as.numeric(scale(sin(xyz[, 2] / 18) + cos(xyz[, 3] / 14) + 0.7 * sin(xyz[, 1] / 12)))
+# A synthetic z-map: smooth clusters centred in white-surface (x, y, z) space.
+# Any numeric vector with one value per vertex works.
+zmap <- function(g, side) {
+  cluster <- function(centre, z, width = 12) {
+    z * exp(-colSums((t(coords(g)) - centre)^2) / (2 * width^2))
+  }
+  cluster(c(45 * side, -60, 20), 4) + cluster(c(40 * side, 20, 30), 3) +
+    cluster(c(55 * side, -20, 0), -3.5) + cluster(c(8 * side, 40, 10), -3)
 }
 
 fig <- surface_figure(
   lh = surf$lh, rh = surf$rh,
-  values = list(lh = zmap(surf$lh), rh = zmap(surf$rh)),
-  anatomy = list(lh = curvature(white$lh), rh = curvature(white$rh)),
-  threshold = 1, limits = c(-2.5, 2.5), legend_title = "z"
+  values = list(lh = zmap(white$lh, -1), rh = zmap(white$rh, 1)),
+  anatomy = sulc,
+  threshold = 1.5, limits = c(-4, 4), legend_title = "z"
 )
 plot(fig)
 ```
 
-<img src="man/figures/README-quickstart-1.png" alt="Lateral and medial views of both fsaverage hemispheres with red and blue thresholded z-map clusters over grey curvature shading" width="100%" />
+<img src="man/figures/README-quickstart-1.png" alt="Lateral and medial views of both fsaverage5 hemispheres with red and blue thresholded z-map clusters over lit grey sulcal shading" width="100%" />
 
 `write_surface_figure(fig, "figure.png")` saves the same figure.
 Rendering runs on the CPU, so it works identically on a laptop, a
@@ -68,16 +73,17 @@ cluster node, or CI, with no OpenGL device or browser.
 
 - **Read and write surfaces and data**: FreeSurfer, GIFTI, AFNI/SUMA,
   and NIML (`read_surf()`, `read_surf_geometry()`, `write_surf_data()`),
-  plus bundled fsaverage templates (`load_fsaverage()`,
-  `load_fsaverage_std8()`).
+  plus bundled fsaverage5 surfaces and sulcal depth (`load_fsaverage()`,
+  `load_fsaverage_sulc()`).
 - **Map volumes to surfaces**: sample a volumetric image onto a mesh
   with `vol_to_surf()` or `vol_to_surf_sdf()`.
 - **Analyse on the mesh**: smoothing, curvature, geodesic distances,
   neighbourhood graphs, cluster thresholding, and ROI boundaries.
 - **Surface searchlights** for multivariate pattern analysis
   (`SurfaceSearchlight()`, `RandomSurfaceSearchlight()`).
-- **Figures**: headless, deterministic multi-view figures
-  (`surface_figure()`), and interactive rgl display (`view_surface()`).
+- **Figures**: lit, headless, deterministic multi-view figures with a
+  shared colour scale (`surface_figure()`), and interactive rgl display
+  (`view_surface()`).
 - **Interactive reports**: combine both hemispheres and several named
   maps in one `surface_scene()`, show it with `surfwidget()` in R
   Markdown or Quarto, or write it as a standalone HTML page with

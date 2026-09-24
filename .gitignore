@@ -42,3 +42,4 @@ Rd2.pdf
 README.html
 vignettes/*.html
 !vignettes/albers-header.html
+.ruff_cache/

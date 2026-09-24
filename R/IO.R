@@ -651,7 +651,13 @@ setMethod(f="read_meta_info",signature=signature(x= "FreesurferBinarySurfaceFile
 #' @export
 setMethod(f="read_meta_info",signature=signature(x= "GIFTISurfaceFileDescriptor"),
           def=function(x, file_name) {
-            .read_meta_info(x, file_name, readGIFTIHeader, GIFTISurfaceGeometryMetaInfo)
+            # Plain and gzipped GIFTI share this descriptor class.
+            reader <- if (identical(x@header_extension, "gii.gz")) {
+              readGIFTIGZHeader
+            } else {
+              readGIFTIHeader
+            }
+            .read_meta_info(x, file_name, reader, GIFTISurfaceGeometryMetaInfo)
           })
 
 

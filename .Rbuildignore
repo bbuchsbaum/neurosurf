@@ -68,3 +68,5 @@ testshiny/test_shiny.R
 ^inst/htmlwidgets/lib/neurosurface/\.omc($|/)
 ^tests/testthat/Rplots\.pdf$
 ^vignettes/surfplot-style-figures\.html$
+^\.ruff_cache$
+^.*/\.ruff_cache$

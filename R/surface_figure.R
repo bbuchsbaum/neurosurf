@@ -353,6 +353,27 @@ surface_figure <- function(lh = NULL,
     )
   }
   label_gp <- grid::gpar(fontsize = 9, col = "#555555")
+  # Anterior/posterior markers just outside the brain on bilateral dorsal
+  # and ventral panels (ventral views have posterior at the top).
+  for (name in grep("^both_(dorsal|ventral)$", names(x$panels), value = TRUE)) {
+    at <- x$placement[[name]]
+    rows <- which(rowSums(x$panels[[name]]$coverage) > 0)
+    if (!length(rows)) next
+    n <- nrow(x$panels[[name]]$coverage)
+    top <- 1 - (min(rows) - 1) / n
+    bottom <- 1 - max(rows) / n
+    ends <- if (grepl("dorsal", name)) c("A", "P") else c("P", "A")
+    marks <- grid::gTree(children = grid::gList(
+      grid::textGrob(ends[1], y = grid::unit(top, "npc") + grid::unit(1, "mm"),
+                     just = c("centre", "bottom"), gp = label_gp),
+      grid::textGrob(ends[2],
+                     y = grid::unit(bottom, "npc") - grid::unit(1, "mm"),
+                     just = c("centre", "top"), gp = label_gp)
+    ))
+    frame <- grid::placeGrob(frame, marks,
+                             row = 1L + (at[["row_start"]]:at[["row_end"]]),
+                             col = 1L + at[["col_start"]])
+  }
   for (i in seq_along(x$headers)) {
     frame <- grid::placeGrob(frame, grid::textGrob(
       x$headers[i], y = grid::unit(1.2, "mm"), just = c("centre", "bottom"),

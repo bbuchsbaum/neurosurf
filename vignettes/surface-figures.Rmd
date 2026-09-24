@@ -89,41 +89,40 @@ on a cluster, and on a laptop, with no OpenGL and no browser.
 ## What are the inputs?
 
 You need a display geometry and one numeric value per vertex. For anatomical
-context, use a curvature or sulcal-depth metric from a corresponding white,
-pial, or midthickness surface rather than computing curvature on the inflated
-display shape.
+context, use sulcal depth or curvature from the same subject or template
+rather than curvature computed on the inflated display shape. Sulci render
+darker than gyri; the renderer detects whether a metric is larger in sulci
+(as FreeSurfer `sulc` and `curv` are) and orients it accordingly.
 
-The package includes matching decimated fsaverage surfaces, which keep this
-example fast and offline.
+The package bundles the fsaverage5 template (10,242 vertices per hemisphere)
+with its sulcal depth, so this example runs offline.
 
 ```{r load-surfaces}
-inflated <- load_fsaverage_std8("inflated")
-
-read_geom <- function(name) {
-  read_surf_geometry(system.file("extdata", name, package = "neurosurf"))
-}
-white_lh <- read_geom("std.8_lh.white.asc")
-white_rh <- read_geom("std.8_rh.white.asc")
+inflated <- load_fsaverage("fsaverage5", "inflated")
+white <- load_fsaverage("fsaverage5", "white")
+sulc <- load_fsaverage_sulc("fsaverage5")
 ```
 
-Here a smooth coordinate-based field stands in for your measured statistic.
-The renderer treats it exactly like any other vertex-wise numeric vector.
+Here smooth clusters placed in white-surface coordinates stand in for your
+measured statistic. The renderer treats them exactly like any other
+vertex-wise numeric vector.
 
 ```{r make-statistic}
-example_statistic <- function(geometry) {
-  xyz <- coords(geometry)
-  value <- sin(xyz[, 2] / 18) + cos(xyz[, 3] / 14) +
-    0.7 * sin(xyz[, 1] / 12)
-  as.numeric(scale(value))
+example_statistic <- function(geometry, side) {
+  cluster <- function(centre, z, width = 12) {
+    z * exp(-colSums((t(coords(geometry)) - centre)^2) / (2 * width^2))
+  }
+  cluster(c(45 * side, -60, 20), 4) + cluster(c(40 * side, 20, 30), 3) +
+    cluster(c(55 * side, -20, 0), -3.5) + cluster(c(8 * side, 40, 10), -3)
 }
 
-stat_lh <- example_statistic(inflated$lh)
-stat_rh <- example_statistic(inflated$rh)
+stat_lh <- example_statistic(white$lh, -1)
+stat_rh <- example_statistic(white$rh, 1)
 ```
 
 ```{r validate-inputs, include=FALSE}
-curv_lh <- curvature(white_lh)
-curv_rh <- curvature(white_rh)
+curv_lh <- sulc$lh
+curv_rh <- sulc$rh
 stopifnot(
   length(stat_lh) == length(curv_lh),
   length(stat_rh) == length(curv_rh),
@@ -137,20 +136,20 @@ stopifnot(
 ## How do you render one thresholded view?
 
 Choose the threshold and colour limits as scientific inputs. In this example,
-the colour scale stays fixed at `[-2.5, 2.5]`, while an opacity ramp softens
-only the visual transition immediately above `|z| = 1`.
+the colour scale stays fixed at `[-4, 4]`, while an opacity ramp softens
+only the visual transition immediately above `|z| = 1.5`.
 
 ```{r render-one-view}
 lh_lateral <- render_surface_rgba(
   inflated$lh,
   vertex_values = stat_lh,
-  anatomy_metric = curv_lh,
+  anatomy_metric = sulc$lh,
   camera = "lateral",
-  threshold = 1,
+  threshold = 1.5,
   tail = "two_sided",
-  limits = c(-2.5, 2.5),
+  limits = c(-4, 4),
   alpha_ramp = 0.25,
-  antialias = 2
+  antialias = 3
 )
 ```
 
@@ -161,7 +160,7 @@ stopifnot(
   any(active),
   any(lh_lateral$coverage & !active),
   identical(lh_lateral$provenance$backend, "cpu_barycentric"),
-  identical(lh_lateral$provenance$limits, c(-2.5, 2.5))
+  identical(lh_lateral$provenance$limits, c(-4, 4))
 )
 ```
 
@@ -178,6 +177,12 @@ threshold boundary may cross a triangle instead of jumping from one mesh edge
 to the next. The per-sample z-buffer independently decides which folded surface
 fragment is visible.
 
+Surfaces are lit with interpolated normals, so cortical form reads without
+drawn outlines, and the overlay keeps its colour-bar colour to within a few
+percent at any viewing angle. Coarse meshes are subdivided for display
+(`subdivide = "auto"`); the subdivision keeps every original vertex value and
+never creates a suprathreshold region that linear interpolation would not.
+
 ## How do you build the four canonical views?
 
 `surface_figure()` renders every hemisphere-view combination with one shared
@@ -190,16 +195,16 @@ figure <- surface_figure(
   lh = inflated$lh,
   rh = inflated$rh,
   values = list(lh = stat_lh, rh = stat_rh),
-  anatomy = list(lh = curv_lh, rh = curv_rh),
+  anatomy = sulc,
   views = c("lateral", "medial"),
-  threshold = 1,
+  threshold = 1.5,
   tail = "two_sided",
-  limits = c(-2.5, 2.5),
+  limits = c(-4, 4),
   alpha_ramp = 0.25,
   legend_title = "z",
   panel_width = 720,
   panel_height = 450,
-  antialias = 2
+  antialias = 3
 )
 ```
 
@@ -238,7 +243,7 @@ excluded domain is quietly shaded, omitted, or outlined.
 masked_panel <- render_surface_rgba(
   inflated$lh,
   vertex_values = statistic,
-  anatomy_metric = white_surface_curvature,
+  anatomy_metric = sulcal_depth,
   cortex_mask = cortex_label,
   medial_wall = "shade"
 )
