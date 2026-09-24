@@ -40,6 +40,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_rasterize_surface_gbuffer
+Rcpp::List cpp_rasterize_surface_gbuffer(const NumericMatrix& projected, const IntegerMatrix& faces, int width, int height);
+RcppExport SEXP _neurosurf_cpp_rasterize_surface_gbuffer(SEXP projectedSEXP, SEXP facesSEXP, SEXP widthSEXP, SEXP heightSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type projected(projectedSEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type faces(facesSEXP);
+    Rcpp::traits::input_parameter< int >::type width(widthSEXP);
+    Rcpp::traits::input_parameter< int >::type height(heightSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_rasterize_surface_gbuffer(projected, faces, width, height));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_hull_world_cpp
 NumericMatrix compute_hull_world_cpp(NumericVector vol, IntegerVector dims, NumericMatrix grid2world, double thresh, int n_points, LogicalVector mask);
 RcppExport SEXP _neurosurf_compute_hull_world_cpp(SEXP volSEXP, SEXP dimsSEXP, SEXP grid2worldSEXP, SEXP threshSEXP, SEXP n_pointsSEXP, SEXP maskSEXP) {
@@ -101,6 +115,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_neurosurf_cpp_rasterize_surface_scalar", (DL_FUNC) &_neurosurf_cpp_rasterize_surface_scalar, 19},
+    {"_neurosurf_cpp_rasterize_surface_gbuffer", (DL_FUNC) &_neurosurf_cpp_rasterize_surface_gbuffer, 4},
     {"_neurosurf_compute_hull_world_cpp", (DL_FUNC) &_neurosurf_compute_hull_world_cpp, 6},
     {"_neurosurf_estimate_sdf_rigid_cpp", (DL_FUNC) &_neurosurf_estimate_sdf_rigid_cpp, 7},
     {"_neurosurf_find_roi_boundaries_cpp", (DL_FUNC) &_neurosurf_find_roi_boundaries_cpp, 2},

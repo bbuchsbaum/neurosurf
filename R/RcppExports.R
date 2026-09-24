@@ -5,6 +5,10 @@ cpp_rasterize_surface_scalar <- function(projected, faces, values, anatomy, cort
     .Call(`_neurosurf_cpp_rasterize_surface_scalar`, projected, faces, values, anatomy, cortex_mask, width, height, threshold, tail, limits, palette, overlay_alpha, alpha_ramp, base_low, base_high, medial_wall_policy, background, supersample, return_buffers)
 }
 
+cpp_rasterize_surface_gbuffer <- function(projected, faces, width, height) {
+    .Call(`_neurosurf_cpp_rasterize_surface_gbuffer`, projected, faces, width, height)
+}
+
 #' Compute boundary hull points in world space (C++)
 #'
 #' @param vol flattened numeric array (dim = dims)

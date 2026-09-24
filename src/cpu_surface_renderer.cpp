@@ -260,3 +260,71 @@ Rcpp::List cpp_rasterize_surface_scalar(
     _["depth"] = return_buffers ? static_cast<SEXP>(out_depth) : R_NilValue
   );
 }
+
+// Per-pixel geometry buffer for deferred shading. Returns, for each pixel of a
+// width x height raster (column-major, height rows), the nearest visible face
+// (1-based; 0 where nothing is covered) and the barycentric weights of that
+// face's first two vertices. Pixel centres are sampled at (x + 0.5, y + 0.5);
+// callers supersample by projecting into a proportionally larger raster.
+// [[Rcpp::export]]
+Rcpp::List cpp_rasterize_surface_gbuffer(const NumericMatrix& projected,
+                                         const IntegerMatrix& faces,
+                                         int width,
+                                         int height) {
+  const int nvert = projected.nrow();
+  if (projected.ncol() != 3 || faces.ncol() != 3) {
+    stop("projected and faces must have three columns");
+  }
+  if (width < 1 || height < 1) {
+    stop("width and height must be positive");
+  }
+  const std::size_t npix = static_cast<std::size_t>(width) * height;
+  IntegerVector face(npix, 0);
+  NumericVector w0v(npix, NA_REAL);
+  NumericVector w1v(npix, NA_REAL);
+  std::vector<double> zbuffer(npix, -std::numeric_limits<double>::infinity());
+  const double eps = 1e-12;
+
+  for (int fi = 0; fi < faces.nrow(); ++fi) {
+    const int i0 = faces(fi, 0) - 1;
+    const int i1 = faces(fi, 1) - 1;
+    const int i2 = faces(fi, 2) - 1;
+    if (i0 < 0 || i1 < 0 || i2 < 0 || i0 >= nvert || i1 >= nvert || i2 >= nvert) {
+      stop("faces contain an out-of-range vertex index");
+    }
+    const double x0 = projected(i0, 0), y0 = projected(i0, 1), z0 = projected(i0, 2);
+    const double x1 = projected(i1, 0), y1 = projected(i1, 1), z1 = projected(i1, 2);
+    const double x2 = projected(i2, 0), y2 = projected(i2, 1), z2 = projected(i2, 2);
+    if (!finite3(x0, y0, z0) || !finite3(x1, y1, z1) ||
+        !finite3(x2, y2, z2)) continue;
+    const double area = edge(x0, y0, x1, y1, x2, y2);
+    if (!std::isfinite(area) || std::abs(area) <= eps) continue;
+
+    const int xmin = std::max(0, static_cast<int>(std::floor(std::min({x0, x1, x2}))));
+    const int xmax = std::min(width - 1, static_cast<int>(std::ceil(std::max({x0, x1, x2}))));
+    const int ymin = std::max(0, static_cast<int>(std::floor(std::min({y0, y1, y2}))));
+    const int ymax = std::min(height - 1, static_cast<int>(std::ceil(std::max({y0, y1, y2}))));
+    for (int py = ymin; py <= ymax; ++py) {
+      const double sy = py + 0.5;
+      for (int px = xmin; px <= xmax; ++px) {
+        const double sx = px + 0.5;
+        const double w0 = edge(x1, y1, x2, y2, sx, sy) / area;
+        const double w1 = edge(x2, y2, x0, y0, sx, sy) / area;
+        const double w2 = 1.0 - w0 - w1;
+        if (w0 < -1e-9 || w1 < -1e-9 || w2 < -1e-9) continue;
+        const double z = w0 * z0 + w1 * z1 + w2 * z2;
+        const std::size_t pos = static_cast<std::size_t>(py) +
+          static_cast<std::size_t>(height) * px;
+        if (z <= zbuffer[pos]) continue;
+        zbuffer[pos] = z;
+        face[pos] = fi + 1;
+        w0v[pos] = w0;
+        w1v[pos] = w1;
+      }
+    }
+  }
+  face.attr("dim") = IntegerVector::create(height, width);
+  w0v.attr("dim") = IntegerVector::create(height, width);
+  w1v.attr("dim") = IntegerVector::create(height, width);
+  return List::create(_["face"] = face, _["w0"] = w0v, _["w1"] = w1v);
+}

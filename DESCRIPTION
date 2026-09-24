@@ -1,7 +1,7 @@
 Package: neurosurf
 Type: Package
 Title: Data Structures and Visualization for Surface-Based Neuroimaging Data
-Version: 0.1.0.9001
+Version: 0.1.0.9002
 Authors@R: c(
     person(c("Bradley", "R"), "Buchsbaum", role = c("aut", "cre", "cph"), email = "brad.buchsbaum@gmail.com"))
 Description: A comprehensive toolkit for working with surface-based neuroimaging data
@@ -59,6 +59,7 @@ Collate:
     'neighborhood.R'
     'neuro_surface.R'
     'neurosurf.R'
+    'render_surface_parcels.R'
     'render_surface_rgba.R'
     'roi_boundaries.R'
     'sdf_alignment.R'
