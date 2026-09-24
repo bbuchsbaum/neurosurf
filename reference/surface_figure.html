@@ -64,8 +64,8 @@ palette, so the figure carries one interpretable colour scale.</p>
 <span>  threshold <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  tail <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"two_sided"</span>, <span class="st">"positive"</span>, <span class="st">"negative"</span><span class="op">)</span>,</span>
 <span>  limits <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#3B4CC0"</span>, <span class="st">"#F7F7F7"</span>, <span class="st">"#B40426"</span><span class="op">)</span>,</span>
-<span>  overlay_alpha <span class="op">=</span> <span class="fl">0.85</span>,</span>
+<span>  palette <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  overlay_alpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  alpha_ramp <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  camera_mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"canonical"</span>, <span class="st">"presentation"</span><span class="op">)</span>,</span>
 <span>  cortex_mask <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -73,7 +73,8 @@ palette, so the figure carries one interpretable colour scale.</p>
 <span>  legend_title <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  panel_width <span class="op">=</span> <span class="fl">720</span>,</span>
 <span>  panel_height <span class="op">=</span> <span class="fl">450</span>,</span>
-<span>  antialias <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  antialias <span class="op">=</span> <span class="fl">3L</span>,</span>
+<span>  labels <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -106,8 +107,10 @@ matching white surface), in the same form as `values`.</p></dd>
 
 <dt id="arg-views">views<a class="anchor" aria-label="anchor" href="#arg-views"></a></dt>
 <dd><p>Character vector of camera views drawn for each hemisphere,
-from `"lateral"`, `"medial"`, `"dorsal"`, `"ventral"`. Views are rows of
-the figure; hemispheres are columns.</p></dd>
+from `"lateral"`, `"medial"`, `"dorsal"`, `"ventral"`. Lateral and medial
+views are rows with one column per hemisphere. With both hemispheres,
+dorsal and ventral views show the hemispheres together in one panel,
+placed as a column beside the other views.</p></dd>
 
 
 <dt id="arg-threshold-tail-limits-palette-overlay-alpha-alpha-ramp-camera-mode">threshold, tail, limits, palette, overlay_alpha, alpha_ramp, camera_mode<a class="anchor" aria-label="anchor" href="#arg-threshold-tail-limits-palette-overlay-alpha-alpha-ramp-camera-mode"></a></dt>
@@ -136,6 +139,10 @@ its units.</p></dd>
 
 <dt id="arg-antialias">antialias<a class="anchor" aria-label="anchor" href="#arg-antialias"></a></dt>
 <dd><p>Integer supersampling factor per panel.</p></dd>
+
+
+<dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>
+<dd><p>Draw hemisphere and view headers above the panels.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

@@ -41,8 +41,23 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="neurosurf-development-version">neurosurf (development version)<a class="anchor" aria-label="anchor" href="#neurosurf-development-version"></a></h2>
+<div class="section level3">
+<h3 id="parcel-maps-development-version">Parcel maps<a class="anchor" aria-label="anchor" href="#parcel-maps-development-version"></a></h3>
 <ul><li>New publication parcel-map renderer: <code><a href="../reference/prepare_surface_parcels.html">prepare_surface_parcels()</a></code> and <code><a href="../reference/render_surface_parcels.html">render_surface_parcels()</a></code> rasterize a labelled surface with deferred per-pixel shading. Parcel boundaries follow smoothed label memberships, so they are smooth and antialiased rather than stair-stepped along triangle edges; the underlay combines a sulcal-depth proxy with soft Lambert lighting; filled parcels get a thin outline and the medial wall is drawn flat. <code><a href="../reference/surface_parcel_style.html">surface_parcel_style()</a></code> collects the settings, and <code><a href="../reference/surface_sulcal_proxy.html">surface_sulcal_proxy()</a></code> estimates sulcal depth from white and inflated meshes.</li>
 </ul></div>
+<div class="section level3">
+<h3 id="static-surface-figures-development-version">Static surface figures<a class="anchor" aria-label="anchor" href="#static-surface-figures-development-version"></a></h3>
+<p><code><a href="../reference/render_surface_rgba.html">render_surface_rgba()</a></code> and <code><a href="../reference/surface_figure.html">surface_figure()</a></code> produce substantially better figures by default:</p>
+<ul><li>Surfaces are lit with interpolated normals (two-light Blinn-Phong with hemispheric ambient), so cortical form is visible. <code>lighting = FALSE</code> restores flat rendering; a named list tunes it. Overlay shading is normalized so camera-facing overlay matches the colour bar.</li>
+<li>Coarse meshes are subdivided for display (<code>subdivide = "auto"</code>) with an interpolating butterfly scheme. Original vertex values are preserved and new values are clamped to their edge’s endpoints, so no suprathreshold region appears that linear interpolation would not show.</li>
+<li>Palettes span only the suprathreshold range, so the weakest displayed value is clearly coloured. New defaults suit each <code>tail</code>; the positive palette runs light to dark.</li>
+<li>The anatomy underlay is lighter, with sulci darker than gyri. <code>anatomy_invert = "auto"</code> detects metrics that are larger in sulci (FreeSurfer <code>sulc</code>, <code>curv</code>) and inverts them.</li>
+<li>The silhouette contour is anti-aliased, the default background is white, and the default supersampling is 3.</li>
+<li>Medial views are now true camera views (the left hemisphere’s anterior pole is on the right). Previously they were mirror images.</li>
+<li>
+<code><a href="../reference/surface_figure.html">surface_figure()</a></code> shows dorsal and ventral views of both hemispheres in one bilateral panel beside the lateral/medial rows, adds hemisphere and view headers (<code>labels</code>), and draws a colour bar with only the suprathreshold segments, labelled at limits and thresholds.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="neurosurf-010">neurosurf 0.1.0<a class="anchor" aria-label="anchor" href="#neurosurf-010"></a></h2>
 <ul><li>Initial CRAN submission.</li>

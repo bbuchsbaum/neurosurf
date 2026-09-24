@@ -18,8 +18,8 @@ surface_figure(
   threshold = 0,
   tail = c("two_sided", "positive", "negative"),
   limits = NULL,
-  palette = c("#3B4CC0", "#F7F7F7", "#B40426"),
-  overlay_alpha = 0.85,
+  palette = NULL,
+  overlay_alpha = 1,
   alpha_ramp = 0,
   camera_mode = c("canonical", "presentation"),
   cortex_mask = NULL,
@@ -27,7 +27,8 @@ surface_figure(
   legend_title = NULL,
   panel_width = 720,
   panel_height = 450,
-  antialias = 2L,
+  antialias = 3L,
+  labels = TRUE,
   ...
 )
 
@@ -59,8 +60,10 @@ print(x, ...)
 - views:
 
   Character vector of camera views drawn for each hemisphere, from
-  \`"lateral"\`, \`"medial"\`, \`"dorsal"\`, \`"ventral"\`. Views are
-  rows of the figure; hemispheres are columns.
+  \`"lateral"\`, \`"medial"\`, \`"dorsal"\`, \`"ventral"\`. Lateral and
+  medial views are rows with one column per hemisphere. With both
+  hemispheres, dorsal and ventral views show the hemispheres together in
+  one panel, placed as a column beside the other views.
 
 - threshold, tail, limits, palette, overlay_alpha, alpha_ramp,
   camera_mode:
@@ -88,6 +91,10 @@ print(x, ...)
 - antialias:
 
   Integer supersampling factor per panel.
+
+- labels:
+
+  Draw hemisphere and view headers above the panels.
 
 - ...:
 
