@@ -15,7 +15,7 @@ surface_parcel_style(
   ambient = 0.68,
   diffuse = 0.32,
   light = c(-0.3, 0.45, 0.85),
-  medial = 0.7,
+  medial = 0.82,
   medial_light = 0.9,
   medial_views = "medial",
   fill_light = 0.4,

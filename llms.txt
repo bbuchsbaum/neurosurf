@@ -1,6 +1,7 @@
 # neurosurf
 
 [![r-universe](https://bbuchsbaum.r-universe.dev/badges/neurosurf)](https://bbuchsbaum.r-universe.dev/neurosurf)
+[![R-CMD-check](https://github.com/bbuchsbaum/neurosurf/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bbuchsbaum/neurosurf/actions/workflows/R-CMD-check.yaml)
 [Documentation](https://bbuchsbaum.github.io/neurosurf/) ·
 [Reference](https://bbuchsbaum.github.io/neurosurf/reference/index.html)
 · [News](https://bbuchsbaum.github.io/neurosurf/NEWS.md)
@@ -10,7 +11,7 @@ FreeSurfer, GIFTI, and AFNI/SUMA meshes, keeps vertex-wise values
 attached to their geometry, and turns them into publication figures and
 self-contained interactive HTML reports.
 
-> **Status:** Pre-release (0.1.0.9001) and not on CRAN. APIs may change.
+> **Status:** Pre-release and not on CRAN. APIs may change.
 
 ## Installation
 

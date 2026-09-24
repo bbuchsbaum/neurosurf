@@ -187,10 +187,10 @@ print(mapped_surf)
 #>   Vertices w/ Data:642
 #> 
 #>   Data Summary: 
-#>   Min:    -1.148
-#>   Median:-0.01554
-#>   Mean:  0.0004073
-#>   Max:    1.126
+#>   Min:    -1.402
+#>   Median:0.02881
+#>   Mean:  0.02795
+#>   Max:    1.258
 #> 
 # }
 ```
