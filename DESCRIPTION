@@ -19,7 +19,7 @@ Imports:
     rgl,
     assertthat,
     digest,
-    neuroim2,
+    neuroim2 (>= 0.19.0),
     colorplane,
     FNN,
     readr,
@@ -93,6 +93,8 @@ Suggests:
 URL: https://bbuchsbaum.github.io/neurosurf/,
     https://github.com/bbuchsbaum/neurosurf
 BugReports: https://github.com/bbuchsbaum/neurosurf/issues
+Remotes:
+    bbuchsbaum/neuroim2
 VignetteBuilder: knitr
 Encoding: UTF-8
 Config/Needs/website: albersdown
