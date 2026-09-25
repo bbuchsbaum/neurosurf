@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,10 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="neurosurf-development-version">neurosurf (development version)<a class="anchor" aria-label="anchor" href="#neurosurf-development-version"></a></h2>
+<div class="section level3">
+<h3 id="interactive-report-scenes-development-version">Interactive report scenes<a class="anchor" aria-label="anchor" href="#interactive-report-scenes-development-version"></a></h3>
+<ul><li>The bundled surfview runtime is repinned to surfviewjs 2d9f786. Report scenes gain an anatomical whole-brain layout with a data-driven overview pose, a <code>report</code> preset (sulcal two-tone underlay, camera-attached lighting, anti-aliased threshold isolines), overlay-aware camera framing, and fixes for self-overlap artefacts on inflated surfaces, ignored curvature restyling, and hover picks that reported a hidden hemisphere. The runtime patch is now empty: every former patch hunk is upstream.</li>
+</ul></div>
 <div class="section level3">
 <h3 id="parcel-maps-development-version">Parcel maps<a class="anchor" aria-label="anchor" href="#parcel-maps-development-version"></a></h3>
 <ul><li>New publication parcel-map renderer: <code><a href="../reference/prepare_surface_parcels.html">prepare_surface_parcels()</a></code> and <code><a href="../reference/render_surface_parcels.html">render_surface_parcels()</a></code> rasterize a labelled surface with deferred per-pixel shading. Parcel boundaries follow smoothed label memberships, so they are smooth and antialiased rather than stair-stepped along triangle edges; the underlay combines a sulcal-depth proxy with soft Lambert lighting; filled parcels get a thin outline and the medial wall is drawn flat. <code><a href="../reference/surface_parcel_style.html">surface_parcel_style()</a></code> collects the settings, and <code><a href="../reference/surface_sulcal_proxy.html">surface_sulcal_proxy()</a></code> estimates sulcal depth from white and inflated meshes.</li>
