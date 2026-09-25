@@ -73,7 +73,10 @@ with tempfile.TemporaryDirectory(prefix="neurosurf-runtime-") as tmp:
     def run(*cmd):
         subprocess.run(cmd, cwd=work, check=True)
 
-    run("git", "apply", str(patch))
+    # An empty patch means the pinned commit already carries every runtime
+    # change upstream; `git apply` rejects empty input, so skip it.
+    if patch.read_bytes().strip():
+        run("git", "apply", str(patch))
     run(
         "npm",
         "ci",

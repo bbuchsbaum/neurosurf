@@ -1,5 +1,15 @@
 # neurosurf (development version)
 
+## Interactive report scenes
+
+* The bundled surfview runtime is repinned to surfviewjs 2d9f786. Report scenes
+  gain an anatomical whole-brain layout with a data-driven overview pose, a
+  `report` preset (sulcal two-tone underlay, camera-attached lighting,
+  anti-aliased threshold isolines), overlay-aware camera framing, and fixes for
+  self-overlap artefacts on inflated surfaces, ignored curvature restyling, and
+  hover picks that reported a hidden hemisphere.
+  The runtime patch is now empty: every former patch hunk is upstream.
+
 ## Parcel maps
 
 * New publication parcel-map renderer: `prepare_surface_parcels()` and
