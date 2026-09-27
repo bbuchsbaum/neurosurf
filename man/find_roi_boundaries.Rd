@@ -8,9 +8,11 @@ find_roi_boundaries(
   vertices,
   faces,
   vertex_id,
-  boundary_method = c("midpoint", "faces", "edge_vertices"),
+  boundary_method = c("midpoint", "faces", "edge_vertices", "smooth"),
   verbose = FALSE,
-  use_cpp = TRUE
+  use_cpp = TRUE,
+  boundary_smooth = 3L,
+  t_clamp = c(0.1, 0.9)
 )
 }
 \arguments{
@@ -20,13 +22,20 @@ find_roi_boundaries(
 
 \item{vertex_id}{Integer vector of ROI labels for each vertex (length \eqn{n}).}
 
-\item{boundary_method}{One of \code{"midpoint"}, \code{"faces"}, or
-\code{"edge_vertices"}.}
+\item{boundary_method}{One of \code{"midpoint"}, \code{"faces"},
+\code{"edge_vertices"}, or \code{"smooth"}.}
 
 \item{verbose}{Logical; if \code{TRUE}, print progress messages.}
 
 \item{use_cpp}{Logical; if \code{TRUE}, use optimized C++ implementation
 (applies to \code{"edge_vertices"} only).}
+
+\item{boundary_smooth}{Non-negative integer membership-smoothing iterations
+for \code{"smooth"}. Zero reproduces midpoint segment geometry.}
+
+\item{t_clamp}{For \code{"smooth"}, symmetric edge-fraction bounds
+\code{c(lo, 1-lo)}, with \code{0 < lo <= 1/3} and upper bound below 1.
+\code{lo} also bounds each junction barycentric coordinate. Cannot be NULL.}
 }
 \value{
 A list with elements:
@@ -45,6 +54,19 @@ A list with elements:
     vectors giving the vertex ids used for each boundary polygon; \code{NULL}
     for \code{"faces"}.}
 }
+For \code{"smooth"}, \code{boundary} contains ordered polylines (closed
+paths repeat their first point). Additional fields are \code{label_pair}
+(two sorted labels per path), \code{closed}, \code{path_nodes}, a unique
+\code{nodes} table, and \code{crossings}/\code{junctions} provenance tables.
+Crossings store canonical vertex indices \code{i < j}, endpoint labels,
+\code{node_id}, signed margins \code{d_i}/\code{d_j}, pre-clamp
+\code{t_raw}, final \code{t}, and fallback/clamp flags. Junctions store
+\code{face_id}, \code{node_id}, raw \code{w_raw1:w_raw3} and final
+\code{w1:w3} barycentrics in input-face order, and fallback/projection flags.
+\code{provenance} records the algorithm version, kernel, iterations, clamp,
+score tolerance, and tie rule (smallest incident label). Legacy single-owner
+\code{boundary_roi_id}, \code{roi_components}, and \code{boundary_verts}
+are NULL in this mode. Empty results preserve field types and dimensions.
 }
 \description{
 This function identifies boundaries between regions of interest (ROIs)
@@ -53,19 +75,39 @@ parts of Stuart Oldham's \code{findROIboundaries} MATLAB function, adapted
 for use with neurosurf objects.
 }
 \details{
-Three boundary representations are currently supported:
+Four boundary representations are currently supported:
 \itemize{
   \item \code{"midpoint"} (default): returns crisp single-width contour
     segments that run \emph{between} differing labels, through the midpoints
     of the mesh edges that separate them. This is the recommended method for
     drawing clean ROI/atlas outlines: shared borders are drawn once (no
     double lines) and adjacent segments join into continuous contours.
+  \item \code{"smooth"}: returns chained polylines from a constrained
+    partition guided by smoothed memberships. Original vertex labels and
+    mesh-edge parcel adjacency are preserved, including small parcels.
   \item \code{"faces"}: returns a logical vector indicating which faces lie
     on a boundary between ROIs.
   \item \code{"edge_vertices"}: returns boundary polygons traced through
     mesh vertices. Borders are traced along vertices on both sides of a
     boundary, which can read as a thicker double line on coarse meshes.
 }
+
+The smooth mode uses distinct one-ring neighbours and a lazy mean
+  with weight 0.5. It places crossings using nonnegative endpoint label
+  margins, falling back to a midpoint when neither endpoint supports its
+  original label. Three-label junctions are equal-score solutions projected
+  onto the interior barycentric simplex; singular solutions use the centroid.
+  This is a piecewise-linear, vertex-preserving partition, not exact
+  extraction of the unconstrained membership argmax. It matches
+  \code{prepare_surface_parcels(boundary_method = "smooth")} for the same
+  geometry, effective labels, smoothing, and clamp.
+
+  Smooth labels must be nonnegative R-representable integers (0 denotes the
+  medial wall in rendering). Open meshes and unused vertices are supported.
+  Duplicate/zero-area faces, repeated face indices, and edges incident to
+  more than two faces are rejected. A non-manifold vertex alone is allowed.
+  Shared border nodes are keyed by topology, never rounded coordinates.
+  Existing modes retain their original input and output contracts.
 }
 \examples{
 \donttest{

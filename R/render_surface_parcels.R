@@ -165,17 +165,35 @@ surface_sulcal_proxy <- function(white, inflated, iterations = 4L) {
 #'   treated as medial wall. Defaults to `labels != 0`.
 #' @param boundary_smooth Laplacian iterations applied to label memberships.
 #'   0 gives piecewise-linear boundaries through triangle edge midpoints.
+#' @param boundary_method \code{"membership"} (default) retains the original
+#'   per-face interpolated-membership argmax. \code{"smooth"} prepares the
+#'   shared vertex-preserving partition used by [find_roi_boundaries()].
+#' @param t_clamp Symmetric edge bounds for \code{"smooth"}; see
+#'   [find_roi_boundaries()]. Ignored by \code{"membership"}.
+#' @details In smooth mode, labels must be nonnegative integers. The cortex
+#'   mask is applied before partition construction; preservation refers to
+#'   these effective labels. The prepared object retains labelled face cells,
+#'   boundary paths and their provenance in \code{partition}. Rendering reuses
+#'   this partition across cameras and value maps. The partition does not
+#'   reproduce the unconstrained membership argmax. Existing input behaviour
+#'   is retained in membership mode, except that fractional smoothing counts
+#'   are rejected rather than truncated.
 #' @return A `surface_parcel_prep` object.
 #' @export
 prepare_surface_parcels <- function(geometry, labels, anatomy_metric = NULL,
-                                    cortex_mask = NULL, boundary_smooth = 3L) {
+                                    cortex_mask = NULL, boundary_smooth = 3L,
+                                    boundary_method = c("membership", "smooth"),
+                                    t_clamp = c(0.1, 0.9)) {
+  boundary_method <- match.arg(boundary_method)
   if (!inherits(geometry, "SurfaceGeometry")) {
     stop("'geometry' must be a SurfaceGeometry object.", call. = FALSE)
   }
   vertices <- t(geometry@mesh$vb[1:3, , drop = FALSE])
   faces <- t(geometry@mesh$it)
   n <- nrow(vertices)
-  labels <- as.integer(labels)
+  labels <- if (boundary_method == "smooth") {
+    .ns_partition_labels(labels, n)
+  } else as.integer(labels)
   if (length(labels) != n || anyNA(labels)) {
     stop("'labels' must hold one non-missing integer per vertex.", call. = FALSE)
   }
@@ -196,32 +214,36 @@ prepare_surface_parcels <- function(geometry, labels, anatomy_metric = NULL,
     }
     normalize_surface_anatomy(anatomy_metric, "continuous") + 0.5
   }
-  boundary_smooth <- as.integer(boundary_smooth)
-  if (length(boundary_smooth) != 1L || is.na(boundary_smooth) ||
-      boundary_smooth < 0L) {
-    stop("'boundary_smooth' must be a non-negative integer.", call. = FALSE)
-  }
+  boundary_smooth <- .ns_partition_iterations(boundary_smooth)
 
-  # Smoothed one-hot memberships, sampled per face for each of the face's
-  # three candidate labels at each of its three vertices.
-  ulab <- sort(unique(labels))
-  k <- match(labels, ulab)
-  membership <- Matrix::sparseMatrix(i = seq_len(n), j = k, x = 1,
-                                     dims = c(n, length(ulab)))
-  if (boundary_smooth > 0L) {
-    op <- .ns_mesh_mean_operator(faces, n)
-    for (it in seq_len(boundary_smooth)) {
-      membership <- 0.5 * membership + 0.5 * (op %*% membership)
+  partition <- NULL
+  face_scores <- NULL
+  if (boundary_method == "smooth") {
+    partition <- .ns_build_parcel_partition(vertices, faces, labels,
+                                            boundary_smooth, t_clamp)
+  } else {
+
+    # Smoothed one-hot memberships, sampled per face for each of the face's
+    # three candidate labels at each of its three vertices.
+    ulab <- sort(unique(labels))
+    k <- match(labels, ulab)
+    membership <- Matrix::sparseMatrix(i = seq_len(n), j = k, x = 1,
+                                       dims = c(n, length(ulab)))
+    if (boundary_smooth > 0L) {
+      op <- .ns_mesh_mean_operator(faces, n)
+      for (it in seq_len(boundary_smooth)) {
+        membership <- 0.5 * membership + 0.5 * (op %*% membership)
+      }
     }
-  }
-  trip <- Matrix::summary(methods::as(membership, "CsparseMatrix"))
-  key <- trip$i + n * (trip$j - 1)
-  face_scores <- matrix(0, nrow(faces), 9L)
-  for (cand in 1:3) {
-    for (vtx in 1:3) {
-      hit <- match(faces[, vtx] + n * (k[faces[, cand]] - 1), key)
-      col <- (cand - 1L) * 3L + vtx
-      face_scores[, col] <- ifelse(is.na(hit), 0, trip$x[hit])
+    trip <- Matrix::summary(methods::as(membership, "CsparseMatrix"))
+    key <- trip$i + n * (trip$j - 1)
+    face_scores <- matrix(0, nrow(faces), 9L)
+    for (cand in 1:3) {
+      for (vtx in 1:3) {
+        hit <- match(faces[, vtx] + n * (k[faces[, cand]] - 1), key)
+        col <- (cand - 1L) * 3L + vtx
+        face_scores[, col] <- ifelse(is.na(hit), 0, trip$x[hit])
+      }
     }
   }
 
@@ -234,20 +256,26 @@ prepare_surface_parcels <- function(geometry, labels, anatomy_metric = NULL,
     normals = .ns_outward_normals(vertices, faces),
     anatomy = anatomy,
     face_scores = face_scores,
-    boundary_smooth = boundary_smooth
+    boundary_smooth = boundary_smooth,
+    boundary_method = boundary_method,
+    partition = partition
   ), class = "surface_parcel_prep")
 }
 
 #' Render a parcel map on a surface
 #'
 #' Rasterizes a labelled surface with deferred per-pixel shading. Each output
-#' pixel is supersampled; every sample resolves its parcel from smoothed label
-#' memberships, so parcel edges are smooth and antialiased. Parcels with a
+#' pixel is supersampled; every sample resolves its parcel using the prepared
+#' membership or constrained smooth partition. Parcels with a
 #' finite value (or an explicit colour) are filled and outlined; all others
 #' show the shaded anatomical underlay with faint boundaries. The medial wall
 #' is drawn flat and light.
 #'
 #' @param x A `surface_parcel_prep` from [prepare_surface_parcels()].
+#'   Its boundary method and parameters are reused without recomputation.
+#'   In smooth mode, samples accepted just outside a face by the rasterizer's
+#'   edge tolerance have negative barycentrics clipped to zero and renormalized
+#'   for label selection only; original weights still determine shading/depth.
 #' @param values Optional numeric parcel values named by label id. Unnamed
 #'   values must follow the sorted non-zero labels. `NA` leaves a parcel
 #'   unfilled.
@@ -320,20 +348,30 @@ render_surface_parcels <- function(x,
   v1 <- x$faces[fi, 2]
   v2 <- x$faces[fi, 3]
 
-  # Parcel per sample: the face candidate with the largest interpolated
-  # smoothed membership.
-  fs <- x$face_scores
-  score <- function(cand) {
-    base <- (cand - 1L) * 3L
-    fs[cbind(fi, base + 1L)] * w0 + fs[cbind(fi, base + 2L)] * w1 +
-      fs[cbind(fi, base + 3L)] * w2
+  if (identical(x$boundary_method, "smooth")) {
+    weights <- cbind(w0, w1, w2)
+    outside <- w0 < 0 | w1 < 0 | w2 < 0
+    if (any(outside)) {
+      clipped <- pmax(weights[outside, , drop = FALSE], 0)
+      weights[outside, ] <- clipped / rowSums(clipped)
+    }
+    lab <- .ns_classify_parcel_partition(x$partition, fi, weights)
+  } else {
+    # Parcel per sample: the face candidate with the largest interpolated
+    # smoothed membership.
+    fs <- x$face_scores
+    score <- function(cand) {
+      base <- (cand - 1L) * 3L
+      fs[cbind(fi, base + 1L)] * w0 + fs[cbind(fi, base + 2L)] * w1 +
+        fs[cbind(fi, base + 3L)] * w2
+    }
+    s0 <- score(1L)
+    s1 <- score(2L)
+    s2 <- score(3L)
+    l0 <- x$labels[v0]
+    lab <- ifelse(s0 >= s1 & s0 >= s2, l0,
+                  ifelse(s1 >= s2, x$labels[v1], x$labels[v2]))
   }
-  s0 <- score(1L)
-  s1 <- score(2L)
-  s2 <- score(3L)
-  l0 <- x$labels[v0]
-  lab <- ifelse(s0 >= s1 & s0 >= s2, l0,
-                ifelse(s1 >= s2, x$labels[v1], x$labels[v2]))
 
   # Lighting from interpolated normals in camera space.
   b <- attr(projected, "basis")
@@ -473,6 +511,12 @@ render_surface_parcels <- function(x,
       backend = "cpu_deferred_parcels",
       antialias = antialias,
       boundary_smooth = x$boundary_smooth,
+      boundary_method = if (is.null(x$boundary_method)) "membership" else
+        x$boundary_method,
+      sample_edge_policy = if (identical(x$boundary_method, "smooth")) {
+        "clip_negative_barycentrics_and_renormalize"
+      } else NULL,
+      partition = if (is.null(x$partition)) NULL else x$partition$provenance,
       limits = fill_rgb$limits,
       n_filled = length(fill_rgb$labels)
     )

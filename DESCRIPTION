@@ -59,6 +59,7 @@ Collate:
     'neighborhood.R'
     'neuro_surface.R'
     'neurosurf.R'
+    'parcel_partition.R'
     'render_surface_parcels.R'
     'render_surface_rgba.R'
     'roi_boundaries.R'
