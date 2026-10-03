@@ -13,6 +13,15 @@
   reported a hidden hemisphere. The runtime patch is now empty: every
   former patch hunk is upstream.
 
+- The bundled surfview runtime is repinned to surfviewjs 1dfed43.
+  Threshold edges are drawn one-sided, between shown and hidden
+  vertices; picking only hits surfaces that are drawn (GPU pick meshes
+  carry their source surface’s layers, and the selected surface wins
+  ties); figure export uses the viewer background and the active layer’s
+  colour key, including dual-threshold and volume layers. The widget
+  dependency version is bumped to 2.2.0.9002 so browsers do not serve
+  the previous bundle from cache.
+
 ### Parcel maps
 
 - New publication parcel-map renderer:
