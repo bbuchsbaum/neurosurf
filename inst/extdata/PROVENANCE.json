@@ -1,0 +1,160 @@
+{
+  "assets": [
+    {
+      "file": "fsaverage5/infl_left.gii.gz",
+      "sha256": "1a571c9d598a476a202c7295c235a709de63360047b92c0e7b75ed18b0f37e74",
+      "upstream_sha256": "1a571c9d598a476a202c7295c235a709de63360047b92c0e7b75ed18b0f37e74",
+      "url": "https://raw.githubusercontent.com/nilearn/nilearn/e5faab66dc2fe72d2cb50a8aaf2f44813aba4a51/nilearn/datasets/data/fsaverage5/infl_left.gii.gz",
+      "license": "LICENSE-FreeSurfer.txt",
+      "modified": false
+    },
+    {
+      "file": "fsaverage5/infl_right.gii.gz",
+      "sha256": "9f66b009e1da72158d75b4e739c6289aba0c1b08d818b2f0f9f61204aa4ba895",
+      "upstream_sha256": "9f66b009e1da72158d75b4e739c6289aba0c1b08d818b2f0f9f61204aa4ba895",
+      "url": "https://raw.githubusercontent.com/nilearn/nilearn/e5faab66dc2fe72d2cb50a8aaf2f44813aba4a51/nilearn/datasets/data/fsaverage5/infl_right.gii.gz",
+      "license": "LICENSE-FreeSurfer.txt",
+      "modified": false
+    },
+    {
+      "file": "fsaverage5/sulc_left.gii.gz",
+      "sha256": "bd0f87e0cba153e9d5c5281edc7267f631b1967e5883d4027924766c8430eb62",
+      "upstream_sha256": "bd0f87e0cba153e9d5c5281edc7267f631b1967e5883d4027924766c8430eb62",
+      "url": "https://raw.githubusercontent.com/nilearn/nilearn/e5faab66dc2fe72d2cb50a8aaf2f44813aba4a51/nilearn/datasets/data/fsaverage5/sulc_left.gii.gz",
+      "license": "LICENSE-FreeSurfer.txt",
+      "modified": false
+    },
+    {
+      "file": "fsaverage5/sulc_right.gii.gz",
+      "sha256": "97afe76225903205a16b88f88cd796945f2a27011328e98decaa9128ff063afb",
+      "upstream_sha256": "97afe76225903205a16b88f88cd796945f2a27011328e98decaa9128ff063afb",
+      "url": "https://raw.githubusercontent.com/nilearn/nilearn/e5faab66dc2fe72d2cb50a8aaf2f44813aba4a51/nilearn/datasets/data/fsaverage5/sulc_right.gii.gz",
+      "license": "LICENSE-FreeSurfer.txt",
+      "modified": false
+    },
+    {
+      "file": "fsaverage5/white_left.gii.gz",
+      "sha256": "ecd590c1405e5553604fd4b113cee13d62638e5fb4084438201db82a4c711c64",
+      "upstream_sha256": "ecd590c1405e5553604fd4b113cee13d62638e5fb4084438201db82a4c711c64",
+      "url": "https://raw.githubusercontent.com/nilearn/nilearn/e5faab66dc2fe72d2cb50a8aaf2f44813aba4a51/nilearn/datasets/data/fsaverage5/white_left.gii.gz",
+      "license": "LICENSE-FreeSurfer.txt",
+      "modified": false
+    },
+    {
+      "file": "fsaverage5/white_right.gii.gz",
+      "sha256": "bd0f184539c82eae3b5b22297c4b5f64f901e276152f79d9fa62337f7e0d30d8",
+      "upstream_sha256": "bd0f184539c82eae3b5b22297c4b5f64f901e276152f79d9fa62337f7e0d30d8",
+      "url": "https://raw.githubusercontent.com/nilearn/nilearn/e5faab66dc2fe72d2cb50a8aaf2f44813aba4a51/nilearn/datasets/data/fsaverage5/white_right.gii.gz",
+      "license": "LICENSE-FreeSurfer.txt",
+      "modified": false
+    },
+    {
+      "file": "Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii.gz",
+      "sha256": "a47808f907f175f2e83f2c941bc68a766a8991b238e98457e9d27a8760ea21ec",
+      "upstream_sha256": "a47808f907f175f2e83f2c941bc68a766a8991b238e98457e9d27a8760ea21ec",
+      "url": "https://raw.githubusercontent.com/ThomasYeoLab/CBIG/c4034588d99b80c5cabf7fc1071c5766e4688ce9/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii.gz",
+      "commit": "c4034588d99b80c5cabf7fc1071c5766e4688ce9",
+      "comparison": "uncompressed NIfTI bytes identical",
+      "license": "LICENSE-CBIG.txt",
+      "modified": "gzip container differs; uncompressed NIfTI bytes identical"
+    },
+    {
+      "file": "std.8_fsaverage_lh.spec",
+      "sha256": "f9f01fb8b12e310403328bab0f3588c8f5218dfc8726dc3f37b8eb067e92f425",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    },
+    {
+      "file": "std.8_fsaverage_rh.spec",
+      "sha256": "d3ffd927844ba94ef5937cacff2f63e87e4d47f9099cd19d7c176c60c94f8c19",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    },
+    {
+      "file": "std.8_lh.inflated.asc",
+      "sha256": "64778cabe0727c7027eb949b83eeef9086cc7dadf050a4660c63e6fe234b9429",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    },
+    {
+      "file": "std.8_lh.pial.asc",
+      "sha256": "befe45f88b48cf6ded5be678587418bbf9d8a54578dbc1192395f22a1fb57e9d",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    },
+    {
+      "file": "std.8_lh.smoothwm.asc",
+      "sha256": "f69278f73174c603a520a50caaf4f500aefa180504cab1fe60d8194c010bb027",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    },
+    {
+      "file": "std.8_lh.sphere.asc",
+      "sha256": "9bef7d7f703c96735c55425f6ea3a2d6ee11d54befca6f0af576ff389688ea49",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    },
+    {
+      "file": "std.8_lh.sphere.reg.asc",
+      "sha256": "9bef7d7f703c96735c55425f6ea3a2d6ee11d54befca6f0af576ff389688ea49",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    },
+    {
+      "file": "std.8_lh.white.asc",
+      "sha256": "14c5f03870fb815d6c46bf8a5cdda7dda756773b27cb60016b38f43846ce1745",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    },
+    {
+      "file": "std.8_rh.inflated.asc",
+      "sha256": "ee16bd6b875feaf47869c694be3da79a164dff0fcda7dfbc076b24640e735caf",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    },
+    {
+      "file": "std.8_rh.pial.asc",
+      "sha256": "b9fddbe81e1992a0feeb88e7a5adfb53cfbc142ba5d11cf2e4abf4e1065b43a7",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    },
+    {
+      "file": "std.8_rh.smoothwm.asc",
+      "sha256": "5311321f234e3f2255d6403bdd160a06456aad66dde7eabdaeb6d4231aa9d32f",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    },
+    {
+      "file": "std.8_rh.sphere.asc",
+      "sha256": "9bef7d7f703c96735c55425f6ea3a2d6ee11d54befca6f0af576ff389688ea49",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    },
+    {
+      "file": "std.8_rh.sphere.reg.asc",
+      "sha256": "9bef7d7f703c96735c55425f6ea3a2d6ee11d54befca6f0af576ff389688ea49",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    },
+    {
+      "file": "std.8_rh.white.asc",
+      "sha256": "4e59d8121047e26b9ccf27a425fda4e84ad2092192eede208072c0329d4b99ec",
+      "license": "LICENSE-FreeSurfer.txt",
+      "source": "FreeSurfer fsaverage; AFNI SUMA MapIcosahedron -ld 8",
+      "modified": true
+    }
+  ]
+}

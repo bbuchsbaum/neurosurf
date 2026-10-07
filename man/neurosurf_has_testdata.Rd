@@ -2,17 +2,17 @@
 % Please edit documentation in R/testdata.R
 \name{neurosurf_has_testdata}
 \alias{neurosurf_has_testdata}
-\title{Check if optional test data is available}
+\title{Check if test data is available}
 \usage{
 neurosurf_has_testdata(file)
 }
 \arguments{
-\item{file}{Name of the test data file to check.}
+\item{file}{File name.}
 }
 \value{
-Logical indicating whether the file is available.
+Logical indicating availability.
 }
 \description{
-Check if optional test data is available
+Check if test data is available
 }
 \keyword{internal}

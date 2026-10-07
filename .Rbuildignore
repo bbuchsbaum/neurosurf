@@ -70,3 +70,12 @@ testshiny/test_shiny.R
 ^vignettes/surfplot-style-figures\.html$
 ^\.ruff_cache$
 ^.*/\.ruff_cache$
+
+# The surfview embed is the sole active widget runtime. Keep historic sources
+# in Git, but do not distribute unused old bundles or the retired build tree.
+^inst/htmlwidgets/neurosurface($|/)
+^inst/htmlwidgets/lib/three($|/)
+^inst/htmlwidgets/lib/neurosurface/(neurosurface.*|surfview\.umd\.js\.map|three-controls-polyfill\.js)$
+^vignettes/fonts($|/)
+^tests/browser($|/)
+^inst/benchmarks($|/)

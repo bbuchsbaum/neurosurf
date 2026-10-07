@@ -107,7 +107,7 @@
 #' }
 #'
 #' @importFrom igraph graph_from_edgelist components degree neighbors delete_edges
-#'   get.edge.ids shortest_paths V
+#'   get_edge_ids shortest_paths V
 #' @export
 find_roi_boundaries <- function(vertices,
                                 faces,
@@ -402,7 +402,7 @@ find_roi_boundaries <- function(vertices,
         end_id <- as.integer(end_node)
 
         # Remove one edge to break the cycle
-        edge_id <- igraph::get.edge.ids(g, c(start_id, end_id))
+        edge_id <- igraph::get_edge_ids(g, c(start_id, end_id))
         g_temp <- igraph::delete_edges(g, edge_id)
 
         sp <- suppressWarnings(

@@ -1,8 +1,7 @@
 test_that("read_freesurfer_annot closes connection on error", {
-  f <- neurosurf_testdata_path("rscan01_lh.gii")
-
-  skip_if(f == "", "Test data not available. Run neurosurf_download_testdata() to download.")
-  skip_on_cran()
+  f <- tempfile()
+  on.exit(unlink(f))
+  writeBin(as.integer(c(1, 0)), f, size = 4, endian = "big")
 
   before <- showConnections(all = TRUE)
   expect_error(read_freesurfer_annot(f, NULL))

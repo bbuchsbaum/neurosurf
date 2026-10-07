@@ -2,18 +2,17 @@
 % Please edit documentation in R/testdata.R
 \name{neurosurf_testdata_path}
 \alias{neurosurf_testdata_path}
-\title{Get path to test data file}
+\title{Locate bundled data or synthetic fixtures}
 \usage{
 neurosurf_testdata_path(file)
 }
 \arguments{
-\item{file}{Name of the test data file.}
+\item{file}{File name.}
 }
 \value{
-Path to the file, or empty string if not found.
+File path, or an empty string if it does not exist.
 }
 \description{
-Returns the path to a test data file, checking both the package extdata
-directory and the user cache directory.
+Locate bundled data or synthetic fixtures
 }
 \keyword{internal}
