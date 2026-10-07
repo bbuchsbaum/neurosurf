@@ -89,6 +89,7 @@ Suggests:
     knitr,
     rmarkdown,
     webshot2,
+    withr,
     ggplot2,
     viridis,
     albersdown,
