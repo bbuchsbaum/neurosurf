@@ -56,6 +56,9 @@ The installed package directory is never a default output destination.
   Candidate results are available at
   https://github.com/bbuchsbaum/neurosurf/actions/workflows/R-CMD-check.yaml?query=branch%3Acran%2F0.1.0
 
+Headless snapshot tests use a managed browser in CI and explicitly close
+the browser and temporary profile they create. Existing sessions are preserved.
+
 ## Notes
 
 * New submission: expected for the first submission.

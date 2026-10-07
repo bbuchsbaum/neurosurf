@@ -81,6 +81,7 @@ Collate:
     'vol_to_surf_sdf.R'
     'zzz.R'
 Suggests:
+    chromote (>= 0.5.0),
     callr,
     testthat,
     covr,

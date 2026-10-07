@@ -49,6 +49,14 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
+      - name: Provision a managed headless browser for snapshot tests
+        shell: Rscript {0}
+        run: |
+          chromote::chrome_versions_add("latest-stable", binary = "chrome-headless-shell")
+          browser <- chromote::chrome_versions_path("latest", binary = "chrome-headless-shell")
+          cat(paste0("CHROMOTE_CHROME=", browser, "\n"),
+              file = Sys.getenv("GITHUB_ENV"), append = TRUE)
+
       - uses: r-lib/actions/check-r-package@v2
         if: matrix.config.os != 'ubuntu-latest' || matrix.config.r != 'release'
         with:
