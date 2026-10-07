@@ -9,7 +9,7 @@ on a surface. The implementation depends on the class of the input object."><lin
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,11 @@ on a surface. The implementation depends on the class of the input object.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">findBoundaries</span><span class="op">(</span><span class="va">x</span>, method <span class="op">=</span> <span class="st">"midpoint"</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for class 'NeuroSurface'</span></span>
-<span><span class="fu">findBoundaries</span><span class="op">(</span><span class="va">x</span>, method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"midpoint"</span>, <span class="st">"edge_vertices"</span>, <span class="st">"faces"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">findBoundaries</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"midpoint"</span>, <span class="st">"edge_vertices"</span>, <span class="st">"faces"</span>, <span class="st">"smooth"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -67,7 +71,7 @@ contains integer ROI labels for each vertex.</p></dd>
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>Boundary method passed to <code><a href="find_roi_boundaries.html">find_roi_boundaries</a></code>.
 One of <code>"midpoint"</code> (default, crisp single-width contours),
-<code>"edge_vertices"</code>, or <code>"faces"</code>.</p></dd>
+<code>"edge_vertices"</code>, <code>"faces"</code>, or <code>"smooth"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

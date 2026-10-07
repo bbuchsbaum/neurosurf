@@ -15,7 +15,7 @@ result across cameras and value maps."><link href="../albers.css" rel="styleshee
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,9 @@ result across cameras and value maps.</p>
 <span>  <span class="va">labels</span>,</span>
 <span>  anatomy_metric <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cortex_mask <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  boundary_smooth <span class="op">=</span> <span class="fl">3L</span></span>
+<span>  boundary_smooth <span class="op">=</span> <span class="fl">3L</span>,</span>
+<span>  boundary_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"membership"</span>, <span class="st">"smooth"</span><span class="op">)</span>,</span>
+<span>  t_clamp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -93,10 +95,32 @@ treated as medial wall. Defaults to `labels != 0`.</p></dd>
 <dd><p>Laplacian iterations applied to label memberships.
 0 gives piecewise-linear boundaries through triangle edge midpoints.</p></dd>
 
+
+<dt id="arg-boundary-method">boundary_method<a class="anchor" aria-label="anchor" href="#arg-boundary-method"></a></dt>
+<dd><p><code>"membership"</code> (default) retains the original
+per-face interpolated-membership argmax. <code>"smooth"</code> prepares the
+shared vertex-preserving partition used by [find_roi_boundaries()].</p></dd>
+
+
+<dt id="arg-t-clamp">t_clamp<a class="anchor" aria-label="anchor" href="#arg-t-clamp"></a></dt>
+<dd><p>Symmetric edge bounds for <code>"smooth"</code>; see
+[find_roi_boundaries()]. Ignored by <code>"membership"</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A `surface_parcel_prep` object.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>In smooth mode, labels must be nonnegative integers. The cortex
+  mask is applied before partition construction; preservation refers to
+  these effective labels. The prepared object retains labelled face cells,
+  boundary paths and their provenance in <code>partition</code>. Rendering reuses
+  this partition across cameras and value maps. The partition does not
+  reproduce the unconstrained membership argmax. Existing input behaviour
+  is retained in membership mode, except that fractional smoothing counts
+  are rejected rather than truncated.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

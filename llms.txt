@@ -531,8 +531,9 @@ Catch-all index to include any remaining topics.
   : neurosurf: Data structures and IO for surface-based neuroimaging
   data.
 
-- [`neurosurf_download_testdata()`](https://bbuchsbaum.github.io/neurosurf/reference/neurosurf_download_testdata.md)
-  : Download optional test data for neurosurf
+- [`neurosurf_generate_testdata()`](https://bbuchsbaum.github.io/neurosurf/reference/neurosurf_generate_testdata.md)
+  [`neurosurf_download_testdata()`](https://bbuchsbaum.github.io/neurosurf/reference/neurosurf_generate_testdata.md)
+  : Generate synthetic surface test data
 
 - [`nodes()`](https://bbuchsbaum.github.io/neurosurf/reference/nodes-methods.md)
   : Extract Surface Node Numbers

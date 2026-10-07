@@ -10,7 +10,11 @@ the input object.
 findBoundaries(x, method = "midpoint", ...)
 
 # S4 method for class 'NeuroSurface'
-findBoundaries(x, method = c("midpoint", "edge_vertices", "faces"), ...)
+findBoundaries(
+  x,
+  method = c("midpoint", "edge_vertices", "faces", "smooth"),
+  ...
+)
 ```
 
 ## Arguments
@@ -26,7 +30,7 @@ findBoundaries(x, method = c("midpoint", "edge_vertices", "faces"), ...)
   Boundary method passed to
   [`find_roi_boundaries`](https://bbuchsbaum.github.io/neurosurf/reference/find_roi_boundaries.md).
   One of `"midpoint"` (default, crisp single-width contours),
-  `"edge_vertices"`, or `"faces"`.
+  `"edge_vertices"`, `"faces"`, or `"smooth"`.
 
 - ...:
 

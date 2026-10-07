@@ -1,6 +1,6 @@
 # Changelog
 
-## neurosurf (development version)
+## neurosurf 0.1.0
 
 ### Interactive report scenes
 
@@ -84,6 +84,13 @@ produce substantially better figures by default:
   reads gzipped GIFTI (`.gii.gz`) surfaces; it previously failed on
   them.
 
-## neurosurf 0.1.0
+### Package distribution
 
 - Initial CRAN submission.
+- Require CRAN neuroim2 0.19.1. Replace the unattributed optional
+  downloads with small synthetic GIFTI/NIML fixtures generated locally
+  in a versioned cache.
+  [`neurosurf_download_testdata()`](https://bbuchsbaum.github.io/neurosurf/reference/neurosurf_generate_testdata.md)
+  remains a compatibility wrapper.
+- Ship compact vignettes and complete viewer source and third-party
+  notices.

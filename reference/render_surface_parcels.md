@@ -1,11 +1,11 @@
 # Render a parcel map on a surface
 
 Rasterizes a labelled surface with deferred per-pixel shading. Each
-output pixel is supersampled; every sample resolves its parcel from
-smoothed label memberships, so parcel edges are smooth and antialiased.
-Parcels with a finite value (or an explicit colour) are filled and
-outlined; all others show the shaded anatomical underlay with faint
-boundaries. The medial wall is drawn flat and light.
+output pixel is supersampled; every sample resolves its parcel using the
+prepared membership or constrained smooth partition. Parcels with a
+finite value (or an explicit colour) are filled and outlined; all others
+show the shaded anatomical underlay with faint boundaries. The medial
+wall is drawn flat and light.
 
 ## Usage
 
@@ -31,7 +31,12 @@ render_surface_parcels(
 
 - x:
 
-  A \`surface_parcel_prep\` from \[prepare_surface_parcels()\].
+  A \`surface_parcel_prep\` from \[prepare_surface_parcels()\]. Its
+  boundary method and parameters are reused without recomputation. In
+  smooth mode, samples accepted just outside a face by the rasterizer's
+  edge tolerance have negative barycentrics clipped to zero and
+  renormalized for label selection only; original weights still
+  determine shading/depth.
 
 - values:
 

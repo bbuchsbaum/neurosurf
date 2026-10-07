@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,18 +40,18 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="neurosurf-development-version">neurosurf (development version)<a class="anchor" aria-label="anchor" href="#neurosurf-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.1.0" id="neurosurf-010">neurosurf 0.1.0<a class="anchor" aria-label="anchor" href="#neurosurf-010"></a></h2>
 <div class="section level3">
-<h3 id="interactive-report-scenes-development-version">Interactive report scenes<a class="anchor" aria-label="anchor" href="#interactive-report-scenes-development-version"></a></h3>
+<h3 id="interactive-report-scenes-0-1-0">Interactive report scenes<a class="anchor" aria-label="anchor" href="#interactive-report-scenes-0-1-0"></a></h3>
 <ul><li><p>The bundled surfview runtime is repinned to surfviewjs 2d9f786. Report scenes gain an anatomical whole-brain layout with a data-driven overview pose, a <code>report</code> preset (sulcal two-tone underlay, camera-attached lighting, anti-aliased threshold isolines), overlay-aware camera framing, and fixes for self-overlap artefacts on inflated surfaces, ignored curvature restyling, and hover picks that reported a hidden hemisphere. The runtime patch is now empty: every former patch hunk is upstream.</p></li>
 <li><p>The bundled surfview runtime is repinned to surfviewjs 1dfed43. Threshold edges are drawn one-sided, between shown and hidden vertices; picking only hits surfaces that are drawn (GPU pick meshes carry their source surface’s layers, and the selected surface wins ties); figure export uses the viewer background and the active layer’s colour key, including dual-threshold and volume layers. The widget dependency version is bumped to 2.2.0.9002 so browsers do not serve the previous bundle from cache.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="parcel-maps-development-version">Parcel maps<a class="anchor" aria-label="anchor" href="#parcel-maps-development-version"></a></h3>
+<h3 id="parcel-maps-0-1-0">Parcel maps<a class="anchor" aria-label="anchor" href="#parcel-maps-0-1-0"></a></h3>
 <ul><li>New publication parcel-map renderer: <code><a href="../reference/prepare_surface_parcels.html">prepare_surface_parcels()</a></code> and <code><a href="../reference/render_surface_parcels.html">render_surface_parcels()</a></code> rasterize a labelled surface with deferred per-pixel shading. Parcel boundaries follow smoothed label memberships, so they are smooth and antialiased rather than stair-stepped along triangle edges; the underlay combines a sulcal-depth proxy with soft Lambert lighting; filled parcels get a thin outline and the medial wall is drawn flat. <code><a href="../reference/surface_parcel_style.html">surface_parcel_style()</a></code> collects the settings, and <code><a href="../reference/surface_sulcal_proxy.html">surface_sulcal_proxy()</a></code> estimates sulcal depth from white and inflated meshes.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="static-surface-figures-development-version">Static surface figures<a class="anchor" aria-label="anchor" href="#static-surface-figures-development-version"></a></h3>
+<h3 id="static-surface-figures-0-1-0">Static surface figures<a class="anchor" aria-label="anchor" href="#static-surface-figures-0-1-0"></a></h3>
 <p><code><a href="../reference/render_surface_rgba.html">render_surface_rgba()</a></code> and <code><a href="../reference/surface_figure.html">surface_figure()</a></code> produce substantially better figures by default:</p>
 <ul><li>Surfaces are lit with interpolated normals (two-light Blinn-Phong with hemispheric ambient), so cortical form is visible. <code>lighting = FALSE</code> restores flat rendering; a named list tunes it. Overlay shading is normalized so camera-facing overlay matches the colour bar.</li>
 <li>Coarse meshes are subdivided for display (<code>subdivide = "auto"</code>) with an interpolating butterfly scheme. Original vertex values are preserved and new values are clamped to their edge’s endpoints, so no suprathreshold region appears that linear interpolation would not show.</li>
@@ -65,16 +65,18 @@
 <li>Bilateral dorsal and ventral panels carry anterior/posterior markers.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="templates-and-io-development-version">Templates and I/O<a class="anchor" aria-label="anchor" href="#templates-and-io-development-version"></a></h3>
+<h3 id="templates-and-io-0-1-0">Templates and I/O<a class="anchor" aria-label="anchor" href="#templates-and-io-0-1-0"></a></h3>
 <ul><li>The fsaverage5 template (inflated and white surfaces, sulcal depth) is bundled: <code>load_fsaverage("fsaverage5")</code> and <code><a href="../reference/load_fsaverage_sulc.html">load_fsaverage_sulc()</a></code>. The README and figure vignette use it instead of the legacy std.8 mesh.</li>
 <li>
 <code><a href="../reference/read_surf_geometry.html">read_surf_geometry()</a></code> reads gzipped GIFTI (<code>.gii.gz</code>) surfaces; it previously failed on them.</li>
 </ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.1.0" id="neurosurf-010">neurosurf 0.1.0<a class="anchor" aria-label="anchor" href="#neurosurf-010"></a></h2>
+<div class="section level3">
+<h3 id="package-distribution-0-1-0">Package distribution<a class="anchor" aria-label="anchor" href="#package-distribution-0-1-0"></a></h3>
 <ul><li>Initial CRAN submission.</li>
+<li>Require CRAN neuroim2 0.19.1. Replace the unattributed optional downloads with small synthetic GIFTI/NIML fixtures generated locally in a versioned cache. <code><a href="../reference/neurosurf_generate_testdata.html">neurosurf_download_testdata()</a></code> remains a compatibility wrapper.</li>
+<li>Ship compact vignettes and complete viewer source and third-party notices.</li>
 </ul></div>
+</div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -1,7 +1,6 @@
-# Get path to test data file
+# Locate bundled data or synthetic fixtures
 
-Returns the path to a test data file, checking both the package extdata
-directory and the user cache directory.
+Locate bundled data or synthetic fixtures
 
 ## Usage
 
@@ -13,8 +12,8 @@ neurosurf_testdata_path(file)
 
 - file:
 
-  Name of the test data file.
+  File name.
 
 ## Value
 
-Path to the file, or empty string if not found.
+File path, or an empty string if it does not exist.

@@ -1,376 +1,218 @@
 # Displaying Surfaces with RGL
 
-This vignette demonstrates how to display 3D brain surface meshes using
-the `rgl` plotting tools provided by the `neurosurf` package, primarily
-through the [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
-method which utilizes the
+This vignette shows how to display cortical geometry, curvature, and
+vertex values with RGL. It uses the small `std.8` surfaces bundled with
+neurosurf; no downloads or browser processes are needed to build the
+article. The first figure is an interactive RGL scene. The later static
+illustrations use neurosurf’s CPU renderer, rather than RGL snapshots,
+to keep the installed vignette compact and usable on machines without
+OpenGL.
+
+## Open a scene and close it when finished
+
 [`view_surface()`](https://bbuchsbaum.github.io/neurosurf/reference/view_surface.md)
-function internally.
-
-For interactive HTML widgets, see
-[`vignette("interactive-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.md).
-For static, publication-quality multi-view figures with
-[`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md),
-see
-[`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md).
-
-## Setup and Loading Data
-
-First, we set up `knitr` options to embed `rgl` plots directly into the
-HTML output using WebGL and prevent standalone `rgl` windows from
-popping up during knitting. We then load example left and right
-hemisphere white matter surfaces included with the package and prepare
-some data (smoothed geometry, curvature, random values) for the
-examples.
-
-## Basic Surface Plotting
-
-The simplest way to display a `SurfaceGeometry` object is using the
-[`plot()`](https://rdrr.io/r/graphics/plot.default.html) method. By
-default, it renders the surface with a light gray background. We can
-specify a `viewpoint`.
+draws into the current RGL device when `new_window = FALSE`. This small
+helper gives each example a private NULL device and closes it even if
+the plotting call fails. A NULL device records a scene for WebGL without
+opening a desktop window. In an interactive session, use `open3d()` to
+open a normal RGL window instead.
 
 ``` r
 
-# Plot the smoothed left hemisphere from a lateral viewpoint
-render_surface(white_lh_display, viewpoint = "lateral", lit = TRUE)
-```
-
-![](displaying-surfaces_files/figure-html/basic-plot-1.-render-1.png)
-
-## Coloring Based on Curvature
-
-Surface curvature helps distinguish gyri (outward folds) from sulci
-(inward folds). The
-[`curvature()`](https://bbuchsbaum.github.io/neurosurf/reference/curvature-methods.md)
-function calculates this, and
-[`curv_cols_smooth()`](https://bbuchsbaum.github.io/neurosurf/reference/curv_cols_smooth.md)
-maps the values to a continuous grayscale gradient (dark in sulci, light
-on gyri) for natural-looking shading. For a simpler binary split, see
-[`curv_cols()`](https://bbuchsbaum.github.io/neurosurf/reference/curv_cols.md).
-Either way, pass the resulting colors to the `bgcol` argument of
-[`plot()`](https://rdrr.io/r/graphics/plot.default.html).
-
-``` r
-
-# Calculate curvature colors
-curv_colors <- curv_cols_smooth(curv_lh_display)
-
-# Plot with curvature background from a medial viewpoint
-render_surface(white_lh_display, bgcol = curv_colors, viewpoint = "medial", specular = "black")
-```
-
-![](displaying-surfaces_files/figure-html/curvature-plot-1.-render-2.png)
-
-## Overlaying Data Values
-
-Often, we want to visualize data mapped onto the surface vertices (e.g.,
-activation values, thickness). We can pass a vector of values to the
-`vals` argument. The `cmap` argument specifies the color map, and
-`irange` defines the data range to map onto the colormap. Values outside
-`irange` are clamped to the minimum or maximum color.
-
-``` r
-
-# Overlay random data using a rainbow colormap
-# Map data range from -2 to 2 onto the colormap
-render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = rainbow(256),
-               irange = c(-2, 2), thresh = NULL, viewpoint = "lateral", specular = "gray")
-```
-
-![](displaying-surfaces_files/figure-html/data-overlay-1.-render-3.png)
-
-## Thresholding Data Visualization
-
-The `thresh` argument (a vector of two values, `c(lower, upper)`) can be
-used with `vals` to make parts of the surface transparent. Vertices
-where the corresponding value in `vals` is *inside* this range (between
-`lower` and `upper`) are rendered transparently; values outside remain
-opaque. This is useful for masking out a band of values.
-
-``` r
-
-# Same data overlay as above, but make values between -1 and 1 transparent
-render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = rainbow(256),
-               irange = c(-2, 2), thresh = c(-1, 1), viewpoint = "lateral", lit = TRUE)
-```
-
-![](displaying-surfaces_files/figure-html/threshold-plot-1.-render-4.png)
-
-## Direct Vertex Coloring
-
-Instead of mapping data values to a colormap, you can provide a vector
-of specific hex color codes directly to the `vert_clrs` argument. This
-overrides `vals` and `cmap`. The vector length must match the number of
-vertices.
-
-``` r
-
-# Color vertices based on their x-coordinate (e.g., red for positive x, blue for negative)
-x_coords <- coords(white_lh_display)[, 1]
-vertex_colors <- ifelse(x_coords > median(x_coords), "#FF0000", "#0000FF") # Red/Blue
-
-render_surface(white_lh_display, vert_clrs = vertex_colors, viewpoint = "ventral", lit = TRUE)
-```
-
-![](displaying-surfaces_files/figure-html/vertex-color-plot-1.-render-5.png)
-
-## Controlling Transparency
-
-The `alpha` argument controls the overall transparency of the surface,
-ranging from 0 (fully transparent) to 1 (fully opaque).
-
-``` r
-
-# Plot the surface with 60% opacity (40% transparent)
-render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = heat.colors(256),
-               irange = c(-2, 2), alpha = 0.6, viewpoint = "posterior")
-```
-
-![](displaying-surfaces_files/figure-html/alpha-plot-1.-render-6.png)
-
-## Adjusting Lighting and Material
-
-The appearance of the surface is affected by lighting. The `specular`
-argument controls the color of specular highlights (shininess). Setting
-it to `"black"` creates a matte appearance.
-
-``` r
-
-# Plot with a matte finish (no specular highlights)
-render_surface(white_lh_display, vals = random_vals_display_smooth, cmap = topo.colors(256),
-               irange = c(-2, 2), specular = "black", viewpoint = "lateral", lit = TRUE)
-```
-
-![](displaying-surfaces_files/figure-html/lighting-plot-1.-render-7.png)
-
-## Snapshotting to an image (for knitr/CI)
-
-Use
-[`snapshot_surface()`](https://bbuchsbaum.github.io/neurosurf/reference/snapshot_surface.md)
-to render an off-screen PNG and include it directly:
-
-``` r
-
-.render_counter$n <- .render_counter$n + 1
-snapshot_file <- knitr::fig_path(paste0("-snapshot-", .render_counter$n, ".png"))
-dir.create(dirname(snapshot_file), recursive = TRUE, showWarnings = FALSE)
-
-img_path <- try(snapshot_surface(white_lh_display,
-                                 file = snapshot_file,
-                                 vals = random_vals_display_smooth,
-                                 cmap = viridis::viridis(256),
-                                 viewpoint = "lateral",
-                                 specular = "black",
-                                 width = 1200, height = 900),
-                silent = TRUE)
-
-if (!inherits(img_path, "try-error") && snapshot_is_usable(img_path)) {
-  knitr::include_graphics(img_path)
-} else {
-  rgl::open3d()
-  view_surface(white_lh_display,
-               vals = random_vals_display_smooth,
-               cmap = viridis::viridis(256),
-               viewpoint = "lateral",
-               specular = "black",
-               new_window = FALSE)
-  widget <- rgl::rglwidget()
-  rgl::close3d()
-  widget
+with_rgl_scene <- function(code) {
+  device <- rgl::open3d(useNULL = TRUE)
+  on.exit(rgl::close3d(device), add = TRUE)
+  force(code)
 }
 ```
 
-![](displaying-surfaces_files/figure-html/snapshot-example-1.-snapshot-8.png)
-
-## Changing Viewpoints
-
-The `viewpoint` argument can be set to common anatomical views like
-`"lateral"`, `"medial"`, `"ventral"`, or `"posterior"`. The function
-automatically selects the correct left/right version based on the
-surface’s hemisphere information (`surf@hemi`).
+A `SurfaceGeometry` records its hemisphere, so `viewpoint = "lateral"`
+selects the appropriate left or right view. Drag the scene to rotate it.
 
 ``` r
 
-# Display multiple viewpoints with curvature shading
-render_multi_view(white_lh_display,
-                  viewpoints = c("lateral", "medial", "ventral", "posterior"),
-                  bgcol = curv_cols_smooth(curv_lh_display), specular = "black")
-```
-
-![](displaying-surfaces_files/figure-html/viewpoints-plot-1.-multiview-9.png)![](displaying-surfaces_files/figure-html/viewpoints-plot-1.-multiview-10.png)![](displaying-surfaces_files/figure-html/viewpoints-plot-1.-multiview-11.png)![](displaying-surfaces_files/figure-html/viewpoints-plot-1.-multiview-12.png)
-
-## Displaying Two Hemispheres
-
-For lateral views, each hemisphere is best rendered separately since the
-camera can only face one direction. We render the left and right lateral
-views side by side.
-
-``` r
-
-# Render both hemispheres as a single figure so they always appear together
-# (two side-by-side images, or one combined widget when snapshots are
-# unavailable). Leave some extra margin so the static PNGs do not feel cramped.
-render_hemi_pair(
-  white_lh_display,
-  white_rh_display,
-  bgcol_lh = curv_cols_smooth(curv_lh_display, quantiles = c(0.02, 0.98)),
-  bgcol_rh = curv_cols_smooth(curv_rh_display, quantiles = c(0.02, 0.98)),
-  viewpoint = "lateral",
-  specular = "black",
-  zoom = 0.92,
-  width = 900,
-  height = 700
-)
-```
-
-![](displaying-surfaces_files/figure-html/two-hemispheres-plot-1.-hemipair-13.png)![](displaying-surfaces_files/figure-html/two-hemispheres-plot-1.-hemipair-14.png)
-
-## Adding Spheres to the Surface
-
-The `spheres` argument allows you to draw spherical markers at specified
-coordinates. It requires a data frame with columns `x`, `y`, `z`, and
-`radius`. An optional `color` column can specify colors for each sphere.
-
-``` r
-
-# Pick deterministic markers on the lateral face so all examples are visible.
-xyz <- coords(white_lh_display)
-lateral_targets <- rbind(
-  c(quantile(xyz[, 1], 0.06), quantile(xyz[, 2], 0.20), quantile(xyz[, 3], 0.68)),
-  c(quantile(xyz[, 1], 0.05), quantile(xyz[, 2], 0.50), quantile(xyz[, 3], 0.50)),
-  c(quantile(xyz[, 1], 0.06), quantile(xyz[, 2], 0.78), quantile(xyz[, 3], 0.35))
-)
-marker_vertices <- apply(lateral_targets, 1, function(target) {
-  which.min(rowSums((sweep(xyz, 2, target, "-"))^2))
+with_rgl_scene({
+  view_surface(left, viewpoint = "lateral", bgcol = "lightgray",
+               new_window = FALSE)
+  rgl::rglwidget()
 })
-
-peak_coords <- data.frame(
-  vertex = marker_vertices,
-  radius = c(4.5, 4.5, 4.5),
-  color = c("yellow", "cyan", "magenta")
-)
-
-# Plot the surface with curvature shading and add the spheres
-render_surface(white_lh_display, bgcol = curv_cols_smooth(curv_lh_display),
-               viewpoint = "lateral", specular = "black",
-               spheres = peak_coords, spheres_as_vertices = TRUE)
 ```
 
-![](displaying-surfaces_files/figure-html/spheres-plot-1.-render-15.png)
+## Curvature and scalar overlays
 
-## Plotting Other NeuroSurface Objects
-
-The [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method also
-works for other classes like `NeuroSurface`, `LabeledNeuroSurface`, and
-`ColorMappedNeuroSurface`. These objects already contain data and
-potentially color mapping information. The `plot` method extracts this
-information and passes the appropriate arguments (like `vals`, `cmap`,
-`irange`, `thresh`, `vert_clrs`) to the underlying `view_surface`
-function.
+Curvature distinguishes gyri from sulci.
+[`curv_cols_smooth()`](https://bbuchsbaum.github.io/neurosurf/reference/curv_cols_smooth.md)
+turns it into a gray background; pass vertex values separately in
+`vals`. `irange` sets the color scale, and `thresh = c(-1, 1)` makes
+values inside that band transparent. Each vector must have one entry per
+vertex.
 
 ``` r
 
-# Create a NeuroSurface object with the random data
-nsurf <- NeuroSurface(white_lh_display, indices = 1:length(random_vals_display), data = random_vals_display)
-
-# Plot the NeuroSurface - uses data stored within the object
-# We can still override or add parameters like cmap, irange, thresh, alpha etc.
-render_surface(geometry(nsurf), vals = values(nsurf), cmap = heat.colors(128),
-               irange = c(-2.5, 2.5), viewpoint = "lateral")
+with_rgl_scene({
+  view_surface(left, vals = vertex_values, cmap = rainbow(256),
+               irange = c(-3, 3), thresh = c(-1, 1),
+               bgcol = curv_cols_smooth(curv), viewpoint = "lateral",
+               specular = "black", new_window = FALSE)
+  invisible(NULL)
+})
 ```
 
-![](displaying-surfaces_files/figure-html/neurosurface-plot-1.-render-16.png)
+For a deterministic static illustration of the same values and
+threshold, use
+[`render_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md).
+Its lighting and color mapping are independent of RGL; this is a CPU
+rendering, not a screenshot of the preceding scene.
 
-## Showing an activation map overlaid on a surface mesh
+``` r
 
-We will plot surface in a row of 3. We generate a set of random values
-and then smooth those values along the surface to approximate a
-realistic activation pattern.
+panel <- render_surface_rgba(
+  left, vertex_values, anatomy_metric = curv,
+  camera = "lateral", threshold = 1, limits = c(-3, 3),
+  palette = rainbow(256), width = 640, height = 400, antialias = 2
+)
+```
 
-In the first column we display all the values in the map. Next we make
-values between (-0.2, 0.2) transparent. In the last panel we
-additionally add a cluster size threshold of 30 nodes.
+![](displaying-surfaces_files/figure-html/overlay-image-1.overlay.png)
+
+## Vertex colors, transparency, and material
+
+`vert_clrs` supplies explicit colors and overrides scalar color mapping.
+`alpha` controls opacity; `specular = "black"` gives a matte surface,
+while other colors add highlights. Here the lower half of the x
+coordinates is blue and the upper half is red.
+
+``` r
+
+x <- coords(left)[, 1]
+colors <- ifelse(x > median(x), "#FF0000", "#0000FF")
+with_rgl_scene({
+  view_surface(left, vert_clrs = colors, alpha = 0.6,
+               viewpoint = "ventral", specular = "black",
+               new_window = FALSE)
+  invisible(NULL)
+})
+```
+
+The `lit` argument controls whether lighting affects the material. These
+choices change the displayed scene, not the stored geometry or vertex
+data.
+
+## Change viewpoints and combine hemispheres
+
+Supported views include `"lateral"`, `"medial"`, `"ventral"`, and
+`"posterior"`. Lateral views of opposite hemispheres face different
+orientations, so use separate panels for them. For a posterior view,
+both hemispheres can share one scene because their coordinates separate
+along x.
+
+``` r
+
+with_rgl_scene({
+  view_surface(left, viewpoint = "posterior", offset = c(-5, 0, 0),
+               bgcol = curv_cols_smooth(curvature(left)),
+               new_window = FALSE)
+  view_surface(right, viewpoint = "posterior", offset = c(5, 0, 0),
+               bgcol = curv_cols_smooth(curvature(right)),
+               new_window = FALSE)
+  invisible(NULL)
+})
+```
+
+For static multi-view output,
+[`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
+combines hemispheres and adds labels. See
+[`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md)
+for a full workflow.
+
+## Add markers and plot surface data objects
+
+Markers can refer to vertices, with a radius and color for each marker.
+These three markers use deterministic vertex indices.
+
+``` r
+
+markers <- data.frame(vertex = c(10, 100, 300), radius = 4.5,
+                      color = c("yellow", "cyan", "magenta"))
+with_rgl_scene({
+  view_surface(left, spheres = markers, spheres_as_vertices = TRUE,
+               bgcol = curv_cols_smooth(curv), viewpoint = "lateral",
+               new_window = FALSE)
+  invisible(NULL)
+})
+```
+
+`NeuroSurface` stores values and their vertex indices. Its
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) method passes
+them to the same rendering machinery, so you can override color,
+threshold, opacity, and viewpoint in the plotting call.
+
+``` r
+
+surface <- NeuroSurface(left, indices = seq_along(vertex_values),
+                        data = vertex_values)
+with_rgl_scene({
+  plot(surface, cmap = heat.colors(128), irange = c(-3, 3),
+       viewpoint = "lateral", new_window = FALSE)
+  invisible(NULL)
+})
+```
+
+## Smooth and threshold an activation map
+
+Smoothing and cluster-size thresholding operate on surface data before
+rendering. This synthetic map is an illustration of the workflow, not a
+statistical inference result.
+
+``` r
+
+smoothed <- smooth(surface)
+clustered <- cluster_threshold(smoothed, size = 30,
+                               threshold = c(-0.2, 0.2))
+with_rgl_scene({
+  plot(clustered, cmap = rainbow(100), irange = c(-3, 3),
+       thresh = c(-0.2, 0.2), new_window = FALSE)
+  invisible(NULL)
+})
+```
 
 [`surface_montage()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_montage.md)
-handles the per-panel rendering and layout for us: it captures each
-panel as a static image and tiles them into one figure (falling back to
-a single interactive widget when static snapshots are unavailable). Each
-panel is either a surface or a `list(surface, ...overrides)`, and
-arguments shared by every panel (here `cmap` and `irange`) are passed
-once.
+accepts a list of surfaces or `list(surface, ...overrides)` panels. Its
+static RGL captures require a rendering backend. For example, run this
+in a session where RGL snapshots are available:
 
 ``` r
 
-vals <- rnorm(length(nodes(white_lh_base)))
-ssurf <- smooth(NeuroSurface(white_lh_base, indices = seq_along(vals), data = vals))
-csurf <- cluster_threshold(ssurf, size = 30, threshold = c(-0.2, 0.2))
-
 surface_montage(
-  list(
-    ssurf,                                # all values
-    list(ssurf, thresh = c(-0.2, 0.2)),   # band around zero made transparent
-    list(csurf, thresh = c(-0.2, 0.2))    # + cluster-size threshold (>= 30 nodes)
-  ),
-  cmap = rainbow(100), irange = c(-2, 2), ncol = 3
+  list(smoothed, list(smoothed, thresh = c(-0.2, 0.2)),
+       list(clustered, thresh = c(-0.2, 0.2))),
+  cmap = rainbow(100), irange = c(-3, 3), ncol = 3
 )
 ```
 
-![](displaying-surfaces_files/figure-html/activation-map-1.-montage-1.png)
+## Save an RGL snapshot
 
-## Showing two hemispheres in same scene
-
-For views where the left-right axis maps to the screen (posterior,
-anterior, dorsal), both hemispheres can share a single scene since their
-coordinates naturally separate (LH at x \< 0, RH at x \> 0).
+[`snapshot_surface()`](https://bbuchsbaum.github.io/neurosurf/reference/snapshot_surface.md)
+saves a PNG through the available RGL rendering backend. On a NULL
+device, it requires webshot2 and a headless browser. It may return an
+empty path when no usable snapshot is available. The following is an
+interactive export recipe; building this article does not launch a
+browser.
 
 ``` r
 
-# Two hemispheres shown from posterior viewpoint
-.render_counter$n <- .render_counter$n + 1
-posterior_file <- knitr::fig_path(paste0("-posterior-", .render_counter$n, ".png"))
-dir.create(dirname(posterior_file), recursive = TRUE, showWarnings = FALSE)
-
-img_path <- try({
-  file <- posterior_file
-  rgl::open3d()
-  rgl::par3d(windowRect = c(0, 0, 1200, 600))
-  rgl::bg3d(color = "white")
-
-  # LH and RH sit naturally at x<0 and x>0; small offset adds breathing room
-  view_surface(white_lh_display, bgcol = curv_cols_smooth(curv_lh_display),
-               viewpoint = "posterior", new_window = FALSE, offset = c(-5, 0, 0))
-  view_surface(white_rh_display, bgcol = curv_cols_smooth(curv_rh_display),
-               viewpoint = "posterior", new_window = FALSE, offset = c(5, 0, 0))
-  rgl::view3d(fov = 0, zoom = 0.55,
-              userMatrix = rbind(c(1,0,0,0), c(0,0,1,0), c(0,-1,0,0), c(0,0,0,1)))
-  snapshot_current_scene(file)
-}, silent = TRUE)
-try(rgl::close3d(), silent = TRUE)
-
-if (!inherits(img_path, "try-error") && snapshot_is_usable(img_path)) {
-  knitr::include_graphics(img_path)
-} else {
-  # Fallback to rglwidget
-  rgl::open3d()
-  view_surface(white_lh_display, bgcol = curv_cols_smooth(curv_lh_display),
-               viewpoint = "posterior", new_window = FALSE, offset = c(-5, 0, 0))
-  view_surface(white_rh_display, bgcol = curv_cols_smooth(curv_rh_display),
-               viewpoint = "posterior", new_window = FALSE, offset = c(5, 0, 0))
-  rgl::view3d(fov = 0, zoom = 0.55,
-              userMatrix = rbind(c(1,0,0,0), c(0,0,1,0), c(0,-1,0,0), c(0,0,0,1)))
-  rgl::rglwidget()
+file <- tempfile(fileext = ".png")
+path <- snapshot_surface(left, file = file, vals = vertex_values,
+                         cmap = rainbow(256), viewpoint = "lateral")
+if (length(path)) {
+  png::readPNG(path)
 }
+unlink(file)
 ```
 
-![](displaying-surfaces_files/figure-html/two-hemi-posterior-1.-posterior-17.png)
-
-## Next Steps
-
-For **interactive 3D visualization** with
-[`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md),
-see
+For browser-free PNG output, use the CPU renderer shown above. For
+authored interactive reports with multiple selectable maps, see
 [`vignette("interactive-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.md).
 
-For **publication-quality multi-view figures**, see
-[`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md).
+The bundled templates retain the FreeSurfer terms in
+`system.file("extdata", "LICENSE-FreeSurfer.txt", package = "neurosurf")`.

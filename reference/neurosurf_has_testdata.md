@@ -1,6 +1,6 @@
-# Check if optional test data is available
+# Check if test data is available
 
-Check if optional test data is available
+Check if test data is available
 
 ## Usage
 
@@ -12,8 +12,8 @@ neurosurf_has_testdata(file)
 
 - file:
 
-  Name of the test data file to check.
+  File name.
 
 ## Value
 
-Logical indicating whether the file is available.
+Logical indicating availability.

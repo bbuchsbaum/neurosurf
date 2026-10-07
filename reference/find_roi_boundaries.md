@@ -12,9 +12,11 @@ find_roi_boundaries(
   vertices,
   faces,
   vertex_id,
-  boundary_method = c("midpoint", "faces", "edge_vertices"),
+  boundary_method = c("midpoint", "faces", "edge_vertices", "smooth"),
   verbose = FALSE,
-  use_cpp = TRUE
+  use_cpp = TRUE,
+  boundary_smooth = 3L,
+  t_clamp = c(0.1, 0.9)
 )
 ```
 
@@ -34,7 +36,7 @@ find_roi_boundaries(
 
 - boundary_method:
 
-  One of `"midpoint"`, `"faces"`, or `"edge_vertices"`.
+  One of `"midpoint"`, `"faces"`, `"edge_vertices"`, or `"smooth"`.
 
 - verbose:
 
@@ -44,6 +46,17 @@ find_roi_boundaries(
 
   Logical; if `TRUE`, use optimized C++ implementation (applies to
   `"edge_vertices"` only).
+
+- boundary_smooth:
+
+  Non-negative integer membership-smoothing iterations for `"smooth"`.
+  Zero reproduces midpoint segment geometry.
+
+- t_clamp:
+
+  For `"smooth"`, symmetric edge-fraction bounds `c(lo, 1-lo)`, with
+  `0 < lo <= 1/3` and upper bound below 1. `lo` also bounds each
+  junction barycentric coordinate. Cannot be NULL.
 
 ## Value
 
@@ -72,9 +85,23 @@ A list with elements:
   For `"edge_vertices"`: list of integer vectors giving the vertex ids
   used for each boundary polygon; `NULL` for `"faces"`.
 
+For `"smooth"`, `boundary` contains ordered polylines (closed paths
+repeat their first point). Additional fields are `label_pair` (two
+sorted labels per path), `closed`, `path_nodes`, a unique `nodes` table,
+and `crossings`/`junctions` provenance tables. Crossings store canonical
+vertex indices `i < j`, endpoint labels, `node_id`, signed margins
+`d_i`/`d_j`, pre-clamp `t_raw`, final `t`, and fallback/clamp flags.
+Junctions store `face_id`, `node_id`, raw `w_raw1:w_raw3` and final
+`w1:w3` barycentrics in input-face order, and fallback/projection flags.
+`provenance` records the algorithm version, kernel, iterations, clamp,
+score tolerance, and tie rule (smallest incident label). Legacy
+single-owner `boundary_roi_id`, `roi_components`, and `boundary_verts`
+are NULL in this mode. Empty results preserve field types and
+dimensions.
+
 ## Details
 
-Three boundary representations are currently supported:
+Four boundary representations are currently supported:
 
 - `"midpoint"` (default): returns crisp single-width contour segments
   that run *between* differing labels, through the midpoints of the mesh
@@ -82,12 +109,34 @@ Three boundary representations are currently supported:
   clean ROI/atlas outlines: shared borders are drawn once (no double
   lines) and adjacent segments join into continuous contours.
 
+- `"smooth"`: returns chained polylines from a constrained partition
+  guided by smoothed memberships. Original vertex labels and mesh-edge
+  parcel adjacency are preserved, including small parcels.
+
 - `"faces"`: returns a logical vector indicating which faces lie on a
   boundary between ROIs.
 
 - `"edge_vertices"`: returns boundary polygons traced through mesh
   vertices. Borders are traced along vertices on both sides of a
   boundary, which can read as a thicker double line on coarse meshes.
+
+The smooth mode uses distinct one-ring neighbours and a lazy mean with
+weight 0.5. It places crossings using nonnegative endpoint label
+margins, falling back to a midpoint when neither endpoint supports its
+original label. Three-label junctions are equal-score solutions
+projected onto the interior barycentric simplex; singular solutions use
+the centroid. This is a piecewise-linear, vertex-preserving partition,
+not exact extraction of the unconstrained membership argmax. It matches
+`prepare_surface_parcels(boundary_method = "smooth")` for the same
+geometry, effective labels, smoothing, and clamp.
+
+Smooth labels must be nonnegative R-representable integers (0 denotes
+the medial wall in rendering). Open meshes and unused vertices are
+supported. Duplicate/zero-area faces, repeated face indices, and edges
+incident to more than two faces are rejected. A non-manifold vertex
+alone is allowed. Shared border nodes are keyed by topology, never
+rounded coordinates. Existing modes retain their original input and
+output contracts.
 
 ## Examples
 

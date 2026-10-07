@@ -13,7 +13,7 @@ for use with neurosurf objects."><link href="../albers.css" rel="stylesheet"><sc
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,9 +59,11 @@ for use with neurosurf objects.</p>
 <span>  <span class="va">vertices</span>,</span>
 <span>  <span class="va">faces</span>,</span>
 <span>  <span class="va">vertex_id</span>,</span>
-<span>  boundary_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"midpoint"</span>, <span class="st">"faces"</span>, <span class="st">"edge_vertices"</span><span class="op">)</span>,</span>
+<span>  boundary_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"midpoint"</span>, <span class="st">"faces"</span>, <span class="st">"edge_vertices"</span>, <span class="st">"smooth"</span><span class="op">)</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  use_cpp <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  use_cpp <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  boundary_smooth <span class="op">=</span> <span class="fl">3L</span>,</span>
+<span>  t_clamp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -82,8 +84,8 @@ for use with neurosurf objects.</p>
 
 
 <dt id="arg-boundary-method">boundary_method<a class="anchor" aria-label="anchor" href="#arg-boundary-method"></a></dt>
-<dd><p>One of <code>"midpoint"</code>, <code>"faces"</code>, or
-<code>"edge_vertices"</code>.</p></dd>
+<dd><p>One of <code>"midpoint"</code>, <code>"faces"</code>,
+<code>"edge_vertices"</code>, or <code>"smooth"</code>.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -93,6 +95,17 @@ for use with neurosurf objects.</p>
 <dt id="arg-use-cpp">use_cpp<a class="anchor" aria-label="anchor" href="#arg-use-cpp"></a></dt>
 <dd><p>Logical; if <code>TRUE</code>, use optimized C++ implementation
 (applies to <code>"edge_vertices"</code> only).</p></dd>
+
+
+<dt id="arg-boundary-smooth">boundary_smooth<a class="anchor" aria-label="anchor" href="#arg-boundary-smooth"></a></dt>
+<dd><p>Non-negative integer membership-smoothing iterations
+for <code>"smooth"</code>. Zero reproduces midpoint segment geometry.</p></dd>
+
+
+<dt id="arg-t-clamp">t_clamp<a class="anchor" aria-label="anchor" href="#arg-t-clamp"></a></dt>
+<dd><p>For <code>"smooth"</code>, symmetric edge-fraction bounds
+<code>c(lo, 1-lo)</code>, with <code>0 &lt; lo &lt;= 1/3</code> and upper bound below 1.
+<code>lo</code> also bounds each junction barycentric coordinate. Cannot be NULL.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -119,20 +132,51 @@ for use with neurosurf objects.</p>
     for <code>"faces"</code>.</p></dd>
 
 
-</dl></div>
+</dl><p>For <code>"smooth"</code>, <code>boundary</code> contains ordered polylines (closed
+paths repeat their first point). Additional fields are <code>label_pair</code>
+(two sorted labels per path), <code>closed</code>, <code>path_nodes</code>, a unique
+<code>nodes</code> table, and <code>crossings</code>/<code>junctions</code> provenance tables.
+Crossings store canonical vertex indices <code>i &lt; j</code>, endpoint labels,
+<code>node_id</code>, signed margins <code>d_i</code>/<code>d_j</code>, pre-clamp
+<code>t_raw</code>, final <code>t</code>, and fallback/clamp flags. Junctions store
+<code>face_id</code>, <code>node_id</code>, raw <code>w_raw1:w_raw3</code> and final
+<code>w1:w3</code> barycentrics in input-face order, and fallback/projection flags.
+<code>provenance</code> records the algorithm version, kernel, iterations, clamp,
+score tolerance, and tie rule (smallest incident label). Legacy single-owner
+<code>boundary_roi_id</code>, <code>roi_components</code>, and <code>boundary_verts</code>
+are NULL in this mode. Empty results preserve field types and dimensions.</p>
+    </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Three boundary representations are currently supported:</p><ul><li><p><code>"midpoint"</code> (default): returns crisp single-width contour
+    <p>Four boundary representations are currently supported:</p><ul><li><p><code>"midpoint"</code> (default): returns crisp single-width contour
     segments that run <em>between</em> differing labels, through the midpoints
     of the mesh edges that separate them. This is the recommended method for
     drawing clean ROI/atlas outlines: shared borders are drawn once (no
     double lines) and adjacent segments join into continuous contours.</p></li>
+<li><p><code>"smooth"</code>: returns chained polylines from a constrained
+    partition guided by smoothed memberships. Original vertex labels and
+    mesh-edge parcel adjacency are preserved, including small parcels.</p></li>
 <li><p><code>"faces"</code>: returns a logical vector indicating which faces lie
     on a boundary between ROIs.</p></li>
 <li><p><code>"edge_vertices"</code>: returns boundary polygons traced through
     mesh vertices. Borders are traced along vertices on both sides of a
     boundary, which can read as a thicker double line on coarse meshes.</p></li>
-</ul></div>
+</ul><p>The smooth mode uses distinct one-ring neighbours and a lazy mean
+  with weight 0.5. It places crossings using nonnegative endpoint label
+  margins, falling back to a midpoint when neither endpoint supports its
+  original label. Three-label junctions are equal-score solutions projected
+  onto the interior barycentric simplex; singular solutions use the centroid.
+  This is a piecewise-linear, vertex-preserving partition, not exact
+  extraction of the unconstrained membership argmax. It matches
+  <code>prepare_surface_parcels(boundary_method = "smooth")</code> for the same
+  geometry, effective labels, smoothing, and clamp.</p>
+<p>Smooth labels must be nonnegative R-representable integers (0 denotes the
+  medial wall in rendering). Open meshes and unused vertices are supported.
+  Duplicate/zero-area faces, repeated face indices, and edges incident to
+  more than two faces are rejected. A non-manifold vertex alone is allowed.
+  Shared border nodes are keyed by topology, never rounded coordinates.
+  Existing modes retain their original input and output contracts.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

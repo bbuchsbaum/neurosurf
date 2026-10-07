@@ -1,6 +1,6 @@
-# Get the neurosurf cache directory
+# Get the synthetic fixture cache directory
 
-Get the neurosurf cache directory
+Get the synthetic fixture cache directory
 
 ## Usage
 
@@ -10,4 +10,4 @@ neurosurf_cache_dir()
 
 ## Value
 
-Path to the cache directory
+Path to the versioned cache directory.
