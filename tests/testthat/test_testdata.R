@@ -63,7 +63,10 @@ test_that("the compatibility wrapper generates identical files in a cache", {
   old_timeout <- getOption("timeout")
   old_seed <- get0(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
   expect_silent(paths <- neurosurf_download_testdata("all", quiet = TRUE))
-  expect_true(all(dirname(paths) == file.path(cache, "extdata")))
+  parents <- dirname(normalizePath(paths, winslash = "/", mustWork = TRUE))
+  expected <- normalizePath(file.path(cache, "extdata"), winslash = "/",
+                            mustWork = TRUE)
+  expect_true(all(parents == expected))
   expect_true(all(file.exists(paths)))
   expect_identical(getOption("timeout"), old_timeout)
   expect_identical(get0(".Random.seed", envir = .GlobalEnv,
