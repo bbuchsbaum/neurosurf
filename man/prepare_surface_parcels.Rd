@@ -9,7 +9,9 @@ prepare_surface_parcels(
   labels,
   anatomy_metric = NULL,
   cortex_mask = NULL,
-  boundary_smooth = 3L
+  boundary_smooth = 3L,
+  boundary_method = c("membership", "smooth"),
+  t_clamp = c(0.1, 0.9)
 )
 }
 \arguments{
@@ -25,6 +27,13 @@ treated as medial wall. Defaults to `labels != 0`.}
 
 \item{boundary_smooth}{Laplacian iterations applied to label memberships.
 0 gives piecewise-linear boundaries through triangle edge midpoints.}
+
+\item{boundary_method}{\code{"membership"} (default) retains the original
+per-face interpolated-membership argmax. \code{"smooth"} prepares the
+shared vertex-preserving partition used by [find_roi_boundaries()].}
+
+\item{t_clamp}{Symmetric edge bounds for \code{"smooth"}; see
+[find_roi_boundaries()]. Ignored by \code{"membership"}.}
 }
 \value{
 A `surface_parcel_prep` object.
@@ -35,4 +44,14 @@ outward vertex normals, a normalized anatomical underlay, and smoothed
 label memberships that let parcel boundaries follow smooth curves through
 mesh triangles instead of stair-stepping along triangle edges. Reuse the
 result across cameras and value maps.
+}
+\details{
+In smooth mode, labels must be nonnegative integers. The cortex
+  mask is applied before partition construction; preservation refers to
+  these effective labels. The prepared object retains labelled face cells,
+  boundary paths and their provenance in \code{partition}. Rendering reuses
+  this partition across cameras and value maps. The partition does not
+  reproduce the unconstrained membership argmax. Existing input behaviour
+  is retained in membership mode, except that fractional smoothing counts
+  are rejected rather than truncated.
 }

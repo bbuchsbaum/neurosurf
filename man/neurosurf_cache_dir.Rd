@@ -2,14 +2,14 @@
 % Please edit documentation in R/testdata.R
 \name{neurosurf_cache_dir}
 \alias{neurosurf_cache_dir}
-\title{Get the neurosurf cache directory}
+\title{Get the synthetic fixture cache directory}
 \usage{
 neurosurf_cache_dir()
 }
 \value{
-Path to the cache directory
+Path to the versioned cache directory.
 }
 \description{
-Get the neurosurf cache directory
+Get the synthetic fixture cache directory
 }
 \keyword{internal}

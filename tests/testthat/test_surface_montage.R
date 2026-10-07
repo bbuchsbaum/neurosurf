@@ -70,6 +70,22 @@ test_that("surface_montage composes a static montage when rgl can render", {
                        error = function(e) FALSE)
   skip_if_not(can_open, "Cannot open an rgl device in this session")
 
+  # webshot2 otherwise leaves its default browser running until R exits,
+  # after R CMD check has inspected the temporary directory. Own and close
+  # the browser we start, while preserving any existing user session.
+  browser <- NULL
+  if (rgl::rgl.useNULL() && !chromote::has_default_chromote_object()) {
+    profile <- tempfile("montage-browser-")
+    dir.create(profile)
+    withr::defer(unlink(profile, recursive = TRUE))
+    browser <- chromote::Chromote$new(browser = chromote::Chrome$new(
+      args = c(chromote::get_chrome_args(),
+               paste0("--user-data-dir=", normalizePath(profile)))
+    ))
+    withr::defer(browser$close())
+    chromote::set_default_chromote_object(browser)
+  }
+
   geom <- example_surface_geometry()
   set.seed(1)
   vals <- rnorm(nrow(coords(geom)))
@@ -87,4 +103,8 @@ test_that("surface_montage composes a static montage when rgl can render", {
   img <- png::readPNG(out)
   expect_equal(length(dim(img)), 3L)
   expect_equal(dim(img)[2], 480L)   # two 240-wide panels in one row
+  if (!is.null(browser)) {
+    browser$close()
+    expect_false(browser$is_alive())
+  }
 })

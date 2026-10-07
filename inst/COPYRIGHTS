@@ -1,0 +1,32 @@
+The R and C++ code in neurosurf is copyright Bradley R. Buchsbaum and is
+licensed under GPL version 2 or later, as declared in DESCRIPTION.
+
+The package also distributes these separately licensed components:
+
+* The surfview runtime: Bradley Buchsbaum (MIT), Three.js authors (MIT),
+  and the authors of colormap, fflate and lerp (MIT). Exact versions and
+  complete original notices are in
+  htmlwidgets/lib/neurosurface/THIRD-PARTY-NOTICES.txt. The same notices
+  are preserved in the JavaScript itself, including when exported in a
+  standalone report. The matching source is in surfview-source.tar.xz
+  in that directory; SOURCE.md describes its contents and reconstruction.
+
+* FreeSurfer fsaverage templates: The General Hospital Corporation.
+  The unmodified fsaverage5 files and the modified std.8 meshes retain
+  the terms in extdata/LICENSE-FreeSurfer.txt. Modification history,
+  original locations, and checksums are in extdata/PROVENANCE.md and
+  extdata/PROVENANCE.json.
+
+* Schaefer-200 parcellation: Computational Brain Imaging Group (CBIG),
+  copyright 2016, MIT. See extdata/LICENSE-CBIG.txt and the provenance
+  record for the exact upstream file.
+
+Synthetic GIFTI/NIML fixtures produced by neurosurf_generate_testdata()
+contain no subject or third-party data. Their generation code and output
+are licensed under GPL version 2 or later. The historical optional rscan
+downloads are retired because their redistribution provenance is unknown.
+
+These third-party licenses apply to their respective components. The GPL
+statement for neurosurf does not replace their original notices or terms.
+Vignettes use system fonts; font binaries and the retired viewer build
+and bundles are excluded from the source package.
