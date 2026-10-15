@@ -1,0 +1,671 @@
+diff --git a/src/MultiLayerNeuroSurface.ts b/src/MultiLayerNeuroSurface.ts
+index 58e0b88..4045957 100644
+--- a/src/MultiLayerNeuroSurface.ts
++++ b/src/MultiLayerNeuroSurface.ts
+@@ -18,6 +18,7 @@ import {
+   LayerOrderResult
+ } from './layers';
+ import ColorMap2D, { ColorMap2DPreset } from './ColorMap2D';
++import { ReferenceLayer } from './layers/ReferenceLayer';
+ import { CurvatureLayer } from './layers/CurvatureLayer';
+ import { ClipPlaneSet, ClipPlane, ClipAxis } from './utils/ClipPlane';
+ import { debugLog, isDebugEnabled } from './debug';
+@@ -1152,11 +1153,25 @@ export class MultiLayerNeuroSurface extends NeuroSurface {
+     }
+ 
+     const collectDebugStats = isDebugEnabled();
+-    const edgeLayer = this.thresholdEdgeLayer(visibleLayers);
++    const reference = visibleLayers.find(layer => layer instanceof ReferenceLayer) as ReferenceLayer | undefined;
++    const geometry = this.mesh?.geometry as THREE.BufferGeometry | undefined;
++    if (geometry) {
++      let attr = geometry.getAttribute('surfviewReference') as THREE.BufferAttribute | undefined;
++      if (!attr) {
++        attr = new THREE.BufferAttribute(new Float32Array(this.vertexCount), 1);
++        geometry.setAttribute('surfviewReference', attr);
++      }
++      (attr.array as Float32Array).set(reference?.membership ?? new Float32Array(this.vertexCount));
++      attr.needsUpdate = true;
++    }
++    this.shadingUniforms.surfviewReferenceColor.value = reference
++      ? [...reference.color, reference.opacity] : [0, 0, 0, 0];
++    const hasReference = this.layerStack.getAllLayers().some(layer => layer instanceof ReferenceLayer);
++    const edgeLayer = this.thresholdEdgeLayer(visibleLayers, hasReference);
+ 
+     // Composite each layer
+     for (const layer of visibleLayers) {
+-      if (layer === edgeLayer) continue;
++      if (layer === edgeLayer || layer instanceof ReferenceLayer) continue;
+       try {
+         debugLog('MultiLayerNeuroSurface: Processing layer', layer.id, '(type:', layer.constructor.name, ')');
+         const layerRGBA = layer.getRGBAData(this.vertexCount);
+@@ -1208,7 +1223,7 @@ export class MultiLayerNeuroSurface extends NeuroSurface {
+    * blending. Parcel, temporal and statistical subclasses keep per-vertex
+    * edges, since their values are not meant to be interpolated.
+    */
+-  private thresholdEdgeLayer(visibleLayers: Layer[]): DataLayer | null {
++  private thresholdEdgeLayer(visibleLayers: Layer[], hasReference = false): DataLayer | null {
+     if (!this.thresholdEdges || !this.mesh) return null;
+     const top = visibleLayers[visibleLayers.length - 1];
+     if (!(top instanceof DataLayer) || Object.getPrototypeOf(top) !== DataLayer.prototype ||
+@@ -1216,7 +1231,7 @@ export class MultiLayerNeuroSurface extends NeuroSurface {
+       return null;
+     }
+     const [low, high] = top.getThreshold();
+-    return high > low ? top : null;
++    return high > low || hasReference ? top : null;
+   }
+ 
+   private applyThresholdEdges(layer: DataLayer | null): void {
+@@ -1236,6 +1251,11 @@ export class MultiLayerNeuroSurface extends NeuroSurface {
+           overlay.array as Float32Array,
+           edge.array as Float32Array
+         );
++        if (!enabled && this.layerStack.getAllLayers().some(l => l instanceof ReferenceLayer)) {
++          (overlay.array as Float32Array).set(layer.getRGBAData(this.vertexCount));
++          (edge.array as Float32Array).fill(1);
++          enabled = true;
++        }
+         if (enabled) {
+           // The shader draws the contour between shown and hidden vertices,
+           // so it needs each vertex's visibility, not its distance.
+@@ -1409,6 +1429,7 @@ export class MultiLayerNeuroSurface extends NeuroSurface {
+     this.edgeBuffer = new Float32Array(this.vertexCount).fill(-1);
+     geometry.setAttribute(SURFACE_OVERLAY_ATTRIBUTE, new THREE.BufferAttribute(this.overlayBuffer, 4));
+     geometry.setAttribute(SURFACE_EDGE_ATTRIBUTE, new THREE.BufferAttribute(this.edgeBuffer, 1));
++    geometry.setAttribute('surfviewReference', new THREE.BufferAttribute(new Float32Array(this.vertexCount), 1));
+ 
+     let material: THREE.Material;
+ 
+diff --git a/src/controls/ControlTarget.ts b/src/controls/ControlTarget.ts
+index 305251d..39f2a37 100644
+--- a/src/controls/ControlTarget.ts
++++ b/src/controls/ControlTarget.ts
+@@ -208,6 +208,11 @@ export interface SurfViewControlCapabilities {
+   readonly exportPNG: CapabilityAvailability;
+   /** Absent for ordinary viewers unless an application explicitly supplies it. */
+   readonly exclusiveMap?: ExclusiveMapCapability;
++  /** Persistent categorical references, independently visible below the exclusive map. */
++  readonly referenceLayers?: {
++    readonly availability: CapabilityAvailability;
++    readonly layerIds: readonly string[];
++  };
+ }
+ 
+ /** Deeply readonly, JSON-like canonical state observed by every session. */
+diff --git a/src/layers/ReferenceLayer.ts b/src/layers/ReferenceLayer.ts
+new file mode 100644
+index 0000000..82f1572
+--- /dev/null
++++ b/src/layers/ReferenceLayer.ts
+@@ -0,0 +1,13 @@
++import { RGBALayer } from '../layers';
++import type { LayerConfig } from '../layers';
++
++/** Full binary vertex membership, rendered categorically at fragment level. */
++export class ReferenceLayer extends RGBALayer {
++  constructor(id: string, readonly membership: Float32Array,
++              readonly color: readonly number[], config: LayerConfig) {
++    super(id, new Float32Array(membership.length * 4), config);
++    if (membership.some(value => value !== 0 && value !== 1)) {
++      throw new Error('Reference membership must be finite and binary');
++    }
++  }
++}
+diff --git a/src/report/ReportControls.ts b/src/report/ReportControls.ts
+index 440ec4f..33019be 100644
+--- a/src/report/ReportControls.ts
++++ b/src/report/ReportControls.ts
+@@ -74,6 +74,10 @@ export class ReportControls {
+   private readonly select: HTMLSelectElement;
+   private readonly legend: HTMLSpanElement;
+   private readonly feedback: HTMLSpanElement;
++  private readonly referenceGroup = document.createElement('fieldset');
++  private readonly referenceToggle = document.createElement('input');
++  private readonly referenceOpacity = document.createElement('input');
++  private readonly referenceLabel = document.createElement('span');
+   private readonly resetButton: HTMLButtonElement;
+   private readonly exportButton: HTMLButtonElement;
+   private readonly viewInputs = new Map<AnatomicalView, HTMLInputElement>();
+@@ -111,6 +115,36 @@ export class ReportControls {
+     }, { signal: this.events.signal });
+     mapLabel.appendChild(this.select);
+     this.element.appendChild(mapLabel);
++    this.referenceGroup.setAttribute('aria-label', 'Anatomical reference');
++    const referenceLegend = document.createElement('legend');
++    referenceLegend.textContent = 'Anatomical reference';
++    const toggleLabel = document.createElement('label');
++    this.referenceToggle.type = 'checkbox';
++    this.referenceToggle.setAttribute('aria-label', 'Show anatomical reference');
++    toggleLabel.append(this.referenceToggle, this.referenceLabel);
++    const opacityLabel = document.createElement('label');
++    opacityLabel.textContent = 'Opacity ';
++    opacityLabel.style.marginLeft = '8px';
++    this.referenceOpacity.type = 'range';
++    this.referenceOpacity.min = '0'; this.referenceOpacity.max = '1'; this.referenceOpacity.step = '0.01';
++    this.referenceOpacity.setAttribute('aria-label', 'Anatomical reference opacity');
++    opacityLabel.append(this.referenceOpacity);
++    this.referenceGroup.append(referenceLegend, toggleLabel, opacityLabel);
++    const referenceAddress = () => {
++      for (const s of this.session.getSnapshot().canonical.surfaces) {
++        const layer = s.layers.find(l => l.metadata?.role === 'reference');
++        if (layer) return { surfaceId: s.id, layerId: layer.id };
++      }
++      return null;
++    };
++    this.referenceToggle.addEventListener('change', () => {
++      const address = referenceAddress();
++      if (address) this.reportResult(this.session.setLayerVisibility(address, this.referenceToggle.checked));
++    }, { signal: this.events.signal });
++    this.referenceOpacity.addEventListener('input', () => {
++      const address = referenceAddress();
++      if (address) this.reportResult(this.session.setLayerOpacity(address, Number(this.referenceOpacity.value)));
++    }, { signal: this.events.signal });
+ 
+     const viewGroup = document.createElement('fieldset');
+     Object.assign(viewGroup.style, {
+@@ -212,6 +246,18 @@ export class ReportControls {
+   private render(snapshot: SurfViewControlSessionSnapshot): void {
+     if (this.disposed) return;
+     const { canonical } = snapshot;
++    const reference = canonical.surfaces.flatMap(s => s.layers).find(l => l.metadata?.role === 'reference');
++    this.referenceGroup.hidden = !reference;
++    if (reference && !this.referenceGroup.parentNode) {
++      this.element.insertBefore(this.referenceGroup, this.resetButton);
++    }
++    if (reference) {
++      this.referenceToggle.checked = reference.visible;
++      this.referenceOpacity.value = String(reference.opacity);
++      this.referenceLabel.textContent = reference.label;
++      this.referenceLabel.style.borderLeft = `12px solid ${reference.metadata?.color}`;
++      this.referenceLabel.style.paddingLeft = '4px';
++    }
+     const exclusiveMap = canonical.capabilities.exclusiveMap;
+     const availableLayerIds = exclusiveMap?.availableLayerIds ?? [];
+     const optionSignature = availableLayerIds.map(layerId => {
+diff --git a/src/report/ReportSceneControlTarget.ts b/src/report/ReportSceneControlTarget.ts
+index 36026b1..150325e 100644
+--- a/src/report/ReportSceneControlTarget.ts
++++ b/src/report/ReportSceneControlTarget.ts
+@@ -247,23 +247,58 @@ export class ReportSceneControlTarget implements SurfViewControlTarget {
+   }
+ 
+   setLayerVisibility(
+-    _address: LayerControlAddress,
+-    _visible: boolean
++    address: LayerControlAddress,
++    visible: boolean
+   ): ControlCommandResult {
+-    return this.commandUnavailable() ?? failure(
++    const unavailable = this.commandUnavailable();
++    if (unavailable) return unavailable;
++    if (this.controller.manifest.layers[address.layerId]?.role === 'reference') {
++      if (typeof visible !== 'boolean') return failure('invalid-value', 'Visibility must be boolean');
++      if (!this.snapshot.surfaces.some(s => s.id === address.surfaceId &&
++          s.layers.some(l => l.id === address.layerId))) return failure('layer-not-found', 'Reference not found');
++      return this.referenceCommand(() => {
++        for (const surface of this.snapshot.surfaces) {
++          if (surface.layers.some(layer => layer.id === address.layerId)) {
++            const result = this.viewerTarget.setLayerVisibility({ surfaceId: surface.id, layerId: address.layerId }, visible);
++            if (!result.ok) return result;
++          }
++        }
++        return Object.freeze({ ok: true });
++      });
++    }
++    return failure(
+       'unsupported',
+       'Report scenes use setDisplayedLayer() to preserve their exclusive-map policy.'
+     );
+   }
+ 
+   setLayerOpacity(address: LayerControlAddress, opacity: number): ControlCommandResult {
+-    return this.commandUnavailable() ?? this.viewerTarget.setLayerOpacity(address, opacity);
++    const unavailable = this.commandUnavailable();
++    if (unavailable) return unavailable;
++    if (this.controller.manifest.layers[address.layerId]?.role !== 'reference') {
++      return this.viewerTarget.setLayerOpacity(address, opacity);
++    }
++    if (!Number.isFinite(opacity) || opacity < 0 || opacity > 1) return failure('invalid-value', 'Opacity must be in [0,1]');
++    if (!this.snapshot.surfaces.some(s => s.id === address.surfaceId &&
++        s.layers.some(l => l.id === address.layerId))) return failure('layer-not-found', 'Reference not found');
++    return this.referenceCommand(() => {
++      for (const surface of this.snapshot.surfaces) {
++        if (surface.layers.some(layer => layer.id === address.layerId)) {
++          const result = this.viewerTarget.setLayerOpacity({ surfaceId: surface.id, layerId: address.layerId }, opacity);
++          if (!result.ok) return result;
++        }
++      }
++      return Object.freeze({ ok: true });
++    });
+   }
+ 
+   setLayerBlendMode(
+     address: LayerControlAddress,
+     blendMode: BlendMode
+   ): ControlCommandResult {
++    if (this.controller.manifest.layers[address.layerId]?.role === 'reference') {
++      return this.commandUnavailable() ?? failure('unsupported', 'Reference blending is fixed to source-over');
++    }
+     return this.commandUnavailable() ??
+       this.viewerTarget.setLayerBlendMode(address, blendMode);
+   }
+@@ -317,6 +352,19 @@ export class ReportSceneControlTarget implements SurfViewControlTarget {
+       : null;
+   }
+ 
++  private referenceCommand(command: () => ControlCommandResult): ControlCommandResult {
++    this.coordinatedCommandDepth++;
++    try { return command(); }
++    finally {
++      this.coordinatedCommandDepth--;
++      if (!this.coordinatedCommandDepth && this.pendingBaseSnapshot) {
++        const pending = this.pendingBaseSnapshot;
++        this.pendingBaseSnapshot = null;
++        this.publishBaseSnapshot(pending);
++      }
++    }
++  }
++
+   private publishBaseSnapshot(base: SurfViewControlSnapshot): void {
+     const revision = Math.max(base.revision, this.snapshot.revision + 1);
+     this.snapshot = this.buildSnapshot(base, revision);
+@@ -342,10 +390,15 @@ export class ReportSceneControlTarget implements SurfViewControlTarget {
+         anatomicalViews: this.controller.getViewTarget()
+           ? ENABLED
+           : disabled('No coordinated report view target is available.'),
+-        layerVisibility: disabled(
+-          'Report scenes use one displayed map selected through the exclusive-map capability.'
+-        ),
++        layerVisibility: Object.values(this.controller.manifest.layers).some(l => l.role === 'reference')
++          ? ENABLED : disabled('Report maps use exclusive selection.'),
+         layerOrder: disabled('Report map order is fixed by the portable scene manifest.'),
++        ...(Object.values(this.controller.manifest.layers).some(l => l.role === 'reference') ? {
++          referenceLayers: {
++            availability: ENABLED,
++            layerIds: Object.values(this.controller.manifest.layers).filter(l => l.role === 'reference').map(l => l.id)
++          }
++        } : {}),
+         exclusiveMap: {
+           availability: exclusiveAvailability,
+           displayedLayerId: this.controller.getState().displayedLayerId,
+@@ -400,7 +453,8 @@ export class ReportSceneControlTarget implements SurfViewControlTarget {
+       ...selection,
+       inspection: {
+         ...selection.inspection,
+-        values: selection.inspection.values.map(value => {
++        values: selection.inspection.values.filter(value =>
++          this.controller.manifest.layers[value.layerId]?.role !== 'reference').map(value => {
+           const manifest = this.controller.manifest.layers[value.layerId];
+           if (!manifest) return value;
+           return {
+@@ -437,6 +491,8 @@ export class ReportSceneControlTarget implements SurfViewControlTarget {
+     const legend = asControlObject(manifest.legend);
+     const joined = asControlObject({
+       ...(metadata ?? {}),
++      role: manifest.role ?? 'map',
++      ...(manifest.role === 'reference' ? { color: manifest.color } : {}),
+       ...(provenance ? { provenance } : {}),
+       ...(legend ? { legend } : {})
+     });
+diff --git a/src/report/ReportSceneController.ts b/src/report/ReportSceneController.ts
+index 9740a71..d6967c9 100644
+--- a/src/report/ReportSceneController.ts
++++ b/src/report/ReportSceneController.ts
+@@ -500,6 +500,7 @@ export class ReportSceneController {
+ 
+   getAvailableLayerIds(): readonly string[] {
+     return Object.freeze(Object.values(this.manifest.layers)
++      .filter(layer => layer.role !== 'reference')
+       .filter(layer => this.getReportSurfaces().some(({ id }) =>
+         this.viewer.getOrderedLayers(id).some(candidate => candidate.id === layer.id)
+       ))
+@@ -534,13 +535,17 @@ export class ReportSceneController {
+     if (!this.manifest.layers[layerId]) {
+       return failure('layer-not-found', `Report layer "${layerId}" was not found.`);
+     }
++    if (this.manifest.layers[layerId].role === 'reference') {
++      return failure('invalid-value', 'A reference cannot be selected as a map.');
++    }
+     const reportSurfaces = this.getReportSurfaces();
+     if (reportSurfaces.length === 0) {
+       return failure('surface-not-found', 'No report surfaces are loaded.');
+     }
+     const layerInstances = reportSurfaces.flatMap(({ id }) =>
+       this.viewer.getOrderedLayers(id).filter(layer =>
+-        Object.prototype.hasOwnProperty.call(this.manifest.layers, layer.id)
++        Object.prototype.hasOwnProperty.call(this.manifest.layers, layer.id) &&
++        this.manifest.layers[layer.id]?.role !== 'reference'
+       )
+     );
+     if (!layerInstances.some(layer => layer.id === layerId)) {
+@@ -756,6 +761,19 @@ export class ReportSceneController {
+   }
+ 
+   resetView(): ControlCommandResult {
++    const unavailable = this.commandUnavailable();
++    if (unavailable) return unavailable;
++    this.withMutationBoundary(() => {
++      for (const { id } of this.getReportSurfaces()) {
++        for (const layer of this.viewer.getOrderedLayers(id)) {
++          const authored = this.manifest.layers[layer.id];
++          if (authored?.role !== 'reference') continue;
++          layer.setVisible(authored.visible ?? true);
++          layer.setOpacity(authored.opacity ?? 1);
++        }
++      }
++      return SUCCESS;
++    });
+     if (this.layout === 'anatomical') return this.setBrainView(this.initialBrainView, { fit: true });
+     const target = this.getViewTarget();
+     return target
+@@ -859,7 +877,8 @@ export class ReportSceneController {
+     const visible = new Set<string>();
+     const surfaceLayers = this.getReportSurfaces().map(({ id }) =>
+       this.viewer.getOrderedLayers(id).filter(layer =>
+-        Object.prototype.hasOwnProperty.call(this.manifest.layers, layer.id)
++        Object.prototype.hasOwnProperty.call(this.manifest.layers, layer.id) &&
++        this.manifest.layers[layer.id]?.role !== 'reference'
+       )
+     );
+     for (const layers of surfaceLayers) {
+diff --git a/src/report/SceneMount.ts b/src/report/SceneMount.ts
+index b9b9115..6f9cc87 100644
+--- a/src/report/SceneMount.ts
++++ b/src/report/SceneMount.ts
+@@ -2,6 +2,7 @@ import { NeuroSurfaceViewer } from '../NeuroSurfaceViewer';
+ import { SurfaceGeometry } from '../classes';
+ import { MultiLayerNeuroSurface } from '../MultiLayerNeuroSurface';
+ import { DataLayer } from '../layers';
++import { ReferenceLayer } from '../layers/ReferenceLayer';
+ import type { FigureExportOptions, SurfViewStylePresetName } from '../StylePresets';
+ import {
+   ANATOMICAL_VIEWS,
+@@ -197,8 +198,8 @@ class SceneMount implements SurfViewMountHandle {
+         : { bilateralGroup: freezeBilateralSurfaceGroup(bilateralGroup) })
+     };
+     this.selectedLayer = manifest.selectedLayer ??
+-      Object.values(manifest.layers).find(layer => layer.visible)?.id ??
+-      Object.keys(manifest.layers)[0] ?? '';
++      Object.values(manifest.layers).find(layer => layer.role !== 'reference' && layer.visible)?.id ??
++      Object.values(manifest.layers).find(layer => layer.role !== 'reference')?.id ?? '';
+     this.selectedView = this.options.initialView;
+ 
+     this.ready = new Promise<void>((resolve, reject) => {
+@@ -283,6 +284,7 @@ class SceneMount implements SurfViewMountHandle {
+   selectLayer(layerId: string): void {
+     const layer = this.manifest.layers[layerId];
+     if (!layer) throw new Error(`Unknown scene layer: ${layerId}`);
++    if (layer.role === 'reference') throw new Error('A reference cannot be selected as a map');
+     this.selectedLayer = layerId;
+     if (!this.mounted || !this.reportTarget) return;
+     const result = this.reportTarget.setDisplayedLayer(layerId);
+@@ -520,7 +522,8 @@ class SceneMount implements SurfViewMountHandle {
+         ...(curvature === null ? {} : { curvature })
+       });
+ 
+-      for (const layerManifest of Object.values(this.manifest.layers)) {
++      for (const layerManifest of Object.values(this.manifest.layers)
++        .sort((a, b) => Number(b.role === 'reference') - Number(a.role === 'reference'))) {
+         const valueManifest = layerManifest.values[geometryManifest.id];
+         if (!valueManifest) continue;
+         const values = this.requireFloat32(assets, valueManifest.values);
+@@ -536,6 +539,15 @@ class SceneMount implements SurfViewMountHandle {
+             }
+           }
+         }
++        if (layerManifest.role === 'reference') {
++          const hex = layerManifest.color!;
++          const color = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
++          surface.addLayer(new ReferenceLayer(layerManifest.id, values, color, {
++            opacity: layerManifest.opacity ?? 1, visible: layerManifest.visible ?? true,
++            order: -1
++          }));
++          continue;
++        }
+         surface.addLayer(new DataLayer(
+           layerManifest.id,
+           values,
+diff --git a/src/scene/SceneManifest.ts b/src/scene/SceneManifest.ts
+index b91e2d6..cb715c7 100644
+--- a/src/scene/SceneManifest.ts
++++ b/src/scene/SceneManifest.ts
+@@ -42,6 +42,9 @@ export interface SceneLayerLegend {
+ }
+ 
+ export interface SurfViewSceneLayerManifest {
++  role?: 'map' | 'reference';
++  color?: string;
++  boundary?: 'linear-membership>=0.5';
+   id: string;
+   label?: string;
+   values: Record<string, SceneLayerValuesManifest>;
+@@ -57,7 +60,7 @@ export interface SurfViewSceneLayerManifest {
+ }
+ 
+ export interface SurfViewSceneManifest {
+-  schemaVersion: typeof SURFVIEW_SCENE_SCHEMA;
++  schemaVersion: typeof SURFVIEW_SCENE_SCHEMA | 'surfview.scene.reference.v1';
+   id: string;
+   assets: Record<string, SceneAssetDescriptor>;
+   geometries: Record<string, SceneGeometryManifest>;
+@@ -131,7 +134,8 @@ export function validateSceneManifest(manifest: SurfViewSceneManifest): SurfView
+   if (!manifest || typeof manifest !== 'object') {
+     throw new SceneManifestError('$', 'must be an object');
+   }
+-  if (manifest.schemaVersion !== SURFVIEW_SCENE_SCHEMA) {
++  if (manifest.schemaVersion !== SURFVIEW_SCENE_SCHEMA &&
++      manifest.schemaVersion !== 'surfview.scene.reference.v1') {
+     throw new SceneManifestError(
+       '$.schemaVersion',
+       `unsupported schema ${String(manifest.schemaVersion)}`
+@@ -245,7 +249,31 @@ export function validateSceneManifest(manifest: SurfViewSceneManifest): SurfView
+   if (layerEntries.length === 0) {
+     throw new SceneManifestError('$.layers', 'must contain at least one layer');
+   }
++  const references = layerEntries.filter(([, layer]) => layer.role === 'reference');
++  if (references.length > 1 || references.length === layerEntries.length) {
++    throw new SceneManifestError('$.layers', 'requires maps and at most one reference');
++  }
++  if (references.length && manifest.schemaVersion !== 'surfview.scene.reference.v1') {
++    throw new SceneManifestError('$.schemaVersion', 'references require surfview.scene.reference.v1');
++  }
++  if (manifest.selectedLayer && manifest.layers[manifest.selectedLayer]?.role === 'reference') {
++    throw new SceneManifestError('$.selectedLayer', 'a reference cannot be selected as a map');
++  }
+   for (const [layerId, layer] of layerEntries) {
++    if (layer.role !== undefined && layer.role !== 'map' && layer.role !== 'reference') {
++      throw new SceneManifestError(`$.layers.${layerId}.role`, 'must be map or reference');
++    }
++    if (layer.visible !== undefined && typeof layer.visible !== 'boolean') {
++      throw new SceneManifestError(`$.layers.${layerId}.visible`, 'must be boolean');
++    }
++    if (layer.role === 'reference' && (
++        !/^#[0-9a-fA-F]{6}$/.test(layer.color ?? '') ||
++        layer.boundary !== 'linear-membership>=0.5' || layer.threshold || layer.units ||
++        layer.limits?.[0] !== 0 || layer.limits?.[1] !== 1 ||
++        Object.keys(layer.values ?? {}).length !== geometryEntries.length ||
++        Object.values(layer.values ?? {}).some(value => value.indices))) {
++      throw new SceneManifestError(`$.layers.${layerId}`, 'invalid full binary reference specification');
++    }
+     if (layer.id !== layerId) {
+       throw new SceneManifestError(`$.layers.${layerId}.id`, 'must match its object key');
+     }
+diff --git a/src/surface/SurfaceShading.ts b/src/surface/SurfaceShading.ts
+index 47ba5d1..96411f6 100644
+--- a/src/surface/SurfaceShading.ts
++++ b/src/surface/SurfaceShading.ts
+@@ -34,6 +34,7 @@ export interface SurfaceShadingOptions {
+ }
+ 
+ export interface SurfaceShadingUniforms {
++  surfviewReferenceColor: { value: number[] };
+   surfviewEdgeEnabled: { value: number };
+   surfviewOutlineWidth: { value: number };
+   surfviewOutlineShade: { value: number };
+@@ -75,6 +76,7 @@ function finiteIn(value: number | undefined, fallback: number, name: string, max
+ 
+ export function createSurfaceShadingUniforms(options: SurfaceShadingOptions = {}): SurfaceShadingUniforms {
+   const uniforms: SurfaceShadingUniforms = {
++    surfviewReferenceColor: { value: [0, 0, 0, 0] },
+     surfviewEdgeEnabled: { value: 0 },
+     surfviewOutlineWidth: { value: 0 },
+     surfviewOutlineShade: { value: 0.55 },
+@@ -104,6 +106,8 @@ export function updateSurfaceShadingUniforms(
+ }
+ 
+ const VERTEX_DECLARATIONS = `
++attribute float surfviewReference;
++varying float vSurfviewReference;
+ attribute vec4 ${SURFACE_OVERLAY_ATTRIBUTE};
+ attribute float ${SURFACE_EDGE_ATTRIBUTE};
+ varying vec4 vSurfviewOverlay;
+@@ -111,6 +115,8 @@ varying float vSurfviewEdge;
+ `;
+ 
+ const FRAGMENT_DECLARATIONS = `
++uniform vec4 surfviewReferenceColor;
++varying float vSurfviewReference;
+ uniform float surfviewEdgeEnabled;
+ uniform float surfviewOutlineWidth;
+ uniform float surfviewOutlineShade;
+@@ -129,6 +135,9 @@ vec3 surfviewGlow = vec3( 0.0 );
+ #else
+   vec4 surfviewBase = vec4( 1.0 );
+ #endif
++if ( vSurfviewReference >= 0.5 && surfviewReferenceColor.a > 0.0 ) {
++  surfviewBase.rgb = mix(surfviewBase.rgb, surfviewReferenceColor.rgb, surfviewReferenceColor.a);
++}
+ if ( surfviewEdgeEnabled > 0.5 ) {
+   float surfviewWidth = max( fwidth( vSurfviewEdge ), 1e-6 );
+   // One-sided coverage: nothing on the hidden side of the contour, at least
+@@ -188,7 +197,7 @@ export function installSurfaceShading(
+       .replace('#include <common>', `#include <common>\n${VERTEX_DECLARATIONS}`)
+       .replace(
+         '#include <color_vertex>',
+-        `#include <color_vertex>\nvSurfviewOverlay = ${SURFACE_OVERLAY_ATTRIBUTE};\nvSurfviewEdge = ${SURFACE_EDGE_ATTRIBUTE};`
++        `#include <color_vertex>\nvSurfviewReference = surfviewReference;\nvSurfviewOverlay = ${SURFACE_OVERLAY_ATTRIBUTE};\nvSurfviewEdge = ${SURFACE_EDGE_ATTRIBUTE};`
+       );
+     shader.fragmentShader = shader.fragmentShader
+       .replace('#include <common>', `#include <common>\n${FRAGMENT_DECLARATIONS}`)
+diff --git a/tests/unit/report-reference.test.ts b/tests/unit/report-reference.test.ts
+new file mode 100644
+index 0000000..2773a5c
+--- /dev/null
++++ b/tests/unit/report-reference.test.ts
+@@ -0,0 +1,94 @@
++/** @vitest-environment jsdom */
++import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
++import { makeReportFixture } from './report-scene-fixture';
++import { ReferenceLayer } from '../../src/layers/ReferenceLayer';
++import { ReportControls } from '../../src/report/ReportControls';
++import { createSurfViewControlSession } from '../../src/controls/ControlSession';
++
++beforeEach(() => {
++  vi.stubGlobal('requestAnimationFrame', () => 1);
++  vi.stubGlobal('cancelAnimationFrame', vi.fn());
++});
++afterEach(() => vi.unstubAllGlobals());
++
++function fixture() {
++  const f = makeReportFixture();
++  f.manifest.schemaVersion = 'surfview.scene.reference.v1';
++  f.manifest.layers.psl = {
++    id: 'psl', role: 'reference', color: '#0000FF', boundary: 'linear-membership>=0.5',
++    colorMap: ['#0000FF', '#0000FF'], limits: [0, 1], opacity: 0.2, visible: true,
++    values: { lh: { values: 'lh-psl' }, rh: { values: 'rh-psl' } },
++    provenance: { source: 'synthetic' }
++  };
++  for (const surface of [f.left, f.right]) {
++    surface.addLayer(new ReferenceLayer('psl', new Float32Array([0, 1, 1, 0]),
++      [0, 0, 1], { opacity: 0.2, order: -1 }));
++  }
++  return f;
++}
++
++describe('binary report reference', () => {
++  it('preserves reference controls and order across exclusive map switches and reset', () => {
++    const f = fixture();
++    const session = createSurfViewControlSession(f.target);
++    const address = { surfaceId: 'lh', layerId: 'psl' };
++    const before = f.target.getSnapshot();
++    try {
++      const notifications: unknown[] = [];
++      const subscription = f.target.subscribe(snapshot => notifications.push(snapshot));
++      notifications.length = 0;
++      expect(session.setLayerOpacity(address, 0.7)).toEqual({ ok: true });
++      expect(notifications).toHaveLength(1);
++      subscription.unsubscribe();
++      expect(f.target.getSnapshot().capabilities.referenceLayers).toEqual({
++        availability: { enabled: true }, layerIds: ['psl']
++      });
++      expect(session.setLayerVisibility(address, false)).toEqual({ ok: true });
++      for (const map of ['uncertainty', 'response']) {
++        expect(session.setDisplayedLayer(map)).toEqual({ ok: true });
++        const snapshot = f.target.getSnapshot();
++        expect(snapshot.capabilities.exclusiveMap?.availableLayerIds).toEqual(['response', 'uncertainty']);
++        for (const s of snapshot.surfaces) {
++          expect(s.layers.find(l => l.id === 'psl')).toMatchObject({ opacity: 0.7, visible: false });
++          expect(s.layers.filter(l => ['response', 'uncertainty'].includes(l.id) && l.visible)).toHaveLength(1);
++          expect(s.layers.findIndex(l => l.id === 'psl')).toBeLessThan(s.layers.findIndex(l => l.id === map));
++        }
++      }
++      expect(f.target.setDisplayedLayer('psl')).toMatchObject({ ok: false });
++      expect(session.setLayerVisibility({ surfaceId: 'lh', layerId: 'response' }, false)).toMatchObject({ ok: false });
++      expect(session.setLayerOpacity(address, NaN)).toMatchObject({ ok: false });
++      expect(session.setLayerVisibility({ surfaceId: 'missing', layerId: 'psl' }, true)).toMatchObject({ ok: false });
++      expect(session.resetView()).toEqual({ ok: true });
++      expect(before.surfaces[0]?.layers.find(l => l.id === 'psl')).toMatchObject({ opacity: 0.2, visible: true });
++      for (const s of f.target.getSnapshot().surfaces) {
++        expect(s.layers.find(l => l.id === 'psl')).toMatchObject({ opacity: 0.2, visible: true });
++      }
++      expect(f.target.setInspectionSelection({ kind: 'vertex', surfaceId: 'lh', vertexIndex: 1 })).toEqual({ ok: true });
++      expect(f.target.getSnapshot().selection.inspection?.values.some(v => v.layerId === 'psl')).toBe(false);
++    } finally { session.dispose(); f.dispose(); }
++    expect(f.target.setLayerOpacity(address, 0.5)).toMatchObject({ ok: false, code: 'disposed' });
++  });
++
++  it('provides a separate labelled native checkbox, opacity slider and categorical key', () => {
++    const f = fixture();
++    const controls = new ReportControls(f.target);
++    try {
++      const group = controls.element.querySelector('[aria-label="Anatomical reference"]')!;
++      expect(group.hasAttribute('hidden')).toBe(false);
++      const select = controls.element.querySelector('select')!;
++      expect(Array.from(select.options).map(o => o.value)).toEqual(['response', 'uncertainty']);
++      const checkbox = group.querySelector('input[type="checkbox"]') as HTMLInputElement;
++      checkbox.checked = false;
++      checkbox.dispatchEvent(new Event('change'));
++      expect(f.left.getLayer('psl')?.visible).toBe(false);
++      const range = group.querySelector('input[type="range"]') as HTMLInputElement;
++      range.value = '0.6'; range.dispatchEvent(new Event('input'));
++      expect(f.right.getLayer('psl')?.opacity).toBe(0.6);
++      expect(group.textContent).toContain('psl');
++    } finally { controls.dispose(); f.dispose(); }
++  });
++
++  it('rejects non-binary membership', () => {
++    expect(() => new ReferenceLayer('bad', new Float32Array([0, 0.3, 1]), [0, 0, 1], {})).toThrow('binary');
++  });
++});
+diff --git a/tests/unit/surface-shading.test.ts b/tests/unit/surface-shading.test.ts
+index 49904e6..a223a4a 100644
+--- a/tests/unit/surface-shading.test.ts
++++ b/tests/unit/surface-shading.test.ts
+@@ -48,6 +48,7 @@ afterEach(() => {
+ describe('surface shading uniforms', () => {
+   it('creates documented defaults and applies initial options', () => {
+     expect(createSurfaceShadingUniforms()).toEqual({
++      surfviewReferenceColor: { value: [0, 0, 0, 0] },
+       surfviewEdgeEnabled: { value: 0 },
+       surfviewOutlineWidth: { value: 0 },
+       surfviewOutlineShade: { value: 0.55 },
+@@ -113,7 +114,8 @@ describe('installSurfaceShading', () => {
+     expect(shader.vertexShader).toContain(`vSurfviewOverlay = ${SURFACE_OVERLAY_ATTRIBUTE};`);
+     expect(shader.vertexShader).toContain(`vSurfviewEdge = ${SURFACE_EDGE_ATTRIBUTE};`);
+     for (const name of Object.keys(uniforms)) {
+-      expect(shader.fragmentShader).toContain(`uniform float ${name};`);
++      const type = name === "surfviewReferenceColor" ? "vec4" : "float";
++      expect(shader.fragmentShader).toContain(`uniform ${type} ${name};`);
+     }
+     expect(shader.fragmentShader).not.toContain('#include <color_fragment>');
+     expect(shader.fragmentShader).toContain('diffuseColor *= surfviewBase;');

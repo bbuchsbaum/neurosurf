@@ -186,6 +186,62 @@ The report toolbar provides the authored map selector, coordinated anatomical
 views, reset, and PNG export. Drag to rotate, use the wheel or a pinch gesture
 to zoom, and right-drag to pan.
 
+## How do you keep a reference region beneath the selected effect map?
+
+Give one binary layer `role = "reference"` and an explicit color. It has its
+own checkbox, opacity slider and categorical swatch. It stays beneath either
+quantitative map and cannot become the selected map or enter effect readouts.
+Reset restores its authored visibility and opacity.
+
+```{r reference-scene}
+reference_scene <- surface_scene(
+  left = left_geometry, right = right_geometry,
+  layers = c(scene@layers, list(surface_layer(
+    "reference", region, role = "reference", color = "#238b45",
+    opacity = 0.2, legend = list(title = "Demonstration reference"),
+    provenance = list(source = "synthetic vertex membership")
+  ))),
+  fallback = "Bilateral effect maps with a faint reference region.",
+  alt_text = "Effect maps overlaid on a separate green reference region."
+)
+stopifnot(identical(reference_scene@selected_layer, "effect"))
+```
+
+Pass `reference_scene` to `surfwidget()` or `write_surface_scene()` as usual.
+Reference scenes use `surfview.scene.reference.v1`; the bundled runtime
+supports this schema, and older runtimes reject it explicitly. Scenes without
+references retain `surfview.scene.v1` and their exclusive map selector.
+Geometry assets are shared. References require a full finite 0/1 mask for each
+hemisphere, with no quantitative limits, units, indices or thresholds.
+
+The CPU renderer accepts the same membership separately from effect values:
+
+```{r static-reference, eval=FALSE}
+image <- render_surface_rgba(
+  left_geometry, effect$left,
+  reference = list(
+    id = "reference", label = "Demonstration reference",
+    mask = region$left, color = "#238b45", opacity = 0.2,
+    provenance = list(source = "synthetic vertex membership")
+  )
+)
+```
+
+The order is anatomy, reference, effect. The CPU reference color is unlit;
+its opacity is applied once. Both renderers interpolate membership linearly
+and classify it at 0.5 per sample or fragment. Display subdivision carries
+membership by edge midpoints, independently of scalar subdivision, and CPU
+antialiasing averages categorical coverage. The CPU `reference_coverage`
+buffer reports this coverage even when the reference is hidden. Triangles
+touching a non-cortex vertex never receive reference color. A static figure
+should label the reference with a separate categorical swatch, outside the
+effect color scale; `tools/reference-specimen.R` provides a complete specimen.
+
+Supply already projected binary membership. For a volume label, use explicit
+categorical/nearest-voxel sampling and record the source and mesh identity,
+depth aggregation and projection parameters in `provenance`. This API does
+not perform projection or inference.
+
 ## Which option controls appearance and behavior?
 
 `paper-light` and `report` name different contracts:
