@@ -28,6 +28,12 @@
 * `series()` documents its return orientation correctly: `T x length(i)` for a
   `NeuroSurfaceVector` and `1 x length(i)` for a `NeuroSurface` (#94).
 
+* The Rd file for the `FreesurferSurfaceGeometryMetaInfo` class is now named
+  `man/FreesurferSurfaceGeometryMetaInfo-class.Rd`, matching the name roxygen
+  generates. The tracked file still used the old `FreeSurfer...` casing, so
+  `devtools::document()` deleted it on case-insensitive filesystems and renamed
+  it on case-sensitive ones. The class name is unchanged (#95).
+
 # neurosurf 0.1.0
 
 ## Interactive report scenes
