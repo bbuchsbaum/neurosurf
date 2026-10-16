@@ -125,14 +125,14 @@ Catch-all index to include any remaining topics.
   [`Compare(`*`<numeric>`*`,`*`<NeuroSurfaceVector>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/Compare-NeuroSurfaceVector-method.md)
   : Comparison Operations for NeuroSurfaceVector Objects
 
-- [`FreesurferSurfaceGeometryMetaInfo-class`](https://bbuchsbaum.github.io/neurosurf/reference/FreeSurferSurfaceGeometryMetaInfo-class.md)
-  : FreesurferSurfaceGeometryMetaInfo Class
-
 - [`FreesurferAsciiSurfaceFileDescriptor-class`](https://bbuchsbaum.github.io/neurosurf/reference/FreesurferAsciiSurfaceFileDescriptor-class.md)
   : FresurferAsciiSurfaceFileDescriptor
 
 - [`FreesurferBinarySurfaceFileDescriptor-class`](https://bbuchsbaum.github.io/neurosurf/reference/FreesurferBinarySurfaceFileDescriptor-class.md)
   : FresurferBinarySurfaceFileDescriptor
+
+- [`FreesurferSurfaceGeometryMetaInfo-class`](https://bbuchsbaum.github.io/neurosurf/reference/FreesurferSurfaceGeometryMetaInfo-class.md)
+  : FreesurferSurfaceGeometryMetaInfo Class
 
 - [`GIFTISurfaceDataMetaInfo-class`](https://bbuchsbaum.github.io/neurosurf/reference/GIFTISurfaceDataMetaInfo-class.md)
   : GIFTISurfaceDataMetaInfo
