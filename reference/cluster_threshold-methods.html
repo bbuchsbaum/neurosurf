@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,9 @@
 
 
 <dt id="arg-threshold">threshold<a class="anchor" aria-label="anchor" href="#arg-threshold"></a></dt>
-<dd><p>the two-element threshold range to use to define connected components</p></dd>
+<dd><p>the two-element threshold <code>c(lower, upper)</code> used to define
+connected components; vertices with values <code>&lt;= lower</code> or <code>&gt;= upper</code>
+are retained (two-tailed), as in <code>conn_comp()</code></p></dd>
 
 
 <dt id="arg-size">size<a class="anchor" aria-label="anchor" href="#arg-size"></a></dt>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,11 @@
 
 
 <dt id="arg-threshold">threshold<a class="anchor" aria-label="anchor" href="#arg-threshold"></a></dt>
-<dd><p>A numeric vector of length 2 specifying the lower and upper thresholds for including vertices in the components.</p></dd>
+<dd><p>A numeric vector of length 2, <code>c(lower, upper)</code>. The
+test is two-tailed: a vertex is retained when its value is
+<code>&lt;= threshold[1]</code> or <code>&gt;= threshold[2]</code>; values strictly between
+the two thresholds are excluded. Use <code>c(-Inf, upper)</code> for a positive
+one-tailed threshold or <code>c(lower, Inf)</code> for a negative one.</p></dd>
 
 
 <dt id="arg-index">index<a class="anchor" aria-label="anchor" href="#arg-index"></a></dt>
@@ -81,7 +85,7 @@
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This method computes connected components on the surface by:</p><ol><li><p>Thresholding the surface data using the provided threshold values.</p></li>
+    <p>This method computes connected components on the surface by:</p><ol><li><p>Thresholding the surface data, retaining vertices with values <code>&lt;= threshold[1]</code> or <code>&gt;= threshold[2]</code>.</p></li>
 <li><p>Creating a subgraph of the surface mesh containing only the vertices that pass the threshold.</p></li>
 <li><p>Identifying connected components in this subgraph.</p></li>
 <li><p>Assigning component indices and sizes to the original vertices.</p></li>

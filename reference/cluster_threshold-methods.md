@@ -22,7 +22,9 @@ cluster_threshold(x, threshold, size = 10)
 
 - threshold:
 
-  the two-element threshold range to use to define connected components
+  the two-element threshold `c(lower, upper)` used to define connected
+  components; vertices with values `<= lower` or `>= upper` are retained
+  (two-tailed), as in `conn_comp()`
 
 - size:
 

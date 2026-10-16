@@ -35,7 +35,7 @@ neighbor_graph(
   distance_type = c("geodesic", "euclidean", "spherical")
 )
 
-# S4 method for class 'SurfaceGeometry,numeric,numeric,integer'
+# S4 method for class 'SurfaceGeometry,numeric,numeric,numeric'
 neighbor_graph(
   x,
   radius,
@@ -44,7 +44,7 @@ neighbor_graph(
   distance_type = c("geodesic", "euclidean", "spherical")
 )
 
-# S4 method for class 'SurfaceGeometry,numeric,missing,integer'
+# S4 method for class 'SurfaceGeometry,numeric,missing,numeric'
 neighbor_graph(
   x,
   radius,
@@ -71,8 +71,8 @@ neighbor_graph(
 
 - nodes:
 
-  Integer vector. The subset of nodes to use in graph construction. If
-  NULL, all nodes are used.
+  Integer-valued numeric vector (integer or double storage). The subset
+  of nodes to use in graph construction. If NULL, all nodes are used.
 
 - ...:
 

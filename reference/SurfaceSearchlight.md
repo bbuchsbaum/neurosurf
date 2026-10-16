@@ -1,7 +1,9 @@
 # SurfaceSearchlight
 
 Creates an iterator that systematically samples searchlight regions on a
-surface mesh using geodesic distance to define regions.
+surface mesh. Regions are defined by `distance_type`, which defaults to
+Euclidean distance between vertex coordinates; pass
+`distance_type = "geodesic"` for distance along the mesh.
 
 ## Usage
 
@@ -25,8 +27,9 @@ SurfaceSearchlight(
 
 - radius:
 
-  Numeric, radius of the searchlight as a geodesic distance in mm. Must
-  be a positive, length-one value.
+  Numeric, radius of the searchlight in mm, measured with the metric
+  selected by `distance_type` (Euclidean by default). Must be a
+  positive, length-one value.
 
 - nodeset:
 
@@ -35,8 +38,12 @@ SurfaceSearchlight(
 
 - distance_type:
 
-  Character, the distance metric to use: "euclidean", "geodesic", or
-  "spherical".
+  Character, the distance metric to use: `"euclidean"` (the default),
+  `"geodesic"`, or `"spherical"`. Note that the default differs from
+  [`neighbor_graph()`](https://bbuchsbaum.github.io/neurosurf/reference/neighbor_graph-methods.md)
+  and
+  [`RandomSurfaceSearchlight()`](https://bbuchsbaum.github.io/neurosurf/reference/RandomSurfaceSearchlight.md),
+  which use geodesic distance.
 
 - as_deflist:
 
@@ -48,8 +55,7 @@ An iterator object of class "Searchlight".
 
 ## Details
 
-Create a Searchlight iterator for surface mesh using geodesic distance
-to define regions.
+Create a systematic Searchlight iterator for a surface mesh.
 
 This function creates a systematic searchlight iterator, which visits
 each node of the surface mesh in order. The searchlight region for each

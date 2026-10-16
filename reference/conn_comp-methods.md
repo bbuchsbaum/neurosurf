@@ -21,8 +21,11 @@ conn_comp(x, threshold)
 
 - threshold:
 
-  A numeric vector of length 2 specifying the lower and upper thresholds
-  for including vertices in the components.
+  A numeric vector of length 2, `c(lower, upper)`. The test is
+  two-tailed: a vertex is retained when its value is `<= threshold[1]`
+  or `>= threshold[2]`; values strictly between the two thresholds are
+  excluded. Use `c(-Inf, upper)` for a positive one-tailed threshold or
+  `c(lower, Inf)` for a negative one.
 
 - index:
 
@@ -46,7 +49,8 @@ A list containing two `NeuroSurface` objects:
 
 This method computes connected components on the surface by:
 
-1.  Thresholding the surface data using the provided threshold values.
+1.  Thresholding the surface data, retaining vertices with values
+    `<= threshold[1]` or `>= threshold[2]`.
 
 2.  Creating a subgraph of the surface mesh containing only the vertices
     that pass the threshold.

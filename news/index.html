@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,20 @@
       <small>Source: <a href="https://github.com/bbuchsbaum/neurosurf/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="neurosurf-development-version">neurosurf (development version)<a class="anchor" aria-label="anchor" href="#neurosurf-development-version"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li><p><code>series()</code> on a <code>NeuroSurfaceVector</code> now returns a <code>T x length(i)</code> matrix (time in rows, vertices in columns) for a single integer index, as it already did for double indices and as <code><a href="https://bbuchsbaum.github.io/neuroim2/reference/series-methods.html" class="external-link">neuroim2::series()</a></code> does for <code>NeuroVec</code>. Previously <code>series(x, 2L)</code> returned <code>1 x T</code> while <code>series(x, 2)</code> returned <code>T x 1</code>; this also made <code>series_roi(x, &lt;single integer&gt;)</code> fail with an invalid <code>ROISurfaceVector</code>. Code that relied on the old <code>1 x T</code> result for a single integer index must drop its transpose (<a href="https://github.com/bbuchsbaum/neurosurf/issues/93" class="external-link">#93</a>).</p></li>
+<li><p><code><a href="../reference/neighbor_graph-methods.html">neighbor_graph()</a></code> on a <code>SurfaceGeometry</code> now accepts double-stored node indices (e.g. <code>nodes = c(1, 2)</code>) as well as integer ones; previously only integer <code>nodes</code> had a method and doubles failed dispatch (<a href="https://github.com/bbuchsbaum/neurosurf/issues/93" class="external-link">#93</a>).</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-development-version">Documentation<a class="anchor" aria-label="anchor" href="#documentation-development-version"></a></h3>
+<ul><li><p><code>conn_comp()</code> and <code><a href="../reference/cluster_threshold-methods.html">cluster_threshold()</a></code> now document that <code>threshold</code> is two-tailed: vertices with values <code>&lt;= threshold[1]</code> or <code>&gt;= threshold[2]</code> are retained (<a href="https://github.com/bbuchsbaum/neurosurf/issues/94" class="external-link">#94</a>).</p></li>
+<li><p><code><a href="../reference/SurfaceSearchlight.html">SurfaceSearchlight()</a></code> now documents that <code>distance_type</code> defaults to <code>"euclidean"</code> (not geodesic, as its title and <code>radius</code> docs claimed), and that this differs from <code><a href="../reference/neighbor_graph-methods.html">neighbor_graph()</a></code> and <code><a href="../reference/RandomSurfaceSearchlight.html">RandomSurfaceSearchlight()</a></code>, which use geodesic distance. The default itself is unchanged (<a href="https://github.com/bbuchsbaum/neurosurf/issues/94" class="external-link">#94</a>).</p></li>
+<li><p><code>series()</code> documents its return orientation correctly: <code>T x length(i)</code> for a <code>NeuroSurfaceVector</code> and <code>1 x length(i)</code> for a <code>NeuroSurface</code> (<a href="https://github.com/bbuchsbaum/neurosurf/issues/94" class="external-link">#94</a>).</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="neurosurf-010">neurosurf 0.1.0<a class="anchor" aria-label="anchor" href="#neurosurf-010"></a></h2>
 <div class="section level3">

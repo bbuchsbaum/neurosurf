@@ -1,5 +1,48 @@
 # Changelog
 
+## neurosurf (development version)
+
+### Bug fixes
+
+- `series()` on a `NeuroSurfaceVector` now returns a `T x length(i)`
+  matrix (time in rows, vertices in columns) for a single integer index,
+  as it already did for double indices and as
+  [`neuroim2::series()`](https://bbuchsbaum.github.io/neuroim2/reference/series-methods.html)
+  does for `NeuroVec`. Previously `series(x, 2L)` returned `1 x T` while
+  `series(x, 2)` returned `T x 1`; this also made
+  `series_roi(x, <single integer>)` fail with an invalid
+  `ROISurfaceVector`. Code that relied on the old `1 x T` result for a
+  single integer index must drop its transpose
+  ([\#93](https://github.com/bbuchsbaum/neurosurf/issues/93)).
+
+- [`neighbor_graph()`](https://bbuchsbaum.github.io/neurosurf/reference/neighbor_graph-methods.md)
+  on a `SurfaceGeometry` now accepts double-stored node indices
+  (e.g. `nodes = c(1, 2)`) as well as integer ones; previously only
+  integer `nodes` had a method and doubles failed dispatch
+  ([\#93](https://github.com/bbuchsbaum/neurosurf/issues/93)).
+
+### Documentation
+
+- `conn_comp()` and
+  [`cluster_threshold()`](https://bbuchsbaum.github.io/neurosurf/reference/cluster_threshold-methods.md)
+  now document that `threshold` is two-tailed: vertices with values
+  `<= threshold[1]` or `>= threshold[2]` are retained
+  ([\#94](https://github.com/bbuchsbaum/neurosurf/issues/94)).
+
+- [`SurfaceSearchlight()`](https://bbuchsbaum.github.io/neurosurf/reference/SurfaceSearchlight.md)
+  now documents that `distance_type` defaults to `"euclidean"` (not
+  geodesic, as its title and `radius` docs claimed), and that this
+  differs from
+  [`neighbor_graph()`](https://bbuchsbaum.github.io/neurosurf/reference/neighbor_graph-methods.md)
+  and
+  [`RandomSurfaceSearchlight()`](https://bbuchsbaum.github.io/neurosurf/reference/RandomSurfaceSearchlight.md),
+  which use geodesic distance. The default itself is unchanged
+  ([\#94](https://github.com/bbuchsbaum/neurosurf/issues/94)).
+
+- `series()` documents its return orientation correctly: `T x length(i)`
+  for a `NeuroSurfaceVector` and `1 x length(i)` for a `NeuroSurface`
+  ([\#94](https://github.com/bbuchsbaum/neurosurf/issues/94)).
+
 ## neurosurf 0.1.0
 
 ### Interactive report scenes

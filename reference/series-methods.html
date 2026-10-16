@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,7 +73,13 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A matrix where columns are time points and rows are vertex indices</p>
+    <p>A matrix with time points in rows and the requested vertices in
+  columns, i.e. <code>T x length(i)</code> for a <code>NeuroSurfaceVector</code> with
+  <code>T</code> time points, matching the <code><a href="https://bbuchsbaum.github.io/neuroim2/reference/series-methods.html" class="external-link">neuroim2::series()</a></code> convention for
+  <code>NeuroVec</code>. The orientation does not depend on whether <code>i</code> is
+  stored as integer or double; a single index gives a <code>T x 1</code> matrix.
+  For a <code>NeuroSurface</code> (one value per vertex) the result is a
+  <code>1 x length(i)</code> matrix.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
