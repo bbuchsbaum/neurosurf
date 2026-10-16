@@ -104,7 +104,13 @@ differs from <code><a href="neighbor_graph-methods.html">neighbor_graph()</a></c
 
 <p>This function creates a systematic searchlight iterator, which visits each node
 of the surface mesh in order. The searchlight region for each node is defined
-by the specified radius and distance metric.</p>
+by the specified radius and distance metric.
+The Euclidean default is retained for compatibility with existing analyses.
+Pass <code>distance_type</code> explicitly to this function and
+<code><a href="RandomSurfaceSearchlight.html">RandomSurfaceSearchlight()</a></code> to use the same metric for both
+sampling strategies. Geodesic distance follows shortest paths along mesh
+edges; Euclidean distance can include nearby vertices on opposite sides of
+a fold. Use spherical distance only for a spherical surface.</p>
     </div>
 
     <div class="section level2">

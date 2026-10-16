@@ -59,7 +59,14 @@ Create a systematic Searchlight iterator for a surface mesh.
 
 This function creates a systematic searchlight iterator, which visits
 each node of the surface mesh in order. The searchlight region for each
-node is defined by the specified radius and distance metric.
+node is defined by the specified radius and distance metric. The
+Euclidean default is retained for compatibility with existing analyses.
+Pass `distance_type` explicitly to this function and
+[`RandomSurfaceSearchlight()`](https://bbuchsbaum.github.io/neurosurf/reference/RandomSurfaceSearchlight.md)
+to use the same metric for both sampling strategies. Geodesic distance
+follows shortest paths along mesh edges; Euclidean distance can include
+nearby vertices on opposite sides of a fold. Use spherical distance only
+for a spherical surface.
 
 ## Examples
 

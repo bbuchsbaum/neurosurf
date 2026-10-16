@@ -53,6 +53,12 @@
 <li><p><code>series()</code> documents its return orientation correctly: <code>T x length(i)</code> for a <code>NeuroSurfaceVector</code> and <code>1 x length(i)</code> for a <code>NeuroSurface</code> (<a href="https://github.com/bbuchsbaum/neurosurf/issues/94" class="external-link">#94</a>).</p></li>
 <li><p>The Rd file for the <code>FreesurferSurfaceGeometryMetaInfo</code> class is now named <code>man/FreesurferSurfaceGeometryMetaInfo-class.Rd</code>, matching the name roxygen generates. The tracked file still used the old <code>FreeSurfer...</code> casing, so <code>devtools::document()</code> deleted it on case-insensitive filesystems and renamed it on case-sensitive ones. The class name is unchanged (<a href="https://github.com/bbuchsbaum/neurosurf/issues/95" class="external-link">#95</a>).</p></li>
 </ul></div>
+<div class="section level3">
+<h3 id="searchlights-and-continuous-integration-development-version">Searchlights and continuous integration<a class="anchor" aria-label="anchor" href="#searchlights-and-continuous-integration-development-version"></a></h3>
+<ul><li>
+<code><a href="../reference/RandomSurfaceSearchlight.html">RandomSurfaceSearchlight()</a></code> now accepts <code>distance_type</code>, with geodesic as its default. <code><a href="../reference/SurfaceSearchlight.html">SurfaceSearchlight()</a></code> keeps its Euclidean default to preserve existing analyses. Pass the same metric explicitly to both constructors when comparing sampling strategies. Existing positional calls are unchanged (<a href="https://github.com/bbuchsbaum/neurosurf/issues/96" class="external-link">#96</a>).</li>
+<li>The pkgcheck workflow is advisory: it retains the rOpenSci findings and reports failures in the log and job summary without failing the workflow. R CMD check remains the package check. The pkgcheck job now sets <code>RGL_USE_NULL=TRUE</code> before installation for headless runners (<a href="https://github.com/bbuchsbaum/neurosurf/issues/97" class="external-link">#97</a>).</li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="neurosurf-010">neurosurf 0.1.0<a class="anchor" aria-label="anchor" href="#neurosurf-010"></a></h2>

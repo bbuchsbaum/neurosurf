@@ -51,6 +51,21 @@
   The class name is unchanged
   ([\#95](https://github.com/bbuchsbaum/neurosurf/issues/95)).
 
+### Searchlights and continuous integration
+
+- [`RandomSurfaceSearchlight()`](https://bbuchsbaum.github.io/neurosurf/reference/RandomSurfaceSearchlight.md)
+  now accepts `distance_type`, with geodesic as its default.
+  [`SurfaceSearchlight()`](https://bbuchsbaum.github.io/neurosurf/reference/SurfaceSearchlight.md)
+  keeps its Euclidean default to preserve existing analyses. Pass the
+  same metric explicitly to both constructors when comparing sampling
+  strategies. Existing positional calls are unchanged
+  ([\#96](https://github.com/bbuchsbaum/neurosurf/issues/96)).
+- The pkgcheck workflow is advisory: it retains the rOpenSci findings
+  and reports failures in the log and job summary without failing the
+  workflow. R CMD check remains the package check. The pkgcheck job now
+  sets `RGL_USE_NULL=TRUE` before installation for headless runners
+  ([\#97](https://github.com/bbuchsbaum/neurosurf/issues/97)).
+
 ## neurosurf 0.1.0
 
 ### Interactive report scenes
