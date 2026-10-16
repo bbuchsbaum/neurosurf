@@ -969,3 +969,13 @@ test_that("cluster_threshold works on NeuroSurfaceVector", {
 
   expect_s4_class(thresholded, "NeuroSurface")
 })
+
+test_that("conn_comp() threshold is two-tailed: keeps <= lower or >= upper (#94)", {
+  geom <- read_surf_geometry(system.file("extdata", "std.8_lh.inflated.asc",
+                                         package = "neurosurf"))
+  n <- nrow(coords(geom))
+  s <- NeuroSurface(geom, indices = seq_len(n),
+                    data = c(-3, -1, 0, 1, 3, rep(0, n - 5)))
+  kept <- which(conn_comp(s, c(-2, 2))$index@data > 0)
+  expect_equal(kept, c(1L, 5L))
+})

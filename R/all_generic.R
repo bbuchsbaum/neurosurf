@@ -24,7 +24,7 @@ if (!isGeneric("plot"))
 #' @param x An object representing a surface mesh. The specific class depends on the method implementation.
 #' @param radius Numeric. The edge radius defining the neighborhood extent.
 #' @param edgeWeights Numeric vector. Custom weights for edges, used to define edge distances.
-#' @param nodes Integer vector. The subset of nodes to use in graph construction. If NULL, all nodes are used.
+#' @param nodes Integer-valued numeric vector (integer or double storage). The subset of nodes to use in graph construction. If NULL, all nodes are used.
 #' @param ... Additional arguments passed to methods.
 #'
 #' @return An object representing the constructed neighborhood graph. The specific class depends on the method implementation.
@@ -252,7 +252,9 @@ setGeneric(name="right", def=function(x) standardGeneric("right"))
 #' Apply Cluster-Extent Threshold to Surface Data
 #'
 #' @param x Object to threshold
-#' @param threshold Numeric threshold range
+#' @param threshold Numeric vector of length 2, \code{c(lower, upper)}. Vertices
+#'   with values \code{<= lower} or \code{>= upper} are retained (a two-tailed
+#'   test); values strictly between the two are set to 0.
 #' @param size Minimum cluster size in nodes
 #' @param ... Additional arguments
 #' @return A thresholded surface object of the same class as \code{x}

@@ -399,3 +399,7 @@ test_that("RandomSurfaceSearchlight nodeset returns center in nodeset range", {
 
   expect_true(center %in% nodeset)
 })
+
+test_that("SurfaceSearchlight default distance_type is euclidean, as documented (#94)", {
+  expect_identical(eval(formals(SurfaceSearchlight)$distance_type)[1], "euclidean")
+})

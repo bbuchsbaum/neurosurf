@@ -21,7 +21,13 @@
 \item{i}{the indices of the series to extract}
 }
 \value{
-A matrix where columns are time points and rows are vertex indices
+A matrix with time points in rows and the requested vertices in
+  columns, i.e. \code{T x length(i)} for a \code{NeuroSurfaceVector} with
+  \code{T} time points, matching the \code{neuroim2::series()} convention for
+  \code{NeuroVec}. The orientation does not depend on whether \code{i} is
+  stored as integer or double; a single index gives a \code{T x 1} matrix.
+  For a \code{NeuroSurface} (one value per vertex) the result is a
+  \code{1 x length(i)} matrix.
 }
 \description{
 Extracts time series data from specific vertices in a surface vector.
