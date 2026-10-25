@@ -2,6 +2,7 @@
 
 [![r-universe](https://bbuchsbaum.r-universe.dev/badges/neurosurf)](https://bbuchsbaum.r-universe.dev/neurosurf)
 [![R-CMD-check](https://github.com/bbuchsbaum/neurosurf/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bbuchsbaum/neurosurf/actions/workflows/R-CMD-check.yaml)
+[![Coverage](https://github.com/bbuchsbaum/neurosurf/actions/workflows/coverage.yaml/badge.svg)](https://github.com/bbuchsbaum/neurosurf/actions/workflows/coverage.yaml)
 [Documentation](https://bbuchsbaum.github.io/neurosurf/) ·
 [Reference](https://bbuchsbaum.github.io/neurosurf/reference/index.html)
 · [News](https://bbuchsbaum.github.io/neurosurf/NEWS.md)
@@ -127,6 +128,13 @@ Volumetric data structures come from
   reference](https://bbuchsbaum.github.io/neurosurf/reference/index.html).
 
 ## Contributing
+
+The Coverage badge links to the reporting workflow. Each run publishes
+the measured line coverage and per-file results in its summary and
+downloadable artifact. A green badge means measurement succeeded, not
+that a percentage target was reached. Coverage uses the headless CRAN
+test settings; interactive rendering tests are excluded by their
+existing guards.
 
 See
 [CONTRIBUTING.md](https://bbuchsbaum.github.io/neurosurf/CONTRIBUTING.md),
