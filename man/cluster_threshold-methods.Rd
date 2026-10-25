@@ -15,7 +15,9 @@ cluster_threshold(x, threshold, size, ...)
 \arguments{
 \item{x}{Object to threshold}
 
-\item{threshold}{the two-element threshold range to use to define connected components}
+\item{threshold}{the two-element threshold \code{c(lower, upper)} used to define
+connected components; vertices with values \code{<= lower} or \code{>= upper}
+are retained (two-tailed), as in \code{conn_comp()}}
 
 \item{size}{the minimum size of the connected components to keep}
 

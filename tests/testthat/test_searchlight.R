@@ -1,6 +1,97 @@
 library(testthat)
 library(neurosurf)
 
+folded_searchlight_geometry <- function() {
+  # Vertices 1/2 and 5/6 are close in space, but separated along the mesh.
+  vertices <- matrix(c(
+    0, 0, 0,   0, 0.2, 0,
+    2, 0, 0,   2, 0.2, 0,
+    0, 0, 0.1, 0, 0.2, 0.1
+  ), ncol = 3, byrow = TRUE)
+  faces <- matrix(c(
+    0, 2, 1, 1, 2, 3, 2, 4, 3, 3, 4, 5
+  ), ncol = 3, byrow = TRUE)
+  SurfaceGeometry(vertices, faces, hemi = "lh")
+}
+
+test_that("searchlight defaults retain distinct neighborhoods on a folded mesh", {
+  geom <- folded_searchlight_geometry()
+  standard <- SurfaceSearchlight(geom, radius = 0.5)
+  expect_setequal(as.integer(standard$nextElem()), c(1L, 2L, 5L, 6L))
+
+  # The fourth positional argument must remain as_deflist.
+  set.seed(42)
+  random <- RandomSurfaceSearchlight(geom, 0.5, NULL, TRUE)
+  expect_s3_class(random, "deflist")
+  expected <- list(c(1L, 2L), c(1L, 2L), c(3L, 4L),
+                   c(3L, 4L), c(5L, 6L), c(5L, 6L))
+  for (i in seq_len(length(random))) {
+    region <- random[[i]]
+    center <- as.integer(attr(region, "center.index"))
+    expect_setequal(as.integer(region), expected[[center]])
+  }
+})
+
+test_that("both searchlight deflists honor explicit distance metrics", {
+  geom <- folded_searchlight_geometry()
+  for (metric in c("euclidean", "geodesic", "spherical")) {
+    for (nodeset in list(NULL, c(1L, 2L, 3L, 4L, 5L))) {
+      standard <- SurfaceSearchlight(
+        geom, radius = 0.5, nodeset = nodeset,
+        distance_type = metric, as_deflist = TRUE
+      )
+      set.seed(42)
+      random <- RandomSurfaceSearchlight(
+        geom, radius = 0.5, nodeset = nodeset,
+        as_deflist = TRUE, distance_type = metric
+      )
+      centers <- if (is.null(nodeset)) seq_len(nrow(coords(geom))) else nodeset
+      for (i in seq_len(length(random))) {
+        region <- random[[i]]
+        center <- as.integer(attr(region, "center.index"))
+        reference <- standard[[match(center, centers)]]
+        expect_setequal(as.integer(region), as.integer(reference))
+        expect_equal(as.integer(attr(region, "center")), center)
+        expect_equal(attr(region, "length"), length(region))
+      }
+      # Accessing a deflist element again returns the same region.
+      expect_identical(random[[1]], random[[1]])
+    }
+  }
+})
+
+test_that("random iterators honor metrics while covering each node once", {
+  geom <- folded_searchlight_geometry()
+  for (metric in c("euclidean", "geodesic", "spherical")) {
+    standard <- SurfaceSearchlight(
+      geom, radius = 0.5, distance_type = metric, as_deflist = TRUE
+    )
+    set.seed(42)
+    random <- RandomSurfaceSearchlight(
+      geom, radius = 0.5, distance_type = metric
+    )
+    covered <- integer()
+    for (i in seq_len(6L)) {
+      if (length(covered) == 6L) break
+      region <- random$nextElem()
+      center <- as.integer(attr(region, "center.index"))
+      expected <- setdiff(as.integer(standard[[center]]), covered)
+      expect_setequal(as.integer(region), expected)
+      expect_length(intersect(covered, as.integer(region)), 0L)
+      covered <- c(covered, as.integer(region))
+      expect_equal(random$progress(), length(covered) / 6)
+    }
+    expect_setequal(covered, 1:6)
+    expect_error(random$nextElem(), "StopIteration")
+  }
+})
+
+test_that("random searchlights reject unknown distance metrics", {
+  expect_error(RandomSurfaceSearchlight(
+    folded_searchlight_geometry(), distance_type = "invalid"
+  ), "arg.*should be")
+})
+
 test_that("SurfaceSearchlight iterator works correctly", {
   # Load test surface
   surf_file <- system.file("extdata", "std.8_lh.inflated.asc", package="neurosurf")
@@ -398,4 +489,8 @@ test_that("RandomSurfaceSearchlight nodeset returns center in nodeset range", {
   center <- attr(nodes_result, "center")
 
   expect_true(center %in% nodeset)
+})
+
+test_that("SurfaceSearchlight default distance_type is euclidean, as documented (#94)", {
+  expect_identical(eval(formals(SurfaceSearchlight)$distance_type)[1], "euclidean")
 })

@@ -1,7 +1,7 @@
 Package: neurosurf
 Type: Package
 Title: Data Structures and Visualization for Surface-Based Neuroimaging Data
-Version: 0.1.0
+Version: 0.1.0.9000
 Authors@R: person(
     given = "Bradley R", family = "Buchsbaum",
     role = c("aut", "cre", "cph"), email = "brad.buchsbaum@gmail.com")

@@ -1,4 +1,4 @@
-name: pkgcheck
+name: pkgcheck (advisory)
 
 # This will cancel running jobs once a new run is triggered
 concurrency:
@@ -15,8 +15,34 @@ on:
 
 jobs:
   pkgcheck:
+    name: pkgcheck (advisory)
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       issues: write
+    env:
+      # rgl is imported during installation, before neurosurf's .onLoad runs.
+      RGL_USE_NULL: 'TRUE'
     steps:
-      - uses: ropensci-review-tools/pkgcheck-action@main
+      # rOpenSci submission findings are advisory; R-CMD-check remains the gate.
+      # Keep the action's detailed report, including its failing findings.
+      - name: Run advisory pkgcheck report
+        id: pkgcheck
+        continue-on-error: true
+        uses: ropensci-review-tools/pkgcheck-action@main
+
+      - name: Summarize advisory result
+        if: always()
+        env:
+          PKGCHECK_OUTCOME: ${{ steps.pkgcheck.outcome }}
+        shell: bash
+        run: |
+          if [ "$PKGCHECK_OUTCOME" = "failure" ]; then
+            echo "::warning title=Advisory pkgcheck::pkgcheck reported findings or could not complete. See the action log and report issue."
+          fi
+          printf '%s\n' \
+            '### Advisory pkgcheck' \
+            "Report step outcome: $PKGCHECK_OUTCOME" \
+            'This report does not gate package changes. R-CMD-check remains the package check.' \
+            'See the action log and pkgcheck report issue for findings; an advisory success is not rOpenSci approval.' \
+            >> "$GITHUB_STEP_SUMMARY"

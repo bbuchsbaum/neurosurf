@@ -267,7 +267,7 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
 
 #' @rdname neighbor_graph-methods
 #' @export
-setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric", edgeWeights="numeric", nodes="integer"),
+setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric", edgeWeights="numeric", nodes="numeric"),
 
           def=function(x,radius, edgeWeights, nodes, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
@@ -278,7 +278,7 @@ setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric",
 
 #' @rdname neighbor_graph-methods
 #' @export
-setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric", edgeWeights="missing", nodes="integer"),
+setMethod(f="neighbor_graph", signature=c(x="SurfaceGeometry", radius="numeric", edgeWeights="missing", nodes="numeric"),
           def=function(x,radius, nodes, distance_type=c("geodesic", "euclidean", "spherical")) {
             distance_type <- match.arg(distance_type)
             nabeinfo <- find_all_neighbors(x, radius, igraph::E(graph(x))$dist, nodes,distance_type=distance_type)

@@ -8,26 +8,33 @@ RandomSurfaceSearchlight(
   surfgeom,
   radius = 8,
   nodeset = NULL,
-  as_deflist = FALSE
+  as_deflist = FALSE,
+  distance_type = c("geodesic", "euclidean", "spherical")
 )
 }
 \arguments{
 \item{surfgeom}{A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.}
 
-\item{radius}{Numeric, radius of the searchlight as a geodesic distance in mm.
+\item{radius}{Numeric, radius of the searchlight in mm, measured with the
+metric selected by \code{distance_type} (geodesic by default).
 Must be a positive numeric scalar.}
 
 \item{nodeset}{Integer vector, optional subset of surface node indices to use.
 If supplied, must contain more than one index.}
 
 \item{as_deflist}{Logical, whether to return a deflist object.}
+
+\item{distance_type}{Character, the distance metric to use: \code{"geodesic"}
+(the default), \code{"euclidean"}, or \code{"spherical"}. The default is
+retained for compatibility and differs from \code{\link{SurfaceSearchlight}()},
+which defaults to Euclidean distance.}
 }
 \value{
 An iterator object of class "RandomSurfaceSearchlight".
 }
 \description{
 Creates an iterator that randomly samples searchlight regions on a surface mesh
-using geodesic distance to define regions.
+using the selected distance metric (geodesic by default) to define regions.
 }
 \details{
 On each call to \code{nextElem}, a set of surface nodes is returned.
@@ -35,6 +42,11 @@ These nodes index into the vertices of the \code{igraph} instance.
 When \code{as_deflist=TRUE}, the random ordering of centers is fixed when the
 object is created. Use \code{set.seed} before construction for reproducible
 sequences.
+
+Pass \code{distance_type} explicitly to both searchlight constructors when
+comparing systematic and random sampling. Geodesic distance follows shortest
+paths along mesh edges; Euclidean distance can include nearby vertices on
+opposite sides of a fold. Use spherical distance only for a spherical surface.
 }
 \examples{
 \donttest{
@@ -47,5 +59,11 @@ attr(dl[[1]], "center")
 nodes <- searchlight$nextElem()
 length(nodes) > 1
 }
+# Match the distance metric across both sampling strategies.
+geom <- example_surface_geometry()
+standard <- SurfaceSearchlight(geom, 1.5, distance_type = "euclidean")
+set.seed(42)
+random <- RandomSurfaceSearchlight(geom, 1.5, distance_type = "euclidean")
+random$nextElem()
 
 }

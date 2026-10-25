@@ -1,3 +1,51 @@
+# neurosurf (development version)
+
+## Bug fixes
+
+* `series()` on a `NeuroSurfaceVector` now returns a `T x length(i)` matrix
+  (time in rows, vertices in columns) for a single integer index, as it already
+  did for double indices and as `neuroim2::series()` does for `NeuroVec`.
+  Previously `series(x, 2L)` returned `1 x T` while `series(x, 2)` returned
+  `T x 1`; this also made `series_roi(x, <single integer>)` fail with an
+  invalid `ROISurfaceVector`. Code that relied on the old `1 x T` result for a
+  single integer index must drop its transpose (#93).
+
+* `neighbor_graph()` on a `SurfaceGeometry` now accepts double-stored node
+  indices (e.g. `nodes = c(1, 2)`) as well as integer ones; previously only
+  integer `nodes` had a method and doubles failed dispatch (#93).
+
+## Documentation
+
+* `conn_comp()` and `cluster_threshold()` now document that `threshold` is
+  two-tailed: vertices with values `<= threshold[1]` or `>= threshold[2]` are
+  retained (#94).
+
+* `SurfaceSearchlight()` now documents that `distance_type` defaults to
+  `"euclidean"` (not geodesic, as its title and `radius` docs claimed), and
+  that this differs from `neighbor_graph()` and `RandomSurfaceSearchlight()`,
+  which use geodesic distance. The default itself is unchanged (#94).
+
+* `series()` documents its return orientation correctly: `T x length(i)` for a
+  `NeuroSurfaceVector` and `1 x length(i)` for a `NeuroSurface` (#94).
+
+* The Rd file for the `FreesurferSurfaceGeometryMetaInfo` class is now named
+  `man/FreesurferSurfaceGeometryMetaInfo-class.Rd`, matching the name roxygen
+  generates. The tracked file still used the old `FreeSurfer...` casing, so
+  `devtools::document()` deleted it on case-insensitive filesystems and renamed
+  it on case-sensitive ones. The class name is unchanged (#95).
+
+## Searchlights and continuous integration
+
+* `RandomSurfaceSearchlight()` now accepts `distance_type`, with geodesic as
+  its default. `SurfaceSearchlight()` keeps its Euclidean default to preserve
+  existing analyses. Pass the same metric explicitly to both constructors
+  when comparing sampling strategies. Existing positional calls are unchanged
+  (#96).
+* The pkgcheck workflow is advisory: it retains the rOpenSci findings and
+  reports failures in the log and job summary without failing the workflow.
+  R CMD check remains the package check. The pkgcheck job now sets
+  `RGL_USE_NULL=TRUE` before installation for headless runners (#97).
+
 # neurosurf 0.1.0
 
 ## Interactive report scenes

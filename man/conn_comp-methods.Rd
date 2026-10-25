@@ -12,7 +12,11 @@
 \arguments{
 \item{x}{A \code{NeuroSurface} object representing the surface data.}
 
-\item{threshold}{A numeric vector of length 2 specifying the lower and upper thresholds for including vertices in the components.}
+\item{threshold}{A numeric vector of length 2, \code{c(lower, upper)}. The
+test is two-tailed: a vertex is retained when its value is
+\code{<= threshold[1]} or \code{>= threshold[2]}; values strictly between
+the two thresholds are excluded. Use \code{c(-Inf, upper)} for a positive
+one-tailed threshold or \code{c(lower, Inf)} for a negative one.}
 
 \item{index}{the index/column of the underlying data matrix to cluster}
 }
@@ -27,7 +31,7 @@ This method identifies connected components on a NeuroSurface object based on a 
 \details{
 This method computes connected components on the surface by:
 \enumerate{
-  \item Thresholding the surface data using the provided threshold values.
+  \item Thresholding the surface data, retaining vertices with values \code{<= threshold[1]} or \code{>= threshold[2]}.
   \item Creating a subgraph of the surface mesh containing only the vertices that pass the threshold.
   \item Identifying connected components in this subgraph.
   \item Assigning component indices and sizes to the original vertices.

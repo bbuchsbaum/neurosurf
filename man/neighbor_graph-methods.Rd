@@ -5,8 +5,8 @@
 \alias{neighbor_graph,igraph,numeric,missing,missing-method}
 \alias{neighbor_graph,SurfaceGeometry,numeric,missing,missing-method}
 \alias{neighbor_graph,SurfaceGeometry,numeric,numeric,missing-method}
-\alias{neighbor_graph,SurfaceGeometry,numeric,numeric,integer-method}
-\alias{neighbor_graph,SurfaceGeometry,numeric,missing,integer-method}
+\alias{neighbor_graph,SurfaceGeometry,numeric,numeric,numeric-method}
+\alias{neighbor_graph,SurfaceGeometry,numeric,missing,numeric-method}
 \title{Construct Neighborhood Graph from Surface Mesh}
 \usage{
 neighbor_graph(x, radius, edgeWeights = missing(), nodes = missing(), ...)
@@ -34,7 +34,7 @@ neighbor_graph(x, radius, edgeWeights = missing(), nodes = missing(), ...)
   distance_type = c("geodesic", "euclidean", "spherical")
 )
 
-\S4method{neighbor_graph}{SurfaceGeometry,numeric,numeric,integer}(
+\S4method{neighbor_graph}{SurfaceGeometry,numeric,numeric,numeric}(
   x,
   radius,
   edgeWeights,
@@ -42,7 +42,7 @@ neighbor_graph(x, radius, edgeWeights = missing(), nodes = missing(), ...)
   distance_type = c("geodesic", "euclidean", "spherical")
 )
 
-\S4method{neighbor_graph}{SurfaceGeometry,numeric,missing,integer}(
+\S4method{neighbor_graph}{SurfaceGeometry,numeric,missing,numeric}(
   x,
   radius,
   nodes,
@@ -56,7 +56,7 @@ neighbor_graph(x, radius, edgeWeights = missing(), nodes = missing(), ...)
 
 \item{edgeWeights}{Numeric vector. Custom weights for edges, used to define edge distances.}
 
-\item{nodes}{Integer vector. The subset of nodes to use in graph construction. If NULL, all nodes are used.}
+\item{nodes}{Integer-valued numeric vector (integer or double storage). The subset of nodes to use in graph construction. If NULL, all nodes are used.}
 
 \item{...}{Additional arguments passed to methods.}
 

@@ -15,13 +15,17 @@ SurfaceSearchlight(
 \arguments{
 \item{surfgeom}{A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.}
 
-\item{radius}{Numeric, radius of the searchlight as a geodesic distance in mm.
+\item{radius}{Numeric, radius of the searchlight in mm, measured with the
+metric selected by \code{distance_type} (Euclidean by default).
 Must be a positive, length-one value.}
 
 \item{nodeset}{Integer vector, optional subset of surface node indices to use.
 If provided, the vector must contain at least one node index.}
 
-\item{distance_type}{Character, the distance metric to use: "euclidean", "geodesic", or "spherical".}
+\item{distance_type}{Character, the distance metric to use: \code{"euclidean"}
+(the default), \code{"geodesic"}, or \code{"spherical"}. Note that the default
+differs from \code{\link{neighbor_graph}()} and
+\code{\link{RandomSurfaceSearchlight}()}, which use geodesic distance.}
 
 \item{as_deflist}{Logical, whether to return a deflist object.}
 }
@@ -29,16 +33,24 @@ If provided, the vector must contain at least one node index.}
 An iterator object of class "Searchlight".
 }
 \description{
-Creates an iterator that systematically samples searchlight regions on a surface mesh
-using geodesic distance to define regions.
+Creates an iterator that systematically samples searchlight regions on a surface mesh.
+Regions are defined by \code{distance_type}, which defaults to Euclidean
+distance between vertex coordinates; pass \code{distance_type = "geodesic"}
+for distance along the mesh.
 }
 \details{
-Create a Searchlight iterator for surface mesh using geodesic distance to define regions.
+Create a systematic Searchlight iterator for a surface mesh.
 
 
 This function creates a systematic searchlight iterator, which visits each node
 of the surface mesh in order. The searchlight region for each node is defined
 by the specified radius and distance metric.
+The Euclidean default is retained for compatibility with existing analyses.
+Pass \code{distance_type} explicitly to this function and
+\code{\link{RandomSurfaceSearchlight}()} to use the same metric for both
+sampling strategies. Geodesic distance follows shortest paths along mesh
+edges; Euclidean distance can include nearby vertices on opposite sides of
+a fold. Use spherical distance only for a spherical surface.
 }
 \examples{
 \donttest{

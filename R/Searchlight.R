@@ -6,14 +6,19 @@
 #'
 #' @description
 #' Creates an iterator that randomly samples searchlight regions on a surface mesh
-#' using geodesic distance to define regions.
+#' using the selected distance metric (geodesic by default) to define regions.
 #'
 #' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.
-#' @param radius Numeric, radius of the searchlight as a geodesic distance in mm.
+#' @param radius Numeric, radius of the searchlight in mm, measured with the
+#'   metric selected by \code{distance_type} (geodesic by default).
 #'   Must be a positive numeric scalar.
 #' @param nodeset Integer vector, optional subset of surface node indices to use.
 #'   If supplied, must contain more than one index.
 #' @param as_deflist Logical, whether to return a deflist object.
+#' @param distance_type Character, the distance metric to use: \code{"geodesic"}
+#'   (the default), \code{"euclidean"}, or \code{"spherical"}. The default is
+#'   retained for compatibility and differs from \code{\link{SurfaceSearchlight}()},
+#'   which defaults to Euclidean distance.
 #'
 #' @return An iterator object of class "RandomSurfaceSearchlight".
 #'
@@ -23,6 +28,11 @@
 #' When \code{as_deflist=TRUE}, the random ordering of centers is fixed when the
 #' object is created. Use \code{set.seed} before construction for reproducible
 #' sequences.
+#'
+#' Pass \code{distance_type} explicitly to both searchlight constructors when
+#' comparing systematic and random sampling. Geodesic distance follows shortest
+#' paths along mesh edges; Euclidean distance can include nearby vertices on
+#' opposite sides of a fold. Use spherical distance only for a spherical surface.
 #'
 #' @examples
 #' \donttest{
@@ -35,11 +45,20 @@
 #' nodes <- searchlight$nextElem()
 #' length(nodes) > 1
 #' }
+#' # Match the distance metric across both sampling strategies.
+#' geom <- example_surface_geometry()
+#' standard <- SurfaceSearchlight(geom, 1.5, distance_type = "euclidean")
+#' set.seed(42)
+#' random <- RandomSurfaceSearchlight(geom, 1.5, distance_type = "euclidean")
+#' random$nextElem()
 #'
 #' @importFrom igraph neighborhood induced_subgraph
 #' @importFrom deflist deflist
 #' @export
-RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflist=FALSE) {
+RandomSurfaceSearchlight <- function(
+    surfgeom, radius=8, nodeset=NULL, as_deflist=FALSE,
+    distance_type=c("geodesic", "euclidean", "spherical")) {
+  distance_type <- match.arg(distance_type)
   assertthat::assert_that(is.numeric(radius), radius > 0, length(radius) == 1)
   if (!is.null(nodeset)) assertthat::assert_that(length(nodeset) > 1)
   assertthat::assert_that(length(radius) == 1, radius > 0)
@@ -56,7 +75,7 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
   }
 
 
-  bg <- neighbor_graph(g, radius=radius)
+  bg <- neighbor_graph(g, radius=radius, distance_type=distance_type)
 
   nds <- as.vector(igraph::V(bg))
   done <- logical(length(nds))
@@ -125,18 +144,24 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
 
 #' SurfaceSearchlight
 #'
-#' Create a Searchlight iterator for surface mesh using geodesic distance to define regions.
+#' Create a systematic Searchlight iterator for a surface mesh.
 #'
 #' @description
-#' Creates an iterator that systematically samples searchlight regions on a surface mesh
-#' using geodesic distance to define regions.
+#' Creates an iterator that systematically samples searchlight regions on a surface mesh.
+#' Regions are defined by \code{distance_type}, which defaults to Euclidean
+#' distance between vertex coordinates; pass \code{distance_type = "geodesic"}
+#' for distance along the mesh.
 #'
 #' @param surfgeom A \code{\linkS4class{SurfaceGeometry}} object representing the surface mesh.
-#' @param radius Numeric, radius of the searchlight as a geodesic distance in mm.
+#' @param radius Numeric, radius of the searchlight in mm, measured with the
+#'   metric selected by \code{distance_type} (Euclidean by default).
 #'   Must be a positive, length-one value.
 #' @param nodeset Integer vector, optional subset of surface node indices to use.
 #'   If provided, the vector must contain at least one node index.
-#' @param distance_type Character, the distance metric to use: "euclidean", "geodesic", or "spherical".
+#' @param distance_type Character, the distance metric to use: \code{"euclidean"}
+#'   (the default), \code{"geodesic"}, or \code{"spherical"}. Note that the default
+#'   differs from \code{\link{neighbor_graph}()} and
+#'   \code{\link{RandomSurfaceSearchlight}()}, which use geodesic distance.
 #' @param as_deflist Logical, whether to return a deflist object.
 #'
 #' @return An iterator object of class "Searchlight".
@@ -145,6 +170,12 @@ RandomSurfaceSearchlight <- function(surfgeom, radius=8, nodeset=NULL, as_deflis
 #' This function creates a systematic searchlight iterator, which visits each node
 #' of the surface mesh in order. The searchlight region for each node is defined
 #' by the specified radius and distance metric.
+#' The Euclidean default is retained for compatibility with existing analyses.
+#' Pass \code{distance_type} explicitly to this function and
+#' \code{\link{RandomSurfaceSearchlight}()} to use the same metric for both
+#' sampling strategies. Geodesic distance follows shortest paths along mesh
+#' edges; Euclidean distance can include nearby vertices on opposite sides of
+#' a fold. Use spherical distance only for a spherical surface.
 #'
 #' @examples
 #' \donttest{

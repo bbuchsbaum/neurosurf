@@ -175,7 +175,9 @@ setMethod(f="conn_comp", signature=c(x="NeuroSurfaceVector"),
 
 
 #' @export
-#' @param threshold the two-element threshold range to use to define connected components
+#' @param threshold the two-element threshold \code{c(lower, upper)} used to define
+#'   connected components; vertices with values \code{<= lower} or \code{>= upper}
+#'   are retained (two-tailed), as in \code{conn_comp()}
 #' @param size the minimum size of the connected components to keep
 #' @param index the index/column of the underlying data matrix to cluster
 #' @rdname cluster_threshold-methods
@@ -208,7 +210,11 @@ setMethod(f="cluster_threshold", signature=c(x="NeuroSurface"),
 #' This method identifies connected components on a NeuroSurface object based on a given threshold.
 #'
 #' @param x A \code{NeuroSurface} object representing the surface data.
-#' @param threshold A numeric vector of length 2 specifying the lower and upper thresholds for including vertices in the components.
+#' @param threshold A numeric vector of length 2, \code{c(lower, upper)}. The
+#'   test is two-tailed: a vertex is retained when its value is
+#'   \code{<= threshold[1]} or \code{>= threshold[2]}; values strictly between
+#'   the two thresholds are excluded. Use \code{c(-Inf, upper)} for a positive
+#'   one-tailed threshold or \code{c(lower, Inf)} for a negative one.
 #'
 #' @return A list containing two \code{NeuroSurface} objects:
 #'   \item{index}{A \code{NeuroSurface} object where each vertex is labeled with its component index.}
@@ -217,7 +223,7 @@ setMethod(f="cluster_threshold", signature=c(x="NeuroSurface"),
 #' @details
 #' This method computes connected components on the surface by:
 #' \enumerate{
-#'   \item Thresholding the surface data using the provided threshold values.
+#'   \item Thresholding the surface data, retaining vertices with values \code{<= threshold[1]} or \code{>= threshold[2]}.
 #'   \item Creating a subgraph of the surface mesh containing only the vertices that pass the threshold.
 #'   \item Identifying connected components in this subgraph.
 #'   \item Assigning component indices and sizes to the original vertices.
@@ -297,7 +303,13 @@ setMethod(f="conn_comp", signature=c(x="NeuroSurface"),
 #' @rdname series-methods
 #' @param x the object to extract the series from
 #' @param i the indices of the series to extract
-#' @return A matrix where columns are time points and rows are vertex indices
+#' @return A matrix with time points in rows and the requested vertices in
+#'   columns, i.e. \code{T x length(i)} for a \code{NeuroSurfaceVector} with
+#'   \code{T} time points, matching the \code{neuroim2::series()} convention for
+#'   \code{NeuroVec}. The orientation does not depend on whether \code{i} is
+#'   stored as integer or double; a single index gives a \code{T x 1} matrix.
+#'   For a \code{NeuroSurface} (one value per vertex) the result is a
+#'   \code{1 x length(i)} matrix.
 #' @export
 setMethod("series", signature(x="NeuroSurfaceVector", i="numeric"),
           def=function(x, i) {
@@ -327,7 +339,7 @@ setMethod("series_roi", signature(x="NeuroSurfaceVector", i="numeric"),
 #' @export
 setMethod("series", signature(x="NeuroSurfaceVector", i="integer"),
           def=function(x, i) {
-            Matrix::t(x@data[i,])
+            Matrix::t(x@data[i, , drop = FALSE])
           })
 
 #' @rdname series-methods
