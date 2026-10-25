@@ -24,6 +24,13 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+      - name: Use Ubuntu archive mirror
+        run: |
+          # Avoid stalled downloads from the runner's Azure mirror.
+          if [ -f /etc/apt/apt-mirrors.txt ]; then
+            sudo sed -i 's/azure.archive.ubuntu.com/archive.ubuntu.com/g' \
+              /etc/apt/apt-mirrors.txt
+          fi
       - uses: r-lib/actions/setup-pandoc@v2
       - uses: r-lib/actions/setup-tinytex@v2
       - name: Install manual font
