@@ -51,7 +51,16 @@ setClass(
     }
     if (length(object@selected_layer) != 1L ||
         !object@selected_layer %in% names(object@layers)) {
-      errors <- c(errors, "'selected_layer' must name a scene layer")
+      errors <- c(errors, "'selected_layer' must name a quantitative map")
+    } else if (identical(object@layers[[object@selected_layer]]$role,
+                         "reference")) {
+      errors <- c(errors, "'selected_layer' must name a quantitative map")
+    }
+    references <- vapply(object@layers, function(x) {
+      identical(x$role, "reference")
+    }, logical(1))
+    if (sum(references) > 1L || all(references)) {
+      errors <- c(errors, "a scene needs quantitative maps and at most one reference")
     }
     if (length(object@fallback) != 1L || !nzchar(trimws(object@fallback))) {
       errors <- c(errors, "'fallback' must be one non-empty string")
@@ -126,7 +135,7 @@ setClass(
   if (is.null(x) && allow_null) {
     return(stats::setNames(rep(list(NULL), length(geometry_ids)), geometry_ids))
   }
-  if (is.numeric(x) && length(geometry_ids) == 1L) {
+  if ((is.numeric(x) || is.logical(x)) && length(geometry_ids) == 1L) {
     return(stats::setNames(list(x), geometry_ids))
   }
   if (!is.list(x) || is.null(names(x)) || any(!nzchar(names(x)))) {
@@ -169,6 +178,14 @@ setClass(
 
 #' Define a named scalar layer for a surface scene
 #'
+#' @param role `"map"` (default) or `"reference"`. A scene requires at least
+#'   one quantitative map and supports at most one binary reference. References
+#'   persist below the selected map and cannot be selected as a map. Supply a
+#'   full binary mask per hemisphere; indices, limits, thresholds and units are
+#'   unavailable for references. Reference visibility and opacity are independent.
+#' @param color Explicit opaque reference color. A separate categorical swatch
+#'   replaces the quantitative legend. Membership is linearly interpolated then
+#'   classified at >= 0.5 per fragment, independently of effect values.
 #' @param name Stable layer name.
 #' @param values A numeric vector for a unilateral scene, or a named list with
 #'   one numeric vector per hemisphere.
@@ -205,7 +222,23 @@ surface_layer <- function(name, values, indices = NULL, colormap = "viridis",
                           limits = NULL, opacity = 1, units = NULL,
                           legend = list(), metadata = list(),
                           provenance = list(), visible = TRUE,
-                          threshold = NULL) {
+                          threshold = NULL, role = c("map", "reference"),
+                          color = NULL) {
+  role <- match.arg(role)
+  legend <- .scene_record(legend, "legend")
+  if (role == "reference") {
+    color <- .ns_reference_color(color)
+    if (!is.null(indices) || !is.null(threshold) || !is.null(limits) ||
+        !is.null(units)) {
+      stop("references use full binary masks and no limits, threshold or units",
+           call. = FALSE)
+    }
+    colormap <- c(color, color)
+    limits <- c(0, 1)
+    legend$visible <- FALSE
+  } else if (!is.null(color)) {
+    stop("'color' is only supported for reference layers", call. = FALSE)
+  }
   name <- .scene_nonempty_string(name, "name")
   if (!grepl("^[A-Za-z][A-Za-z0-9_.-]*$", name)) {
     stop(
@@ -222,7 +255,6 @@ surface_layer <- function(name, values, indices = NULL, colormap = "viridis",
     stop("'opacity' must be a finite scalar between 0 and 1", call. = FALSE)
   }
   if (!is.null(units)) .scene_nonempty_string(units, "units")
-  legend <- .scene_record(legend, "legend")
   metadata <- .scene_record(metadata, "metadata")
   provenance <- .scene_record(provenance, "provenance")
   if (!is.logical(visible) || length(visible) != 1L || is.na(visible)) {
@@ -241,6 +273,8 @@ surface_layer <- function(name, values, indices = NULL, colormap = "viridis",
   structure(
     list(
       name = name,
+      role = role,
+      color = color,
       values = values,
       indices = indices,
       colormap = colormap,
@@ -273,7 +307,8 @@ surface_layer <- function(name, values, indices = NULL, colormap = "viridis",
     layer_values <- values[[geometry_id]]
     layer_indices <- indices[[geometry_id]]
     vertex_count <- nrow(coords(geometries[[geometry_id]]))
-    if (!is.numeric(layer_values)) {
+    if (!(is.numeric(layer_values) ||
+          (identical(layer$role, "reference") && is.logical(layer_values)))) {
       stop("layer '", layer$name, "' values must be numeric", call. = FALSE)
     }
     if (is.null(layer_indices)) {
@@ -299,6 +334,9 @@ surface_layer <- function(name, values, indices = NULL, colormap = "viridis",
         stop("layer '", layer$name, "' indices must be unique", call. = FALSE)
       }
       indices[[geometry_id]] <- as.integer(layer_indices)
+    }
+    if (identical(layer$role, "reference")) {
+      layer_values <- .ns_reference_mask(layer_values, vertex_count)
     }
     values[[geometry_id]] <- as.numeric(layer_values)
   }
@@ -395,13 +433,22 @@ surface_scene <- function(left = NULL, right = NULL, layers,
     stop("layer names must be unique", call. = FALSE)
   }
   names(layers) <- layer_names
+  map_names <- layer_names[!vapply(layers, function(x) {
+    identical(x$role, "reference")
+  }, logical(1))]
+  if (!length(map_names)) stop("a scene needs at least one quantitative map",
+                              call. = FALSE)
+  if (length(layer_names) - length(map_names) > 1L) {
+    stop("a scene supports at most one reference", call. = FALSE)
+  }
   if (is.null(selected_layer)) {
-    visible <- layer_names[vapply(layers, `[[`, logical(1), "visible")]
-    selected_layer <- if (length(visible)) visible[[1]] else layer_names[[1]]
+    visible <- intersect(map_names,
+                         layer_names[vapply(layers, `[[`, logical(1), "visible")])
+    selected_layer <- if (length(visible)) visible[[1]] else map_names[[1]]
   }
   .scene_nonempty_string(selected_layer, "selected_layer")
-  if (!selected_layer %in% layer_names) {
-    stop("'selected_layer' must name a scene layer", call. = FALSE)
+  if (!selected_layer %in% map_names) {
+    stop("'selected_layer' must name a quantitative map", call. = FALSE)
   }
 
   scene <- new(
@@ -478,6 +525,7 @@ surface_scene_manifest <- function(scene, asset_mode = scene@asset_mode,
   if (!is(scene, "SurfaceScene")) {
     stop("'scene' must be a SurfaceScene", call. = FALSE)
   }
+  validObject(scene)
   asset_mode <- match.arg(asset_mode, c("inline", "directory"))
   inline <- identical(asset_mode, "inline")
   if (!inline) {
@@ -554,11 +602,15 @@ surface_scene_manifest <- function(scene, asset_mode = scene@asset_mode,
     layer_manifests[[layer_name]] <- c(
       list(
         id = layer_name,
+        role = layer$role %||% "map",
         label = layer$legend$title %||% layer_name,
         values = value_refs,
         colorMap = layer$colormap,
         limits = layer$limits
       ),
+      if (identical(layer$role, "reference")) {
+        list(color = layer$color, boundary = "linear-membership>=0.5")
+      },
       if (!is.null(layer$threshold)) list(threshold = layer$threshold),
       list(
         opacity = layer$opacity,
@@ -573,7 +625,9 @@ surface_scene_manifest <- function(scene, asset_mode = scene@asset_mode,
 
   structure(
     c(list(
-      schemaVersion = "surfview.scene.v1",
+      schemaVersion = if (any(vapply(scene@layers, function(x) {
+        identical(x$role, "reference")
+      }, logical(1)))) "surfview.scene.reference.v1" else "surfview.scene.v1",
       id = scene@id,
       assets = assets,
       geometries = geometry_manifests,
@@ -659,6 +713,7 @@ write_surface_scene <- function(scene, path, self_contained = FALSE,
   alt_text <- jsonlite::toJSON(scene@alt_text, auto_unbox = TRUE)
   mount_options <- list(
     lazy = TRUE,
+    height = 480L,
     preset = scene@preset,
     controls = identical(scene@mode, "report")
   )

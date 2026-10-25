@@ -5,8 +5,8 @@ cpp_butterfly_subdivide <- function(faces, attrs, clamp_cols) {
     .Call(`_neurosurf_cpp_butterfly_subdivide`, faces, attrs, clamp_cols)
 }
 
-cpp_rasterize_surface_scalar <- function(projected, faces, values, anatomy, cortex_mask, width, height, threshold, tail, limits, palette, overlay_alpha, alpha_ramp, base_low, base_high, medial_wall_policy, background, supersample, return_buffers, normals = NULL, lighting = NULL, contour = NULL) {
-    .Call(`_neurosurf_cpp_rasterize_surface_scalar`, projected, faces, values, anatomy, cortex_mask, width, height, threshold, tail, limits, palette, overlay_alpha, alpha_ramp, base_low, base_high, medial_wall_policy, background, supersample, return_buffers, normals, lighting, contour)
+cpp_rasterize_surface_scalar <- function(projected, faces, values, anatomy, cortex_mask, width, height, threshold, tail, limits, palette, overlay_alpha, alpha_ramp, base_low, base_high, medial_wall_policy, background, supersample, return_buffers, normals = NULL, lighting = NULL, contour = NULL, reference_mask = NULL, reference_rgba = NULL) {
+    .Call(`_neurosurf_cpp_rasterize_surface_scalar`, projected, faces, values, anatomy, cortex_mask, width, height, threshold, tail, limits, palette, overlay_alpha, alpha_ramp, base_low, base_high, medial_wall_policy, background, supersample, return_buffers, normals, lighting, contour, reference_mask, reference_rgba)
 }
 
 cpp_rasterize_surface_gbuffer <- function(projected, faces, width, height) {

@@ -69,6 +69,15 @@
 #' @param pixel_scale Output pixels per surface coordinate unit (usually
 #'   mm). `NULL` fits the surface to the panel; a common value gives several
 #'   panels one scale.
+#' @param reference Optional list with `id`, `label`, binary per-vertex `mask`,
+#'   opaque `color`, `opacity` in [0, 1], `visible`, and `provenance`. Defaults
+#'   are label = id, opacity = 0.2, visible = TRUE, provenance = list().
+#'   Anatomy, reference, then effect are composed with source-over. Membership
+#'   is interpolated linearly (edge midpoints through display subdivision)
+#'   and classified at >= 0.5 at each sample. Antialiasing averages categorical
+#'   coverage, returned as `reference_coverage` in [0, 1]. Reference color is
+#'   unlit and excluded from triangles touching a non-cortex vertex, for all
+#'   medial-wall policies. It never changes effect buffers or mapping.
 #' @param return_buffers Include scalar and depth buffers for diagnostics.
 #'
 #' @return A `surface_rgba` list with raw RGBA, coverage, and overlay-alpha
@@ -103,10 +112,12 @@ render_surface_rgba <- function(geometry,
                                 anatomy_style = c("publication", "continuous", "binary"),
                                 anatomy_midpoint = NULL,
                                 anatomy_invert = "auto",
-                                anatomy_range = c(0.70, 0.93)) {
+                                anatomy_range = c(0.70, 0.93),
+                                reference = NULL) {
   if (!inherits(geometry, "SurfaceGeometry")) {
     stop("'geometry' must be a SurfaceGeometry object.", call. = FALSE)
   }
+  reference <- .ns_validate_reference(reference, nrow(coords(geometry)))
   camera <- match.arg(camera)
   camera_mode <- match.arg(camera_mode)
   tail <- match.arg(tail)
@@ -176,6 +187,7 @@ render_surface_rgba <- function(geometry,
     outer_contour = outer_contour, outer_contour_color = outer_contour_color,
     background = background, lighting = lighting, subdivide = subdivide,
     return_buffers = return_buffers, anatomy_range = anatomy_range,
+    reference = reference,
     extent = if (!is.null(pixel_scale)) list(scale = pixel_scale)
   )
   out$provenance[c("anatomy_style", "anatomy_midpoint", "anatomy_invert")] <-
@@ -194,19 +206,21 @@ render_surface_rgba <- function(geometry,
                                  medial_wall, outer_contour,
                                  outer_contour_color, background, lighting,
                                  subdivide, return_buffers, anatomy_range,
-                                 extent = NULL) {
+                                 extent = NULL, reference = NULL) {
   obliquity <- if (camera_mode == "presentation") presentation_obliquity else 0
   levels <- .ns_subdivision_levels(subdivide, vertices, faces, camera,
                                    hemi, width, height, margin,
                                    obliquity, extent)
   if (levels > 0L) {
     display <- .ns_subdivide_display_mesh(vertices, faces, vertex_values,
-                                          anatomy, cortex_mask, levels)
+                                          anatomy, cortex_mask, levels,
+                                          reference = reference)
     vertices <- display$vertices
     faces <- display$faces
     vertex_values <- display$values
     anatomy <- display$anatomy
     cortex_mask <- display$cortex_mask
+    reference <- display$reference
   }
   projected <- .ns_project_surface_camera(
     vertices, camera = camera, hemi = hemi,
@@ -243,6 +257,11 @@ render_surface_rgba <- function(geometry,
     return_buffers = isTRUE(return_buffers),
     normals = view_normals,
     lighting = light,
+    reference_mask = if (!is.null(reference)) reference$mask,
+    reference_rgba = if (!is.null(reference)) {
+      c(grDevices::col2rgb(reference$color)[, 1] / 255,
+        if (reference$visible) reference$opacity else 0)
+    },
     contour = if (isTRUE(outer_contour)) {
       c(grDevices::col2rgb(outer_contour_color, alpha = TRUE)[, 1L] / 255, 0.9)
     }
@@ -279,6 +298,10 @@ render_surface_rgba <- function(geometry,
     lighting = !is.null(light),
     subdivision_levels = levels
   )
+  if (!is.null(reference)) {
+    out$provenance$reference <- reference[setdiff(names(reference), "mask")]
+    out$provenance$composition_order <- c("anatomy", "reference", "effect")
+  }
   class(out) <- c("surface_rgba", "list")
   out
 }
@@ -555,17 +578,21 @@ surface_threshold_segments <- function(vertices, faces, values, threshold,
 # Interpolating butterfly subdivision of geometry and per-vertex fields for
 # display. Original vertices keep their positions and values.
 .ns_subdivide_display_mesh <- function(vertices, faces, values, anatomy,
-                                       cortex_mask, levels) {
+                                       cortex_mask, levels, reference = NULL) {
   attrs <- cbind(vertices, values, anatomy)
   for (i in seq_len(levels)) {
     res <- cpp_butterfly_subdivide(faces, attrs, clamp_cols = c(3L, 4L))
     p <- res$parents
     cortex_mask <- cortex_mask[p[, 1]] & cortex_mask[p[, 2]]
+    if (!is.null(reference)) {
+      reference$mask <- (reference$mask[p[, 1]] + reference$mask[p[, 2]]) / 2
+    }
     faces <- res$faces
     attrs <- res$attrs
   }
   list(vertices = attrs[, 1:3, drop = FALSE], faces = faces,
-       values = attrs[, 4], anatomy = attrs[, 5], cortex_mask = cortex_mask)
+       values = attrs[, 4], anatomy = attrs[, 5], cortex_mask = cortex_mask,
+       reference = reference)
 }
 
 # Orthographic camera basis. Returns a 3 x 3 matrix whose columns are the
@@ -745,4 +772,52 @@ anatomical_curvature <- function(geometry, iterations = 5L) {
     metric <- as.numeric(sums) / counts
   }
   metric
+}
+
+# Validate authored binary references before any display interpolation.
+.ns_reference_mask <- function(mask, n = length(mask)) {
+  if (!(is.numeric(mask) || is.logical(mask)) || length(mask) != n ||
+      any(!is.finite(mask)) || any(!mask %in% c(0, 1))) {
+    stop("reference mask must contain one finite binary value per vertex",
+         call. = FALSE)
+  }
+  as.numeric(mask)
+}
+
+.ns_reference_color <- function(color) {
+  if (!is.character(color) || length(color) != 1L || is.na(color)) {
+    stop("reference color must be one opaque color", call. = FALSE)
+  }
+  rgba <- tryCatch(grDevices::col2rgb(color, alpha = TRUE),
+                   error = function(e) NULL)
+  if (is.null(rgba) || rgba[4, 1] != 255) {
+    stop("reference color must be one opaque color", call. = FALSE)
+  }
+  grDevices::rgb(rgba[1, 1], rgba[2, 1], rgba[3, 1], maxColorValue = 255)
+}
+
+.ns_validate_reference <- function(reference, n) {
+  if (is.null(reference)) return(NULL)
+  reference <- .scene_record(reference, "reference")
+  unknown <- setdiff(names(reference),
+                     c("id", "label", "mask", "color", "opacity",
+                       "visible", "provenance"))
+  if (length(unknown)) stop("unknown reference field: ", unknown[1], call. = FALSE)
+  id <- .scene_nonempty_string(reference$id, "reference id")
+  opacity <- reference$opacity %||% 0.2
+  visible <- reference$visible %||% TRUE
+  if (!is.numeric(opacity) || length(opacity) != 1L ||
+      !is.finite(opacity) || opacity < 0 || opacity > 1) {
+    stop("reference opacity must be in [0, 1]", call. = FALSE)
+  }
+  if (!is.logical(visible) || length(visible) != 1L || is.na(visible)) {
+    stop("reference visible must be TRUE or FALSE", call. = FALSE)
+  }
+  list(id = id, label = .scene_nonempty_string(reference$label %||% id,
+                                              "reference label"),
+       mask = .ns_reference_mask(reference$mask, n),
+       color = .ns_reference_color(reference$color), opacity = opacity,
+       visible = visible, boundary = "linear-membership>=0.5",
+       provenance = .scene_record(reference$provenance %||% list(),
+                                  "reference provenance"))
 }

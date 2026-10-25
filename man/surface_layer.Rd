@@ -16,7 +16,9 @@ surface_layer(
   metadata = list(),
   provenance = list(),
   visible = TRUE,
-  threshold = NULL
+  threshold = NULL,
+  role = c("map", "reference"),
+  color = NULL
 )
 }
 \arguments{
@@ -46,6 +48,16 @@ from finite values across hemispheres.}
 
 \item{threshold}{Optional static threshold pair. This preserves explicit
 legacy display thresholds; report mode does not add a threshold control.}
+
+\item{role}{`"map"` (default) or `"reference"`. A scene requires at least
+one quantitative map and supports at most one binary reference. References
+persist below the selected map and cannot be selected as a map. Supply a
+full binary mask per hemisphere; indices, limits, thresholds and units are
+unavailable for references. Reference visibility and opacity are independent.}
+
+\item{color}{Explicit opaque reference color. A separate categorical swatch
+replaces the quantitative legend. Membership is linearly interpolated then
+classified at >= 0.5 per fragment, independently of effect values.}
 }
 \value{
 A validated layer specification for \code{\link{surface_scene}}.

@@ -105,7 +105,9 @@ Rcpp::List cpp_rasterize_surface_scalar(
     bool return_buffers,
     Rcpp::Nullable<Rcpp::NumericMatrix> normals = R_NilValue,
     Rcpp::Nullable<Rcpp::NumericVector> lighting = R_NilValue,
-    Rcpp::Nullable<Rcpp::NumericVector> contour = R_NilValue) {
+    Rcpp::Nullable<Rcpp::NumericVector> contour = R_NilValue,
+    Rcpp::Nullable<Rcpp::NumericVector> reference_mask = R_NilValue,
+    Rcpp::Nullable<Rcpp::NumericVector> reference_rgba = R_NilValue) {
 
   const int nvert = projected.nrow();
   if (projected.ncol() != 3 || faces.ncol() != 3) {
@@ -121,6 +123,25 @@ Rcpp::List cpp_rasterize_surface_scalar(
   if (limits.size() != 2 || palette.ncol() < 3 || palette.nrow() < 2 ||
       background.size() < 3) {
     stop("invalid limits, palette, or background");
+  }
+
+  NumericVector ref_mask, ref_rgba;
+  const bool has_reference = reference_mask.isNotNull();
+  if (has_reference != reference_rgba.isNotNull()) {
+    stop("reference_mask and reference_rgba must be supplied together");
+  }
+  if (has_reference) {
+    ref_mask = NumericVector(reference_mask.get());
+    ref_rgba = NumericVector(reference_rgba.get());
+    if (ref_mask.size() != nvert || ref_rgba.size() != 4) {
+      stop("invalid reference dimensions");
+    }
+    for (double v : ref_mask) {
+      if (!std::isfinite(v) || v < 0 || v > 1) stop("invalid reference membership");
+    }
+    for (double v : ref_rgba) {
+      if (!std::isfinite(v) || v < 0 || v > 1) stop("invalid reference RGBA");
+    }
   }
 
   // Optional per-vertex view-space normals and lighting parameters:
@@ -169,6 +190,7 @@ Rcpp::List cpp_rasterize_surface_scalar(
   std::vector<std::uint8_t> coverage(npix, 0);
   std::vector<std::uint8_t> cortex_coverage(npix, 0);
   std::vector<std::uint8_t> overlay_a(npix, 0);
+  std::vector<std::uint8_t> reference_coverage(has_reference ? npix : 0, 0);
 
   const std::uint8_t br = static_cast<std::uint8_t>(std::round(255 * clamp01(background[0])));
   const std::uint8_t bg = static_cast<std::uint8_t>(std::round(255 * clamp01(background[1])));
@@ -250,6 +272,17 @@ Rcpp::List cpp_rasterize_surface_scalar(
         const double lit_base = base * diffuse + spec;
         double rr = lit_base, gg = lit_base, bl = lit_base;
         double aa = 0.0;
+        if (has_reference) {
+          const bool member = face_cortex &&
+            w0 * ref_mask[i0] + w1 * ref_mask[i1] + w2 * ref_mask[i2] >= 0.5;
+          reference_coverage[pos] = member ? 1 : 0;
+          if (member && ref_rgba[3] > 0) {
+            const double a = ref_rgba[3];
+            rr = ref_rgba[0] * a + rr * (1 - a);
+            gg = ref_rgba[1] * a + gg * (1 - a);
+            bl = ref_rgba[2] * a + bl * (1 - a);
+          }
+        }
 
         if (face_cortex && passes_threshold(sv, threshold, tail)) {
           aa = overlay_alpha;
@@ -336,6 +369,8 @@ Rcpp::List cpp_rasterize_surface_scalar(
 
   RawVector out_rgba(static_cast<R_xlen_t>(width) * height * 4);
   RawVector out_overlay(static_cast<R_xlen_t>(width) * height);
+  NumericMatrix out_reference(has_reference ? height : 0,
+                              has_reference ? width : 0);
   LogicalMatrix out_coverage(height, width);
   LogicalMatrix out_cortex_coverage(height, width);
   NumericMatrix out_scalar;
@@ -351,6 +386,7 @@ Rcpp::List cpp_rasterize_surface_scalar(
     for (int ox = 0; ox < width; ++ox) {
       unsigned int sums[4] = {0, 0, 0, 0};
       unsigned int alpha_sum = 0;
+      unsigned int reference_sum = 0;
       bool covered = false;
       bool cortex_covered = false;
       double scalar_sum = 0.0;
@@ -363,6 +399,7 @@ Rcpp::List cpp_rasterize_surface_scalar(
           const std::size_t hp = static_cast<std::size_t>(iy) * sw + ix;
           for (int c = 0; c < 4; ++c) sums[c] += rgba[hp * 4 + c];
           alpha_sum += overlay_a[hp];
+          if (has_reference) reference_sum += reference_coverage[hp];
           covered = covered || coverage[hp];
           cortex_covered = cortex_covered || cortex_coverage[hp];
           if (std::isfinite(scalar[hp])) {
@@ -383,6 +420,8 @@ Rcpp::List cpp_rasterize_surface_scalar(
         );
       }
       out_overlay[op] = static_cast<Rbyte>(std::round(static_cast<double>(alpha_sum) / denom));
+      if (has_reference) out_reference(oy, ox) =
+        static_cast<double>(reference_sum) / denom;
       out_coverage(oy, ox) = covered;
       out_cortex_coverage(oy, ox) = cortex_covered;
       if (return_buffers) {
@@ -394,7 +433,7 @@ Rcpp::List cpp_rasterize_surface_scalar(
 
   out_rgba.attr("dim") = IntegerVector::create(height, width, 4);
   out_overlay.attr("dim") = IntegerVector::create(height, width);
-  return List::create(
+  List result = List::create(
     _["rgba"] = out_rgba,
     _["coverage"] = out_coverage,
     _["cortex_coverage"] = out_cortex_coverage,
@@ -402,6 +441,8 @@ Rcpp::List cpp_rasterize_surface_scalar(
     _["scalar"] = return_buffers ? static_cast<SEXP>(out_scalar) : R_NilValue,
     _["depth"] = return_buffers ? static_cast<SEXP>(out_depth) : R_NilValue
   );
+  if (has_reference) result["reference_coverage"] = out_reference;
+  return result;
 }
 
 // Per-pixel geometry buffer for deferred shading. Returns, for each pixel of a

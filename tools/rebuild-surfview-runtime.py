@@ -97,6 +97,13 @@ with tempfile.TemporaryDirectory(prefix="neurosurf-runtime-") as tmp:
         "tests/unit/style-presets.test.ts",
         "tests/unit/scene-mount-lifecycle.test.ts",
         "tests/unit/report-scene-control-target.test.ts",
+        "tests/unit/report-reference.test.ts",
+        "tests/unit/report-controls.test.ts",
+        "tests/unit/report-scene-controller.test.ts",
+        "tests/unit/scene-manifest.test.ts",
+        "tests/unit/surface-shading.test.ts",
+        "tests/unit/rgba-compositing.test.ts",
+        "tests/unit/layer-ordering.test.ts",
     )
     # Collect the actual runtime module graph without changing bundle output.
     # This prevents a source/license inventory based only on package.json from
