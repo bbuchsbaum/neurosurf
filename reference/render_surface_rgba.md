@@ -39,7 +39,8 @@ render_surface_rgba(
   anatomy_style = c("publication", "continuous", "binary"),
   anatomy_midpoint = NULL,
   anatomy_invert = "auto",
-  anatomy_range = c(0.7, 0.93)
+  anatomy_range = c(0.7, 0.93),
+  reference = NULL
 )
 ```
 
@@ -184,6 +185,19 @@ render_surface_rgba(
 - anatomy_range:
 
   Dark and light gray levels in \[0, 1\].
+
+- reference:
+
+  Optional list with \`id\`, \`label\`, binary per-vertex \`mask\`,
+  opaque \`color\`, \`opacity\` in \[0, 1\], \`visible\`, and
+  \`provenance\`. Defaults are label = id, opacity = 0.2, visible =
+  TRUE, provenance = list(). Anatomy, reference, then effect are
+  composed with source-over. Membership is interpolated linearly (edge
+  midpoints through display subdivision) and classified at \>= 0.5 at
+  each sample. Antialiasing averages categorical coverage, returned as
+  \`reference_coverage\` in \[0, 1\]. Reference color is unlit and
+  excluded from triangles touching a non-cortex vertex, for all
+  medial-wall policies. It never changes effect buffers or mapping.
 
 ## Value
 

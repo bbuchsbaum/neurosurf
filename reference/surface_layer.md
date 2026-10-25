@@ -17,7 +17,9 @@ surface_layer(
   metadata = list(),
   provenance = list(),
   visible = TRUE,
-  threshold = NULL
+  threshold = NULL,
+  role = c("map", "reference"),
+  color = NULL
 )
 ```
 
@@ -72,6 +74,22 @@ surface_layer(
   Optional static threshold pair. This preserves explicit legacy display
   thresholds; report mode does not add a threshold control.
 
+- role:
+
+  \`"map"\` (default) or \`"reference"\`. A scene requires at least one
+  quantitative map and supports at most one binary reference. References
+  persist below the selected map and cannot be selected as a map. Supply
+  a full binary mask per hemisphere; indices, limits, thresholds and
+  units are unavailable for references. Reference visibility and opacity
+  are independent.
+
+- color:
+
+  Explicit opaque reference color. A separate categorical swatch
+  replaces the quantitative legend. Membership is linearly interpolated
+  then classified at \>= 0.5 per fragment, independently of effect
+  values.
+
 ## Value
 
 A validated layer specification for
@@ -95,6 +113,12 @@ surface_layer(
 )
 #> $name
 #> [1] "effect"
+#> 
+#> $role
+#> [1] "map"
+#> 
+#> $color
+#> NULL
 #> 
 #> $values
 #> [1] -1.5  0.0  2.0
