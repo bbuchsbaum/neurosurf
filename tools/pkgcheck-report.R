@@ -13,6 +13,10 @@ write_pkgcheck_markdown <- function(markdown, path) {
 }
 
 run_pkgcheck_report <- function() {
+  if (dir.exists("pkgcheck-report") &&
+      length(list.files("pkgcheck-report", all.files = TRUE, no.. = TRUE))) {
+    stop("pkgcheck-report must be empty to avoid stale report artifacts")
+  }
   dir.create("pkgcheck-report", showWarnings = FALSE)
   on.exit(writeLines(capture.output(sessionInfo()),
                      "pkgcheck-report/session-info.txt"), add = TRUE)

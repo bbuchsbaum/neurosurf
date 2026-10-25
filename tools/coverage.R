@@ -1,5 +1,9 @@
 args <- commandArgs(trailingOnly = TRUE)
 output <- if (length(args)) args[[1L]] else "coverage"
+if (dir.exists(output) &&
+    length(list.files(output, all.files = TRUE, no.. = TRUE))) {
+  stop("Coverage output directory must be empty: ", output)
+}
 dir.create(output, recursive = TRUE, showWarnings = FALSE)
 artifact <- function(name) file.path(output, name)
 
