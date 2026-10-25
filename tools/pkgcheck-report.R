@@ -12,6 +12,13 @@ write_pkgcheck_markdown <- function(markdown, path) {
   writeLines(normalize_markdown(markdown), path, useBytes = TRUE)
 }
 
+pkgcheck_summary <- function(markdown) {
+  lines <- normalize_markdown(markdown)
+  separator <- which(trimws(lines) == "---")
+  if (length(separator)) lines <- head(lines, separator[[1L]] - 1L)
+  lines
+}
+
 run_pkgcheck_report <- function() {
   if (dir.exists("pkgcheck-report") &&
       length(list.files("pkgcheck-report", all.files = TRUE, no.. = TRUE))) {
@@ -22,9 +29,10 @@ run_pkgcheck_report <- function() {
                      "pkgcheck-report/session-info.txt"), add = TRUE)
   checks <- pkgcheck::pkgcheck(path = ".", use_cache = FALSE)
   saveRDS(checks, "pkgcheck-report/pkgcheck.rds")
-  writeLines(capture.output(summary(checks)), "pkgcheck-report/summary.txt")
   markdown <- pkgcheck::checks_to_markdown(checks, render = FALSE)
   write_pkgcheck_markdown(markdown, "pkgcheck-report/report.md")
+  write_pkgcheck_markdown(pkgcheck_summary(markdown),
+                         "pkgcheck-report/summary.md")
 }
 
 if (sys.nframe() == 0L) run_pkgcheck_report()
