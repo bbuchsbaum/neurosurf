@@ -29,6 +29,8 @@ inst/extdata/rscan01_lh.gii
 *.gcda
 *.gcno
 *.Rcheck/
+/coverage/
+/pkgcheck-report/
 Rplots.pdf
 tests/testthat/Rplots.pdf
 Rd2.pdf

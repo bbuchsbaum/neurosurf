@@ -1,48 +1,78 @@
 name: pkgcheck (advisory)
 
-# This will cancel running jobs once a new run is triggered
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 on:
-  # Manually trigger the Action under Actions/pkgcheck
   workflow_dispatch:
-  # Run on every push to master
   push:
-    branches:
-      - master
+    branches: [master]
+
+permissions:
+  contents: read
 
 jobs:
   pkgcheck:
     name: pkgcheck (advisory)
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: write
+    timeout-minutes: 45
+    continue-on-error: true
     env:
-      # rgl is imported during installation, before neurosurf's .onLoad runs.
       RGL_USE_NULL: 'TRUE'
+      NOT_CRAN: 'false'
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      # rOpenSci submission findings are advisory; R-CMD-check remains the gate.
-      # Keep the action's detailed report, including its failing findings.
-      - name: Run advisory pkgcheck report
-        id: pkgcheck
-        continue-on-error: true
-        uses: ropensci-review-tools/pkgcheck-action@main
-
+      - uses: actions/checkout@v4
+      - name: Use Ubuntu archive mirror
+        run: |
+          # Avoid stalled downloads from the runner's Azure mirror.
+          if [ -f /etc/apt/apt-mirrors.txt ]; then
+            sudo sed -i 's/azure.archive.ubuntu.com/archive.ubuntu.com/g' \
+              /etc/apt/apt-mirrors.txt
+          fi
+      - uses: r-lib/actions/setup-pandoc@v2
+      - uses: r-lib/actions/setup-tinytex@v2
+      - name: Install manual font
+        run: |
+          tlmgr update --self
+          tlmgr install inconsolata
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+          extra-repositories: https://ropensci-review-tools.r-universe.dev
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y universal-ctags global
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgcheck
+          needs: check
+      - name: Run advisory report
+        id: report
+        run: |
+          Rscript tools/test-pkgcheck-report.R
+          Rscript tools/pkgcheck-report.R
       - name: Summarize advisory result
         if: always()
         env:
-          PKGCHECK_OUTCOME: ${{ steps.pkgcheck.outcome }}
+          JOB_STATUS: ${{ job.status }}
+          REPORT_OUTCOME: ${{ steps.report.outcome }}
         shell: bash
         run: |
-          if [ "$PKGCHECK_OUTCOME" = "failure" ]; then
-            echo "::warning title=Advisory pkgcheck::pkgcheck reported findings or could not complete. See the action log and report issue."
+          if [ "$JOB_STATUS" != "success" ] || [ "$REPORT_OUTCOME" != "success" ]; then
+            echo "::warning title=Advisory pkgcheck::The pkgcheck engine or report did not complete. See the log and available artifacts."
           fi
           printf '%s\n' \
             '### Advisory pkgcheck' \
-            "Report step outcome: $PKGCHECK_OUTCOME" \
-            'This report does not gate package changes. R-CMD-check remains the package check.' \
-            'See the action log and pkgcheck report issue for findings; an advisory success is not rOpenSci approval.' \
+            "Report execution outcome: ${REPORT_OUTCOME:-not run}" \
+            'Findings are advisory and do not determine the execution outcome. R-CMD-check remains the package check.' \
+            'See the artifact for the report and session information; execution success is not rOpenSci approval.' \
             >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload advisory evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pkgcheck-${{ github.sha }}
+          path: pkgcheck-report/
+          if-no-files-found: warn
+          retention-days: 30

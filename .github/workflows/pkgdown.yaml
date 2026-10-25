@@ -27,6 +27,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+      - name: Use Ubuntu archive mirror
+        run: |
+          if [ -f /etc/apt/apt-mirrors.txt ]; then
+            sudo sed -i 's/azure.archive.ubuntu.com/archive.ubuntu.com/g' \
+              /etc/apt/apt-mirrors.txt
+          fi
 
       # Chrome is needed by webshot2/chromote, which the displaying-surfaces and
       # surface-figures vignettes use to snapshot rgl scenes headlessly.

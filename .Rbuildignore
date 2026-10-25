@@ -69,6 +69,8 @@ testshiny/test_shiny.R
 ^tests/testthat/Rplots\.pdf$
 ^vignettes/surfplot-style-figures\.html$
 ^\.ruff_cache$
+^coverage$
+^pkgcheck-report$
 ^.*/\.ruff_cache$
 
 # The surfview embed is the sole active widget runtime. Keep historic sources
