@@ -2,7 +2,7 @@
 
 ## fsaverage5
 
-The six gzipped GIFTI files in `fsaverage5/` are unmodified files from
+The eight gzipped GIFTI files in `fsaverage5/` are unmodified files from
 nilearn commit `e5faab66dc2fe72d2cb50a8aaf2f44813aba4a51` (2023-03-28),
 `nilearn/datasets/data/fsaverage5/`. They are FreeSurfer templates,
 redistributed under `LICENSE-FreeSurfer.txt`. Each was verified against the

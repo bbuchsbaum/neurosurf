@@ -5,18 +5,23 @@
 \title{Load a bundle of fsaverage surface variants as a SurfaceSet}
 \usage{
 load_fsaverage_bundle(
-  density = "std.8",
-  surfs = c("smoothwm", "pial", "inflated", "white", "sphere"),
-  default_label = "smoothwm"
+  density = c("std.8", "fsaverage5"),
+  surfs = NULL,
+  default_label = NULL
 )
 }
 \arguments{
-\item{density}{Surface density; currently only \code{\"std.8\"} is supported.}
+\item{density}{Surface density: \code{"std.8"} (default) or
+\code{"fsaverage5"}.}
 
-\item{surfs}{Character vector of surface labels to include (e.g.,
-\code{c(\"smoothwm\",\"pial\",\"inflated\",\"white\",\"sphere\")}).}
+\item{surfs}{Character vector of surface labels to include. For std.8, any
+of \code{c("smoothwm","pial","inflated","white","sphere")}; for
+fsaverage5, any of \code{c("inflated","white","pial")}. Defaults to all
+surfaces available at the chosen density.}
 
-\item{default_label}{Which label to treat as default when none is specified.}
+\item{default_label}{Which label to treat as default when none is
+specified. Defaults to \code{"smoothwm"} for std.8 and
+\code{"inflated"} for fsaverage5.}
 }
 \value{
 A named list with elements \code{\"lh\"} and \code{\"rh\"}, each a
@@ -30,6 +35,7 @@ Load a bundle of fsaverage surface variants as a SurfaceSet
 bundle <- load_fsaverage_bundle()
 lh_set <- bundle$lh
 rh_set <- bundle$rh
+fs5 <- load_fsaverage_bundle("fsaverage5")
 }
 
 }

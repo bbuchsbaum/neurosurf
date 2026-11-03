@@ -11,12 +11,12 @@ load_fsaverage_sulc(density = "fsaverage5")
 }
 \value{
 A named list with numeric vectors \code{"lh"} and \code{"rh"},
-  one value per vertex of [load_fsaverage()] for the same density.
+  one value per vertex of \code{\link{load_fsaverage}} for the same density.
 }
 \description{
 Returns FreeSurfer sulcal depth (\code{sulc}) for each hemisphere of a
 bundled fsaverage template, suitable as the anatomy underlay of
-[surface_figure()] or [render_surface_rgba()]. Positive values are deeper
+\code{\link{surface_figure}} or \code{\link{render_surface_rgba}}. Positive values are deeper
 (sulcal); the renderers detect this polarity automatically.
 }
 \examples{
