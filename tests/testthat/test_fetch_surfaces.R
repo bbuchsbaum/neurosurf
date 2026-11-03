@@ -119,6 +119,45 @@ test_that("fsaverage5 surfaces and sulcal depth load with matching sizes", {
   expect_error(load_fsaverage("fsaverage5", "sphere"))
 })
 
+test_that("fsaverage5 pial pairs with white for ribbon sampling", {
+  white <- load_fsaverage("fsaverage5", "white")
+  pial <- load_fsaverage("fsaverage5", "pial")
+  for (h in c("lh", "rh")) {
+    expect_s4_class(pial[[h]], "SurfaceGeometry")
+    expect_identical(pial[[h]]@hemi, h)
+    expect_identical(nrow(coords(pial[[h]])), 10242L)
+    # Same triangulation, so vertex i on white matches vertex i on pial.
+    expect_identical(faces(pial[[h]]), faces(white[[h]]))
+    thickness <- sqrt(rowSums((coords(pial[[h]]) - coords(white[[h]]))^2))
+    expect_gt(stats::median(thickness), 1.5)
+    expect_lt(stats::median(thickness), 4)
+  }
+})
+
+test_that("vol_to_surf samples a volume on the fsaverage5 white/pial pair", {
+  white <- load_fsaverage("fsaverage5", "white")
+  pial <- load_fsaverage("fsaverage5", "pial")
+  # A 2 mm volume whose value is the world x coordinate.
+  space <- neuroim2::NeuroSpace(c(100L, 120L, 100L), spacing = c(2, 2, 2),
+                                origin = c(-100, -130, -90))
+  grid <- neuroim2::index_to_coord(space, seq_len(prod(dim(space))))
+  vol <- neuroim2::NeuroVol(array(grid[, 1], dim(space)), space)
+  for (h in c("lh", "rh")) {
+    s <- vol_to_surf(white[[h]], pial[[h]], vol,
+                     interpolation = "linear", sampling = "midpoint")
+    expected <- (coords(white[[h]])[, 1] + coords(pial[[h]])[, 1]) / 2
+    expect_length(values(s), 10242L)
+    expect_equal(as.numeric(values(s)), expected, tolerance = 1e-6)
+  }
+})
+
+test_that("fsaverage5 bundle exposes inflated, white and pial", {
+  bundle <- load_fsaverage_bundle("fsaverage5")
+  expect_named(bundle, c("lh", "rh"))
+  expect_s4_class(bundle$lh, "SurfaceSet")
+  expect_error(load_fsaverage_bundle("fsaverage5", surfs = "sphere"))
+})
+
 test_that("gzipped GIFTI surfaces are read by read_surf_geometry", {
   path <- system.file("extdata", "fsaverage5", "infl_left.gii.gz",
                       package = "neurosurf")

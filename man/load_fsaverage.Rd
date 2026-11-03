@@ -12,8 +12,8 @@ compatibility) or \code{"fsaverage5"}.}
 
 \item{surf}{Character string specifying which surface to load. One of
 \code{"smoothwm"}, \code{"pial"}, \code{"inflated"}, \code{"white"},
-or \code{"sphere"} for std.8; \code{"inflated"} or \code{"white"} for
-fsaverage5. Defaults to \code{"smoothwm"} for std.8 and
+or \code{"sphere"} for std.8; \code{"inflated"}, \code{"white"}, or
+\code{"pial"} for fsaverage5. Defaults to \code{"smoothwm"} for std.8 and
 \code{"inflated"} for fsaverage5.}
 }
 \value{
@@ -23,22 +23,32 @@ A named list with elements \code{"lh"} and \code{"rh"}, each a
 \description{
 Loads a FreeSurfer fsaverage template that ships with neurosurf and returns
 it as \code{\linkS4class{SurfaceGeometry}} objects. Two densities are
-bundled: \code{"fsaverage5"} (10,242 vertices per hemisphere; inflated and
-white surfaces) and the legacy \code{"std.8"} mesh (642 vertices per
+bundled: \code{"fsaverage5"} (10,242 vertices per hemisphere; inflated,
+white, and pial surfaces) and the legacy \code{"std.8"} mesh (642 vertices per
 hemisphere; smoothwm, pial, inflated, white, and sphere surfaces). Use
 fsaverage5 for figures and examples; std.8 is kept for small tests.
 }
 \details{
 The fsaverage5 files are the FreeSurfer fsaverage5 template as
   redistributed by nilearn, under the FreeSurfer license.
+
+  The fsaverage5 white and pial surfaces share one triangulation, so they
+  can be passed together to \code{\link{vol_to_surf}} to sample a volume through the
+  cortical ribbon. Their coordinates are in fsaverage (MNI305) space, which
+  differs by a few millimetres from MNI152; results in MNI152 space are
+  therefore approximate.
 }
 \examples{
 \donttest{
 fs <- load_fsaverage("fsaverage5", "inflated")
 nrow(coords(fs$lh))
+
+# White + pial pair for volume-to-surface projection
+wm <- load_fsaverage("fsaverage5", "white")
+pial <- load_fsaverage("fsaverage5", "pial")
 }
 
 }
 \seealso{
-[load_fsaverage_sulc()] for the matching sulcal depth.
+\code{\link{load_fsaverage_sulc}} for the matching sulcal depth.
 }

@@ -17,6 +17,22 @@
       "modified": false
     },
     {
+      "file": "fsaverage5/pial_left.gii.gz",
+      "sha256": "1e76fe43ac194c15fd272643f7ae7995621e2a496b3102b2d6175f0f8e6d7fc8",
+      "upstream_sha256": "1e76fe43ac194c15fd272643f7ae7995621e2a496b3102b2d6175f0f8e6d7fc8",
+      "url": "https://raw.githubusercontent.com/nilearn/nilearn/e5faab66dc2fe72d2cb50a8aaf2f44813aba4a51/nilearn/datasets/data/fsaverage5/pial_left.gii.gz",
+      "license": "LICENSE-FreeSurfer.txt",
+      "modified": false
+    },
+    {
+      "file": "fsaverage5/pial_right.gii.gz",
+      "sha256": "fdfae008bc10acf7cba82737ea5db9a7298948c41884a2d3330a785783a60a91",
+      "upstream_sha256": "fdfae008bc10acf7cba82737ea5db9a7298948c41884a2d3330a785783a60a91",
+      "url": "https://raw.githubusercontent.com/nilearn/nilearn/e5faab66dc2fe72d2cb50a8aaf2f44813aba4a51/nilearn/datasets/data/fsaverage5/pial_right.gii.gz",
+      "license": "LICENSE-FreeSurfer.txt",
+      "modified": false
+    },
+    {
       "file": "fsaverage5/sulc_left.gii.gz",
       "sha256": "bd0f87e0cba153e9d5c5281edc7267f631b1967e5883d4027924766c8430eb62",
       "upstream_sha256": "bd0f87e0cba153e9d5c5281edc7267f631b1967e5883d4027924766c8430eb62",

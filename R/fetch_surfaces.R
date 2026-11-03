@@ -43,8 +43,8 @@ load_fsaverage_std8 <- function(surf = c("smoothwm", "pial", "inflated", "white"
 #'
 #' Loads a FreeSurfer fsaverage template that ships with neurosurf and returns
 #' it as \code{\linkS4class{SurfaceGeometry}} objects. Two densities are
-#' bundled: \code{"fsaverage5"} (10,242 vertices per hemisphere; inflated and
-#' white surfaces) and the legacy \code{"std.8"} mesh (642 vertices per
+#' bundled: \code{"fsaverage5"} (10,242 vertices per hemisphere; inflated,
+#' white, and pial surfaces) and the legacy \code{"std.8"} mesh (642 vertices per
 #' hemisphere; smoothwm, pial, inflated, white, and sphere surfaces). Use
 #' fsaverage5 for figures and examples; std.8 is kept for small tests.
 #'
@@ -52,8 +52,8 @@ load_fsaverage_std8 <- function(surf = c("smoothwm", "pial", "inflated", "white"
 #'   compatibility) or \code{"fsaverage5"}.
 #' @param surf Character string specifying which surface to load. One of
 #'   \code{"smoothwm"}, \code{"pial"}, \code{"inflated"}, \code{"white"},
-#'   or \code{"sphere"} for std.8; \code{"inflated"} or \code{"white"} for
-#'   fsaverage5. Defaults to \code{"smoothwm"} for std.8 and
+#'   or \code{"sphere"} for std.8; \code{"inflated"}, \code{"white"}, or
+#'   \code{"pial"} for fsaverage5. Defaults to \code{"smoothwm"} for std.8 and
 #'   \code{"inflated"} for fsaverage5.
 #'
 #' @return A named list with elements \code{"lh"} and \code{"rh"}, each a
@@ -62,12 +62,22 @@ load_fsaverage_std8 <- function(surf = c("smoothwm", "pial", "inflated", "white"
 #' @details The fsaverage5 files are the FreeSurfer fsaverage5 template as
 #'   redistributed by nilearn, under the FreeSurfer license.
 #'
-#' @seealso [load_fsaverage_sulc()] for the matching sulcal depth.
+#'   The fsaverage5 white and pial surfaces share one triangulation, so they
+#'   can be passed together to \code{\link{vol_to_surf}} to sample a volume through the
+#'   cortical ribbon. Their coordinates are in fsaverage (MNI305) space, which
+#'   differs by a few millimetres from MNI152; results in MNI152 space are
+#'   therefore approximate.
+#'
+#' @seealso \code{\link{load_fsaverage_sulc}} for the matching sulcal depth.
 #'
 #' @examples
 #' \donttest{
 #' fs <- load_fsaverage("fsaverage5", "inflated")
 #' nrow(coords(fs$lh))
+#'
+#' # White + pial pair for volume-to-surface projection
+#' wm <- load_fsaverage("fsaverage5", "white")
+#' pial <- load_fsaverage("fsaverage5", "pial")
 #' }
 #'
 #' @export
@@ -76,8 +86,8 @@ load_fsaverage <- function(density = c("std.8", "fsaverage5"), surf = NULL) {
   if (density == "std.8") {
     return(load_fsaverage_std8(surf = surf %||% "smoothwm"))
   }
-  surf <- match.arg(surf %||% "inflated", c("inflated", "white"))
-  prefix <- c(inflated = "infl", white = "white")[[surf]]
+  surf <- match.arg(surf %||% "inflated", c("inflated", "white", "pial"))
+  prefix <- c(inflated = "infl", white = "white", pial = "pial")[[surf]]
   geoms <- lapply(c(lh = "left", rh = "right"), function(side) {
     path <- .ns_fsaverage5_file(paste0(prefix, "_", side, ".gii.gz"))
     g <- read_surf_geometry(path)
@@ -92,12 +102,12 @@ load_fsaverage <- function(density = c("std.8", "fsaverage5"), surf = NULL) {
 #'
 #' Returns FreeSurfer sulcal depth (\code{sulc}) for each hemisphere of a
 #' bundled fsaverage template, suitable as the anatomy underlay of
-#' [surface_figure()] or [render_surface_rgba()]. Positive values are deeper
+#' \code{\link{surface_figure}} or \code{\link{render_surface_rgba}}. Positive values are deeper
 #' (sulcal); the renderers detect this polarity automatically.
 #'
 #' @param density Template density; currently \code{"fsaverage5"}.
 #' @return A named list with numeric vectors \code{"lh"} and \code{"rh"},
-#'   one value per vertex of [load_fsaverage()] for the same density.
+#'   one value per vertex of \code{\link{load_fsaverage}} for the same density.
 #' @examples
 #' \donttest{
 #' sulc <- load_fsaverage_sulc("fsaverage5")
@@ -124,10 +134,15 @@ load_fsaverage_sulc <- function(density = "fsaverage5") {
 
 #' Load a bundle of fsaverage surface variants as a SurfaceSet
 #'
-#' @param density Surface density; currently only \code{\"std.8\"} is supported.
-#' @param surfs Character vector of surface labels to include (e.g.,
-#'   \code{c(\"smoothwm\",\"pial\",\"inflated\",\"white\",\"sphere\")}).
-#' @param default_label Which label to treat as default when none is specified.
+#' @param density Surface density: \code{"std.8"} (default) or
+#'   \code{"fsaverage5"}.
+#' @param surfs Character vector of surface labels to include. For std.8, any
+#'   of \code{c("smoothwm","pial","inflated","white","sphere")}; for
+#'   fsaverage5, any of \code{c("inflated","white","pial")}. Defaults to all
+#'   surfaces available at the chosen density.
+#' @param default_label Which label to treat as default when none is
+#'   specified. Defaults to \code{"smoothwm"} for std.8 and
+#'   \code{"inflated"} for fsaverage5.
 #'
 #' @return A named list with elements \code{\"lh\"} and \code{\"rh\"}, each a
 #'   \code{\linkS4class{SurfaceSet}} containing the requested variants.
@@ -137,22 +152,29 @@ load_fsaverage_sulc <- function(density = "fsaverage5") {
 #' bundle <- load_fsaverage_bundle()
 #' lh_set <- bundle$lh
 #' rh_set <- bundle$rh
+#' fs5 <- load_fsaverage_bundle("fsaverage5")
 #' }
 #'
 #' @export
-load_fsaverage_bundle <- function(density = "std.8",
-                                  surfs = c("smoothwm", "pial", "inflated", "white", "sphere"),
-                                  default_label = "smoothwm") {
-  density <- match.arg(density, choices = "std.8")
-  choices <- c("smoothwm", "pial", "inflated", "white", "sphere")
-  surfs <- match.arg(surfs, choices = choices, several.ok = TRUE)
+load_fsaverage_bundle <- function(density = c("std.8", "fsaverage5"),
+                                  surfs = NULL,
+                                  default_label = NULL) {
+  density <- match.arg(density)
+  choices <- if (density == "std.8") {
+    c("smoothwm", "pial", "inflated", "white", "sphere")
+  } else {
+    c("inflated", "white", "pial")
+  }
+  surfs <- match.arg(surfs %||% choices, choices = choices, several.ok = TRUE)
   if (length(surfs) == 0) stop("surfs must include at least one surface label")
+  default_label <- default_label %||%
+    if (density == "std.8") "smoothwm" else "inflated"
   default_label <- match.arg(default_label, surfs)
 
   hemis <- c("lh", "rh")
 
   # load each requested surface once, then repackage by hemisphere
-  by_surf <- lapply(surfs, load_fsaverage_std8)
+  by_surf <- lapply(surfs, function(s) load_fsaverage(density, s))
   names(by_surf) <- surfs
 
   sets <- lapply(hemis, function(h) {
