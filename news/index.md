@@ -2,6 +2,19 @@
 
 ## neurosurf (development version)
 
+### New features
+
+- The bundled fsaverage5 template now includes the pial surface
+  (`pial_left.gii.gz`, `pial_right.gii.gz`, unmodified from the same
+  pinned nilearn commit). `load_fsaverage("fsaverage5", "pial")` loads
+  it, so
+  [`vol_to_surf()`](https://bbuchsbaum.github.io/neurosurf/reference/vol_to_surf.md)
+  can sample a volume through the cortical ribbon on the 10,242-vertex
+  fsaverage5 mesh instead of only on std.8.
+  [`load_fsaverage_bundle()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_bundle.md)
+  also accepts `density = "fsaverage5"`
+  ([\#102](https://github.com/bbuchsbaum/neurosurf/issues/102)).
+
 ### Bug fixes
 
 - `series()` on a `NeuroSurfaceVector` now returns a `T x length(i)`

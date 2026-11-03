@@ -6,9 +6,9 @@ Load a bundle of fsaverage surface variants as a SurfaceSet
 
 ``` r
 load_fsaverage_bundle(
-  density = "std.8",
-  surfs = c("smoothwm", "pial", "inflated", "white", "sphere"),
-  default_label = "smoothwm"
+  density = c("std.8", "fsaverage5"),
+  surfs = NULL,
+  default_label = NULL
 )
 ```
 
@@ -16,16 +16,19 @@ load_fsaverage_bundle(
 
 - density:
 
-  Surface density; currently only `\"std.8\"` is supported.
+  Surface density: `"std.8"` (default) or `"fsaverage5"`.
 
 - surfs:
 
-  Character vector of surface labels to include (e.g.,
-  `c(\"smoothwm\",\"pial\",\"inflated\",\"white\",\"sphere\")`).
+  Character vector of surface labels to include. For std.8, any of
+  `c("smoothwm","pial","inflated","white","sphere")`; for fsaverage5,
+  any of `c("inflated","white","pial")`. Defaults to all surfaces
+  available at the chosen density.
 
 - default_label:
 
-  Which label to treat as default when none is specified.
+  Which label to treat as default when none is specified. Defaults to
+  `"smoothwm"` for std.8 and `"inflated"` for fsaverage5.
 
 ## Value
 
@@ -50,5 +53,6 @@ bundle <- load_fsaverage_bundle()
 #> loading /home/runner/work/_temp/Library/neurosurf/extdata/std.8_rh.sphere.asc
 lh_set <- bundle$lh
 rh_set <- bundle$rh
+fs5 <- load_fsaverage_bundle("fsaverage5")
 # }
 ```
