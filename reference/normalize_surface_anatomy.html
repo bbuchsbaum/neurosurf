@@ -11,7 +11,7 @@ anatomical shading, never statistical values or surface coordinates."><link href
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@ anatomical shading, never statistical values or surface coordinates.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">normalize_surface_anatomy</span><span class="op">(</span></span>
 <span>  <span class="va">metric</span>,</span>
-<span>  style <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"continuous"</span>, <span class="st">"binary"</span><span class="op">)</span>,</span>
+<span>  style <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"continuous"</span>, <span class="st">"binary"</span>, <span class="st">"soft"</span><span class="op">)</span>,</span>
 <span>  midpoint <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  invert <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -69,7 +69,10 @@ anatomical shading, never statistical values or surface coordinates.</p>
 
 
 <dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
-<dd><p>Continuous robust scaling or binary folding contrast.</p></dd>
+<dd><p>`"continuous"` robust linear scaling, `"binary"` folding
+contrast, or `"soft"`: a sigmoid two-tone (`0.5 * tanh(4 x / q98)`) that
+reads as crisp gyri and sulci without the binary style's jagged
+vertex-step edges.</p></dd>
 
 
 <dt id="arg-midpoint">midpoint<a class="anchor" aria-label="anchor" href="#arg-midpoint"></a></dt>

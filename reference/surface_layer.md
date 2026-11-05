@@ -19,7 +19,8 @@ surface_layer(
   visible = TRUE,
   threshold = NULL,
   role = c("map", "reference"),
-  color = NULL
+  color = NULL,
+  magnitude_opacity = NULL
 )
 ```
 
@@ -90,6 +91,16 @@ surface_layer(
   then classified at \>= 0.5 per fragment, independently of effect
   values.
 
+- magnitude_opacity:
+
+  Optional fade by magnitude: `NULL` (colours keep the colormap's alpha)
+  or a list with optional `low` (magnitude below which values are
+  transparent, default 0), `high` (magnitude at full opacity, or
+  `"range"` for the colour-range end, the default), `gamma` (exponent,
+  default 1) and `floor` (opacity at a positive start magnitude, default
+  0). A display threshold raises the start to the threshold. Viewers
+  apply it live as the reader changes range or threshold.
+
 ## Value
 
 A validated layer specification for
@@ -151,6 +162,9 @@ surface_layer(
 #> [1] TRUE
 #> 
 #> $threshold
+#> NULL
+#> 
+#> $magnitude_opacity
 #> NULL
 #> 
 #> attr(,"class")

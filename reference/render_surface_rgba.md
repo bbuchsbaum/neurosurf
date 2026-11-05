@@ -26,6 +26,7 @@ render_surface_rgba(
   limits = NULL,
   overlay_alpha = 1,
   alpha_ramp = 0,
+  magnitude_opacity = NULL,
   antialias = 3L,
   margin = 0.04,
   medial_wall = c("shade", "mask", "outline"),
@@ -36,7 +37,7 @@ render_surface_rgba(
   subdivide = "auto",
   pixel_scale = NULL,
   return_buffers = FALSE,
-  anatomy_style = c("publication", "continuous", "binary"),
+  anatomy_style = c("publication", "continuous", "binary", "soft"),
   anatomy_midpoint = NULL,
   anatomy_invert = "auto",
   anatomy_range = c(0.7, 0.93),
@@ -110,6 +111,13 @@ render_surface_rgba(
 
   Width of the opacity ramp above threshold.
 
+- magnitude_opacity:
+
+  Optional fade by magnitude, the same rule report scenes apply (see
+  [`surface_layer`](https://bbuchsbaum.github.io/neurosurf/reference/surface_layer.md)):
+  `NULL` or a list with optional `low`, `high` (number or `"range"`, the
+  colour limits), `gamma` and `floor`. Multiplies `overlay_alpha`.
+
 - antialias:
 
   Integer supersampling factor per axis.
@@ -168,7 +176,8 @@ render_surface_rgba(
 - anatomy_style:
 
   Underlay mapping: legacy publication shading, centered continuous
-  contrast, or binary folding contrast.
+  contrast, binary folding contrast, or \`"soft"\`: a smooth two-tone
+  (gyri light, sulci dark) with antialiased fold edges.
 
 - anatomy_midpoint:
 

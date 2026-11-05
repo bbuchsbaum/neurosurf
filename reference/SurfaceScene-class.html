@@ -11,7 +11,7 @@ report viewer. Use surface_scene to create validated instances."><link href="../
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,6 +82,17 @@ report viewer. Use <code><a href="surface_scene.html">surface_scene</a></code> t
 
 <dt><code>curvature</code></dt>
 <dd><p>Optional named curvature vectors.</p></dd>
+
+
+<dt><code>variants</code></dt>
+<dd><p>Optional alternative embeddings: a named list (variant name)
+of named hemisphere lists of vertex-coordinate matrices that share each
+geometry's topology.</p></dd>
+
+
+<dt><code>variant</code></dt>
+<dd><p>Name of the embedding stored in <code>geometries</code> when
+<code>variants</code> is non-empty; otherwise empty.</p></dd>
 
 
 <dt><code>layers</code></dt>

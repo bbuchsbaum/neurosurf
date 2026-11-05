@@ -37,6 +37,17 @@ A `SurfaceScene` object.
 
   Optional named curvature vectors.
 
+- `variants`:
+
+  Optional alternative embeddings: a named list (variant name) of named
+  hemisphere lists of vertex-coordinate matrices that share each
+  geometry's topology.
+
+- `variant`:
+
+  Name of the embedding stored in `geometries` when `variants` is
+  non-empty; otherwise empty.
+
 - `layers`:
 
   A named list of validated surface-layer specifications.

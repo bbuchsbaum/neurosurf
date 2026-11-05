@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,6 +51,8 @@
 <span>  right <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">layers</span>,</span>
 <span>  curvature <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  variants <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  variant <span class="op">=</span> <span class="st">"default"</span>,</span>
 <span>  selected_layer <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  id <span class="op">=</span> <span class="st">"surface-scene"</span>,</span>
 <span>  metadata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -79,7 +81,24 @@ objects. Supply at least one.</p></dd>
 
 <dt id="arg-curvature">curvature<a class="anchor" aria-label="anchor" href="#arg-curvature"></a></dt>
 <dd><p>Optional numeric vector for a unilateral scene or named
-hemisphere list.</p></dd>
+hemisphere list. Values are display anatomy: higher values render
+lighter (gyri), as returned by <code><a href="normalize_surface_anatomy.html">normalize_surface_anatomy</a></code>.
+Negate FreeSurfer <code>curv</code>/<code>sulc</code> (positive in sulci) first.</p></dd>
+
+
+<dt id="arg-variants">variants<a class="anchor" aria-label="anchor" href="#arg-variants"></a></dt>
+<dd><p>Optional alternative embeddings of the same meshes that a
+report viewer can switch between, for example
+<code>list(pial = list(left = lh_pial, right = rh_pial))</code>. Each entry gives
+a <code>SurfaceGeometry</code>, <code>SurfaceSet</code> or n x 3 coordinate matrix per
+hemisphere with the stored geometry's vertex order. Curvature and layer
+values are shared by every embedding.</p></dd>
+
+
+<dt id="arg-variant">variant<a class="anchor" aria-label="anchor" href="#arg-variant"></a></dt>
+<dd><p>Name of the embedding passed as <code>left</code>/<code>right</code>
+(default <code>"default"</code>); it is shown first. Used only with
+<code>variants</code>.</p></dd>
 
 
 <dt id="arg-selected-layer">selected_layer<a class="anchor" aria-label="anchor" href="#arg-selected-layer"></a></dt>

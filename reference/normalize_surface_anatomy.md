@@ -10,7 +10,7 @@ coordinates.
 ``` r
 normalize_surface_anatomy(
   metric,
-  style = c("continuous", "binary"),
+  style = c("continuous", "binary", "soft"),
   midpoint = NULL,
   invert = FALSE
 )
@@ -24,7 +24,10 @@ normalize_surface_anatomy(
 
 - style:
 
-  Continuous robust scaling or binary folding contrast.
+  \`"continuous"\` robust linear scaling, \`"binary"\` folding contrast,
+  or \`"soft"\`: a sigmoid two-tone (\`0.5 \* tanh(4 x / q98)\`) that
+  reads as crisp gyri and sulci without the binary style's jagged
+  vertex-step edges.
 
 - midpoint:
 

@@ -10,6 +10,8 @@ surface_scene(
   right = NULL,
   layers,
   curvature = NULL,
+  variants = NULL,
+  variant = "default",
   selected_layer = NULL,
   id = "surface-scene",
   metadata = list(),
@@ -38,7 +40,24 @@ surface_scene(
 - curvature:
 
   Optional numeric vector for a unilateral scene or named hemisphere
-  list.
+  list. Values are display anatomy: higher values render lighter (gyri),
+  as returned by
+  [`normalize_surface_anatomy`](https://bbuchsbaum.github.io/neurosurf/reference/normalize_surface_anatomy.md).
+  Negate FreeSurfer `curv`/`sulc` (positive in sulci) first.
+
+- variants:
+
+  Optional alternative embeddings of the same meshes that a report
+  viewer can switch between, for example
+  `list(pial = list(left = lh_pial, right = rh_pial))`. Each entry gives
+  a `SurfaceGeometry`, `SurfaceSet` or n x 3 coordinate matrix per
+  hemisphere with the stored geometry's vertex order. Curvature and
+  layer values are shared by every embedding.
+
+- variant:
+
+  Name of the embedding passed as `left`/`right` (default `"default"`);
+  it is shown first. Used only with `variants`.
 
 - selected_layer:
 
