@@ -31,7 +31,7 @@ render_surface_rgba(
   subdivide = "auto",
   pixel_scale = NULL,
   return_buffers = FALSE,
-  anatomy_style = c("publication", "continuous", "binary"),
+  anatomy_style = c("publication", "continuous", "binary", "soft"),
   anatomy_midpoint = NULL,
   anatomy_invert = "auto",
   anatomy_range = c(0.7, 0.93),
@@ -118,7 +118,8 @@ panels one scale.}
 \item{return_buffers}{Include scalar and depth buffers for diagnostics.}
 
 \item{anatomy_style}{Underlay mapping: legacy publication shading, centered
-continuous contrast, or binary folding contrast.}
+continuous contrast, binary folding contrast, or `"soft"`: a smooth
+two-tone (gyri light, sulci dark) with antialiased fold edges.}
 
 \item{anatomy_midpoint}{Passed to [normalize_surface_anatomy()].}
 

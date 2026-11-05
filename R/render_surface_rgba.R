@@ -19,7 +19,8 @@
 #'   sulcal depth or curvature. Values are robustly scaled and mapped to the
 #'   grey levels in `anatomy_range`, with sulci darker than gyri.
 #' @param anatomy_style Underlay mapping: legacy publication shading, centered
-#'   continuous contrast, or binary folding contrast.
+#'   continuous contrast, binary folding contrast, or `"soft"`: a smooth
+#'   two-tone (gyri light, sulci dark) with antialiased fold edges.
 #' @param anatomy_midpoint Passed to [normalize_surface_anatomy()].
 #' @param anatomy_invert Reverse the metric's polarity. `"auto"` (default)
 #'   inverts metrics that are larger in sulci (FreeSurfer `sulc` and `curv`)
@@ -115,7 +116,7 @@ render_surface_rgba <- function(geometry,
                                 subdivide = "auto",
                                 pixel_scale = NULL,
                                 return_buffers = FALSE,
-                                anatomy_style = c("publication", "continuous", "binary"),
+                                anatomy_style = c("publication", "continuous", "binary", "soft"),
                                 anatomy_midpoint = NULL,
                                 anatomy_invert = "auto",
                                 anatomy_range = c(0.70, 0.93),
@@ -710,7 +711,10 @@ surface_threshold_segments <- function(vertices, faces, values, threshold,
 #' [-0.5, 0.5], suitable for the surfview curvature layer. This changes only
 #' anatomical shading, never statistical values or surface coordinates.
 #' @param metric Finite numeric anatomy values, one per vertex.
-#' @param style Continuous robust scaling or binary folding contrast.
+#' @param style `"continuous"` robust linear scaling, `"binary"` folding
+#'   contrast, or `"soft"`: a sigmoid two-tone (`0.5 * tanh(4 x / q98)`) that
+#'   reads as crisp gyri and sulci without the binary style's jagged
+#'   vertex-step edges.
 #' @param midpoint Boundary between dark and light. NULL uses the median,
 #'   including for the historical [0, 1] output of [curvature()]. Use zero
 #'   for a native signed metric whose anatomical boundary is zero.
@@ -719,7 +723,7 @@ surface_threshold_segments <- function(vertices, faces, values, threshold,
 #' @return A numeric vector in [-0.5, 0.5]. Constant metrics remain neutral.
 #' @export
 normalize_surface_anatomy <- function(metric,
-                                      style = c("continuous", "binary"),
+                                      style = c("continuous", "binary", "soft"),
                                       midpoint = NULL, invert = FALSE) {
   style <- match.arg(style)
   if (!is.numeric(metric) || !length(metric) || any(!is.finite(metric))) {
@@ -736,6 +740,10 @@ normalize_surface_anatomy <- function(metric,
   centered <- metric - (midpoint %||% stats::median(metric))
   if (style == "binary") {
     out <- 0.5 * sign(centered)
+  } else if (style == "soft") {
+    scale <- as.numeric(stats::quantile(abs(centered), 0.98, type = 8))
+    if (scale == 0) scale <- max(abs(centered))
+    out <- 0.5 * tanh(4 * centered / scale)
   } else {
     scale <- as.numeric(stats::quantile(abs(centered), 0.98, type = 8))
     if (scale == 0) scale <- max(abs(centered))

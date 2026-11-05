@@ -91,3 +91,14 @@ test_that("render_surface_rgba fades overlays by magnitude", {
                                    .scene_magnitude_opacity(list()), c(-3, 3)),
                c(0, 0.5, 1, 0))
 })
+
+test_that("soft anatomy style is a bounded, monotone two-tone", {
+  m <- seq(-10, 10, length.out = 201)
+  soft <- normalize_surface_anatomy(m, "soft", midpoint = 0)
+  expect_true(all(abs(soft) <= 0.5))
+  expect_true(all(diff(soft) >= 0))
+  # Steeper than the linear style around the midpoint, saturating at the ends.
+  lin <- normalize_surface_anatomy(m, "continuous", midpoint = 0)
+  expect_gt(soft[111], lin[111])
+  expect_gt(abs(soft[1]), 0.49)
+})
