@@ -35,6 +35,19 @@ inline void palette_color(const NumericMatrix& palette, double value,
   b = palette(i0, 2) * (1.0 - f) + palette(i1, 2) * f;
 }
 
+// Opacity from the LUT's fourth column (1 when the LUT is RGB only), so a
+// palette may fade weak values (magnitude-graded opacity).
+inline double palette_alpha(const NumericMatrix& palette, double value,
+                            double lo, double hi) {
+  if (palette.ncol() < 4) return 1.0;
+  double t = (hi > lo) ? clamp01((value - lo) / (hi - lo)) : 0.5;
+  double pos = t * (palette.nrow() - 1);
+  int i0 = static_cast<int>(std::floor(pos));
+  int i1 = std::min(i0 + 1, palette.nrow() - 1);
+  double f = pos - i0;
+  return clamp01(palette(i0, 3) * (1.0 - f) + palette(i1, 3) * f);
+}
+
 inline void normalize3(double& x, double& y, double& z) {
   const double len = std::sqrt(x * x + y * y + z * z);
   if (len > 0) {
@@ -261,7 +274,9 @@ Rcpp::List cpp_rasterize_surface_scalar(
         double av = w0 * anatomy[i0] + w1 * anatomy[i1] + w2 * anatomy[i2];
         if (!std::isfinite(av)) av = 0.5;
         double base = base_low + clamp01(av) * (base_high - base_low);
-        if (!face_cortex) base = 0.78;
+        // The medial wall carries no cortex: draw it at the light gyral tone
+        // so it recedes instead of reading as the largest mark in a view.
+        if (!face_cortex) base = base_high;
         double diffuse = 1.0, spec = 0.0;
         if (light.enabled) {
           light.shade(w0 * nrm(i0, 0) + w1 * nrm(i1, 0) + w2 * nrm(i2, 0),
@@ -291,6 +306,7 @@ Rcpp::List cpp_rasterize_surface_scalar(
           }
           double pr, pg, pb;
           palette_color(palette, sv, limits[0], limits[1], pr, pg, pb);
+          aa *= palette_alpha(palette, sv, limits[0], limits[1]);
           // Overlay colour receives a reduced share of the shading so its
           // hue and value stay readable against the colour bar.
           const double k = light.overlay_shading;

@@ -1,6 +1,6 @@
 Bundled surfview runtime
 Source: https://github.com/bbuchsbaum/surfviewjs
-Commit: 1dfed43c7eb1e3dcc01394560ad767ec932f2698
+Commit: 0c048ab8581e012893e2989b2e1c96ae1aff0348
 
 MIT License
 

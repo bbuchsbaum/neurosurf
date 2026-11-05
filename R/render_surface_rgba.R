@@ -45,6 +45,11 @@
 #' @param limits Numeric scalar-color limits.
 #' @param overlay_alpha Maximum overlay opacity.
 #' @param alpha_ramp Width of the opacity ramp above threshold.
+#' @param magnitude_opacity Optional fade by magnitude, the same rule report
+#'   scenes apply (see \code{\link{surface_layer}}): \code{NULL} or a list
+#'   with optional \code{low}, \code{high} (number or \code{"range"}, the
+#'   colour limits), \code{gamma} and \code{floor}. Multiplies
+#'   \code{overlay_alpha}.
 #' @param antialias Integer supersampling factor per axis.
 #' @param margin Fractional panel margin.
 #' @param medial_wall Whether masked-domain triangles are neutrally shaded,
@@ -99,6 +104,7 @@ render_surface_rgba <- function(geometry,
                                 limits = NULL,
                                 overlay_alpha = 1,
                                 alpha_ramp = 0,
+                                magnitude_opacity = NULL,
                                 antialias = 3L,
                                 margin = 0.04,
                                 medial_wall = c("shade", "mask", "outline"),
@@ -183,6 +189,7 @@ render_surface_rgba <- function(geometry,
     presentation_obliquity = presentation_obliquity, width = width,
     height = height, threshold = threshold, tail = tail, palette = palette,
     limits = limits, overlay_alpha = overlay_alpha, alpha_ramp = alpha_ramp,
+    magnitude_opacity = .scene_magnitude_opacity(magnitude_opacity),
     antialias = antialias, margin = margin, medial_wall = medial_wall,
     outer_contour = outer_contour, outer_contour_color = outer_contour_color,
     background = background, lighting = lighting, subdivide = subdivide,
@@ -206,7 +213,8 @@ render_surface_rgba <- function(geometry,
                                  medial_wall, outer_contour,
                                  outer_contour_color, background, lighting,
                                  subdivide, return_buffers, anatomy_range,
-                                 extent = NULL, reference = NULL) {
+                                 extent = NULL, reference = NULL,
+                                 magnitude_opacity = NULL) {
   obliquity <- if (camera_mode == "presentation") presentation_obliquity else 0
   levels <- .ns_subdivision_levels(subdivide, vertices, faces, camera,
                                    hemi, width, height, margin,
@@ -229,6 +237,13 @@ render_surface_rgba <- function(geometry,
   )
   if (is.null(palette)) palette <- .ns_default_palette(tail)
   palette_rgba <- .ns_overlay_lut(palette, limits, threshold, tail, 256L)
+  if (!is.null(magnitude_opacity)) {
+    lut_values <- seq(limits[1], limits[2], length.out = nrow(palette_rgba))
+    mask <- switch(tail, positive = c(0, threshold), negative = c(-threshold, 0),
+                   c(-threshold, threshold))
+    palette_rgba[, 4L] <- palette_rgba[, 4L] *
+      .ns_magnitude_alpha(lut_values, magnitude_opacity, limits, mask)
+  }
   light <- .ns_resolve_lighting(lighting)
   view_normals <- if (is.null(light)) NULL else
     .ns_mesh_vertex_normals(vertices, faces) %*% attr(projected, "basis")
@@ -820,4 +835,28 @@ anatomical_curvature <- function(geometry, iterations = 5L) {
        visible = visible, boundary = "linear-membership>=0.5",
        provenance = .scene_record(reference$provenance %||% list(),
                                   "reference provenance"))
+}
+
+# Opacity multipliers for `values` under a validated magnitude-opacity spec:
+# the rule surfview's DataLayer applies to report scenes. Per sign,
+# start = max(low, threshold edge) and end = colour limit (or `high`).
+.ns_magnitude_alpha <- function(values, spec, limits, threshold = c(0, 0)) {
+  v <- as.numeric(values)
+  positive <- v >= 0
+  m <- abs(v)
+  masked <- threshold[[2L]] > threshold[[1L]]
+  edge <- if (masked) pmax(0, ifelse(positive, threshold[[2L]], -threshold[[1L]])) else 0
+  start <- pmax(spec$low, edge)
+  end <- if (identical(spec$high, "range")) {
+    side <- ifelse(positive, limits[[2L]], -limits[[1L]])
+    ifelse(side > 0, side, max(abs(limits)))
+  } else {
+    spec$high
+  }
+  floor <- ifelse(start > 0, spec$floor, 0)
+  t <- pmin(1, pmax(0, (m - start) / pmax(end - start, .Machine$double.eps)))
+  a <- floor + (1 - floor) * t^spec$gamma
+  a[!(end > start)] <- 1
+  a[!is.finite(v) | m < start | m == 0] <- 0
+  a
 }

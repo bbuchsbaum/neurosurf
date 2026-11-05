@@ -7,6 +7,11 @@
 #' @slot id A stable scene identifier.
 #' @slot geometries A named list of \code{SurfaceGeometry} objects.
 #' @slot curvature Optional named curvature vectors.
+#' @slot variants Optional alternative embeddings: a named list (variant name)
+#'   of named hemisphere lists of vertex-coordinate matrices that share each
+#'   geometry's topology.
+#' @slot variant Name of the embedding stored in \code{geometries} when
+#'   \code{variants} is non-empty; otherwise empty.
 #' @slot layers A named list of validated surface-layer specifications.
 #' @slot selected_layer The initially selected layer name.
 #' @slot metadata Arbitrary scene metadata.
@@ -25,6 +30,8 @@ setClass(
     id = "character",
     geometries = "list",
     curvature = "list",
+    variants = "list",
+    variant = "character",
     layers = "list",
     selected_layer = "character",
     metadata = "list",
@@ -45,6 +52,32 @@ setClass(
     }
     if (!identical(names(object@geometries), names(object@curvature))) {
       errors <- c(errors, "curvature names must match geometry names")
+    }
+    if (length(object@variants)) {
+      variant_names <- names(object@variants)
+      if (is.null(variant_names) || any(!nzchar(variant_names)) ||
+          anyDuplicated(c(variant_names, object@variant))) {
+        errors <- c(errors, "'variants' must be uniquely named and exclude 'variant'")
+      }
+      if (length(object@variant) != 1L || !grepl(.scene_variant_pattern, object@variant)) {
+        errors <- c(errors, "'variant' must name the stored embedding")
+      }
+      for (name in variant_names) {
+        entry <- object@variants[[name]]
+        if (!identical(sort(names(entry)), sort(names(object@geometries)))) {
+          errors <- c(errors, paste0("variant '", name, "' must cover every hemisphere"))
+          next
+        }
+        for (id in names(object@geometries)) {
+          n <- nrow(coords(object@geometries[[id]]))
+          if (!is.matrix(entry[[id]]) || !identical(dim(entry[[id]]), c(n, 3L))) {
+            errors <- c(errors, paste0("variant '", name, "' ", id,
+                                       " coordinates must be a ", n, " x 3 matrix"))
+          }
+        }
+      }
+    } else if (length(object@variant)) {
+      errors <- c(errors, "'variant' requires 'variants'")
     }
     if (length(object@layers) < 1L || anyDuplicated(names(object@layers))) {
       errors <- c(errors, "'layers' must contain uniquely named layers")
@@ -77,6 +110,77 @@ setClass(
     if (length(errors)) errors else TRUE
   }
 )
+
+# Validate surface_layer(magnitude_opacity =) and return the manifest form.
+.scene_magnitude_opacity <- function(x) {
+  if (is.null(x)) return(NULL)
+  x <- .scene_record(x, "magnitude_opacity")
+  unknown <- setdiff(names(x), c("low", "high", "gamma", "floor"))
+  if (length(unknown)) {
+    stop("unknown magnitude_opacity field(s): ", paste(unknown, collapse = ", "),
+         call. = FALSE)
+  }
+  number <- function(v, name, lower, upper = Inf, strict = FALSE) {
+    if (!is.numeric(v) || length(v) != 1L || !is.finite(v) ||
+        (if (strict) v <= lower else v < lower) || v > upper) {
+      stop("magnitude_opacity$", name, " is out of range", call. = FALSE)
+    }
+    as.numeric(v)
+  }
+  low <- number(x$low %||% 0, "low", 0)
+  high <- x$high %||% "range"
+  if (!identical(high, "range")) {
+    high <- number(high, "high", low, strict = TRUE)
+  }
+  list(low = low, high = high,
+       gamma = number(x$gamma %||% 1, "gamma", 0, strict = TRUE),
+       floor = number(x$floor %||% 0, "floor", 0, 1))
+}
+
+.scene_variant_pattern <- "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$"
+
+# Alternative embeddings for surface_scene(): a named list whose entries give
+# one geometry (or n x 3 coordinate matrix) per scene hemisphere.
+.scene_variants <- function(variants, variant, geometries) {
+  if (is.null(variants) || !length(variants)) {
+    return(list(variants = list(), variant = character()))
+  }
+  variants <- .scene_record(variants, "variants")
+  variant <- .scene_nonempty_string(variant, "variant")
+  ids <- names(geometries)
+  for (name in c(variant, names(variants))) {
+    if (!grepl(.scene_variant_pattern, name)) {
+      stop("variant names use letters, digits, '_', '.' and '-' (", name, ")",
+           call. = FALSE)
+    }
+  }
+  if (variant %in% names(variants)) {
+    stop("'variant' names the stored geometry and must not repeat in 'variants'",
+         call. = FALSE)
+  }
+  out <- lapply(names(variants), function(name) {
+    entry <- variants[[name]]
+    if (length(ids) == 1L && !is.list(entry)) {
+      entry <- stats::setNames(list(entry), ids)
+    }
+    entry <- .scene_mapping(entry, ids, paste0("variant '", name, "'"))
+    stats::setNames(lapply(ids, function(id) {
+      x <- entry[[id]]
+      if (is(x, "SurfaceGeometry") || is(x, "SurfaceSet")) {
+        x <- coords(resolve_surface_geometry(x))
+      }
+      x <- as.matrix(x)
+      storage.mode(x) <- "double"
+      n <- nrow(coords(geometries[[id]]))
+      if (!identical(dim(x), c(n, 3L)) || any(!is.finite(x))) {
+        stop("variant '", name, "' ", id, " must give finite coordinates for all ",
+             n, " vertices", call. = FALSE)
+      }
+      unname(x)
+    }), ids)
+  })
+  list(variants = stats::setNames(out, names(variants)), variant = variant)
+}
 
 .scene_nonempty_string <- function(x, name) {
   if (!is.character(x) || length(x) != 1L || is.na(x) || !nzchar(trimws(x))) {
@@ -202,6 +306,13 @@ setClass(
 #' @param visible Whether this layer is a candidate for initial selection.
 #' @param threshold Optional static threshold pair. This preserves explicit
 #'   legacy display thresholds; report mode does not add a threshold control.
+#' @param magnitude_opacity Optional fade by magnitude: \code{NULL} (colours
+#'   keep the colormap's alpha) or a list with optional \code{low} (magnitude
+#'   below which values are transparent, default 0), \code{high} (magnitude at
+#'   full opacity, or \code{"range"} for the colour-range end, the default),
+#'   \code{gamma} (exponent, default 1) and \code{floor} (opacity at a positive
+#'   start magnitude, default 0). A display threshold raises the start to the
+#'   threshold. Viewers apply it live as the reader changes range or threshold.
 #'
 #' @return A validated layer specification for \code{\link{surface_scene}}.
 #'
@@ -223,13 +334,13 @@ surface_layer <- function(name, values, indices = NULL, colormap = "viridis",
                           legend = list(), metadata = list(),
                           provenance = list(), visible = TRUE,
                           threshold = NULL, role = c("map", "reference"),
-                          color = NULL) {
+                          color = NULL, magnitude_opacity = NULL) {
   role <- match.arg(role)
   legend <- .scene_record(legend, "legend")
   if (role == "reference") {
     color <- .ns_reference_color(color)
     if (!is.null(indices) || !is.null(threshold) || !is.null(limits) ||
-        !is.null(units)) {
+        !is.null(units) || !is.null(magnitude_opacity)) {
       stop("references use full binary masks and no limits, threshold or units",
            call. = FALSE)
     }
@@ -285,7 +396,8 @@ surface_layer <- function(name, values, indices = NULL, colormap = "viridis",
       metadata = metadata,
       provenance = provenance,
       visible = visible,
-      threshold = threshold
+      threshold = threshold,
+      magnitude_opacity = .scene_magnitude_opacity(magnitude_opacity)
     ),
     class = "SurfaceLayer"
   )
@@ -371,7 +483,18 @@ surface_layer <- function(name, values, indices = NULL, colormap = "viridis",
 #'   objects. Supply at least one.
 #' @param layers A \code{\link{surface_layer}} object or a list of them.
 #' @param curvature Optional numeric vector for a unilateral scene or named
-#'   hemisphere list.
+#'   hemisphere list. Values are display anatomy: higher values render
+#'   lighter (gyri), as returned by \code{\link{normalize_surface_anatomy}}.
+#'   Negate FreeSurfer \code{curv}/\code{sulc} (positive in sulci) first.
+#' @param variants Optional alternative embeddings of the same meshes that a
+#'   report viewer can switch between, for example
+#'   \code{list(pial = list(left = lh_pial, right = rh_pial))}. Each entry gives
+#'   a \code{SurfaceGeometry}, \code{SurfaceSet} or n x 3 coordinate matrix per
+#'   hemisphere with the stored geometry's vertex order. Curvature and layer
+#'   values are shared by every embedding.
+#' @param variant Name of the embedding passed as \code{left}/\code{right}
+#'   (default \code{"default"}); it is shown first. Used only with
+#'   \code{variants}.
 #' @param selected_layer Initially selected layer name. Defaults to the first
 #'   visible layer, then the first layer.
 #' @param id Stable scene identifier.
@@ -410,7 +533,8 @@ surface_layer <- function(name, values, indices = NULL, colormap = "viridis",
 #'   \code{\link{surface_scene_manifest}}, \code{\link{write_surface_scene}}
 #' @export
 surface_scene <- function(left = NULL, right = NULL, layers,
-                          curvature = NULL, selected_layer = NULL,
+                          curvature = NULL, variants = NULL,
+                          variant = "default", selected_layer = NULL,
                           id = "surface-scene", metadata = list(),
                           provenance = list(), fallback, alt_text,
                           preset = "paper-light",
@@ -451,11 +575,14 @@ surface_scene <- function(left = NULL, right = NULL, layers,
     stop("'selected_layer' must name a quantitative map", call. = FALSE)
   }
 
+  embeddings <- .scene_variants(variants, variant, geometries)
   scene <- new(
     "SurfaceScene",
     id = .scene_nonempty_string(id, "id"),
     geometries = geometries,
     curvature = .scene_curvature(curvature, geometries),
+    variants = embeddings$variants,
+    variant = embeddings$variant,
     layers = layers,
     selected_layer = selected_layer,
     metadata = .scene_record(metadata, "metadata"),
@@ -557,10 +684,25 @@ surface_scene_manifest <- function(scene, asset_mode = scene@asset_mode,
     )
     curvature_id <- NULL
     if (!is.null(scene@curvature[[geometry_id]])) {
+      # Scene curvature is display anatomy: higher values are lighter
+      # (gyri), as normalize_surface_anatomy() produces. surfview >= 3 reads
+      # curvature in the FreeSurfer convention (positive in sulci, drawn
+      # dark), so the manifest carries the negated values.
       curvature_id <- add_asset(
-        scene@curvature[[geometry_id]], "curvature", "float32",
+        -scene@curvature[[geometry_id]], "curvature", "float32",
         nrow(vertex_matrix)
       )
+    }
+    variant_ids <- NULL
+    if (length(scene@variants)) {
+      variant_ids <- list()
+      variant_ids[[scene@variant]] <- vertices_id
+      for (name in names(scene@variants)) {
+        coords_v <- scene@variants[[name]][[geometry_id]]
+        variant_ids[[name]] <- add_asset(
+          as.vector(t(coords_v)), "vertices", "float32", c(nrow(coords_v), 3L)
+        )
+      }
     }
     geometry_manifests[[geometry_id]] <- c(
       list(
@@ -570,6 +712,7 @@ surface_scene_manifest <- function(scene, asset_mode = scene@asset_mode,
         faces = faces_id
       ),
       if (!is.null(curvature_id)) list(curvature = curvature_id),
+      if (!is.null(variant_ids)) list(variants = variant_ids),
       list(
         vertexCount = nrow(vertex_matrix),
         faceCount = nrow(face_matrix),
@@ -599,25 +742,29 @@ surface_scene_manifest <- function(scene, asset_mode = scene@asset_mode,
         if (!is.null(index_id)) list(indices = index_id)
       )
     }
+    reference <- identical(layer$role, "reference")
     layer_manifests[[layer_name]] <- c(
       list(
         id = layer_name,
         role = layer$role %||% "map",
         label = layer$legend$title %||% layer_name,
-        values = value_refs,
-        colorMap = layer$colormap,
-        limits = layer$limits
+        values = value_refs
       ),
-      if (identical(layer$role, "reference")) {
-        list(color = layer$color, boundary = "linear-membership>=0.5")
+      if (reference) {
+        # surfview.scene.v2 references carry an explicit colour and the
+        # midpoint (>= 0.5) membership boundary, never map scales.
+        list(color = layer$color, boundary = "midpoint")
+      } else {
+        c(
+          list(colorMap = layer$colormap, limits = layer$limits),
+          if (!is.null(layer$threshold)) list(threshold = layer$threshold),
+          if (!is.null(layer$magnitude_opacity)) {
+            list(magnitudeOpacity = layer$magnitude_opacity)
+          }
+        )
       },
-      if (!is.null(layer$threshold)) list(threshold = layer$threshold),
-      list(
-        opacity = layer$opacity,
-        visible = layer$visible,
-        units = layer$units,
-        legend = layer$legend
-      ),
+      list(opacity = layer$opacity, visible = layer$visible),
+      if (!reference) list(units = layer$units, legend = layer$legend),
       if (length(layer$metadata)) list(metadata = layer$metadata),
       if (length(layer$provenance)) list(provenance = layer$provenance)
     )
@@ -627,7 +774,7 @@ surface_scene_manifest <- function(scene, asset_mode = scene@asset_mode,
     c(list(
       schemaVersion = if (any(vapply(scene@layers, function(x) {
         identical(x$role, "reference")
-      }, logical(1)))) "surfview.scene.reference.v1" else "surfview.scene.v1",
+      }, logical(1)))) "surfview.scene.v2" else "surfview.scene.v1",
       id = scene@id,
       assets = assets,
       geometries = geometry_manifests,
