@@ -1,0 +1,11 @@
+test_that("the surfview htmlDependency version matches the bundled runtime pin", {
+  lib <- system.file("htmlwidgets", package = "neurosurf")
+  spec <- readLines(file.path(lib, "surfwidget.yaml"))
+  at <- grep("^\\s*- name: surfview\\s*$", spec)
+  expect_length(at, 1L)
+  declared <- sub("^\\s*version:\\s*", "", spec[at + 1L])
+  pin <- readLines(file.path(lib, "lib", "neurosurface", "surfview.embed.commit"))
+  pinned <- sub("^version=", "", grep("^version=", pin, value = TRUE))
+  expect_length(pinned, 1L)
+  expect_identical(trimws(declared), pinned)
+})
