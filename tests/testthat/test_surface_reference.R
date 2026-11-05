@@ -128,7 +128,9 @@ test_that("scene roles preserve geometry, provenance and exclusive map selection
   expect_error(surface_layer("bad", 1:4, role = "reference", color = "red",
                               threshold = c(0, 1)), "no limits")
   manifest <- surface_scene_manifest(scene)
-  expect_identical(manifest$schemaVersion, "surfview.scene.reference.v1")
+  expect_identical(manifest$schemaVersion, "surfview.scene.v2")
+  expect_identical(manifest$layers$psl$boundary, "midpoint")
+  expect_null(manifest$layers$psl$colorMap)
   expect_identical(manifest$layers$psl$role, "reference")
   expect_identical(manifest$layers$effect$role, "map")
   expect_identical(manifest$layers$psl$color, "#0000FF")

@@ -44,3 +44,13 @@ To rebuild from the archive directly, extract it, run `npm ci --ignore-scripts`
 in its `surfview/` directory, and run `npx vite build --config
 vite.config.embed.js`. This reconstructs the upstream bundle identified by
 `upstream_sha256`; the neurosurf script adds the original license notices.
+
+The current pin is the surfviewjs `v3.2.0` release tag. Its rebuilt upstream
+bundle (`upstream_sha256`) is byte-identical to `dist/surfview.embed.iife.js`
+in the published npm package `surfview@3.2.0`, so the runtime can also be
+checked against npm:
+
+```sh
+npm pack surfview@3.2.0 && tar -xzf surfview-3.2.0.tgz package/dist/surfview.embed.iife.js
+shasum -a 256 package/dist/surfview.embed.iife.js   # equals upstream_sha256
+```

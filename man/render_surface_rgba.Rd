@@ -20,6 +20,7 @@ render_surface_rgba(
   limits = NULL,
   overlay_alpha = 1,
   alpha_ramp = 0,
+  magnitude_opacity = NULL,
   antialias = 3L,
   margin = 0.04,
   medial_wall = c("shade", "mask", "outline"),
@@ -30,7 +31,7 @@ render_surface_rgba(
   subdivide = "auto",
   pixel_scale = NULL,
   return_buffers = FALSE,
-  anatomy_style = c("publication", "continuous", "binary"),
+  anatomy_style = c("publication", "continuous", "binary", "soft"),
   anatomy_midpoint = NULL,
   anatomy_invert = "auto",
   anatomy_range = c(0.7, 0.93),
@@ -75,6 +76,12 @@ default suited to `tail`.}
 
 \item{alpha_ramp}{Width of the opacity ramp above threshold.}
 
+\item{magnitude_opacity}{Optional fade by magnitude, the same rule report
+scenes apply (see \code{\link{surface_layer}}): \code{NULL} or a list
+with optional \code{low}, \code{high} (number or \code{"range"}, the
+colour limits), \code{gamma} and \code{floor}. Multiplies
+\code{overlay_alpha}.}
+
 \item{antialias}{Integer supersampling factor per axis.}
 
 \item{margin}{Fractional panel margin.}
@@ -111,7 +118,8 @@ panels one scale.}
 \item{return_buffers}{Include scalar and depth buffers for diagnostics.}
 
 \item{anatomy_style}{Underlay mapping: legacy publication shading, centered
-continuous contrast, or binary folding contrast.}
+continuous contrast, binary folding contrast, or `"soft"`: a smooth
+two-tone (gyri light, sulci dark) with antialiased fold edges.}
 
 \item{anatomy_midpoint}{Passed to [normalize_surface_anatomy()].}
 

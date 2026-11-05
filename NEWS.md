@@ -2,6 +2,33 @@
 
 ## New features
 
+* The bundled browser runtime is surfview 3.2.0 (was 2.2.0.9002). Report
+  scenes use its colour management, headlight and curvature defaults; binary
+  references are written as `surfview.scene.v2` (`boundary = "midpoint"`, no
+  colour scale), and the local runtime patch is gone.
+
+* `surface_scene(variants =, variant =)` ships alternative embeddings of the
+  same meshes (for example pial and white beside inflated). Report viewers can
+  switch between them; values and curvature are shared.
+
+* `surface_layer(magnitude_opacity =)` fades a map's colours by |value| in the
+  viewer, following live threshold and range changes.
+  `render_surface_rgba(magnitude_opacity =)` applies the same rule to static
+  rasters; the CPU rasterizer now honours the overlay LUT's alpha.
+
+* `normalize_surface_anatomy(style = "soft")` and
+  `render_surface_rgba(anatomy_style = "soft")` give a smooth gyral/sulcal
+  two-tone: crisp folds without the binary style's vertex-step edges.
+
+## Changes
+
+* Scene curvature keeps its documented meaning, higher values lighter (gyri):
+  the manifest writer negates it because surfview 3 reads curvature in the
+  FreeSurfer polarity. Pass FreeSurfer `curv`/`sulc` negated, as before.
+
+* The medial wall of static surface rasters is drawn at the light gyral tone
+  instead of a fixed mid-grey.
+
 * The bundled fsaverage5 template now includes the pial surface
   (`pial_left.gii.gz`, `pial_right.gii.gz`, unmodified from the same pinned
   nilearn commit). `load_fsaverage("fsaverage5", "pial")` loads it, so

@@ -28,6 +28,13 @@ report viewer. Use \code{\link{surface_scene}} to create validated instances.
 
 \item{\code{curvature}}{Optional named curvature vectors.}
 
+\item{\code{variants}}{Optional alternative embeddings: a named list (variant name)
+of named hemisphere lists of vertex-coordinate matrices that share each
+geometry's topology.}
+
+\item{\code{variant}}{Name of the embedding stored in \code{geometries} when
+\code{variants} is non-empty; otherwise empty.}
+
 \item{\code{layers}}{A named list of validated surface-layer specifications.}
 
 \item{\code{selected_layer}}{The initially selected layer name.}

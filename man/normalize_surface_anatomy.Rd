@@ -6,7 +6,7 @@
 \usage{
 normalize_surface_anatomy(
   metric,
-  style = c("continuous", "binary"),
+  style = c("continuous", "binary", "soft"),
   midpoint = NULL,
   invert = FALSE
 )
@@ -14,7 +14,10 @@ normalize_surface_anatomy(
 \arguments{
 \item{metric}{Finite numeric anatomy values, one per vertex.}
 
-\item{style}{Continuous robust scaling or binary folding contrast.}
+\item{style}{`"continuous"` robust linear scaling, `"binary"` folding
+contrast, or `"soft"`: a sigmoid two-tone (`0.5 * tanh(4 x / q98)`) that
+reads as crisp gyri and sulci without the binary style's jagged
+vertex-step edges.}
 
 \item{midpoint}{Boundary between dark and light. NULL uses the median,
 including for the historical [0, 1] output of [curvature()]. Use zero

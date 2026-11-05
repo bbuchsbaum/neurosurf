@@ -9,6 +9,8 @@ surface_scene(
   right = NULL,
   layers,
   curvature = NULL,
+  variants = NULL,
+  variant = "default",
   selected_layer = NULL,
   id = "surface-scene",
   metadata = list(),
@@ -28,7 +30,20 @@ objects. Supply at least one.}
 \item{layers}{A \code{\link{surface_layer}} object or a list of them.}
 
 \item{curvature}{Optional numeric vector for a unilateral scene or named
-hemisphere list.}
+hemisphere list. Values are display anatomy: higher values render
+lighter (gyri), as returned by \code{\link{normalize_surface_anatomy}}.
+Negate FreeSurfer \code{curv}/\code{sulc} (positive in sulci) first.}
+
+\item{variants}{Optional alternative embeddings of the same meshes that a
+report viewer can switch between, for example
+\code{list(pial = list(left = lh_pial, right = rh_pial))}. Each entry gives
+a \code{SurfaceGeometry}, \code{SurfaceSet} or n x 3 coordinate matrix per
+hemisphere with the stored geometry's vertex order. Curvature and layer
+values are shared by every embedding.}
+
+\item{variant}{Name of the embedding passed as \code{left}/\code{right}
+(default \code{"default"}); it is shown first. Used only with
+\code{variants}.}
 
 \item{selected_layer}{Initially selected layer name. Defaults to the first
 visible layer, then the first layer.}
