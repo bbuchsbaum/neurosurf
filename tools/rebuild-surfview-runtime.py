@@ -21,6 +21,7 @@ import subprocess
 import tarfile
 import tempfile
 import io
+import re
 
 parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
 parser.add_argument("surfviewjs", type=Path, help="surfviewjs git checkout")
@@ -220,4 +221,13 @@ export default {
         (dest / source_archive.name).write_bytes(source_archive.read_bytes())
         (dest / "THIRD-PARTY-NOTICES.txt").write_text(notice_text)
         stamp.write_text("".join(f"{k}={v}\n" for k, v in pin.items()))
+        # The widget's htmlDependency label must name the bundled version.
+        yaml_path = root / "inst" / "htmlwidgets" / "surfwidget.yaml"
+        text = yaml_path.read_text()
+        updated, count = re.subn(
+            r"(- name: surfview\n\s+version: )[^\n]+",
+            lambda m: m.group(1) + pin["version"], text)
+        if count != 1:
+            raise SystemExit("surfwidget.yaml: expected one surfview dependency")
+        yaml_path.write_text(updated)
         print("Repinned surfviewjs", commit[:12], "->", sha)

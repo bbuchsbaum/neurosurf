@@ -1,5 +1,11 @@
 # neurosurf (development version)
 
+## Bug fixes
+
+* `surfwidget.yaml` now declares the bundled runtime as surfview 3.2.0; 0.1.0.9001
+  shipped the 3.2.0 bundle under a 3.1.0 label. `tools/rebuild-surfview-runtime.py
+  --repin` now updates the label from the pin, and a test checks they agree.
+
 ## New features
 
 * The bundled browser runtime is surfview 3.2.0 (was 2.2.0.9002). Report
