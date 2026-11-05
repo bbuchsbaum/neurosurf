@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">neurosurf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,11 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="neurosurf-development-version">neurosurf (development version)<a class="anchor" aria-label="anchor" href="#neurosurf-development-version"></a></h2>
 <div class="section level3">
+<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li>
+<code>surfwidget.yaml</code> now declares the bundled runtime as surfview 3.2.0; 0.1.0.9001 shipped the 3.2.0 bundle under a 3.1.0 label. <code>tools/rebuild-surfview-runtime.py --repin</code> now updates the label from the pin, and a test checks they agree.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
 <ul><li><p>The bundled browser runtime is surfview 3.2.0 (was 2.2.0.9002). Report scenes use its colour management, headlight and curvature defaults; binary references are written as <code>surfview.scene.v2</code> (<code>boundary = "midpoint"</code>, no colour scale), and the local runtime patch is gone.</p></li>
 <li><p><code>surface_scene(variants =, variant =)</code> ships alternative embeddings of the same meshes (for example pial and white beside inflated). Report viewers can switch between them; values and curvature are shared.</p></li>
@@ -55,7 +60,7 @@
 <li><p>The bundled fsaverage5 template now includes the pial surface (<code>pial_left.gii.gz</code>, <code>pial_right.gii.gz</code>, unmodified from the same pinned nilearn commit). <code>load_fsaverage("fsaverage5", "pial")</code> loads it, so <code><a href="../reference/vol_to_surf.html">vol_to_surf()</a></code> can sample a volume through the cortical ribbon on the 10,242-vertex fsaverage5 mesh instead of only on std.8. <code><a href="../reference/load_fsaverage_bundle.html">load_fsaverage_bundle()</a></code> also accepts <code>density = "fsaverage5"</code> (<a href="https://github.com/bbuchsbaum/neurosurf/issues/102" class="external-link">#102</a>).</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<h3 id="bug-fixes-development-version-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version-1"></a></h3>
 <ul><li><p><code>series()</code> on a <code>NeuroSurfaceVector</code> now returns a <code>T x length(i)</code> matrix (time in rows, vertices in columns) for a single integer index, as it already did for double indices and as <code><a href="https://bbuchsbaum.github.io/neuroim2/reference/series-methods.html" class="external-link">neuroim2::series()</a></code> does for <code>NeuroVec</code>. Previously <code>series(x, 2L)</code> returned <code>1 x T</code> while <code>series(x, 2)</code> returned <code>T x 1</code>; this also made <code>series_roi(x, &lt;single integer&gt;)</code> fail with an invalid <code>ROISurfaceVector</code>. Code that relied on the old <code>1 x T</code> result for a single integer index must drop its transpose (<a href="https://github.com/bbuchsbaum/neurosurf/issues/93" class="external-link">#93</a>).</p></li>
 <li><p><code><a href="../reference/neighbor_graph-methods.html">neighbor_graph()</a></code> on a <code>SurfaceGeometry</code> now accepts double-stored node indices (e.g. <code>nodes = c(1, 2)</code>) as well as integer ones; previously only integer <code>nodes</code> had a method and doubles failed dispatch (<a href="https://github.com/bbuchsbaum/neurosurf/issues/93" class="external-link">#93</a>).</p></li>
 </ul></div>
