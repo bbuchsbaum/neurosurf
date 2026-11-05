@@ -18,7 +18,8 @@ surface_layer(
   visible = TRUE,
   threshold = NULL,
   role = c("map", "reference"),
-  color = NULL
+  color = NULL,
+  magnitude_opacity = NULL
 )
 }
 \arguments{
@@ -58,6 +59,14 @@ unavailable for references. Reference visibility and opacity are independent.}
 \item{color}{Explicit opaque reference color. A separate categorical swatch
 replaces the quantitative legend. Membership is linearly interpolated then
 classified at >= 0.5 per fragment, independently of effect values.}
+
+\item{magnitude_opacity}{Optional fade by magnitude: \code{NULL} (colours
+keep the colormap's alpha) or a list with optional \code{low} (magnitude
+below which values are transparent, default 0), \code{high} (magnitude at
+full opacity, or \code{"range"} for the colour-range end, the default),
+\code{gamma} (exponent, default 1) and \code{floor} (opacity at a positive
+start magnitude, default 0). A display threshold raises the start to the
+threshold. Viewers apply it live as the reader changes range or threshold.}
 }
 \value{
 A validated layer specification for \code{\link{surface_scene}}.
