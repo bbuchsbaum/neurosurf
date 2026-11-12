@@ -71,6 +71,14 @@
       bar.setAttribute("aria-hidden", "true");
       toolbar.insertBefore(bar, text ? text.nextSibling : null);
     }
+    // Start the key's row explicitly so it and the fullscreen button share
+    // the second toolbar row instead of wrapping one at a time.
+    if (!toolbar.querySelector(".surfwidget-break")) {
+      var brk = document.createElement("span");
+      brk.className = "surfwidget-break";
+      brk.setAttribute("aria-hidden", "true");
+      toolbar.appendChild(brk);
+    }
     if (text) text.classList.add("surfwidget-visually-hidden");
     bar.hidden = (layer.legend && layer.legend.visible === false);
     var pos = function (v) { return 100 * (v - lim[0]) / (lim[1] - lim[0]); };
