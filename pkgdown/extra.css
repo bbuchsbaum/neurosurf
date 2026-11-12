@@ -1,1 +1,14 @@
 @import url("albers.css");
+
+/* Figures are rendered on white; let them take the page's paper colour
+   instead of sitting in white boxes (light themes only). */
+html:not([data-bs-theme="dark"]) main img:not(.logo),
+html:not([data-bs-theme="dark"]) main .rglWebGL canvas,
+html:not([data-bs-theme="dark"]) main .surfwidget-mount canvas {
+  mix-blend-mode: multiply;
+}
+
+/* Space between an interactive widget and the prose after it. */
+main .html-widget {
+  margin-bottom: 1.2rem;
+}
