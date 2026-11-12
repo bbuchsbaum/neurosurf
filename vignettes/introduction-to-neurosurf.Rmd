@@ -98,34 +98,6 @@ An object of this class encapsulates:
 
 You can load a surface geometry from various file formats (Freesurfer binary, Freesurfer ASCII `.asc`, GIFTI `.gii`) using the `read_surf_geometry()` function.
 
-```{r panel-helper, include=FALSE}
-draw_panels <- function(panels, labels, key = NULL, mono = FALSE) {
-  n <- length(panels)
-  heights <- grid::unit(c(1, 1.6, if (!is.null(key)) 15), c("null", "lines", if (!is.null(key)) "mm"))
-  grid::grid.newpage()
-  grid::grid.rect(gp = grid::gpar(fill = "white", col = NA))
-  grid::pushViewport(grid::viewport(layout = grid::grid.layout(
-    length(heights), n, heights = heights
-  )))
-  for (i in seq_len(n)) {
-    rgba <- panels[[i]]$rgba
-    grid::grid.raster(array(as.numeric(rgba) / 255, dim = dim(rgba)),
-                      vp = grid::viewport(layout.pos.row = 1,
-                                          layout.pos.col = i))
-    grid::grid.text(labels[i], gp = grid::gpar(
-      fontsize = 10, col = "#333333",
-      fontfamily = if (mono) "mono" else ""
-    ), vp = grid::viewport(layout.pos.row = 2, layout.pos.col = i))
-  }
-  if (!is.null(key)) {
-    grid::pushViewport(grid::viewport(layout.pos.row = 3,
-                                      layout.pos.col = seq_len(n)))
-    grid::grid.draw(key)
-    grid::popViewport()
-  }
-}
-```
-
 ```{r load-geometry}
 library(neurosurf)
 
@@ -203,7 +175,8 @@ panel <- render_surface_rgba(
   geometry(lh_surf_data), no_overlay,
   anatomy_metric = lh_surf_data@data, anatomy_style = "continuous",
   anatomy_range = c(0.3, 0.92), lighting = FALSE,
-  camera = "lateral", width = 600, height = 360, antialias = 2
+  outer_contour = FALSE, camera = "lateral",
+  width = 600, height = 360, antialias = 2
 )
 ```
 
@@ -308,7 +281,7 @@ red/blue statistic palette. Each column is rescaled to its own range,
 minimum dark and maximum light, and each panel is seen from a side where its
 axis lies across the picture: *x* from above, *y* and *z* from the side.
 
-```{r show-neurosurfacevector}
+```{r show-neurosurfacevector, fig.width=7, fig.height=2.0, fig.cap="Columns of the NeuroSurfaceVector on the left hemisphere: x seen from above (anterior at top), y and z from the lateral side (anterior at left). Each column runs from its minimum (dark purple) to its maximum (yellow)."}
 xyz <- as.matrix(lh_surf_vec@data)
 rescaled <- apply(xyz, 2, function(v) (v - min(v)) / diff(range(v)))
 cameras <- c("dorsal", "lateral", "lateral")
@@ -318,12 +291,12 @@ panels <- lapply(1:3, function(j) {
                       palette = viridisLite::viridis(256),
                       width = 360, height = 260)
 })
+surface_panels(panels, legend = FALSE, labels = c(
+  "x: lateral (dark) to medial", "y: posterior (dark) to anterior",
+  "z: inferior (dark) to superior"
+))
 ```
 
-```{r show-neurosurfacevector-image, echo=FALSE, fig.width=7, fig.height=2.7, out.width="100%", fig.cap="Columns of the NeuroSurfaceVector on the left hemisphere: x seen from above (anterior at top), y and z from the lateral side (anterior at left). Each column runs from its minimum (dark purple) to its maximum (yellow)."}
-draw_panels(panels, c("x: left to right", "y: back to front",
-                      "z: bottom to top"))
-```
 
 ### Accessing `NeuroSurfaceVector` Properties
 

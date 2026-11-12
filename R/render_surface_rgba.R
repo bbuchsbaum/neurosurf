@@ -284,9 +284,15 @@ render_surface_rgba <- function(geometry,
   )
   if (identical(medial_wall, "outline")) {
     wall_edge <- .ns_domain_boundary_mask(out$cortex_coverage, out$coverage)
+    # Two pixels wide, so the outline still reads in small panels.
+    nr <- nrow(wall_edge)
+    thick <- wall_edge
+    thick[-1L, ] <- thick[-1L, ] | wall_edge[-nr, ]
+    thick[, -1L] <- thick[, -1L] | wall_edge[, -ncol(wall_edge)]
+    wall_edge <- thick & out$coverage
     for (channel in seq_len(3L)) {
       plane <- out$rgba[, , channel]
-      plane[wall_edge] <- as.raw(90L)
+      plane[wall_edge] <- as.raw(60L)
       out$rgba[, , channel] <- plane
     }
   }

@@ -96,34 +96,6 @@ darker than gyri; the renderer detects whether a metric is larger in sulci
 The package bundles the fsaverage5 template (10,242 vertices per hemisphere)
 with its sulcal depth, so this example runs offline.
 
-```{r panel-helper, include=FALSE}
-draw_panels <- function(panels, labels, key = NULL, mono = FALSE) {
-  n <- length(panels)
-  heights <- grid::unit(c(1, 1.6, if (!is.null(key)) 15), c("null", "lines", if (!is.null(key)) "mm"))
-  grid::grid.newpage()
-  grid::grid.rect(gp = grid::gpar(fill = "white", col = NA))
-  grid::pushViewport(grid::viewport(layout = grid::grid.layout(
-    length(heights), n, heights = heights
-  )))
-  for (i in seq_len(n)) {
-    rgba <- panels[[i]]$rgba
-    grid::grid.raster(array(as.numeric(rgba) / 255, dim = dim(rgba)),
-                      vp = grid::viewport(layout.pos.row = 1,
-                                          layout.pos.col = i))
-    grid::grid.text(labels[i], gp = grid::gpar(
-      fontsize = 10, col = "#333333",
-      fontfamily = if (mono) "mono" else ""
-    ), vp = grid::viewport(layout.pos.row = 2, layout.pos.col = i))
-  }
-  if (!is.null(key)) {
-    grid::pushViewport(grid::viewport(layout.pos.row = 3,
-                                      layout.pos.col = seq_len(n)))
-    grid::grid.draw(key)
-    grid::popViewport()
-  }
-}
-```
-
 ```{r load-surfaces}
 inflated <- load_fsaverage("fsaverage5", "inflated")
 white <- load_fsaverage("fsaverage5", "white")
@@ -149,7 +121,7 @@ example_statistic <- function(hemi, side, peaks) {
   cluster(c(45 * side, -60, 20), peaks[1], 12) +
     cluster(c(40 * side, 20, 30), peaks[2], 9) +
     cluster(c(55 * side, -20, 0), peaks[3], 8) +
-    cluster(c(5 * side, -35, 25), peaks[4], 11)
+    cluster(c(5 * side, -50, 30), peaks[4], 11)
 }
 
 stat_lh <- example_statistic("lh", -1, c(4, 3, -3.5, -3))
@@ -306,7 +278,7 @@ The panels below repeat the left medial view with each policy, using the
 wall; triangles that touch the wall receive no overlay colour under any
 policy, so the cluster stops at the cortical boundary.
 
-```{r cortex-mask-panels}
+```{r cortex-mask-panels, fig.width=8, fig.height=2.6, fig.cap="Left medial view of the same z map under the three medial_wall policies."}
 policies <- c("shade", "mask", "outline")
 medial_panels <- lapply(policies, function(policy) {
   render_surface_rgba(
@@ -316,13 +288,10 @@ medial_panels <- lapply(policies, function(policy) {
     width = 480, height = 300, antialias = 3
   )
 })
+surface_panels(medial_panels, sprintf('medial_wall = "%s"', policies),
+               legend_title = "z", label_family = "mono")
 ```
 
-```{r show-cortex-mask, echo=FALSE, fig.width=8, fig.height=2.5}
-draw_panels(medial_panels, sprintf('medial_wall = "%s"', policies),
-            key = surface_colorbar_grob(medial_panels[[1]], title = "z"),
-            mono = TRUE)
-```
 
 Atlas-aware callers such as `neuroatlas::plot_brain()` can resolve the mask and
 its provenance from an atlas annotation. At this low level, neurosurf requires

@@ -100,3 +100,25 @@ test_that("surface_colorbar_grob builds a key from a panel or a scale", {
   expect_error(surface_colorbar_grob(limits = c(2, 1)), "increasing")
   expect_error(surface_colorbar_grob("x"), "surface_rgba")
 })
+
+test_that("surface_panels composes labelled panels with a shared key", {
+  geom <- example_surface_geometry()
+  v <- coords(geom)[, 1]
+  panels <- list(
+    a = render_surface_rgba(geom, v, width = 60, height = 40, antialias = 1),
+    b = render_surface_rgba(geom, -v, width = 60, height = 40, antialias = 1)
+  )
+  sp <- surface_panels(panels, legend_title = "x",
+                       references = c(ROI = "#238b45"))
+  expect_s3_class(sp, "surface_panels")
+  expect_identical(sp$labels, c("a", "b"))
+  file <- tempfile(fileext = ".png")
+  grDevices::png(file, width = 400, height = 200)
+  expect_no_error(print(sp))
+  grDevices::dev.off()
+  expect_true(file.exists(file))
+  expect_s3_class(surface_panels(panels[[1]], labels = NULL), "surface_panels")
+  expect_error(surface_panels(list(1)), "surface_rgba")
+  expect_error(surface_panels(panels, labels = "one"), "one entry per panel")
+  expect_error(surface_panels(panels, references = "#000000"), "named")
+})

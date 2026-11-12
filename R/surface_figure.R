@@ -433,7 +433,11 @@ surface_figure <- function(lh = NULL,
 .ns_colorbar_interior_ticks <- function(seg) {
   span <- diff(seg)
   ticks <- pretty(seg, n = 3)
-  ticks[ticks > seg[1] + 0.25 * span & ticks < seg[2] - 0.25 * span]
+  ticks <- ticks[ticks > seg[1] + 0.25 * span & ticks < seg[2] - 0.25 * span]
+  # One interior tick at most, the one nearest the middle, so short ramps
+  # never crowd.
+  if (length(ticks) > 1L) ticks <- ticks[which.min(abs(ticks - mean(seg)))]
+  ticks
 }
 
 # Colour of the key at values `v`: the overlay LUT composited over a
@@ -511,6 +515,158 @@ surface_figure <- function(lh = NULL,
     x0 <- x0 + seg_w[k] + gap
   }
   grid::grobTree(children = do.call(grid::gList, children))
+}
+
+#' Arrange rendered panels as small multiples
+#'
+#' Lays out \code{\link{render_surface_rgba}} panels in one row, sets a label
+#' under each surface, and adds the shared colour key of the first panel's
+#' scale (see \code{\link{surface_colorbar_grob}}) and optional reference
+#' swatches. Use it for comparisons that \code{\link{surface_figure}} does
+#' not cover: different values, steps of a pipeline, or rendering options.
+#'
+#' @param panels A list of \code{surface_rgba} panels, drawn left to right.
+#' @param labels Text under each panel; defaults to \code{names(panels)}.
+#' @param legend Draw the colour key of the first panel's scale.
+#' @param legend_title Text above the key.
+#' @param references Optional named character vector of reference colours,
+#'   drawn as labelled swatches beside the key, e.g.
+#'   \code{c("Intraparietal ROI" = "#238b45")}.
+#' @param reference_opacity Fill opacity of the swatches, matching the
+#'   opacity the references were rendered with.
+#' @param label_family Font family for labels, e.g. \code{"mono"} when the
+#'   labels are code.
+#' @return A \code{surface_panels} object; \code{print()} or \code{plot()}
+#'   draws it on the current device.
+#' @examples
+#' geom <- example_surface_geometry()
+#' v <- coords(geom)[, 1]
+#' panels <- list(
+#'   dorsal = render_surface_rgba(geom, v, camera = "dorsal",
+#'                                width = 120, height = 120, antialias = 1),
+#'   lateral = render_surface_rgba(geom, v, camera = "lateral",
+#'                                 width = 120, height = 120, antialias = 1)
+#' )
+#' surface_panels(panels, legend_title = "x")
+#' @export
+surface_panels <- function(panels, labels = names(panels), legend = TRUE,
+                           legend_title = NULL, references = NULL,
+                           reference_opacity = 0.4, label_family = "") {
+  if (inherits(panels, "surface_rgba")) panels <- list(panels)
+  if (!length(panels) ||
+      !all(vapply(panels, inherits, logical(1), "surface_rgba"))) {
+    stop("'panels' must be a list of surface_rgba panels.", call. = FALSE)
+  }
+  if (!is.null(labels) && length(labels) != length(panels)) {
+    stop("'labels' must have one entry per panel.", call. = FALSE)
+  }
+  if (!is.null(references) &&
+      (!is.character(references) || is.null(names(references)))) {
+    stop("'references' must be a named character vector of colours.",
+         call. = FALSE)
+  }
+  structure(
+    list(panels = panels, labels = labels, legend = isTRUE(legend),
+         legend_title = legend_title, references = references,
+         reference_opacity = reference_opacity,
+         label_family = label_family),
+    class = "surface_panels"
+  )
+}
+
+#' @noRd
+.ns_surface_panels_grob <- function(x) {
+  n <- length(x$panels)
+  has_key <- isTRUE(x$legend) || length(x$references)
+  has_labels <- !is.null(x$labels) && any(nzchar(x$labels))
+  # Crop empty rows shared by every panel, so labels sit close under the
+  # surfaces; one crop for all panels keeps them on a common scale.
+  rasters <- lapply(x$panels, .ns_figure_panel_raster)
+  same_dims <- length(unique(lapply(rasters, dim))) == 1L
+  if (same_dims) {
+    covered <- Reduce(`|`, lapply(x$panels, function(p) rowSums(p$coverage) > 0))
+    rows <- which(covered)
+    if (length(rows)) {
+      pad <- ceiling(0.03 * nrow(rasters[[1]]))
+      keep <- max(1L, min(rows) - pad):min(nrow(rasters[[1]]), max(rows) + pad)
+      rasters <- lapply(rasters, function(r) r[keep, , drop = FALSE])
+    }
+  }
+  heights <- grid::unit.c(
+    grid::unit(1, "null"),
+    grid::unit(if (has_labels) 1.7 else 0, "lines"),
+    grid::unit(if (has_key) .ns_legend_height_mm else 0, "mm")
+  )
+  frame <- grid::frameGrob(layout = grid::grid.layout(3L, n,
+                                                      heights = heights))
+  frame <- grid::placeGrob(frame, grid::rectGrob(
+    gp = grid::gpar(fill = "white", col = NA)), row = 1:3, col = seq_len(n))
+  label_gp <- grid::gpar(fontsize = 10, col = "#333333",
+                         fontfamily = x$label_family)
+  for (i in seq_len(n)) {
+    frame <- grid::placeGrob(frame, grid::rasterGrob(
+      rasters[[i]], y = grid::unit(0, "npc"), just = "bottom",
+      interpolate = TRUE), row = 1L, col = i)
+    if (has_labels && nzchar(x$labels[i])) {
+      frame <- grid::placeGrob(frame, grid::textGrob(
+        x$labels[i], gp = label_gp), row = 2L, col = i)
+    }
+  }
+  if (has_key) {
+    key <- if (isTRUE(x$legend)) {
+      surface_colorbar_grob(x$panels[[1]], title = x$legend_title)
+    }
+    swatches <- if (length(x$references)) {
+      .ns_reference_swatches(x$references, x$reference_opacity,
+                             at = if (isTRUE(x$legend)) 0.75 else 0.5)
+    }
+    frame <- grid::placeGrob(frame, grid::gTree(children = grid::gList(
+      key %||% grid::nullGrob(), swatches %||% grid::nullGrob()
+    )), row = 3L, col = seq_len(n))
+  }
+  frame
+}
+
+# Labelled swatches on the colour bar's centre line.
+#' @noRd
+.ns_reference_swatches <- function(references, opacity, at) {
+  title_h <- 4.6
+  y <- grid::unit(1, "npc") - grid::unit(1 + title_h + 1.6, "mm")
+  children <- list()
+  for (k in seq_along(references)) {
+    yk <- y - grid::unit(5 * (k - 1), "mm")
+    children[[length(children) + 1L]] <- grid::rectGrob(
+      x = grid::unit(at, "npc"), y = yk,
+      width = grid::unit(3.2, "mm"), height = grid::unit(3.2, "mm"),
+      just = c("left", "centre"),
+      gp = grid::gpar(fill = grDevices::adjustcolor(references[[k]], opacity),
+                      col = references[[k]])
+    )
+    children[[length(children) + 1L]] <- grid::textGrob(
+      names(references)[k], x = grid::unit(at, "npc") + grid::unit(4.6, "mm"),
+      y = yk, just = c("left", "centre"),
+      gp = grid::gpar(fontsize = 10, col = "#333333")
+    )
+  }
+  grid::gTree(children = do.call(grid::gList, children))
+}
+
+#' @rdname surface_panels
+#' @param x A \code{surface_panels} object.
+#' @param ... Unused.
+#' @method plot surface_panels
+#' @export
+plot.surface_panels <- function(x, ...) {
+  grid::grid.newpage()
+  grid::grid.draw(.ns_surface_panels_grob(x))
+  invisible(x)
+}
+
+#' @rdname surface_panels
+#' @method print surface_panels
+#' @export
+print.surface_panels <- function(x, ...) {
+  plot(x, ...)
 }
 
 #' Colour key for surface panels

@@ -79,34 +79,6 @@ This helper gives each example a private NULL device, returns the scene as a
 WebGL widget, and closes the device even if the plotting call fails. In an
 interactive session, use `rgl::open3d()` to get a desktop window instead.
 
-```{r panel-helper, include=FALSE}
-draw_panels <- function(panels, labels, key = NULL, mono = FALSE) {
-  n <- length(panels)
-  heights <- grid::unit(c(1, 1.6, if (!is.null(key)) 15), c("null", "lines", if (!is.null(key)) "mm"))
-  grid::grid.newpage()
-  grid::grid.rect(gp = grid::gpar(fill = "white", col = NA))
-  grid::pushViewport(grid::viewport(layout = grid::grid.layout(
-    length(heights), n, heights = heights
-  )))
-  for (i in seq_len(n)) {
-    rgba <- panels[[i]]$rgba
-    grid::grid.raster(array(as.numeric(rgba) / 255, dim = dim(rgba)),
-                      vp = grid::viewport(layout.pos.row = 1,
-                                          layout.pos.col = i))
-    grid::grid.text(labels[i], gp = grid::gpar(
-      fontsize = 10, col = "#333333",
-      fontfamily = if (mono) "mono" else ""
-    ), vp = grid::viewport(layout.pos.row = 2, layout.pos.col = i))
-  }
-  if (!is.null(key)) {
-    grid::pushViewport(grid::viewport(layout.pos.row = 3,
-                                      layout.pos.col = seq_len(n)))
-    grid::grid.draw(key)
-    grid::popViewport()
-  }
-}
-```
-
 ```{r scene-helper}
 with_rgl_scene <- function(code) {
   device <- rgl::open3d(useNULL = TRUE)
@@ -197,7 +169,7 @@ with_rgl_scene({
   view_surface(left, viewpoint = "dorsal", offset = c(-5, 0, 0),
                new_window = FALSE)
   view_surface(right, viewpoint = "dorsal", offset = c(5, 0, 0),
-               new_window = FALSE)
+               zoom = 0.75, new_window = FALSE)
 })
 ```
 
@@ -230,7 +202,7 @@ with_rgl_scene(
 ## Smooth and threshold a noisy map
 
 Smoothing and cluster-size thresholding operate on surface data before
-rendering. Here noise is added to the two clusters, averaged over a 4 mm
+rendering. Here noise is added to the two clusters, averaged over a 5 mm
 geodesic radius (`sigma`), and thresholded at |value| > 1. Smoothing
 recovers the two known clusters but leaves small specks of noise;
 `cluster_threshold()` removes every connected cluster smaller than 20
@@ -241,14 +213,15 @@ set.seed(123)
 noise <- rnorm(length(vertex_values))
 noisy <- NeuroSurface(left, indices = nodes(left),
                       data = vertex_values + noise)
-smoothed <- smooth(noisy, sigma = 4)
+smoothed <- smooth(noisy, sigma = 5)
 clustered <- cluster_threshold(smoothed, size = 20,
                                threshold = c(-1, 1))
 ```
 
-Shown as small multiples with the same colour scale:
+Shown as small multiples with the same colour scale. `surface_panels()`
+lays out rendered panels in a row with labels and the shared key:
 
-```{r activation-panels}
+```{r activation-panels, fig.width=7.5, fig.height=2.6}
 steps <- list(noisy = noisy, smoothed = smoothed,
               clustered = clustered)
 panels <- lapply(steps, function(x) {
@@ -258,12 +231,9 @@ panels <- lapply(steps, function(x) {
                       limits = c(-3, 3), width = 420, height = 260,
                       antialias = 2)
 })
+surface_panels(panels, legend_title = "value")
 ```
 
-```{r activation-image, echo=FALSE, fig.width=7.5, fig.height=2.6}
-draw_panels(panels, names(panels),
-            key = surface_colorbar_grob(panels[[1]], title = "value"))
-```
 
 `surface_montage()` lays out RGL snapshots the same way; it needs a
 rendering backend, so it is not run here:

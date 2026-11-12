@@ -253,7 +253,7 @@ indices or thresholds.
 The CPU renderer draws the same membership beneath a static map, in the
 order anatomy, reference, effect:
 
-```{r static-reference}
+```{r static-reference, fig.width=6.5, fig.height=4.6, fig.cap="Left hemisphere, lateral view: the intraparietal ROI (green, 40% opacity) beneath the memory *z* map."}
 image <- render_surface_rgba(
   inflated$lh, memory$left, anatomy_metric = sulc$lh,
   threshold = 2, limits = c(-5, 5), alpha_ramp = 0.6,
@@ -261,40 +261,17 @@ image <- render_surface_rgba(
     id = "reference", label = "Intraparietal ROI",
     mask = region$left, color = "#238b45", opacity = 0.4
   ),
-  width = 600, height = 380, antialias = 2
+  width = 680, height = 420, antialias = 2
 )
+surface_panels(image, labels = NULL, legend_title = "z",
+               references = c("Intraparietal ROI" = "#238b45"))
 ```
 
-```{r static-reference-image, echo=FALSE, fig.width=6.5, fig.height=4.6, fig.cap="Left hemisphere, lateral view: the intraparietal ROI (green, 40% opacity) beneath the memory *z* map."}
-grid::grid.newpage()
-grid::grid.rect(gp = grid::gpar(fill = "white", col = NA))
-grid::pushViewport(grid::viewport(layout = grid::grid.layout(
-  2, 2, heights = grid::unit(c(1, 15), c("null", "mm")),
-  widths = grid::unit(c(3, 1), "null")
-)))
-rgba <- image$rgba
-grid::grid.raster(array(as.numeric(rgba) / 255, dim = dim(rgba)),
-                  vp = grid::viewport(layout.pos.row = 1,
-                                      layout.pos.col = 1:2))
-grid::pushViewport(grid::viewport(layout.pos.row = 2, layout.pos.col = 1))
-grid::grid.draw(surface_colorbar_grob(image, title = "z"))
-grid::popViewport()
-grid::pushViewport(grid::viewport(layout.pos.row = 2, layout.pos.col = 2))
-grid::grid.rect(x = grid::unit(0, "npc"), y = grid::unit(0.62, "npc"),
-                width = grid::unit(3.4, "mm"), height = grid::unit(3.4, "mm"),
-                just = c("left", "centre"),
-                gp = grid::gpar(fill = grDevices::adjustcolor("#238b45", 0.4),
-                                col = "#238b45"))
-grid::grid.text("Intraparietal ROI", x = grid::unit(5, "mm"),
-                y = grid::unit(0.62, "npc"), just = "left",
-                gp = grid::gpar(fontsize = 10, col = "#333333"))
-grid::popViewport()
-```
 
 Both renderers classify membership at 0.5 after linear interpolation, and
-triangles outside the cortex mask never receive reference colour. A static
-figure should label the reference with its own swatch, outside the effect
-colour scale; `tools/reference-specimen.R` is a complete example.
+when a cortex mask is supplied, triangles outside it never receive
+reference colour. A static figure should label the reference with its own
+swatch, outside the effect colour scale, as `surface_panels()` does above.
 
 Supply already projected binary membership. For a volume label, use explicit
 categorical/nearest-voxel sampling and record the source and mesh identity,
@@ -414,7 +391,8 @@ use the same lifecycle in another page. In this example, `manifest` is a
   );
 
   handle.ready.then(() => handle.setView("lateral"));
-  window.addEventListener("pagehide", () => handle.dispose(), { once: true });
+  window.addEventListener("pagehide", () => handle.dispose(),
+                          { once: true });
 </script>
 ```
 
