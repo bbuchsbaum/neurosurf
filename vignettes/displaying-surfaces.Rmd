@@ -49,14 +49,10 @@ refine <- function(geometry) {
   SurfaceGeometry(t(mesh$vb[1:3, ]), t(mesh$it) - 1L, geometry@hemi)
 }
 std8 <- load_fsaverage_std8("smoothwm")
-left <- refine(smooth(std8$lh, type = "HCLaplace", delta = 0.2,
-                      iteration = 5))
-right <- refine(smooth(std8$rh, type = "HCLaplace", delta = 0.2,
-                       iteration = 5))
+left <- refine(std8$lh)
+right <- refine(std8$rh)
 inflated_lh <- refine(load_fsaverage_std8("inflated")$lh)
-
-# Static figures shade by the folding of the unsmoothed surface
-anatomy <- curvature(refine(std8$lh))
+anatomy <- curvature(left)
 ```
 
 The `std.8` meshes are not aligned to MNI space, so their lateral views look
@@ -127,7 +123,7 @@ colour.
 
 ```{r basic-plot}
 with_rgl_scene(
-  view_surface(left, viewpoint = "lateral", zoom = 0.8,
+  view_surface(left, viewpoint = "lateral", zoom = 0.7,
                new_window = FALSE)
 )
 ```
@@ -143,7 +139,7 @@ centre to fade into the grey anatomy. Pass `cmap` to choose another.
 ```{r data-overlay}
 with_rgl_scene(
   view_surface(left, vals = vertex_values, irange = c(-3, 3),
-               thresh = c(-1, 1), viewpoint = "lateral", zoom = 0.8,
+               thresh = c(-1, 1), viewpoint = "lateral", zoom = 0.7,
                new_window = FALSE)
 )
 ```
@@ -158,11 +154,11 @@ figure <- surface_figure(
   lh = left, values = vertex_values, anatomy = anatomy,
   views = "lateral", threshold = 1, limits = c(-3, 3),
   alpha_ramp = 0.25, legend_title = "value",
-  panel_width = 560, panel_height = 340, antialias = 2
+  panel_width = 680, panel_height = 400, antialias = 2
 )
 ```
 
-```{r overlay-image, echo=FALSE, out.width="80%", fig.align="center"}
+```{r overlay-image, echo=FALSE, out.width="100%", fig.align="center"}
 file <- knitr::fig_path("overlay.png")
 dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
 write_surface_figure(figure, file)
@@ -182,7 +178,7 @@ y <- coords(left)[, 2]
 halves <- ifelse(y > median(y), "#1b7837", "#762a83")
 with_rgl_scene(
   view_surface(left, vert_clrs = halves, alpha = 0.6,
-               viewpoint = "lateral", zoom = 0.8, new_window = FALSE)
+               viewpoint = "lateral", zoom = 0.7, new_window = FALSE)
 )
 ```
 
@@ -226,7 +222,7 @@ peaks <- data.frame(
 with_rgl_scene(
   plot(surface, irange = c(-3, 3), thresh = c(-1, 1),
        spheres = peaks,
-       spheres_as_vertices = TRUE, viewpoint = "lateral", zoom = 0.8,
+       spheres_as_vertices = TRUE, viewpoint = "lateral", zoom = 0.7,
        new_window = FALSE)
 )
 ```

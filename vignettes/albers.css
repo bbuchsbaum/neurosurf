@@ -1532,3 +1532,8 @@ pre {
 table {
   margin-bottom: 1.2em;
 }
+
+/* Space between an interactive widget and the prose after it. */
+.html-widget {
+  margin-bottom: 1.2rem;
+}

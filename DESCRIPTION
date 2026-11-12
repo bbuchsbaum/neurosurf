@@ -92,6 +92,7 @@ Suggests:
     withr,
     ggplot2,
     viridis,
+    viridisLite,
     albersdown,
     ragg,
     systemfonts

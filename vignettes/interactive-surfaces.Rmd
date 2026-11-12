@@ -81,8 +81,7 @@ sulc <- load_fsaverage_sulc("fsaverage5")
 
 # Display anatomy, lighter on gyri. FreeSurfer sulc is positive in
 # sulci, so it is negated. The report preset's grey ramp saturates at
-# |0.1|; scaling to that range keeps a quiet, continuous ramp instead
-# of a hard two-tone.
+# |0.1|; scaling to that range keeps it continuous and quiet.
 anatomy <- list(
   left = 0.2 * normalize_surface_anatomy(-sulc$lh, "continuous"),
   right = 0.2 * normalize_surface_anatomy(-sulc$rh, "continuous")
@@ -240,12 +239,14 @@ reference_scene <- surface_scene(
 stopifnot(identical(reference_scene@selected_layer, "memory"))
 ```
 
-```{r show-reference-scene}
+```{r show-reference-scene, eval=FALSE}
 surfwidget(reference_scene, width = "100%", height = "360px")
 ```
 
-The green region sits beneath whichever map is selected and keeps its own
-swatch, checkbox and opacity slider; it never enters the colour key.
+In the viewer the green region sits beneath whichever map is selected and
+keeps its own swatch, checkbox and opacity slider; it never enters the
+colour key. (The widget is not embedded here to keep this article small;
+the static figure below shows the same composition.)
 References require a full 0/1 mask per hemisphere, with no limits, units,
 indices or thresholds.
 
@@ -264,11 +265,30 @@ image <- render_surface_rgba(
 )
 ```
 
-```{r static-reference-image, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Left hemisphere, lateral view: the intraparietal ROI (green, 40% opacity) beneath the memory *z* map (|*z*| &gt; 2, limits &plusmn;5)."}
-file <- knitr::fig_path("reference.png")
-dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
-write_surface_rgba(image, file)
-knitr::include_graphics(file)
+```{r static-reference-image, echo=FALSE, fig.width=6.5, fig.height=4.6, fig.cap="Left hemisphere, lateral view: the intraparietal ROI (green, 40% opacity) beneath the memory *z* map."}
+grid::grid.newpage()
+grid::grid.rect(gp = grid::gpar(fill = "white", col = NA))
+grid::pushViewport(grid::viewport(layout = grid::grid.layout(
+  2, 2, heights = grid::unit(c(1, 15), c("null", "mm")),
+  widths = grid::unit(c(3, 1), "null")
+)))
+rgba <- image$rgba
+grid::grid.raster(array(as.numeric(rgba) / 255, dim = dim(rgba)),
+                  vp = grid::viewport(layout.pos.row = 1,
+                                      layout.pos.col = 1:2))
+grid::pushViewport(grid::viewport(layout.pos.row = 2, layout.pos.col = 1))
+grid::grid.draw(surface_colorbar_grob(image, title = "z"))
+grid::popViewport()
+grid::pushViewport(grid::viewport(layout.pos.row = 2, layout.pos.col = 2))
+grid::grid.rect(x = grid::unit(0, "npc"), y = grid::unit(0.62, "npc"),
+                width = grid::unit(3.4, "mm"), height = grid::unit(3.4, "mm"),
+                just = c("left", "centre"),
+                gp = grid::gpar(fill = grDevices::adjustcolor("#238b45", 0.4),
+                                col = "#238b45"))
+grid::grid.text("Intraparietal ROI", x = grid::unit(5, "mm"),
+                y = grid::unit(0.62, "npc"), just = "left",
+                gp = grid::gpar(fontsize = 10, col = "#333333"))
+grid::popViewport()
 ```
 
 Both renderers classify membership at 0.5 after linear interpolation, and
@@ -288,7 +308,7 @@ not perform projection or inference.
 
 | Setting | Controls | What it changes |
 |---|---|---|
-| `preset = "report"` | Appearance | Two-tone sulcal greys on a neutral grey panel, lit for on-screen reading; made for report widgets. |
+| `preset = "report"` | Appearance | Quiet sulcal greys on a neutral grey panel, lit for on-screen reading; made for report widgets. Its grey ramp turns two-tone unless the anatomy is scaled, as above. |
 | `preset = "paper-light"` | Appearance | White background, stronger folding contrast, and print-oriented PNG defaults. |
 | `mode = "report"` | Behavior | Lazy mounting, the compact report toolbar, deterministic initial framing, and fallback/print behavior. |
 | `mode = "viewer"` | Behavior | A bare rotatable viewer without the report toolbar. |
