@@ -68,8 +68,10 @@ controlling the overall transparency of the surface. Defaults to 1.}
 and added to the mesh, which improves the appearance of lighting effects.}
 
 \item{thresh}{An optional numeric vector of length 2, `c(lower, upper)`.
-Vertices with `vals` *outside* this range (i.e., `< lower` or `> upper`)
-are made fully transparent. This is applied *after* the general `alpha`.
+Values *inside* this band are not coloured, so the base colour shows
+through. With a base colour, opacity ramps up over a short band past
+each limit (a quarter of the larger limit's magnitude) so cluster edges
+fade smoothly.
 Defaults to NULL (no thresholding).}
 
 \item{irange}{An optional numeric vector of length 2, `c(min, max)`. Specifies
@@ -98,8 +100,9 @@ updates or within Shiny apps).}
 \item{offset}{A numeric vector of length 3 specifying a translation offset
 `c(x, y, z)` applied to the surface coordinates before rendering. Defaults to `c(0, 0, 0)`.}
 
-\item{zoom}{A numeric value controlling the camera zoom level. Defaults to 1 (no zoom).
-Values > 1 zoom in, < 1 zoom out.}
+\item{zoom}{Camera zoom passed to \code{rgl::view3d()}. Defaults to 1;
+values below 1 zoom in (for example 0.7 fills more of the window),
+values above 1 zoom out.}
 
 \item{spheres}{An optional data frame to draw spheres at specific locations on
 or near the surface. Must contain columns `x`, `y`, `z` (coordinates), and

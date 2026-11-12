@@ -357,7 +357,7 @@ surface_figure <- function(lh = NULL,
       col = 1L + (at[["col_start"]]:at[["col_end"]])
     )
   }
-  label_gp <- grid::gpar(fontsize = 9, col = "#333333")
+  label_gp <- grid::gpar(fontsize = 10, col = "#333333")
   # Anterior/posterior markers just outside the brain on bilateral dorsal
   # and ventral panels (ventral views have posterior at the top).
   for (name in grep("^both_(dorsal|ventral)$", names(x$panels), value = TRUE)) {
@@ -402,7 +402,7 @@ surface_figure <- function(lh = NULL,
 }
 
 .ns_row_label_width_mm <- 13
-.ns_legend_height_mm <- 11
+.ns_legend_height_mm <- 15
 .ns_header_height_mm <- 6
 
 # Suprathreshold colour-bar segments as value intervals.
@@ -463,18 +463,20 @@ surface_figure <- function(lh = NULL,
   gap <- if (length(segs) > 1L) 0.035 else 0
   span <- vapply(segs, diff, numeric(1))
   seg_w <- (total_w - gap * (length(segs) - 1L)) * span / sum(span)
-  bar_top <- grid::unit(1, "npc") - grid::unit(1.6, "mm")
-  bar_h <- grid::unit(3, "mm")
+  has_title <- !is.null(title) && nzchar(title)
+  title_h <- grid::unit(if (has_title) 4.6 else 0, "mm")
+  bar_top <- grid::unit(1, "npc") - grid::unit(1, "mm") - title_h
+  bar_h <- grid::unit(3.2, "mm")
   label_y <- bar_top - bar_h - grid::unit(1.2, "mm")
-  tick_gp <- grid::gpar(fontsize = 8.5, col = "#333333")
+  tick_gp <- grid::gpar(fontsize = 10, col = "#333333")
   children <- list()
   x0 <- 0.5 - total_w / 2
-  # The statistic's name sits on the bar's line, left of the scale.
-  if (!is.null(title) && nzchar(title)) {
+  # The statistic's name is centred above the scale.
+  if (has_title) {
     children[[length(children) + 1L]] <- grid::textGrob(
-      title, x = grid::unit(x0, "npc") - grid::unit(2.5, "mm"),
-      y = bar_top - bar_h * 0.5, just = c("right", "centre"),
-      gp = grid::gpar(fontsize = 9, col = "#222222", fontface = "italic")
+      title, x = 0.5, y = bar_top + grid::unit(1.2, "mm"),
+      just = c("centre", "bottom"),
+      gp = grid::gpar(fontsize = 11, col = "#222222")
     )
   }
   for (k in seq_along(segs)) {
@@ -509,6 +511,58 @@ surface_figure <- function(lh = NULL,
     x0 <- x0 + seg_w[k] + gap
   }
   grid::grobTree(children = do.call(grid::gList, children))
+}
+
+#' Colour key for surface panels
+#'
+#' Builds the colour bar that \code{\link{surface_figure}} draws, as a grid
+#' grob, for figures composed by hand from \code{\link{render_surface_rgba}}
+#' panels. Suprathreshold tails are drawn as separate ramps with the
+#' threshold gap between them, and an opacity ramp above the threshold is
+#' shown in the key as it appears on the cortex.
+#'
+#' @param x A \code{surface_rgba} panel whose colour scale the key should
+#'   show, or \code{NULL} to give the scale explicitly.
+#' @param limits,threshold,tail,palette,overlay_alpha,alpha_ramp The colour
+#'   scale, as for \code{\link{render_surface_rgba}}. Taken from \code{x}
+#'   when it is supplied.
+#' @param title Text set beside the bar, typically the statistic.
+#' @return A grid grob. Draw it with \code{grid::grid.draw()} in a viewport
+#'   about 12 mm tall.
+#' @examples
+#' key <- surface_colorbar_grob(limits = c(-4, 4), threshold = 1.5,
+#'                              title = "z")
+#' grid::grid.newpage()
+#' grid::grid.draw(key)
+#' @export
+surface_colorbar_grob <- function(x = NULL, limits = NULL, threshold = 0,
+                                  tail = c("two_sided", "positive",
+                                           "negative"),
+                                  palette = NULL, overlay_alpha = 1,
+                                  alpha_ramp = 0, title = NULL) {
+  if (!is.null(x)) {
+    if (!inherits(x, "surface_rgba")) {
+      stop("'x' must be a surface_rgba panel or NULL.", call. = FALSE)
+    }
+    prov <- x$provenance
+    limits <- prov$limits
+    threshold <- prov$threshold
+    tail <- prov$tail
+    palette <- prov$palette
+    overlay_alpha <- prov$overlay_alpha %||% 1
+    alpha_ramp <- prov$alpha_ramp %||% 0
+  } else {
+    tail <- match.arg(tail)
+  }
+  if (!is.numeric(limits) || length(limits) != 2L ||
+      !all(is.finite(limits)) || limits[1] >= limits[2]) {
+    stop("'limits' must be an increasing pair of finite numbers.",
+         call. = FALSE)
+  }
+  scale <- list(limits = limits, threshold = threshold, tail = tail,
+                palette = palette %||% .ns_default_palette(tail),
+                overlay_alpha = overlay_alpha, alpha_ramp = alpha_ramp)
+  .ns_figure_colorbar_grob(scale, title)
 }
 
 #' @rdname surface_figure

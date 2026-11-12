@@ -66,7 +66,8 @@ its units.}
 
 \item{antialias}{Integer supersampling factor per panel.}
 
-\item{labels}{Draw hemisphere and view headers above the panels.}
+\item{labels}{Draw hemisphere and view headers. A figure with a single
+panel never has them.}
 
 \item{...}{Additional arguments passed to every [render_surface_rgba()]
 call.}

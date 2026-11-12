@@ -70,8 +70,10 @@ the range of `vals` to map onto the `cmap`. Values outside this range will be
 clamped to the min/max colors. Defaults to the full range of `vals`.}
 
 \item{thresh}{An optional numeric vector of length 2, `c(lower, upper)`.
-Vertices with `vals` *outside* this range (i.e., `< lower` or `> upper`)
-are made fully transparent. This is applied *after* the general `alpha`.
+Values *inside* this band are not coloured, so the base colour shows
+through. With a base colour, opacity ramps up over a short band past
+each limit (a quarter of the larger limit's magnitude) so cluster edges
+fade smoothly.
 Defaults to NULL (no thresholding).}
 
 \item{alpha}{A numeric value between 0 (fully transparent) and 1 (fully opaque)

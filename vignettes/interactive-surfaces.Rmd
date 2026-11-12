@@ -288,7 +288,7 @@ not perform projection or inference.
 
 | Setting | Controls | What it changes |
 |---|---|---|
-| `preset = "report"` | Appearance | Light, low-contrast sulcal greys on a neutral panel, so maps stand out; made for report widgets. |
+| `preset = "report"` | Appearance | Two-tone sulcal greys on a neutral grey panel, lit for on-screen reading; made for report widgets. |
 | `preset = "paper-light"` | Appearance | White background, stronger folding contrast, and print-oriented PNG defaults. |
 | `mode = "report"` | Behavior | Lazy mounting, the compact report toolbar, deterministic initial framing, and fallback/print behavior. |
 | `mode = "viewer"` | Behavior | A bare rotatable viewer without the report toolbar. |

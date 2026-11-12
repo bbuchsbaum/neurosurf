@@ -82,3 +82,21 @@ test_that("view_surface fades colour in just past the threshold", {
   expect_equal(red[4], 255)                 # fully coloured
   expect_equal(red[5], 0)                   # missing values stay base
 })
+
+test_that("surface_colorbar_grob builds a key from a panel or a scale", {
+  geom <- example_surface_geometry()
+  vals <- seq(-4, 4, length.out = nrow(coords(geom)))
+  panel <- render_surface_rgba(geom, vals, threshold = 1.5,
+                               limits = c(-4, 4), alpha_ramp = 0.25,
+                               width = 40, height = 40, antialias = 1)
+  expect_identical(panel$provenance$alpha_ramp, 0.25)
+  expect_length(panel$provenance$palette, 6L)
+  key <- surface_colorbar_grob(panel, title = "z")
+  expect_s3_class(key, "grob")
+  labels <- unlist(lapply(key$children, function(g) g$label))
+  expect_true(all(c("z", "1.5", "4") %in% labels))
+  explicit <- surface_colorbar_grob(limits = c(0, 3), tail = "positive")
+  expect_s3_class(explicit, "grob")
+  expect_error(surface_colorbar_grob(limits = c(2, 1)), "increasing")
+  expect_error(surface_colorbar_grob("x"), "surface_rgba")
+})

@@ -1,5 +1,7 @@
 #' @param data Optional. Numeric vector of data values for each vertex.
-#' @param cmap Optional. Color map for data visualization.
+#' @param cmap Optional colour map. The default, \code{NULL}, uses
+#'   \code{\link{surface_palette}} (diverging when the range spans zero), or
+#'   greys when a \code{SurfaceGeometry} is shown without data.
 #' @param irange Optional. Intensity range for data visualization.
 #' @param thresh Optional. Threshold range for data visualization.
 #' @param vertexColors Optional. Vector of colors for each vertex.
@@ -41,7 +43,7 @@
 #' @rdname surfwidget-methods
 #' @export
 setMethod("surfwidget", signature(x = "SurfaceGeometry"),
-  function(x, width = NULL, height = NULL, data = NULL, cmap = jet_colors(256),
+  function(x, width = NULL, height = NULL, data = NULL, cmap = NULL,
            irange = NULL, thresh = c(0,0), vertexColors = NULL, alpha = 1,
            curvature = NULL, colorbar = TRUE, colorbar_label = NULL,
            layers = NULL, config = list(), ...) {
@@ -51,9 +53,12 @@ setMethod("surfwidget", signature(x = "SurfaceGeometry"),
     curv_vals <- curvature(x)
   }
 
-    # Extract data values if not provided
+    # Without data, show the curvature itself as grey anatomy.
     if (is.null(data)) {
       data <- curvature(x)
+      if (is.null(cmap)) {
+        cmap <- grDevices::gray.colors(256, start = 0.3, end = 0.9)
+      }
     }
 
     # Create a NeuroSurface and call its method
@@ -69,7 +74,7 @@ setMethod("surfwidget", signature(x = "SurfaceGeometry"),
 #' @rdname surfwidget-methods
 #' @export
 setMethod("surfwidget", signature(x = "NeuroSurface"),
-  function(x, width = NULL, height = NULL, cmap = jet_colors(256),
+  function(x, width = NULL, height = NULL, cmap = NULL,
            irange = NULL, thresh = c(0,0), vertexColors = NULL,
            alpha = 1, curvature = NULL, colorbar = TRUE,
            colorbar_label = NULL, layers = NULL,
@@ -78,6 +83,7 @@ setMethod("surfwidget", signature(x = "NeuroSurface"),
     if (is.null(irange)) {
       irange <- .scene_limits(NULL, list(x@data), "data")
     }
+    if (is.null(cmap)) cmap <- .ns_auto_palette(x@data, irange)
     curv_vals <- curvature
     if (is.null(curv_vals)) {
       curv_vals <- curvature(x@geometry)
@@ -227,22 +233,6 @@ setMethod("plot_js", signature(x = "SurfaceGeometry"),
     surfwidget(x, width = width, height = height, ...)
   }
 )
-
-# Default "jet" colormap for surfwidget data overlays.
-#
-# Matches the "jet" preset rendered by the surfviewjs viewer bundle (the same
-# anchor colors used by the JavaScript `colormap` package), so the surface,
-# the colorbar, and the viewer's built-in "jet" preset all agree. Previously
-# the default was `grDevices::rainbow()`, an HSV hue wheel that did not match
-# the viewer's "jet" control label.
-#' @noRd
-#' @keywords internal
-jet_colors <- function(n = 256) {
-  grDevices::colorRampPalette(c(
-    "#00007F", "#0000FF", "#007FFF", "#00FFFF",
-    "#7FFF7F", "#FFFF00", "#FF7F00", "#FF0000", "#7F0000"
-  ))(n)
-}
 
 # Helper function to prepare surface data
 #' @noRd

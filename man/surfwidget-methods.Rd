@@ -16,7 +16,7 @@ surfwidget(x, width = NULL, height = NULL, ...)
   width = NULL,
   height = NULL,
   data = NULL,
-  cmap = jet_colors(256),
+  cmap = NULL,
   irange = NULL,
   thresh = c(0, 0),
   vertexColors = NULL,
@@ -33,7 +33,7 @@ surfwidget(x, width = NULL, height = NULL, ...)
   x,
   width = NULL,
   height = NULL,
-  cmap = jet_colors(256),
+  cmap = NULL,
   irange = NULL,
   thresh = c(0, 0),
   vertexColors = NULL,
@@ -88,7 +88,9 @@ surfwidget(x, width = NULL, height = NULL, ...)
 
 \item{data}{Optional. Numeric vector of data values for each vertex.}
 
-\item{cmap}{Optional. Color map for data visualization.}
+\item{cmap}{Optional colour map. The default, \code{NULL}, uses
+\code{\link{surface_palette}} (diverging when the range spans zero), or
+greys when a \code{SurfaceGeometry} is shown without data.}
 
 \item{irange}{Optional. Intensity range for data visualization.}
 

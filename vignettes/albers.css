@@ -1521,10 +1521,14 @@ body:not(.preset-midnight) .surfwidget-mount canvas {
   mix-blend-mode: multiply;
 }
 
-/* Long code wraps inside its block rather than being clipped. */
-pre,
-pre code {
+/* Code is set a little smaller than prose so a 72-character line fits
+   the column without wrapping; anything longer scrolls. */
+pre {
+  font-size: 0.84em;
   overflow-x: auto;
-  white-space: pre-wrap !important;
-  overflow-wrap: anywhere;
+}
+
+/* Keep prose clear of a table's bottom rule. */
+table {
+  margin-bottom: 1.2em;
 }

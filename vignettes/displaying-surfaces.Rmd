@@ -54,7 +54,13 @@ left <- refine(smooth(std8$lh, type = "HCLaplace", delta = 0.2,
 right <- refine(smooth(std8$rh, type = "HCLaplace", delta = 0.2,
                        iteration = 5))
 inflated_lh <- refine(load_fsaverage_std8("inflated")$lh)
+
+# Static figures shade by the folding of the unsmoothed surface
+anatomy <- curvature(refine(std8$lh))
 ```
+
+The `std.8` meshes are not aligned to MNI space, so their lateral views look
+slightly pitched compared with fsaverage figures.
 
 For values, two smooth clusters of opposite sign stand in for a statistic
 map. Each is placed at a surface coordinate and falls off with distance over
@@ -76,6 +82,34 @@ vertex_values <- blob(c(-45, -60, 20), 3) +  # parietal, positive
 This helper gives each example a private NULL device, returns the scene as a
 WebGL widget, and closes the device even if the plotting call fails. In an
 interactive session, use `rgl::open3d()` to get a desktop window instead.
+
+```{r panel-helper, include=FALSE}
+draw_panels <- function(panels, labels, key = NULL, mono = FALSE) {
+  n <- length(panels)
+  heights <- grid::unit(c(1, 1.6, if (!is.null(key)) 15), c("null", "lines", if (!is.null(key)) "mm"))
+  grid::grid.newpage()
+  grid::grid.rect(gp = grid::gpar(fill = "white", col = NA))
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(
+    length(heights), n, heights = heights
+  )))
+  for (i in seq_len(n)) {
+    rgba <- panels[[i]]$rgba
+    grid::grid.raster(array(as.numeric(rgba) / 255, dim = dim(rgba)),
+                      vp = grid::viewport(layout.pos.row = 1,
+                                          layout.pos.col = i))
+    grid::grid.text(labels[i], gp = grid::gpar(
+      fontsize = 10, col = "#333333",
+      fontfamily = if (mono) "mono" else ""
+    ), vp = grid::viewport(layout.pos.row = 2, layout.pos.col = i))
+  }
+  if (!is.null(key)) {
+    grid::pushViewport(grid::viewport(layout.pos.row = 3,
+                                      layout.pos.col = seq_len(n)))
+    grid::grid.draw(key)
+    grid::popViewport()
+  }
+}
+```
 
 ```{r scene-helper}
 with_rgl_scene <- function(code) {
@@ -121,10 +155,10 @@ triangle, so its lighting and colour mapping do not depend on RGL.
 
 ```{r static-overlay}
 figure <- surface_figure(
-  lh = left, values = vertex_values, anatomy = curvature(left),
+  lh = left, values = vertex_values, anatomy = anatomy,
   views = "lateral", threshold = 1, limits = c(-3, 3),
-  legend_title = "value", panel_width = 640, panel_height = 380,
-  antialias = 2
+  alpha_ramp = 0.25, legend_title = "value",
+  panel_width = 560, panel_height = 340, antialias = 2
 )
 ```
 
@@ -177,21 +211,21 @@ each view; see `vignette("surface-figures")`.
 
 ## Mark vertices and plot a surface data object
 
-`NeuroSurface` stores values with the vertex indices they belong to. Here it
-holds only the suprathreshold vertices, and its `plot()` method passes them
-to `view_surface()`. Markers refer to vertices too: these sit on the peak
-vertex of each cluster.
+`NeuroSurface` stores values with the vertex indices they belong to (it can
+also hold a subset of vertices). Its `plot()` method passes them to
+`view_surface()`, so the same threshold and fade apply. Markers refer to
+vertices too: these sit on the peak vertex of each cluster.
 
 ```{r surface-object}
-active <- which(abs(vertex_values) > 1)
-surface <- NeuroSurface(left, indices = active,
-                        data = vertex_values[active])
+surface <- NeuroSurface(left, indices = nodes(left),
+                        data = vertex_values)
 peaks <- data.frame(
   vertex = c(which.max(vertex_values), which.min(vertex_values)),
   radius = 2.5, color = "#1f2933"
 )
 with_rgl_scene(
-  plot(surface, irange = c(-3, 3), spheres = peaks,
+  plot(surface, irange = c(-3, 3), thresh = c(-1, 1),
+       spheres = peaks,
        spheres_as_vertices = TRUE, viewpoint = "lateral", zoom = 0.8,
        new_window = FALSE)
 )
@@ -216,33 +250,23 @@ clustered <- cluster_threshold(smoothed, size = 20,
                                threshold = c(-1, 1))
 ```
 
-Shown as small multiples with one colour scale:
+Shown as small multiples with the same colour scale:
 
 ```{r activation-panels}
 steps <- list(noisy = noisy, smoothed = smoothed,
               clustered = clustered)
 panels <- lapply(steps, function(x) {
   render_surface_rgba(left, as.numeric(x@data),
-                      anatomy_metric = curvature(left),
+                      anatomy_metric = anatomy,
                       camera = "lateral", threshold = 1,
                       limits = c(-3, 3), width = 420, height = 260,
                       antialias = 2)
 })
 ```
 
-```{r activation-image, echo=FALSE, fig.width=7.5, fig.height=1.9, fig.cap="Left lateral view of the same values at each step; |value| &gt; 1 is coloured, limits &plusmn;3, blue negative, red positive."}
-grid::grid.newpage()
-grid::pushViewport(grid::viewport(layout = grid::grid.layout(
-  2, 3, heights = grid::unit(c(1, 1.5), c("null", "lines"))
-)))
-for (j in seq_along(panels)) {
-  rgba <- panels[[j]]$rgba
-  grid::grid.raster(array(as.numeric(rgba) / 255, dim = dim(rgba)),
-                    vp = grid::viewport(layout.pos.row = 1, layout.pos.col = j))
-  grid::grid.text(names(panels)[j],
-                  gp = grid::gpar(fontsize = 10, col = "#333333"),
-                  vp = grid::viewport(layout.pos.row = 2, layout.pos.col = j))
-}
+```{r activation-image, echo=FALSE, fig.width=7.5, fig.height=2.6}
+draw_panels(panels, names(panels),
+            key = surface_colorbar_grob(panels[[1]], title = "value"))
 ```
 
 `surface_montage()` lays out RGL snapshots the same way; it needs a
