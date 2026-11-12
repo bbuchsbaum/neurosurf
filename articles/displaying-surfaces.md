@@ -1,6 +1,6 @@
 # Displaying Surfaces with RGL
 
-This vignette shows how to display cortical geometry, curvature, and
+This article shows how to display cortical geometry, curvature, and
 vertex values with RGL. It uses the small `std.8` surfaces bundled with
 neurosurf, so no downloads are needed. Every RGL scene below is an
 interactive WebGL widget: drag to rotate, scroll to zoom. Static figures
@@ -101,7 +101,8 @@ Colour limits are ±3 and \|value\| \< 1 is uncoloured: blue negative,
 red positive. On a folded surface parts of each cluster lie in sulcal
 banks hidden from this view, so their edges look clipped; statistical
 maps are usually shown on the inflated surface, as in
-`[Publication-quality surface figures](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.html)`.
+[Publication-quality surface
+figures](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.html).
 For a static figure with a colour key, use
 [`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md).
 It renders the same values with the CPU renderer, which interpolates
@@ -162,8 +163,9 @@ with_rgl_scene({
 Other views are `"medial"`, `"ventral"`, `"anterior"` and `"posterior"`.
 For static multi-view output,
 [`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
-combines hemispheres and labels each view; see
-`[Publication-quality surface figures](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.html)`.
+combines hemispheres and labels each view; see [Publication-quality
+surface
+figures](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.html).
 
 ## Mark vertices and plot a surface data object
 
@@ -260,8 +262,9 @@ For browser-free PNG output, use
 [`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
 or
 [`render_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md).
-For interactive reports with several selectable maps, see
-`[Build bilateral interactive surface reports](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html)`.
+For interactive reports with several selectable maps, see [Build
+bilateral interactive surface
+reports](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html).
 
 The bundled templates retain the FreeSurfer terms in
 `system.file("extdata", "LICENSE-FreeSurfer.txt", package = "neurosurf")`.
