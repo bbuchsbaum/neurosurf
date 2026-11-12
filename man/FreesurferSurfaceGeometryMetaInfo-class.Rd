@@ -8,11 +8,11 @@
 An object of class \code{FreesurferSurfaceGeometryMetaInfo}.
 }
 \description{
-The `FreesurferSurfaceGeometryMetaInfo` class extends `SurfaceGeometryMetaInfo` to specifically
+The \code{FreesurferSurfaceGeometryMetaInfo} class extends \code{SurfaceGeometryMetaInfo} to specifically
 handle meta information for Freesurfer-formatted brain surface geometries.
 }
 \details{
-This class inherits all slots from the parent `SurfaceGeometryMetaInfo` class and is specialized
+This class inherits all slots from the parent \code{SurfaceGeometryMetaInfo} class and is specialized
 for working with Freesurfer surface files (e.g., .asc, .pial, .white, .inflated). It maintains
 the same structure but is used specifically when the surface data originates from Freesurfer
 processing pipelines.

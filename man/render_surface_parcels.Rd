@@ -21,42 +21,42 @@ render_surface_parcels(
 )
 }
 \arguments{
-\item{x}{A `surface_parcel_prep` from [prepare_surface_parcels()].
+\item{x}{A \code{surface_parcel_prep} from \code{\link[=prepare_surface_parcels]{prepare_surface_parcels()}}.
 Its boundary method and parameters are reused without recomputation.
 In smooth mode, samples accepted just outside a face by the rasterizer's
 edge tolerance have negative barycentrics clipped to zero and renormalized
 for label selection only; original weights still determine shading/depth.}
 
 \item{values}{Optional numeric parcel values named by label id. Unnamed
-values must follow the sorted non-zero labels. `NA` leaves a parcel
+values must follow the sorted non-zero labels. \code{NA} leaves a parcel
 unfilled.}
 
 \item{colors}{Optional fill colours named by label id, used instead of
-`values` (e.g. categorical atlas colours).}
+\code{values} (e.g. categorical atlas colours).}
 
-\item{camera}{View: `"lateral"`, `"medial"`, `"dorsal"`, or `"ventral"`.}
+\item{camera}{View: \code{"lateral"}, \code{"medial"}, \code{"dorsal"}, or \code{"ventral"}.}
 
 \item{camera_mode, presentation_obliquity}{Canonical or slightly oblique
-camera; see [render_surface_rgba()].}
+camera; see \code{\link[=render_surface_rgba]{render_surface_rgba()}}.}
 
 \item{width, height}{Output raster size in pixels.}
 
 \item{antialias}{Supersampling factor per axis.}
 
-\item{palette}{Colours for `values`, low to high.}
+\item{palette}{Colours for \code{values}, low to high.}
 
 \item{limits}{Two increasing numbers mapped to the palette ends. Defaults
-to the symmetric absolute range of `values`.}
+to the symmetric absolute range of \code{values}.}
 
-\item{style}{A [surface_parcel_style()] list.}
+\item{style}{A \code{\link[=surface_parcel_style]{surface_parcel_style()}} list.}
 
 \item{margin}{Fractional margin around the surface.}
 }
 \value{
-A list with `rgba` (a `height` x `width` x 4 raw array with
-  straight alpha; transparent where the surface is absent), `labels` (the
-  parcel label at each output pixel centre; `NA` off-surface), `camera`,
-  and `provenance`.
+A list with \code{rgba} (a \code{height} x \code{width} x 4 raw array with
+straight alpha; transparent where the surface is absent), \code{labels} (the
+parcel label at each output pixel centre; \code{NA} off-surface), \code{camera},
+and \code{provenance}.
 }
 \description{
 Rasterizes a labelled surface with deferred per-pixel shading. Each output

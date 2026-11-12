@@ -22,8 +22,8 @@ margins from each snapshot to avoid the "tiny brain" effect in grids.}
 }
 \value{
 A list containing rendered panel images (with aspect ratios) and
-  layout information. This is a low-level helper intended to be wrapped by
-  higher-level figure drawing utilities.
+layout information. This is a low-level helper intended to be wrapped by
+higher-level figure drawing utilities.
 }
 \description{
 Most code calls \code{plot()} on a \code{\link{surface_plot}} object, which
@@ -42,5 +42,5 @@ if (interactive()) {
 }
 \seealso{
 \code{\link{surface_plot}}, \code{\link{add_surface_layer}},
-  \code{\link{view_surface}}
+\code{\link{view_surface}}
 }

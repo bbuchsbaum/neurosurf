@@ -8,7 +8,7 @@
 An object of class \code{SurfaceGeometryMetaInfo}.
 }
 \description{
-The `SurfaceGeometryMetaInfo` class encapsulates meta information for brain surface geometry.
+The \code{SurfaceGeometryMetaInfo} class encapsulates meta information for brain surface geometry.
 It stores details about the file locations, surface properties, and spatial characteristics.
 }
 \details{
@@ -24,7 +24,7 @@ proper handling and processing of brain surface data in neuroimaging analyses.
 
 \item{\code{data_file}}{A character string specifying the name of the file containing the actual surface data.}
 
-\item{\code{file_descriptor}}{An object of class `FileFormat` describing the image file format.}
+\item{\code{file_descriptor}}{An object of class \code{FileFormat} describing the image file format.}
 
 \item{\code{vertices}}{An integer indicating the number of surface vertices.}
 

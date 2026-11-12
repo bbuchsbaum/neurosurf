@@ -71,13 +71,15 @@ whose lengths match the corresponding geometry. A scene also records the
 initial map, legend metadata, provenance, alternative text, and fallback text.
 
 The example uses the fsaverage5 template bundled with neurosurf: inflated
-surfaces for display, white surfaces to place the example clusters, and
-sulcal depth for the grey anatomy underneath the maps.
+surfaces for display, white surfaces to place the example clusters, sulcal
+depth for the grey anatomy underneath the maps, and the cortex mask that
+keeps colour off the medial wall in the static figure.
 
 ```{r load-geometries}
 inflated <- load_fsaverage("fsaverage5", "inflated")
 white <- load_fsaverage("fsaverage5", "white")
 sulc <- load_fsaverage_sulc("fsaverage5")
+cortex <- load_fsaverage_cortex("fsaverage5")
 
 # Display anatomy, lighter on gyri. FreeSurfer sulc is positive in
 # sulci, so it is negated. The report preset's grey ramp saturates at
@@ -256,6 +258,7 @@ order anatomy, reference, effect:
 ```{r static-reference, fig.width=6.5, fig.height=4.6, fig.cap="Left hemisphere, lateral view: the intraparietal ROI (green, 40% opacity) beneath the memory *z* map."}
 image <- render_surface_rgba(
   inflated$lh, memory$left, anatomy_metric = sulc$lh,
+  cortex_mask = cortex$lh,
   threshold = 2, limits = c(-5, 5), alpha_ramp = 0.6,
   reference = list(
     id = "reference", label = "Intraparietal ROI",

@@ -307,7 +307,7 @@ surface_views <- list(
 #'
 #' **Transparency:** Overall transparency is set by `alpha`. Additional threshold-based
 #'   transparency can be applied using `thresh` when `vals` are provided. Vertices
-#'   with values outside the `thresh` range become fully transparent.
+#'   with values inside the `thresh` band are left uncoloured.
 #'
 #' **Lighting:** `add_normals=TRUE` is recommended for realistic lighting. The `specular`
 #'   parameter controls the shininess.
@@ -831,85 +831,85 @@ setMethod("plot", signature=signature(x="VertexColoredNeuroSurface", y="missing"
 
 
 
-#' viewShiny <- function(surfgeom, vals=1:length(nodes(surfgeom)), col=rainbow(255, alpha = 1)) {
-#'   options(rgl.useNULL = TRUE)
-#'
-#'   app <- shinyApp(
-#'     ui = fluidPage(
-#'       rgl::registerSceneChange(),
-#'       sidebarLayout(
-#'         sidebarPanel(
-#'           sliderInput(inputId="threshold",
-#'                       "Intensity Threshold:",
-#'                       min = min(vals),
-#'                       max = max(vals),
-#'                       value = c(.45*max(vals), .55*max(vals))),
-#'           sliderInput(inputId="range",
-#'                       "Intensity Range:",
-#'                        min = min(vals),
-#'                        max = max(vals),
-#'                        value = c(.02*min(vals), .98*max(vals)))
-#'         ),
-#'         mainPanel(h3("Surface View"),
-#'                   rgl::rglwidgetOutput("surface_widget", width = "100%", height = 512))
-#'       )
-#'     ),
-#'
-#'     server = function(input, output, session) {
-#'       options(rgl.useNULL=TRUE)
-#'       rgl::open3d()
-#'       dev <- rgl::rgl.cur()
-#'       save <- options(rgl.inShiny = TRUE)
-#'       on.exit(options(save))
-#'
-#'       session$onSessionEnded(function() {
-#'         rgl::rgl.set(dev)
-#'         rgl::rgl.close()
-#'       })
-#'
-#'       #surf <- viewSurface(surfgeom, vals, col, add_normals=TRUE)
-#'
-#'       #start_surf <- reactiveValues(my_mesh=NULL)
-#'
-#'       #viewSurface(surfgeom, vals,  col)
-#'       #scene1 <- scene3d()
-#'
-#'
-#'        # observeEvent(input$threshold, {
-#'        #   cat("got event \n")
-#'        #   cat("thresh = ", input$threshold)
-#'        #   rgl.set(dev)
-#'        #   newsurf <- viewSurface(surfgeom, vals, col, add_normals=TRUE, threshold=input$threshold, irange=input$range)
-#'        #   cat("newsurf id:", as.integer(newsurf))
-#'        #   cat("old surf id: ", as.integer(start_surf$my_mesh))
-#'        #   session$sendCustomMessage("sceneChange",
-#'        #                             sceneChange("surface_widget", replace=start_surf$my_mesh, skipRedraw=TRUE))
-#'        #
-#'        #   start_surf$my_mesh <- newsurf
-#'        #   session$onFlushed(function()
-#'        #     session$sendCustomMessage("sceneChange",
-#'        #                               sceneChange("surface_widget", skipRedraw = FALSE)))
-#'        # })
-#'
-#'
-#'       output$surface_widget <- rgl::renderRglwidget({
-#'         rgl.set(dev)
-#'
-#'         cat("new thresh ", input$threshold)
-#'         #viewSurface(surfgeom, vals, col, add_normals=TRUE, threshold=input$threshold, irange=input$range)
-#'         #start_surf()
-#'         viewSurface(surfgeom, vals, col, threshold=input$threshold, irange=input$range)
-#'         scene1 <- scene3d()
-#'         rglwidget(scene1, width=500, height=500)
-#'         #rglwidget(scene1)
-#'       })
-#'     }
-#'   )
-#'
-#'   runApp(app, launch.browser=TRUE)
-#' }
-#'
-#'
+# viewShiny <- function(surfgeom, vals=1:length(nodes(surfgeom)), col=rainbow(255, alpha = 1)) {
+#   options(rgl.useNULL = TRUE)
+#
+#   app <- shinyApp(
+#     ui = fluidPage(
+#       rgl::registerSceneChange(),
+#       sidebarLayout(
+#         sidebarPanel(
+#           sliderInput(inputId="threshold",
+#                       "Intensity Threshold:",
+#                       min = min(vals),
+#                       max = max(vals),
+#                       value = c(.45*max(vals), .55*max(vals))),
+#           sliderInput(inputId="range",
+#                       "Intensity Range:",
+#                        min = min(vals),
+#                        max = max(vals),
+#                        value = c(.02*min(vals), .98*max(vals)))
+#         ),
+#         mainPanel(h3("Surface View"),
+#                   rgl::rglwidgetOutput("surface_widget", width = "100%", height = 512))
+#       )
+#     ),
+#
+#     server = function(input, output, session) {
+#       options(rgl.useNULL=TRUE)
+#       rgl::open3d()
+#       dev <- rgl::rgl.cur()
+#       save <- options(rgl.inShiny = TRUE)
+#       on.exit(options(save))
+#
+#       session$onSessionEnded(function() {
+#         rgl::rgl.set(dev)
+#         rgl::rgl.close()
+#       })
+#
+#       #surf <- viewSurface(surfgeom, vals, col, add_normals=TRUE)
+#
+#       #start_surf <- reactiveValues(my_mesh=NULL)
+#
+#       #viewSurface(surfgeom, vals,  col)
+#       #scene1 <- scene3d()
+#
+#
+#        # observeEvent(input$threshold, {
+#        #   cat("got event \n")
+#        #   cat("thresh = ", input$threshold)
+#        #   rgl.set(dev)
+#        #   newsurf <- viewSurface(surfgeom, vals, col, add_normals=TRUE, threshold=input$threshold, irange=input$range)
+#        #   cat("newsurf id:", as.integer(newsurf))
+#        #   cat("old surf id: ", as.integer(start_surf$my_mesh))
+#        #   session$sendCustomMessage("sceneChange",
+#        #                             sceneChange("surface_widget", replace=start_surf$my_mesh, skipRedraw=TRUE))
+#        #
+#        #   start_surf$my_mesh <- newsurf
+#        #   session$onFlushed(function()
+#        #     session$sendCustomMessage("sceneChange",
+#        #                               sceneChange("surface_widget", skipRedraw = FALSE)))
+#        # })
+#
+#
+#       output$surface_widget <- rgl::renderRglwidget({
+#         rgl.set(dev)
+#
+#         cat("new thresh ", input$threshold)
+#         #viewSurface(surfgeom, vals, col, add_normals=TRUE, threshold=input$threshold, irange=input$range)
+#         #start_surf()
+#         viewSurface(surfgeom, vals, col, threshold=input$threshold, irange=input$range)
+#         scene1 <- scene3d()
+#         rglwidget(scene1, width=500, height=500)
+#         #rglwidget(scene1)
+#       })
+#     }
+#   )
+#
+#   runApp(app, launch.browser=TRUE)
+# }
+#
+#
 
 # Per-vertex blend of foreground over base colours with a threshold fade.
 #' @noRd

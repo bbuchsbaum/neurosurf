@@ -31,9 +31,9 @@ non-zero voxels in \code{vol_template} are used.}
 \item{sampling}{How to place sample points relative to the white/pial pair.
 Options are:
 \itemize{
-  \item "midpoint" (default): original behaviour, samples at the midpoint between white and pial.
-  \item "thickness": samples along the white→pial line at fractions given by \code{depth} or evenly spaced.
-  \item "normal_line": samples along the vertex normal centred on the midpoint, spanning \code{radius} in both directions (or using \code{depth} offsets).
+\item "midpoint" (default): original behaviour, samples at the midpoint between white and pial.
+\item "thickness": samples along the white→pial line at fractions given by \code{depth} or evenly spaced.
+\item "normal_line": samples along the vertex normal centred on the midpoint, spanning \code{radius} in both directions (or using \code{depth} offsets).
 }}
 
 \item{n_samples}{Number of samples per vertex for \code{sampling != "midpoint"} when \code{depth} is not supplied.}
@@ -51,7 +51,7 @@ units.}
 }
 \value{
 A list with class \code{"surface_sampler"} containing precomputed
-  neighbor indices and distances for each vertex.
+neighbor indices and distances for each vertex.
 }
 \description{
 Precompute voxel neighbors and distances for each surface vertex so that

@@ -7,7 +7,7 @@
 write_surface_rgba(x, file)
 }
 \arguments{
-\item{x}{A `surface_rgba` object.}
+\item{x}{A \code{surface_rgba} object.}
 
 \item{file}{Output PNG path.}
 }

@@ -22,8 +22,8 @@ one-tailed threshold or \code{c(lower, Inf)} for a negative one.}
 }
 \value{
 A list containing two \code{NeuroSurface} objects:
-  \item{index}{A \code{NeuroSurface} object where each vertex is labeled with its component index.}
-  \item{size}{A \code{NeuroSurface} object where each vertex is labeled with the size of its component.}
+\item{index}{A \code{NeuroSurface} object where each vertex is labeled with its component index.}
+\item{size}{A \code{NeuroSurface} object where each vertex is labeled with the size of its component.}
 }
 \description{
 This method identifies connected components on a NeuroSurface object based on a given threshold.
@@ -31,10 +31,10 @@ This method identifies connected components on a NeuroSurface object based on a 
 \details{
 This method computes connected components on the surface by:
 \enumerate{
-  \item Thresholding the surface data, retaining vertices with values \code{<= threshold[1]} or \code{>= threshold[2]}.
-  \item Creating a subgraph of the surface mesh containing only the vertices that pass the threshold.
-  \item Identifying connected components in this subgraph.
-  \item Assigning component indices and sizes to the original vertices.
+\item Thresholding the surface data, retaining vertices with values \code{<= threshold[1]} or \code{>= threshold[2]}.
+\item Creating a subgraph of the surface mesh containing only the vertices that pass the threshold.
+\item Identifying connected components in this subgraph.
+\item Assigning component indices and sizes to the original vertices.
 }
 Vertices that do not pass the threshold are assigned a value of 0 in both output surfaces.
 }

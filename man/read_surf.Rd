@@ -22,9 +22,9 @@ read_surf(
 }
 \value{
 an instance of the class:
- \code{\linkS4class{SurfaceGeometry}}
- or \code{\linkS4class{NeuroSurface}}
- or \code{\linkS4class{NeuroSurfaceVector}}
+\code{\linkS4class{SurfaceGeometry}}
+or \code{\linkS4class{NeuroSurface}}
+or \code{\linkS4class{NeuroSurfaceVector}}
 }
 \description{
 This function reads surface data from a file in one of the supported formats.
@@ -32,10 +32,10 @@ This function reads surface data from a file in one of the supported formats.
 \details{
 The function supports reading surface data from various formats including:
 \itemize{
-  \item Freesurfer ASCII (.asc)
-  \item Freesurfer binary
-  \item GIFTI (.gii)
-  \item NIML Surface Dataset (.niml.dset)
+\item Freesurfer ASCII (.asc)
+\item Freesurfer binary
+\item GIFTI (.gii)
+\item NIML Surface Dataset (.niml.dset)
 }
 
 The format is determined automatically from the file extension.

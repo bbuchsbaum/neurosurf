@@ -212,7 +212,7 @@ setGeneric(name="adjacency", def=function(x, attr, ...) standardGeneric("adjacen
 #' @param x Object to compute curvature from
 #' @param ... Additional arguments
 #' @return A numeric vector with one value per vertex: mean curvature
-#'   rescaled to [0, 1] over the mesh. Higher values are convex (gyral
+#'   rescaled to \[0, 1\] over the mesh. Higher values are convex (gyral
 #'   crowns), lower values concave (sulcal fundi). The rescaling makes it a
 #'   display index rather than a quantity in 1/mm; for FreeSurfer-style
 #'   shading pass it to \code{\link{curv_cols_smooth}}.

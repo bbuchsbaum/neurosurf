@@ -28,6 +28,6 @@ A data frame with two rows per threshold segment.
 }
 \description{
 Computes exact linear threshold crossings from the same vertex-scalar model
-used by [render_surface_rgba()]. Positive and negative levels are handled as
+used by \code{\link[=render_surface_rgba]{render_surface_rgba()}}. Positive and negative levels are handled as
 independent regions for two-sided maps.
 }

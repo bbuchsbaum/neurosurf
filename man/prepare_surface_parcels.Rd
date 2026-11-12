@@ -15,31 +15,31 @@ prepare_surface_parcels(
 )
 }
 \arguments{
-\item{geometry}{Display `SurfaceGeometry` (typically inflated).}
+\item{geometry}{Display \code{SurfaceGeometry} (typically inflated).}
 
 \item{labels}{Integer parcel label per vertex; 0 marks the medial wall.}
 
 \item{anatomy_metric}{Optional sulcal-depth or curvature value per vertex,
-larger on gyri. `NULL` gives a neutral underlay.}
+larger on gyri. \code{NULL} gives a neutral underlay.}
 
-\item{cortex_mask}{Optional logical per vertex; `FALSE` vertices are
-treated as medial wall. Defaults to `labels != 0`.}
+\item{cortex_mask}{Optional logical per vertex; \code{FALSE} vertices are
+treated as medial wall. Defaults to \code{labels != 0}.}
 
 \item{boundary_smooth}{Laplacian iterations applied to label memberships.
 0 gives piecewise-linear boundaries through triangle edge midpoints.}
 
 \item{boundary_method}{\code{"membership"} (default) retains the original
 per-face interpolated-membership argmax. \code{"smooth"} prepares the
-shared vertex-preserving partition used by [find_roi_boundaries()].}
+shared vertex-preserving partition used by \code{\link[=find_roi_boundaries]{find_roi_boundaries()}}.}
 
 \item{t_clamp}{Symmetric edge bounds for \code{"smooth"}; see
-[find_roi_boundaries()]. Ignored by \code{"membership"}.}
+\code{\link[=find_roi_boundaries]{find_roi_boundaries()}}. Ignored by \code{"membership"}.}
 }
 \value{
-A `surface_parcel_prep` object.
+A \code{surface_parcel_prep} object.
 }
 \description{
-Precomputes the per-geometry quantities used by [render_surface_parcels()]:
+Precomputes the per-geometry quantities used by \code{\link[=render_surface_parcels]{render_surface_parcels()}}:
 outward vertex normals, a normalized anatomical underlay, and smoothed
 label memberships that let parcel boundaries follow smooth curves through
 mesh triangles instead of stair-stepping along triangle edges. Reuse the
@@ -47,11 +47,11 @@ result across cameras and value maps.
 }
 \details{
 In smooth mode, labels must be nonnegative integers. The cortex
-  mask is applied before partition construction; preservation refers to
-  these effective labels. The prepared object retains labelled face cells,
-  boundary paths and their provenance in \code{partition}. Rendering reuses
-  this partition across cameras and value maps. The partition does not
-  reproduce the unconstrained membership argmax. Existing input behaviour
-  is retained in membership mode, except that fractional smoothing counts
-  are rejected rather than truncated.
+mask is applied before partition construction; preservation refers to
+these effective labels. The prepared object retains labelled face cells,
+boundary paths and their provenance in \code{partition}. Rendering reuses
+this partition across cameras and value maps. The partition does not
+reproduce the unconstrained membership argmax. Existing input behaviour
+is retained in membership mode, except that fractional smoothing counts
+are rejected rather than truncated.
 }

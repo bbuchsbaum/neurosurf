@@ -7,10 +7,10 @@
 anatomical_curvature(geometry, iterations = 5L)
 }
 \arguments{
-\item{geometry}{Matching folded (usually white) [SurfaceGeometry].}
+\item{geometry}{Matching folded (usually white) \link{SurfaceGeometry}.}
 
 \item{iterations}{Number of adjacency averaging steps, including the vertex
-itself. Zero returns [curvature()] unchanged. This is not an FWHM in mm.}
+itself. Zero returns \code{\link[=curvature]{curvature()}} unchanged. This is not an FWHM in mm.}
 }
 \value{
 Numeric anatomical metric with one value per vertex.

@@ -25,9 +25,9 @@ find_all_neighbors(
 }
 \value{
 A list of matrices, each containing neighbor information:
-  \item{i}{Source node index}
-  \item{j}{Neighbor node index}
-  \item{d}{Distance between nodes}
+\item{i}{Source node index}
+\item{j}{Neighbor node index}
+\item{d}{Distance between nodes}
 }
 \description{
 Identifies all neighboring nodes within a specified radius for a given surface mesh.

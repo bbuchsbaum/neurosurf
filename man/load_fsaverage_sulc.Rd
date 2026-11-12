@@ -11,7 +11,7 @@ load_fsaverage_sulc(density = "fsaverage5")
 }
 \value{
 A named list with numeric vectors \code{"lh"} and \code{"rh"},
-  one value per vertex of \code{\link{load_fsaverage}} for the same density.
+one value per vertex of \code{\link{load_fsaverage}} for the same density.
 }
 \description{
 Returns FreeSurfer sulcal depth (\code{sulc}) for each hemisphere of a

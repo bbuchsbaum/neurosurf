@@ -38,9 +38,9 @@ gaussian_splat_multi(
 }
 \value{
 A \code{NeuroSurface} with values
-  \eqn{\exp(-d^2 / (2 * sigma^2))} at every vertex. For
-  \code{gaussian_splat_multi} the per-centre maps are summed (after
-  weighting).
+\eqn{\exp(-d^2 / (2 * sigma^2))} at every vertex. For
+\code{gaussian_splat_multi} the per-centre maps are summed (after
+weighting).
 }
 \description{
 Create per-vertex Gaussian falloff maps centred on coordinates or

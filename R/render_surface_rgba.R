@@ -27,7 +27,7 @@
 #'   and keeps metrics that are larger on gyral crowns (such as
 #'   [curvature()]), judged by the metric's correlation with the displayed
 #'   mesh's mean curvature. The decision is recorded in the provenance.
-#' @param anatomy_range Dark and light gray levels in [0, 1].
+#' @param anatomy_range Dark and light gray levels in \[0, 1\].
 #' @param cortex_mask Logical cortex-domain mask per vertex. Overlay color is
 #'   never painted on triangles touching a masked vertex.
 #' @param camera One of `"lateral"`, `"medial"`, `"dorsal"`, or `"ventral"`.
@@ -76,12 +76,12 @@
 #'   mm). `NULL` fits the surface to the panel; a common value gives several
 #'   panels one scale.
 #' @param reference Optional list with `id`, `label`, binary per-vertex `mask`,
-#'   opaque `color`, `opacity` in [0, 1], `visible`, and `provenance`. Defaults
+#'   opaque `color`, `opacity` in \[0, 1\], `visible`, and `provenance`. Defaults
 #'   are label = id, opacity = 0.2, visible = TRUE, provenance = list().
 #'   Anatomy, reference, then effect are composed with source-over. Membership
 #'   is interpolated linearly (edge midpoints through display subdivision)
 #'   and classified at >= 0.5 at each sample. Antialiasing averages categorical
-#'   coverage, returned as `reference_coverage` in [0, 1]. Reference color is
+#'   coverage, returned as `reference_coverage` in \[0, 1\]. Reference color is
 #'   unlit and excluded from triangles touching a non-cortex vertex, for all
 #'   medial-wall policies. It never changes effect buffers or mapping.
 #' @param return_buffers Include scalar and depth buffers for diagnostics.
@@ -782,7 +782,7 @@ surface_palette <- function(type = c("two_sided", "positive", "negative"),
 #' Normalize an anatomical surface underlay
 #'
 #' Converts curvature or sulcal depth to a centered display metric in
-#' [-0.5, 0.5], suitable for the surfview curvature layer. This changes only
+#' \[-0.5, 0.5\], suitable for the surfview curvature layer. This changes only
 #' anatomical shading, never statistical values or surface coordinates.
 #' @param metric Finite numeric anatomy values, one per vertex.
 #' @param style `"continuous"` robust linear scaling, `"binary"` folding
@@ -790,11 +790,11 @@ surface_palette <- function(type = c("two_sided", "positive", "negative"),
 #'   reads as crisp gyri and sulci without the binary style's jagged
 #'   vertex-step edges.
 #' @param midpoint Boundary between dark and light. NULL uses the median,
-#'   including for the historical [0, 1] output of [curvature()]. Use zero
+#'   including for the historical \[0, 1\] output of [curvature()]. Use zero
 #'   for a native signed metric whose anatomical boundary is zero.
 #' @param invert Reverse dark/light polarity. Select this from the source
 #'   metric's sign convention; signs differ between curvature producers.
-#' @return A numeric vector in [-0.5, 0.5]. Constant metrics remain neutral.
+#' @return A numeric vector in \[-0.5, 0.5\]. Constant metrics remain neutral.
 #' @export
 normalize_surface_anatomy <- function(metric,
                                       style = c("continuous", "binary", "soft"),

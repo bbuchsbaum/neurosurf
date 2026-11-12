@@ -31,8 +31,8 @@ or identical to \code{vertices}.}
 }
 \value{
 Data frame with one row per parcel unit:
-  \code{unit}, \code{parcel_id}, \code{component}, \code{size},
-  \code{centroid_vertex}, and Cartesian coordinates.
+\code{unit}, \code{parcel_id}, \code{component}, \code{size},
+\code{centroid_vertex}, and Cartesian coordinates.
 }
 \description{
 Parcel centroids using geodesic medoids

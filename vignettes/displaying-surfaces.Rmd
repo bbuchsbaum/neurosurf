@@ -55,9 +55,6 @@ inflated_lh <- refine(load_fsaverage_std8("inflated")$lh)
 anatomy <- curvature(left)
 ```
 
-The `std.8` meshes are not aligned to MNI space, so their lateral views look
-slightly pitched compared with fsaverage figures.
-
 For values, two smooth clusters of opposite sign stand in for a statistic
 map. Each is placed at a surface coordinate and falls off with distance over
 the inflated surface, which follows the cortical sheet:

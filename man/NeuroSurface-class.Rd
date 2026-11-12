@@ -17,13 +17,13 @@ each vertex of that surface.
 
 The class consists of three core components:
 \itemize{
-  \item \code{geometry}: The underlying 3D surface structure, containing vertex coordinates,
-     face definitions, and topological information
-  \item \code{indices}: Identifiers for the subset of vertices in the geometry that have
-     associated data values
-  \item \code{data}: A numeric vector containing one value per vertex, representing
-     measurements such as cortical thickness, functional activation, or any other
-     surface-mapped metric
+\item \code{geometry}: The underlying 3D surface structure, containing vertex coordinates,
+face definitions, and topological information
+\item \code{indices}: Identifiers for the subset of vertices in the geometry that have
+associated data values
+\item \code{data}: A numeric vector containing one value per vertex, representing
+measurements such as cortical thickness, functional activation, or any other
+surface-mapped metric
 }
 
 This class serves as the foundation for more specialized surface representations like

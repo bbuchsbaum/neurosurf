@@ -42,7 +42,7 @@ or identical to \code{vertices}.}
 }
 \value{
 A distance matrix (sparse or dense) of size
-  \code{length(vertices) x length(targets)}.
+\code{length(vertices) x length(targets)}.
 }
 \description{
 All-pairs geodesic distance matrix (chunked)

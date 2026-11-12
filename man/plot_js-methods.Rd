@@ -22,8 +22,8 @@ plot_js(x, width = NULL, height = NULL, ...)
 An HTMLWidget object
 }
 \description{
-`plot_js()` is the older name for the interactive HTML widget; new code
-should call [surfwidget()] directly.
+\code{plot_js()} is the older name for the interactive HTML widget; new code
+should call \code{\link[=surfwidget]{surfwidget()}} directly.
 }
 \examples{
 \donttest{

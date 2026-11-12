@@ -11,16 +11,16 @@ curv_cols(vals, incol = "#B3B3B3", outcol = "#404040")
 on the surface.}
 
 \item{incol}{A character string specifying the hex color code to represent
-vertices with curvature values *greater than* the median curvature.
+vertices with curvature values \emph{greater than} the median curvature.
 Default is "#B3B3B3" (light gray).}
 
 \item{outcol}{A character string specifying the hex color code to represent
-vertices with curvature values *less than or equal to* the median curvature.
+vertices with curvature values \emph{less than or equal to} the median curvature.
 Default is "#404040" (dark gray).}
 }
 \value{
-A character vector of the same length as `vals`, containing hex color
-  codes based on the binary classification of curvature values relative to the median.
+A character vector of the same length as \code{vals}, containing hex color
+codes based on the binary classification of curvature values relative to the median.
 }
 \description{
 This function maps a vector of surface curvature values (e.g., mean curvature)
@@ -33,9 +33,9 @@ Mean curvature is often used, where positive values typically indicate outward
 curvature (gyri) and negative values indicate inward curvature (sulci).
 This function simplifies the curvature map into two colors based on whether
 the value is above or below the median curvature, providing a quick visual
-distinction between these features. Note the default coloring assigns `incol`
-to values *above* the median and `outcol` to values *at or below* the median.
-You might need to adjust `incol` and `outcol` depending on the specific
+distinction between these features. Note the default coloring assigns \code{incol}
+to values \emph{above} the median and \code{outcol} to values \emph{at or below} the median.
+You might need to adjust \code{incol} and \code{outcol} depending on the specific
 interpretation of curvature values in your data (e.g., if positive values
 represent sulci).
 }

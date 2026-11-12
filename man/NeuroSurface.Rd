@@ -15,9 +15,9 @@ NeuroSurface(geometry, indices, data)
 }
 \value{
 A new object of class \code{NeuroSurface} containing:
-  \item{geometry}{The input \code{SurfaceGeometry} object.}
-  \item{indices}{The input integer vector of valid node indices.}
-  \item{data}{The input numeric vector of data values.}
+\item{geometry}{The input \code{SurfaceGeometry} object.}
+\item{indices}{The input integer vector of valid node indices.}
+\item{data}{The input numeric vector of data values.}
 }
 \description{
 This function creates a new NeuroSurface object, which represents a single set of data values

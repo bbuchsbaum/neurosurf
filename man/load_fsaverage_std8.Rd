@@ -15,12 +15,18 @@ or \code{"sphere"}. Defaults to \code{"smoothwm"}.}
 }
 \value{
 A named list with elements \code{"lh"} and \code{"rh"}, each a
-  \code{SurfaceGeometry} instance for the requested surface type.
+\code{SurfaceGeometry} instance for the requested surface type.
 }
 \description{
 This convenience helper loads the FreeSurfer fsaverage surfaces that ship
 with neurosurf (the \code{std.8} decimated variant) and returns them as
 \code{\linkS4class{SurfaceGeometry}} objects.
+}
+\details{
+The meshes have 642 vertices per hemisphere and share fsaverage (MNI305)
+coordinates with the fsaverage5 surfaces of \code{\link{load_fsaverage}}:
+a rigid fit between the two white surfaces moves them by less than half a
+millimetre and a degree.
 }
 \examples{
 \donttest{

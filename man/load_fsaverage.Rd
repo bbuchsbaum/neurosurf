@@ -18,7 +18,7 @@ or \code{"sphere"} for std.8; \code{"inflated"}, \code{"white"}, or
 }
 \value{
 A named list with elements \code{"lh"} and \code{"rh"}, each a
-  \code{SurfaceGeometry} instance.
+\code{SurfaceGeometry} instance.
 }
 \description{
 Loads a FreeSurfer fsaverage template that ships with neurosurf and returns
@@ -30,13 +30,13 @@ fsaverage5 for figures and examples; std.8 is kept for small tests.
 }
 \details{
 The fsaverage5 files are the FreeSurfer fsaverage5 template as
-  redistributed by nilearn, under the FreeSurfer license.
+redistributed by nilearn, under the FreeSurfer license.
 
-  The fsaverage5 white and pial surfaces share one triangulation, so they
-  can be passed together to \code{\link{vol_to_surf}} to sample a volume through the
-  cortical ribbon. Their coordinates are in fsaverage (MNI305) space, which
-  differs by a few millimetres from MNI152; results in MNI152 space are
-  therefore approximate.
+The fsaverage5 white and pial surfaces share one triangulation, so they
+can be passed together to \code{\link{vol_to_surf}} to sample a volume through the
+cortical ribbon. Their coordinates are in fsaverage (MNI305) space, which
+differs by a few millimetres from MNI152; results in MNI152 space are
+therefore approximate.
 }
 \examples{
 \donttest{

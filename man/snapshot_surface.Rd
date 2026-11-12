@@ -18,8 +18,8 @@ path when knitting, otherwise a temporary file.}
 }
 \value{
 The file path (invisibly). Callers can use
-  \code{knitr::include_graphics()} or read the image via \code{png::readPNG()}.
-  In headless mode without \code{webshot2}, an empty character vector is returned.
+\code{knitr::include_graphics()} or read the image via \code{png::readPNG()}.
+In headless mode without \code{webshot2}, an empty character vector is returned.
 }
 \description{
 Convenience helper for vignettes and reports: renders a surface with

@@ -17,8 +17,8 @@
 }
 \value{
 A new \code{ROISurface} object containing only the selected vertices
-  and their associated data from the original ROI.
+and their associated data from the original ROI.
 }
 \description{
-Subsets an `ROISurface` object by selecting specific vertex indices.
+Subsets an \code{ROISurface} object by selecting specific vertex indices.
 }

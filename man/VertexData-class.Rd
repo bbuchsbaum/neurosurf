@@ -18,10 +18,10 @@ and manipulating vertex-specific information.
 
 This class is particularly useful for:
 \itemize{
-  \item Storing heterogeneous data (different data types) associated with vertices
-  \item Maintaining analysis results like statistical outcomes for specific vertices
-  \item Tracking vertex-specific annotations or classifications
-  \item Creating lookup tables for vertex properties that can be joined with other data
+\item Storing heterogeneous data (different data types) associated with vertices
+\item Maintaining analysis results like statistical outcomes for specific vertices
+\item Tracking vertex-specific annotations or classifications
+\item Creating lookup tables for vertex properties that can be joined with other data
 }
 
 The \code{data} slot contains a data frame where each row corresponds to a vertex

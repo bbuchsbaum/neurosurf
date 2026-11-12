@@ -24,27 +24,27 @@ Default is 1e-10 to remove numerical noise.}
 }
 \value{
 A list with class \code{"vol2surf_triplets"} containing:
-  \describe{
-    \item{i}{Integer vector of vertex indices (1-based row indices)}
-    \item{j}{Integer vector of voxel indices (1-based column indices into
-      the volume's linear index space, corresponding to sampler$indices)}
-    \item{x}{Numeric vector of weights}
-    \item{dims}{Integer vector c(n_vertices, n_voxels) for matrix dimensions}
-    \item{voxel_indices}{The sampler$indices mapping j values to volume positions}
-    \item{n_vertices}{Number of surface vertices}
-    \item{n_voxels}{Number of candidate voxels}
-    \item{nnz}{Number of non-zero entries}
-    \item{params}{List of parameters used (sigma, normalize, min_weight, dthresh)}
-  }
+\describe{
+\item{i}{Integer vector of vertex indices (1-based row indices)}
+\item{j}{Integer vector of voxel indices (1-based column indices into
+the volume's linear index space, corresponding to sampler$indices)}
+\item{x}{Numeric vector of weights}
+\item{dims}{Integer vector c(n_vertices, n_voxels) for matrix dimensions}
+\item{voxel_indices}{The sampler$indices mapping j values to volume positions}
+\item{n_vertices}{Number of surface vertices}
+\item{n_voxels}{Number of candidate voxels}
+\item{nnz}{Number of non-zero entries}
+\item{params}{List of parameters used (sigma, normalize, min_weight, dthresh)}
+}
 }
 \description{
-Converts a precomputed `surface_sampler` into sparse matrix triplet format
+Converts a precomputed \code{surface_sampler} into sparse matrix triplet format
 (i, j, x) suitable for constructing a dgCMatrix or for interop with other
 packages (e.g., neurofunctor). The triplets represent a vertices × voxels
 projection matrix with normalized Gaussian weights.
 }
 \details{
-The output triplets define a sparse matrix P where P[i,j] is the weight
+The output triplets define a sparse matrix \code{P} where \code{P[i, j]} is the weight
 for vertex i from voxel j. The actual volume voxel index is
 \code{voxel_indices[j]}. To construct a dgCMatrix in R:
 

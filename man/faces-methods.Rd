@@ -22,7 +22,7 @@ faces(x, ...)
 }
 \value{
 A matrix where each row represents a triangular face,
-  containing the 1-based vertex indices that form the triangle.
+containing the 1-based vertex indices that form the triangle.
 }
 \description{
 Extracts the triangle faces from a surface object, providing a standardized

@@ -45,7 +45,7 @@ labels are code.}
 }
 \value{
 A \code{surface_panels} object; \code{print()} or \code{plot()}
-  draws it on the current device.
+draws it on the current device.
 }
 \description{
 Lays out \code{\link{render_surface_rgba}} panels in one row, sets a label

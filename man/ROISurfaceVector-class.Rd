@@ -19,10 +19,10 @@ each column corresponds to a vertex.
 This structure is particularly useful for multivariate analyses of specific brain regions,
 allowing researchers to:
 \itemize{
-  \item Store time series data for each vertex in an ROI
-  \item Maintain multiple modalities of data for the same surface region
-  \item Perform multivariate statistical analyses on regional surface data
-  \item Compare different metrics within the same anatomical region
+\item Store time series data for each vertex in an ROI
+\item Maintain multiple modalities of data for the same surface region
+\item Perform multivariate statistical analyses on regional surface data
+\item Compare different metrics within the same anatomical region
 }
 
 The data matrix is organized with rows representing different measures and columns

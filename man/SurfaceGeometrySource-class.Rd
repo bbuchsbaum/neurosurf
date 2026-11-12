@@ -8,7 +8,7 @@
 An object of class \code{SurfaceGeometrySource}.
 }
 \description{
-The `SurfaceGeometrySource` class serves as a factory for creating
+The \code{SurfaceGeometrySource} class serves as a factory for creating
 \code{\linkS4class{SurfaceGeometry}} instances. It encapsulates the
 meta information required to construct a surface geometry.
 }

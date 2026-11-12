@@ -27,7 +27,7 @@ when it is supplied.}
 }
 \value{
 A grid grob. Draw it with \code{grid::grid.draw()} in a viewport
-  about 12 mm tall.
+about 12 mm tall.
 }
 \description{
 Builds the colour bar that \code{\link{surface_figure}} draws, as a grid

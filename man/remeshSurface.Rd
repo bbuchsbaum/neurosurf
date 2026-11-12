@@ -28,16 +28,16 @@ the surface, which is often desirable for analysis and visualization.
 
 The \code{voxel_size} parameter controls the resolution of the output mesh:
 \itemize{
-  \item Smaller values create denser meshes with more vertices and faces
-  \item Larger values create coarser meshes with fewer vertices and faces
+\item Smaller values create denser meshes with more vertices and faces
+\item Larger values create coarser meshes with fewer vertices and faces
 }
 
 Common reasons to remesh a surface include:
 \itemize{
-  \item Simplifying high-resolution meshes for faster processing
-  \item Creating more uniform triangle sizes for better numerical stability
-  \item Preparing meshes for specific analyses that require regular structures
-  \item Fixing mesh defects and improving the overall quality
+\item Simplifying high-resolution meshes for faster processing
+\item Creating more uniform triangle sizes for better numerical stability
+\item Preparing meshes for specific analyses that require regular structures
+\item Fixing mesh defects and improving the overall quality
 }
 
 This function uses the VCG library (via the Rvcg package) to perform the remeshing operation,

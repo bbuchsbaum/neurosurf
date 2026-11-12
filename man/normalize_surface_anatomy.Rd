@@ -14,13 +14,13 @@ normalize_surface_anatomy(
 \arguments{
 \item{metric}{Finite numeric anatomy values, one per vertex.}
 
-\item{style}{`"continuous"` robust linear scaling, `"binary"` folding
-contrast, or `"soft"`: a sigmoid two-tone (`0.5 * tanh(4 x / q98)`) that
+\item{style}{\code{"continuous"} robust linear scaling, \code{"binary"} folding
+contrast, or \code{"soft"}: a sigmoid two-tone (\verb{0.5 * tanh(4 x / q98)}) that
 reads as crisp gyri and sulci without the binary style's jagged
 vertex-step edges.}
 
 \item{midpoint}{Boundary between dark and light. NULL uses the median,
-including for the historical [0, 1] output of [curvature()]. Use zero
+including for the historical [0, 1] output of \code{\link[=curvature]{curvature()}}. Use zero
 for a native signed metric whose anatomical boundary is zero.}
 
 \item{invert}{Reverse dark/light polarity. Select this from the source

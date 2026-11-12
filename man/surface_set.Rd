@@ -7,14 +7,14 @@
 surface_set(..., hemi = NULL, default_label = NULL)
 }
 \arguments{
-\item{...}{Named `SurfaceGeometry` objects, or a single named list of them.}
+\item{...}{Named \code{SurfaceGeometry} objects, or a single named list of them.}
 
 \item{hemi}{Hemisphere code; defaults to the hemi of the first geometry.}
 
 \item{default_label}{Optional default label; defaults to the first provided label.}
 }
 \value{
-A `SurfaceSet` instance.
+A \code{SurfaceSet} instance.
 }
 \description{
 Construct a SurfaceSet

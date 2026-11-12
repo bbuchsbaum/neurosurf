@@ -39,24 +39,24 @@ render_surface_rgba(
 )
 }
 \arguments{
-\item{geometry}{A [SurfaceGeometry] object.}
+\item{geometry}{A \link{SurfaceGeometry} object.}
 
 \item{vertex_values}{Numeric value per vertex.}
 
 \item{anatomy_metric}{Optional numeric anatomy metric per vertex, such as
 sulcal depth or curvature. Values are robustly scaled and mapped to the
-grey levels in `anatomy_range`, with sulci darker than gyri.}
+grey levels in \code{anatomy_range}, with sulci darker than gyri.}
 
 \item{cortex_mask}{Logical cortex-domain mask per vertex. Overlay color is
 never painted on triangles touching a masked vertex.}
 
-\item{camera}{One of `"lateral"`, `"medial"`, `"dorsal"`, or `"ventral"`.}
+\item{camera}{One of \code{"lateral"}, \code{"medial"}, \code{"dorsal"}, or \code{"ventral"}.}
 
 \item{camera_mode}{Strict canonical orthographic output or a presentation
 camera with a small, explicit obliquity.}
 
 \item{presentation_obliquity}{Obliquity in degrees used only for
-`camera_mode = "presentation"`.}
+\code{camera_mode = "presentation"}.}
 
 \item{width, height}{Output dimensions in pixels.}
 
@@ -67,8 +67,8 @@ camera with a small, explicit obliquity.}
 \item{palette}{Character vector of at least two colours, ordered from low to
 high values. With a positive threshold the palette spans only the
 suprathreshold range: for a two-sided map the first half of the colours
-is the negative ramp and the second half the positive ramp. `NULL` uses a
-default suited to `tail`.}
+is the negative ramp and the second half the positive ramp. \code{NULL} uses a
+default suited to \code{tail}.}
 
 \item{limits}{Numeric scalar-color limits.}
 
@@ -99,51 +99,51 @@ opacity.}
 
 \item{background}{Background color.}
 
-\item{lighting}{`TRUE` for the default two-light Blinn-Phong shading,
-`FALSE` for flat (unlit) rendering, or a named list overriding any of
-`ambient`, `key`, `fill`, `specular`, `shininess`, `key_dir`, `fill_dir`
+\item{lighting}{\code{TRUE} for the default two-light Blinn-Phong shading,
+\code{FALSE} for flat (unlit) rendering, or a named list overriding any of
+\code{ambient}, \code{key}, \code{fill}, \code{specular}, \code{shininess}, \code{key_dir}, \code{fill_dir}
 (view-space directions: x right, y up, z toward the viewer),
-`overlay_shading` (share of the shading applied to overlay colour), and
-`sky` (hemispheric ambient fraction). Overlay shading is normalized so a
+\code{overlay_shading} (share of the shading applied to overlay colour), and
+\code{sky} (hemispheric ambient fraction). Overlay shading is normalized so a
 surface facing the camera shows exactly the colour-bar colour.}
 
-\item{subdivide}{`"auto"` subdivides coarse meshes for display until the
+\item{subdivide}{\code{"auto"} subdivides coarse meshes for display until the
 median projected edge is at most four pixels (up to three levels);
-`FALSE` disables it; an integer sets the number of levels.}
+\code{FALSE} disables it; an integer sets the number of levels.}
 
 \item{pixel_scale}{Output pixels per surface coordinate unit (usually
-mm). `NULL` fits the surface to the panel; a common value gives several
+mm). \code{NULL} fits the surface to the panel; a common value gives several
 panels one scale.}
 
 \item{return_buffers}{Include scalar and depth buffers for diagnostics.}
 
 \item{anatomy_style}{Underlay mapping: legacy publication shading, centered
-continuous contrast, binary folding contrast, or `"soft"`: a smooth
+continuous contrast, binary folding contrast, or \code{"soft"}: a smooth
 two-tone (gyri light, sulci dark) with antialiased fold edges.}
 
-\item{anatomy_midpoint}{Passed to [normalize_surface_anatomy()].}
+\item{anatomy_midpoint}{Passed to \code{\link[=normalize_surface_anatomy]{normalize_surface_anatomy()}}.}
 
-\item{anatomy_invert}{Reverse the metric's polarity. `"auto"` (default)
-inverts metrics that are larger in sulci (FreeSurfer `sulc` and `curv`)
+\item{anatomy_invert}{Reverse the metric's polarity. \code{"auto"} (default)
+inverts metrics that are larger in sulci (FreeSurfer \code{sulc} and \code{curv})
 and keeps metrics that are larger on gyral crowns (such as
-[curvature()]), judged by the metric's correlation with the displayed
+\code{\link[=curvature]{curvature()}}), judged by the metric's correlation with the displayed
 mesh's mean curvature. The decision is recorded in the provenance.}
 
 \item{anatomy_range}{Dark and light gray levels in [0, 1].}
 
-\item{reference}{Optional list with `id`, `label`, binary per-vertex `mask`,
-opaque `color`, `opacity` in [0, 1], `visible`, and `provenance`. Defaults
+\item{reference}{Optional list with \code{id}, \code{label}, binary per-vertex \code{mask},
+opaque \code{color}, \code{opacity} in [0, 1], \code{visible}, and \code{provenance}. Defaults
 are label = id, opacity = 0.2, visible = TRUE, provenance = list().
 Anatomy, reference, then effect are composed with source-over. Membership
 is interpolated linearly (edge midpoints through display subdivision)
 and classified at >= 0.5 at each sample. Antialiasing averages categorical
-coverage, returned as `reference_coverage` in [0, 1]. Reference color is
+coverage, returned as \code{reference_coverage} in [0, 1]. Reference color is
 unlit and excluded from triangles touching a non-cortex vertex, for all
 medial-wall policies. It never changes effect buffers or mapping.}
 }
 \value{
-A `surface_rgba` list with raw RGBA, coverage, and overlay-alpha
-  arrays plus camera and rendering provenance.
+A \code{surface_rgba} list with raw RGBA, coverage, and overlay-alpha
+arrays plus camera and rendering provenance.
 }
 \description{
 Rasterizes a cortical triangle mesh with a per-sample z-buffer and

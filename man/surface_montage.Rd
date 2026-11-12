@@ -52,7 +52,7 @@ panels. It is designed for R Markdown / pkgdown documents, where it replaces
 the repetitive "snapshot each panel, check it, otherwise fall back to an
 interactive widget" boilerplate with a single call.
 
-When the session can produce static snapshots (an interactive `rgl` device,
+When the session can produce static snapshots (an interactive \code{rgl} device,
 or a headless build with \pkg{webshot2} installed) the panels are captured
 and tiled into one PNG. When knitting this is returned via
 \code{\link[knitr]{include_graphics}}; otherwise the composed image is
@@ -96,5 +96,5 @@ if (interactive()) {
 }
 \seealso{
 \code{\link{view_surface}}, \code{\link{snapshot_surface}},
-  \code{\link{surface_plot}}
+\code{\link{surface_plot}}
 }

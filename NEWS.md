@@ -13,6 +13,12 @@
   for hand-made layouts. Panels now record their palette, overlay opacity
   and opacity ramp in `provenance`.
 
+* `load_fsaverage_cortex()` returns the cortical domain of the bundled
+  fsaverage5 template (everything except the medial wall), for
+  `cortex_mask`. It reads FreeSurfer's Destrieux 2009 parcellation of
+  fsaverage5, now bundled unmodified from TemplateFlow (32 kB); provenance is
+  in `inst/extdata/PROVENANCE.md`.
+
 ## Changes
 
 * The bundled browser runtime is surfview 3.3.0 (byte-identical to the npm
@@ -51,6 +57,14 @@
   no longer prints ASCII art.
 
 * `smooth()` for a `NeuroSurface` called the undeclared package purrr.
+
+* Roxygen markdown is enabled, so `[topic]` links, `code` and **bold** in
+  the documentation render instead of appearing as literal brackets and
+  backticks.
+
+* `load_fsaverage_std8()` documents that its meshes share fsaverage (MNI305)
+  coordinates with the fsaverage5 surfaces (a rigid fit between the two
+  white surfaces moves them by less than half a millimetre).
 
 * `view_surface()` documented `zoom` and `thresh` backwards; `curvature()`
   now documents that it returns mean curvature rescaled to [0, 1], higher

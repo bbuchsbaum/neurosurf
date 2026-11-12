@@ -7,9 +7,9 @@
 surface_sulcal_proxy(white, inflated, iterations = 4L)
 }
 \arguments{
-\item{white}{Folded `SurfaceGeometry` (white or pial).}
+\item{white}{Folded \code{SurfaceGeometry} (white or pial).}
 
-\item{inflated}{Inflated `SurfaceGeometry` with the same vertices and faces.}
+\item{inflated}{Inflated \code{SurfaceGeometry} with the same vertices and faces.}
 
 \item{iterations}{Laplacian smoothing iterations applied to the result.}
 }

@@ -24,12 +24,12 @@ NeuroSurfaceSource(
 }
 \value{
 An object of class \code{\linkS4class{NeuroSurfaceSource}} or \code{\linkS4class{NeuroSurfaceVectorSource}}
-        that contains information about the surface geometry and associated data. If the data has multiple columns
-        (colind > 1), a \code{NeuroSurfaceVectorSource} is returned; otherwise, a \code{NeuroSurfaceSource} is returned.
-        These objects can be used to load and map neuroimaging data onto brain surfaces.
+that contains information about the surface geometry and associated data. If the data has multiple columns
+(colind > 1), a \code{NeuroSurfaceVectorSource} is returned; otherwise, a \code{NeuroSurfaceSource} is returned.
+These objects can be used to load and map neuroimaging data onto brain surfaces.
 }
 \description{
-The `NeuroSurfaceSource` class serves as a factory for creating
+The \code{NeuroSurfaceSource} class serves as a factory for creating
 \code{\linkS4class{NeuroSurface}} instances. It encapsulates all necessary
 information to construct a neuroimaging surface, including geometry,
 metadata, and indexing information.

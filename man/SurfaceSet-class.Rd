@@ -24,16 +24,16 @@
 \S4method{curvature}{SurfaceSet}(x, ...)
 }
 \arguments{
-\item{x}{a `SurfaceSet`}
+\item{x}{a \code{SurfaceSet}}
 
 \item{...}{additional arguments forwarded to the underlying geometry method}
 }
 \value{
 An S4 object of class \code{SurfaceSet}. Use \code{\link{surface_set}}
-  to construct instances.
+to construct instances.
 }
 \description{
-A `SurfaceSet` keeps several `SurfaceGeometry` variants (e.g., pial, white,
+A \code{SurfaceSet} keeps several \code{SurfaceGeometry} variants (e.g., pial, white,
 inflated, sphere) for the same hemisphere together with a default choice.
 }
 \section{Slots}{
@@ -41,7 +41,7 @@ inflated, sphere) for the same hemisphere together with a default choice.
 \describe{
 \item{\code{hemi}}{Character string for hemisphere (e.g., "lh" or "rh").}
 
-\item{\code{surfaces}}{Named list of `SurfaceGeometry` objects keyed by their label.}
+\item{\code{surfaces}}{Named list of \code{SurfaceGeometry} objects keyed by their label.}
 
 \item{\code{default_label}}{Character string giving the label to use by default.}
 }}
