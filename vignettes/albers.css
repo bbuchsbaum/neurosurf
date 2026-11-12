@@ -1516,6 +1516,8 @@ h3 code {
    (light presets only) instead of sitting in white boxes. */
 body:not(.preset-midnight) p > img,
 body:not(.preset-midnight) .figure img,
+body:not(.preset-midnight) .float img,
+body:not(.preset-midnight) figure img,
 body:not(.preset-midnight) .rglWebGL canvas,
 body:not(.preset-midnight) .surfwidget-mount canvas {
   mix-blend-mode: multiply;

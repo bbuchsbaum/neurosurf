@@ -436,7 +436,10 @@ surface_figure <- function(lh = NULL,
   ticks <- ticks[ticks > seg[1] + 0.25 * span & ticks < seg[2] - 0.25 * span]
   # One interior tick at most, the one nearest the middle, so short ramps
   # never crowd.
-  if (length(ticks) > 1L) ticks <- ticks[which.min(abs(ticks - mean(seg)))]
+  # Ties go to the larger magnitude, so mirrored ramps get mirrored ticks.
+  if (length(ticks) > 1L) {
+    ticks <- ticks[order(abs(ticks - mean(seg)), -abs(ticks))][1L]
+  }
   ticks
 }
 

@@ -117,7 +117,9 @@ with_rgl_scene(
 ```
 
 Colour limits are ±3 and |value| < 1 is uncoloured: blue negative, red
-positive. For a static figure with a colour key, use `surface_figure()`. It renders
+positive. On a folded surface parts of each cluster lie in sulcal banks
+hidden from this view, so their edges look clipped; statistical maps are
+usually shown on the inflated surface, as in `vignette("surface-figures")`. For a static figure with a colour key, use `surface_figure()`. It renders
 the same values with the CPU renderer, which interpolates within each
 triangle, so its lighting and colour mapping do not depend on RGL.
 
