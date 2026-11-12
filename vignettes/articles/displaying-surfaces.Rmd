@@ -6,21 +6,17 @@ output:
   rmarkdown::html_vignette:
     toc: yes
     toc_depth: 2
-    css: albers.css
+    css: ../albers.css
     includes:
-      in_header: albers-header.html
+      in_header: ../albers-header.html
 params:
   family: teal
   preset: homage
-resource_files:
-- albers.css
-- albers.js
-- albers-header.html
-vignette: |
-  %\VignetteIndexEntry{Displaying Surfaces with RGL}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
+
+<!-- A website-only article (vignettes/articles/, excluded from the package
+build): its live RGL scenes carry several megabytes of mesh data, too much
+for the CRAN tarball. -->
 
 This vignette shows how to display cortical geometry, curvature, and vertex
 values with RGL. It uses the small `std.8` surfaces bundled with neurosurf,
@@ -116,7 +112,7 @@ with_rgl_scene(
 Colour limits are ±3 and |value| < 1 is uncoloured: blue negative, red
 positive. On a folded surface parts of each cluster lie in sulcal banks
 hidden from this view, so their edges look clipped; statistical maps are
-usually shown on the inflated surface, as in `vignette("surface-figures")`. For a static figure with a colour key, use `surface_figure()`. It renders
+usually shown on the inflated surface, as in `[Publication-quality surface figures](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.html)`. For a static figure with a colour key, use `surface_figure()`. It renders
 the same values with the CPU renderer, which interpolates within each
 triangle, so its lighting and colour mapping do not depend on RGL.
 
@@ -174,7 +170,7 @@ with_rgl_scene({
 
 Other views are `"medial"`, `"ventral"`, `"anterior"` and `"posterior"`. For
 static multi-view output, `surface_figure()` combines hemispheres and labels
-each view; see `vignette("surface-figures")`.
+each view; see `[Publication-quality surface figures](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.html)`.
 
 ## Mark vertices and plot a surface data object
 
@@ -257,7 +253,7 @@ path <- snapshot_surface(left, file = file, vals = vertex_values,
 
 For browser-free PNG output, use `surface_figure()` or
 `render_surface_rgba()`. For interactive reports with several selectable
-maps, see `vignette("interactive-surfaces")`.
+maps, see `[Build bilateral interactive surface reports](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html)`.
 
 The bundled templates retain the FreeSurfer terms in
 `system.file("extdata", "LICENSE-FreeSurfer.txt", package = "neurosurf")`.

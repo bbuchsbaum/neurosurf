@@ -58,6 +58,13 @@
 
 * `smooth()` for a `NeuroSurface` called the undeclared package purrr.
 
+* The RGL walkthrough ("Displaying surfaces with RGL") is now a website-only
+  article (`vignettes/articles/`): its live scenes carried about 4 MB of mesh
+  data. Installed documentation drops from about 8 MB to under 4 MB; the
+  other vignettes link to the article online. `write_surface_rgba()` writes
+  opaque panels without an alpha channel, and the README figure is
+  regenerated at 150 dpi with the current figure style.
+
 * Roxygen markdown is enabled, so `[topic]` links, `code` and **bold** in
   the documentation render instead of appearing as literal brackets and
   backticks.

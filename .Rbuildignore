@@ -79,5 +79,7 @@ testshiny/test_shiny.R
 ^inst/htmlwidgets/lib/three($|/)
 ^inst/htmlwidgets/lib/neurosurface/(neurosurface.*|surfview\.umd\.js\.map|three-controls-polyfill\.js)$
 ^vignettes/fonts($|/)
+# Website-only pkgdown articles (too large for CRAN)
+^vignettes/articles$
 ^tests/browser($|/)
 ^inst/benchmarks($|/)

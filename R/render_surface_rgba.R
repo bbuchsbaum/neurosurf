@@ -396,6 +396,9 @@ write_surface_rgba <- function(x, file) {
     stop("'x' must be a surface_rgba object.", call. = FALSE)
   }
   rgba <- array(as.numeric(x$rgba) / 255, dim = dim(x$rgba))
+  # An opaque panel (the usual case) is written without an alpha channel,
+  # which makes the file about a quarter smaller.
+  if (all(rgba[, , 4L] == 1)) rgba <- rgba[, , 1:3, drop = FALSE]
   png::writePNG(rgba, target = file)
   invisible(normalizePath(file, mustWork = TRUE))
 }

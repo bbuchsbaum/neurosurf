@@ -27,7 +27,7 @@ This vignette introduces the fundamental data structures used in the `neurosurf`
 
 For visualization, see the companion vignettes:
 
-- `vignette("displaying-surfaces")` for interactive 3D plots based on `plot()` and `view_surface()`.
+- the [Displaying surfaces with RGL](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html) article for interactive 3D plots based on `plot()` and `view_surface()`.
 - `vignette("interactive-surfaces")` for HTML-widget based exploration.
 - `vignette("surface-figures")` for multi-view, publication-quality figures built with `surface_figure()`.
 
@@ -324,12 +324,12 @@ length(indices(lh_surf_vec))
 *   **`ColorMappedNeuroSurface`**: Stores data along with a specific colormap (`cmap`), data range (`irange`), and thresholds (`thresh`) to pre-define how the data should be visualized.
 *   **`VertexColoredNeuroSurface`**: Stores specific hex color codes directly for each vertex (`colors` slot), bypassing data mapping.
 
-These classes facilitate plotting with pre-set visual parameters using the `plot()` method discussed in `vignette("displaying-surfaces")`.
+These classes facilitate plotting with pre-set visual parameters using the `plot()` method discussed in the [Displaying surfaces with RGL](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html) article.
 
 ## Next Steps
 
 Now that you understand the core data structures, explore the visualization vignettes:
 
-- `vignette("displaying-surfaces")` — render surfaces with RGL, overlay data, and snapshot to PNG.
+- the [Displaying surfaces with RGL](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html) article — render surfaces with RGL, overlay data, and snapshot to PNG.
 - `vignette("interactive-surfaces")` — create interactive HTML widgets with `surfwidget()`.
 - `vignette("surface-figures")` — build publication-quality multi-view figures with `surface_figure()`.

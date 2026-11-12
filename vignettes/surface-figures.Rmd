@@ -333,7 +333,7 @@ about the atlas; the default continuous-statistic view omits them.
 
 ## Next steps
 
-- `vignette("displaying-surfaces")` covers lower-level RGL rendering and local
+- the [Displaying surfaces with RGL](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html) article covers lower-level RGL rendering and local
   snapshots.
 - `vignette("interactive-surfaces")` builds interactive bilateral report
   widgets with `surfwidget()`.

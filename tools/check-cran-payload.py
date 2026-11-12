@@ -57,7 +57,6 @@ with tarfile.open(args.tarball) as tar:
     for asset in assets:
         assert hashlib.sha256(read("inst/extdata/" + asset["file"])).hexdigest() == (
             asset["sha256"]), f"Data hash mismatch: {asset['file']}"
-    assert b"snapshot3d" not in read("inst/doc/displaying-surfaces.R")
 print(json.dumps({"tarball": args.tarball.name, "source_bytes": size,
                   "documentation_bytes": docs,
                   "sha256": hashlib.sha256(args.tarball.read_bytes()).hexdigest(),

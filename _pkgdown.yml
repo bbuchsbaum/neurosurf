@@ -52,7 +52,7 @@ articles:
   navbar: ~
   contents:
   - introduction-to-neurosurf
-  - displaying-surfaces
+  - articles/displaying-surfaces
   - interactive-surfaces
   - surface-figures
 template:
