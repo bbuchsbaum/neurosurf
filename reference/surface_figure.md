@@ -1,10 +1,10 @@
 # Static multi-view surface figure with a shared colour scale
 
 Renders one or both hemispheres from several canonical views with
-\[render_surface_rgba()\] and arranges the panels into a single figure
-with an optional colour bar. All panels share the same threshold,
-limits, and palette, so the figure carries one interpretable colour
-scale.
+[`render_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md)
+and arranges the panels into a single figure with an optional colour
+bar. All panels share the same threshold, limits, and palette, so the
+figure carries one interpretable colour scale.
 
 ## Usage
 
@@ -43,38 +43,38 @@ print(x, ...)
 
 - lh, rh:
 
-  \[SurfaceGeometry\] objects for the hemispheres to draw. Supply at
-  least one.
+  [SurfaceGeometry](https://bbuchsbaum.github.io/neurosurf/reference/SurfaceGeometry.md)
+  objects for the hemispheres to draw. Supply at least one.
 
 - values:
 
   Vertex values. With both hemispheres, a named list with elements
-  \`lh\`/\`rh\` (or \`left\`/\`right\`); with one hemisphere, a numeric
-  vector or a one-element named list.
+  `lh`/`rh` (or `left`/`right`); with one hemisphere, a numeric vector
+  or a one-element named list.
 
 - anatomy:
 
   Optional anatomy metric (for example curvature from a matching white
-  surface), in the same form as \`values\`.
+  surface), in the same form as `values`.
 
 - views:
 
   Character vector of camera views drawn for each hemisphere, from
-  \`"lateral"\`, \`"medial"\`, \`"dorsal"\`, \`"ventral"\`. Lateral and
-  medial views are rows with one column per hemisphere. With both
-  hemispheres, dorsal and ventral views show the hemispheres together in
-  one panel, placed as a column beside the other views.
+  `"lateral"`, `"medial"`, `"dorsal"`, `"ventral"`. Lateral and medial
+  views are rows with one column per hemisphere. With both hemispheres,
+  dorsal and ventral views show the hemispheres together in one panel,
+  placed as a column beside the other views.
 
 - threshold, tail, limits, palette, overlay_alpha, alpha_ramp,
   camera_mode:
 
   Shared rendering contract applied to every panel; see
-  \[render_surface_rgba()\]. \`limits\` defaults to the finite range of
-  \`values\` across hemispheres.
+  [`render_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md).
+  `limits` defaults to the finite range of `values` across hemispheres.
 
 - cortex_mask:
 
-  Optional cortex-domain mask, in the same form as \`values\`.
+  Optional cortex-domain mask, in the same form as `values`.
 
 - legend:
 
@@ -94,35 +94,45 @@ print(x, ...)
 
 - labels:
 
-  Draw hemisphere and view headers above the panels.
+  Draw hemisphere and view headers. A figure with a single panel never
+  has them.
 
 - ...:
 
-  Additional arguments passed to every \[render_surface_rgba()\] call.
+  Additional arguments passed to every
+  [`render_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md)
+  call.
 
 - x:
 
-  A \`surface_figure\` object.
+  A `surface_figure` object.
 
 ## Value
 
-A \`surface_figure\` object: the rendered \`surface_rgba\` panels plus
-layout and colour-scale metadata. \`plot()\` draws it and invisibly
-returns it.
+A `surface_figure` object: the rendered `surface_rgba` panels plus
+layout and colour-scale metadata.
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) draws it and
+invisibly returns it.
 
 ## Details
 
 This is the package's high-level entry point for a static, publication
 figure. It runs headlessly (CI, cluster, Quarto, PDF) and requires
-neither OpenGL nor a browser. \`plot()\` and \`print()\` draw the figure
-on the current graphics device; \[write_surface_figure()\] writes it to
-PNG.
+neither OpenGL nor a browser.
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) and
+[`print()`](https://rdrr.io/r/base/print.html) draw the figure on the
+current graphics device;
+[`write_surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_figure.md)
+writes it to PNG.
 
 ## See also
 
-\[render_surface_rgba()\] for the single-panel contract,
-\[write_surface_figure()\] to write PNG output, and \[surfwidget()\] for
-the interactive HTML counterpart.
+[`render_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md)
+for the single-panel contract,
+[`write_surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_figure.md)
+to write PNG output, and
+[`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
+for the interactive HTML counterpart.
 
 ## Examples
 

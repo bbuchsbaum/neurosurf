@@ -66,20 +66,20 @@ on the surface.</p></dd>
 
 <dt id="arg-incol">incol<a class="anchor" aria-label="anchor" href="#arg-incol"></a></dt>
 <dd><p>A character string specifying the hex color code to represent
-vertices with curvature values *greater than* the median curvature.
+vertices with curvature values <em>greater than</em> the median curvature.
 Default is "#B3B3B3" (light gray).</p></dd>
 
 
 <dt id="arg-outcol">outcol<a class="anchor" aria-label="anchor" href="#arg-outcol"></a></dt>
 <dd><p>A character string specifying the hex color code to represent
-vertices with curvature values *less than or equal to* the median curvature.
+vertices with curvature values <em>less than or equal to</em> the median curvature.
 Default is "#404040" (dark gray).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A character vector of the same length as `vals`, containing hex color
-  codes based on the binary classification of curvature values relative to the median.</p>
+    <p>A character vector of the same length as <code>vals</code>, containing hex color
+codes based on the binary classification of curvature values relative to the median.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -88,9 +88,9 @@ Mean curvature is often used, where positive values typically indicate outward
 curvature (gyri) and negative values indicate inward curvature (sulci).
 This function simplifies the curvature map into two colors based on whether
 the value is above or below the median curvature, providing a quick visual
-distinction between these features. Note the default coloring assigns `incol`
-to values *above* the median and `outcol` to values *at or below* the median.
-You might need to adjust `incol` and `outcol` depending on the specific
+distinction between these features. Note the default coloring assigns <code>incol</code>
+to values <em>above</em> the median and <code>outcol</code> to values <em>at or below</em> the median.
+You might need to adjust <code>incol</code> and <code>outcol</code> depending on the specific
 interpretation of curvature values in your data (e.g., if positive values
 represent sulci).</p>
     </div>

@@ -1,6 +1,6 @@
 # Subset an ROISurface Object
 
-Subsets an \`ROISurface\` object by selecting specific vertex indices.
+Subsets an `ROISurface` object by selecting specific vertex indices.
 
 ## Usage
 

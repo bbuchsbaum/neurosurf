@@ -45,29 +45,33 @@ library(neurosurf)
 surf <- load_fsaverage("fsaverage5", "inflated")
 white <- load_fsaverage("fsaverage5", "white")
 sulc <- load_fsaverage_sulc("fsaverage5")
+cortex <- load_fsaverage_cortex("fsaverage5")
 
-# A synthetic z-map: smooth clusters centred in white-surface (x, y, z) space.
-# Any numeric vector with one value per vertex works.
-zmap <- function(g, side) {
-  cluster <- function(centre, z, width = 12) {
-    z * exp(-colSums((t(coords(g)) - centre)^2) / (2 * width^2))
+# A synthetic z-map: smooth clusters placed at white-surface coordinates,
+# falling off with distance over the inflated surface. Any numeric vector
+# with one value per vertex works.
+zmap <- function(hemi, side) {
+  cluster <- function(centre, z, width = 10) {
+    seed <- which.min(colSums((t(coords(white[[hemi]])) - centre)^2))
+    xyz <- coords(surf[[hemi]])
+    z * exp(-colSums((t(xyz) - xyz[seed, ])^2) / (2 * width^2))
   }
   cluster(c(45 * side, -60, 20), 4) + cluster(c(40 * side, 20, 30), 3) +
-    cluster(c(55 * side, -20, 0), -3.5) + cluster(c(8 * side, 40, 10), -3)
+    cluster(c(55 * side, -20, 0), -3.5) + cluster(c(5 * side, -46, 22), -3)
 }
 
 fig <- surface_figure(
   lh = surf$lh, rh = surf$rh,
-  values = list(lh = zmap(white$lh, -1), rh = zmap(white$rh, 1)),
-  anatomy = sulc,
+  values = list(lh = zmap("lh", -1), rh = zmap("rh", 1)),
+  anatomy = sulc, cortex_mask = cortex, alpha_ramp = 0.25,
   threshold = 1.5, limits = c(-4, 4), legend_title = "z"
 )
 plot(fig)
 ```
 
 ![Lateral and medial views of both fsaverage5 hemispheres with red and
-blue thresholded z-map clusters over lit grey sulcal
-shading](reference/figures/README-quickstart-1.png)
+blue thresholded z-map clusters over grey sulcal shading; the medial
+wall carries no colour](reference/figures/README-quickstart-1.png)
 
 `write_surface_figure(fig, "figure.png")` saves the same figure.
 Rendering runs on the CPU, so it works identically on a laptop, a
@@ -516,6 +520,9 @@ Catch-all index to include any remaining topics.
 - [`load_fsaverage_bundle()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_bundle.md)
   : Load a bundle of fsaverage surface variants as a SurfaceSet
 
+- [`load_fsaverage_cortex()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_cortex.md)
+  : Cortex mask for a packaged fsaverage template
+
 - [`load_fsaverage_std8()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_std8.md)
   : Load fsaverage std.8 surfaces packaged with neurosurf
 
@@ -685,6 +692,9 @@ Catch-all index to include any remaining topics.
 - [`` `surf_to_world<-`() ``](https://bbuchsbaum.github.io/neurosurf/reference/surf_to_world-set-methods.md)
   : Set Surface-to-World Transform
 
+- [`surface_colorbar_grob()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_colorbar_grob.md)
+  : Colour key for surface panels
+
 - [`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
   [`plot(`*`<surface_figure>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
   [`print(`*`<surface_figure>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
@@ -701,6 +711,14 @@ Catch-all index to include any remaining topics.
 
 - [`surface_montage()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_montage.md)
   : Arrange multiple surface views into a single montage figure
+
+- [`surface_palette()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_palette.md)
+  : Colour palettes for surface maps
+
+- [`surface_panels()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_panels.md)
+  [`plot(`*`<surface_panels>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/surface_panels.md)
+  [`print(`*`<surface_panels>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/surface_panels.md)
+  : Arrange rendered panels as small multiples
 
 - [`surface_parcel_style()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_parcel_style.md)
   : Style settings for parcel surface rendering

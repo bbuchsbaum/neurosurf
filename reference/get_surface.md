@@ -20,7 +20,7 @@ get_surface(x, label = NULL)
 
 ## Value
 
-A \`SurfaceGeometry\` object.
+A `SurfaceGeometry` object.
 
 ## Examples
 
@@ -31,12 +31,6 @@ get_surface(ss, "inflated")
 #> 
 #>  SurfaceGeometry 
 #> 
-#>     /\     
-#>    /  \    
-#>   /____\   
-#>  /      \  
-#> /        \   
-#> 
 #>   Basic Information: 
 #>   Hemisphere: left
 #>   Vertices:   4
@@ -46,7 +40,7 @@ get_surface(ss, "inflated")
 #>  Geometry Metrics: 
 #>   Euler Characteristic: 2
 #>   Genus:               0
-#>   Surface Area:        0.5
-#>   Avg Edge Length:     1.207
+#>   Surface Area:        2 mm^2
+#>   Avg Edge Length:     1.21 mm
 #> 
 ```

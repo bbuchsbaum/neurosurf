@@ -68,7 +68,11 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A numeric vector of curvature values, one per vertex</p>
+    <p>A numeric vector with one value per vertex: mean curvature
+rescaled to [0, 1] over the mesh. Higher values are convex (gyral
+crowns), lower values concave (sulcal fundi). The rescaling makes it a
+display index rather than a quantity in 1/mm; for FreeSurfer-style
+shading pass it to <code><a href="curv_cols_smooth.html">curv_cols_smooth</a></code>.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

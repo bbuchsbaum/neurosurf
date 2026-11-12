@@ -26,6 +26,14 @@ load_fsaverage_std8(
 A named list with elements `"lh"` and `"rh"`, each a `SurfaceGeometry`
 instance for the requested surface type.
 
+## Details
+
+The meshes have 642 vertices per hemisphere and share fsaverage (MNI305)
+coordinates with the fsaverage5 surfaces of
+[`load_fsaverage`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage.md):
+a rigid fit between the two white surfaces moves them by less than half
+a millimetre and a degree.
+
 ## Examples
 
 ``` r

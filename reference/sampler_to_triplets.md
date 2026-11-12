@@ -1,6 +1,6 @@
 # Extract sparse matrix triplets from a surface sampler
 
-Converts a precomputed \`surface_sampler\` into sparse matrix triplet
+Converts a precomputed `surface_sampler` into sparse matrix triplet
 format (i, j, x) suitable for constructing a dgCMatrix or for interop
 with other packages (e.g., neurofunctor). The triplets represent a
 vertices × voxels projection matrix with normalized Gaussian weights.
@@ -80,7 +80,7 @@ A list with class `"vol2surf_triplets"` containing:
 
 ## Details
 
-The output triplets define a sparse matrix P where P\[i,j\] is the
+The output triplets define a sparse matrix `P` where `P[i, j]` is the
 weight for vertex i from voxel j. The actual volume voxel index is
 `voxel_indices[j]`. To construct a dgCMatrix in R:
 

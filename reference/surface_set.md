@@ -12,7 +12,7 @@ surface_set(..., hemi = NULL, default_label = NULL)
 
 - ...:
 
-  Named \`SurfaceGeometry\` objects, or a single named list of them.
+  Named `SurfaceGeometry` objects, or a single named list of them.
 
 - hemi:
 
@@ -24,7 +24,7 @@ surface_set(..., hemi = NULL, default_label = NULL)
 
 ## Value
 
-A \`SurfaceSet\` instance.
+A `SurfaceSet` instance.
 
 ## Examples
 

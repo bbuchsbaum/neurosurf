@@ -45,29 +45,33 @@ library(neurosurf)
 surf <- load_fsaverage("fsaverage5", "inflated")
 white <- load_fsaverage("fsaverage5", "white")
 sulc <- load_fsaverage_sulc("fsaverage5")
+cortex <- load_fsaverage_cortex("fsaverage5")
 
-# A synthetic z-map: smooth clusters centred in white-surface (x, y, z) space.
-# Any numeric vector with one value per vertex works.
-zmap <- function(g, side) {
-  cluster <- function(centre, z, width = 12) {
-    z * exp(-colSums((t(coords(g)) - centre)^2) / (2 * width^2))
+# A synthetic z-map: smooth clusters placed at white-surface coordinates,
+# falling off with distance over the inflated surface. Any numeric vector
+# with one value per vertex works.
+zmap <- function(hemi, side) {
+  cluster <- function(centre, z, width = 10) {
+    seed <- which.min(colSums((t(coords(white[[hemi]])) - centre)^2))
+    xyz <- coords(surf[[hemi]])
+    z * exp(-colSums((t(xyz) - xyz[seed, ])^2) / (2 * width^2))
   }
   cluster(c(45 * side, -60, 20), 4) + cluster(c(40 * side, 20, 30), 3) +
-    cluster(c(55 * side, -20, 0), -3.5) + cluster(c(8 * side, 40, 10), -3)
+    cluster(c(55 * side, -20, 0), -3.5) + cluster(c(5 * side, -46, 22), -3)
 }
 
 fig <- surface_figure(
   lh = surf$lh, rh = surf$rh,
-  values = list(lh = zmap(white$lh, -1), rh = zmap(white$rh, 1)),
-  anatomy = sulc,
+  values = list(lh = zmap("lh", -1), rh = zmap("rh", 1)),
+  anatomy = sulc, cortex_mask = cortex, alpha_ramp = 0.25,
   threshold = 1.5, limits = c(-4, 4), legend_title = "z"
 )
 plot(fig)
 ```
 
 ![Lateral and medial views of both fsaverage5 hemispheres with red and
-blue thresholded z-map clusters over lit grey sulcal
-shading](reference/figures/README-quickstart-1.png)
+blue thresholded z-map clusters over grey sulcal shading; the medial
+wall carries no colour](reference/figures/README-quickstart-1.png)
 
 `write_surface_figure(fig, "figure.png")` saves the same figure.
 Rendering runs on the CPU, so it works identically on a laptop, a

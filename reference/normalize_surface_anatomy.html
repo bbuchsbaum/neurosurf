@@ -69,15 +69,15 @@ anatomical shading, never statistical values or surface coordinates.</p>
 
 
 <dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
-<dd><p>`"continuous"` robust linear scaling, `"binary"` folding
-contrast, or `"soft"`: a sigmoid two-tone (`0.5 * tanh(4 x / q98)`) that
+<dd><p><code>"continuous"</code> robust linear scaling, <code>"binary"</code> folding
+contrast, or <code>"soft"</code>: a sigmoid two-tone (<code>0.5 * tanh(4 x / q98)</code>) that
 reads as crisp gyri and sulci without the binary style's jagged
 vertex-step edges.</p></dd>
 
 
 <dt id="arg-midpoint">midpoint<a class="anchor" aria-label="anchor" href="#arg-midpoint"></a></dt>
 <dd><p>Boundary between dark and light. NULL uses the median,
-including for the historical [0, 1] output of [curvature()]. Use zero
+including for the historical [0, 1] output of <code><a href="curvature-methods.html">curvature()</a></code>. Use zero
 for a native signed metric whose anatomical boundary is zero.</p></dd>
 
 

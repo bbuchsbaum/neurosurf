@@ -1,6 +1,6 @@
 # SurfaceGeometryMetaInfo Class
 
-The \`SurfaceGeometryMetaInfo\` class encapsulates meta information for
+The `SurfaceGeometryMetaInfo` class encapsulates meta information for
 brain surface geometry. It stores details about the file locations,
 surface properties, and spatial characteristics.
 
@@ -30,7 +30,7 @@ neuroimaging analyses.
 
 - `file_descriptor`:
 
-  An object of class \`FileFormat\` describing the image file format.
+  An object of class `FileFormat` describing the image file format.
 
 - `vertices`:
 

@@ -44,12 +44,6 @@ ROISurfaceVector(geom, c(1L,2L), vec)
 #> 
 #>  SurfaceGeometry 
 #> 
-#>     /\     
-#>    /  \    
-#>   /____\   
-#>  /      \  
-#> /        \   
-#> 
 #>   Basic Information: 
 #>   Hemisphere: left
 #>   Vertices:   3
@@ -59,8 +53,8 @@ ROISurfaceVector(geom, c(1L,2L), vec)
 #>  Geometry Metrics: 
 #>   Euler Characteristic: 1
 #>   Genus:               0.5
-#>   Surface Area:        0
-#>   Avg Edge Length:     1.138
+#>   Surface Area:        0 mm^2
+#>   Avg Edge Length:     1.14 mm
 #> 
 #> 
 #> Slot "data":

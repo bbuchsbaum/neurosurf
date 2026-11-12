@@ -98,6 +98,7 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/load_data-methods.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_bundle.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_cortex.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_std8.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_sulc.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/map_values-NeuroSurface-list-method.html</loc></url>
@@ -150,11 +151,14 @@
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/sub-sub-NeuroSurfaceVector-numeric-method.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surf_to_world-methods.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surf_to_world-set-methods.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_colorbar_grob.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_heat_colors.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_labels.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_layer.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_montage.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_palette.html</loc></url>
+<url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_panels.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_parcel_style.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_plot.html</loc></url>
 <url><loc>https://bbuchsbaum.github.io/neurosurf/reference/surface_plot_helpers.html</loc></url>

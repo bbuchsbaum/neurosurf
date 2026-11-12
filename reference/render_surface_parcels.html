@@ -83,7 +83,7 @@ is drawn flat and light.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>A `surface_parcel_prep` from [prepare_surface_parcels()].
+<dd><p>A <code>surface_parcel_prep</code> from <code><a href="prepare_surface_parcels.html">prepare_surface_parcels()</a></code>.
 Its boundary method and parameters are reused without recomputation.
 In smooth mode, samples accepted just outside a face by the rasterizer's
 edge tolerance have negative barycentrics clipped to zero and renormalized
@@ -92,22 +92,22 @@ for label selection only; original weights still determine shading/depth.</p></d
 
 <dt id="arg-values">values<a class="anchor" aria-label="anchor" href="#arg-values"></a></dt>
 <dd><p>Optional numeric parcel values named by label id. Unnamed
-values must follow the sorted non-zero labels. `NA` leaves a parcel
+values must follow the sorted non-zero labels. <code>NA</code> leaves a parcel
 unfilled.</p></dd>
 
 
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
 <dd><p>Optional fill colours named by label id, used instead of
-`values` (e.g. categorical atlas colours).</p></dd>
+<code>values</code> (e.g. categorical atlas colours).</p></dd>
 
 
 <dt id="arg-camera">camera<a class="anchor" aria-label="anchor" href="#arg-camera"></a></dt>
-<dd><p>View: `"lateral"`, `"medial"`, `"dorsal"`, or `"ventral"`.</p></dd>
+<dd><p>View: <code>"lateral"</code>, <code>"medial"</code>, <code>"dorsal"</code>, or <code>"ventral"</code>.</p></dd>
 
 
 <dt id="arg-camera-mode-presentation-obliquity">camera_mode, presentation_obliquity<a class="anchor" aria-label="anchor" href="#arg-camera-mode-presentation-obliquity"></a></dt>
 <dd><p>Canonical or slightly oblique
-camera; see [render_surface_rgba()].</p></dd>
+camera; see <code><a href="render_surface_rgba.html">render_surface_rgba()</a></code>.</p></dd>
 
 
 <dt id="arg-width-height">width, height<a class="anchor" aria-label="anchor" href="#arg-width-height"></a></dt>
@@ -119,16 +119,16 @@ camera; see [render_surface_rgba()].</p></dd>
 
 
 <dt id="arg-palette">palette<a class="anchor" aria-label="anchor" href="#arg-palette"></a></dt>
-<dd><p>Colours for `values`, low to high.</p></dd>
+<dd><p>Colours for <code>values</code>, low to high.</p></dd>
 
 
 <dt id="arg-limits">limits<a class="anchor" aria-label="anchor" href="#arg-limits"></a></dt>
 <dd><p>Two increasing numbers mapped to the palette ends. Defaults
-to the symmetric absolute range of `values`.</p></dd>
+to the symmetric absolute range of <code>values</code>.</p></dd>
 
 
 <dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
-<dd><p>A [surface_parcel_style()] list.</p></dd>
+<dd><p>A <code><a href="surface_parcel_style.html">surface_parcel_style()</a></code> list.</p></dd>
 
 
 <dt id="arg-margin">margin<a class="anchor" aria-label="anchor" href="#arg-margin"></a></dt>
@@ -137,10 +137,10 @@ to the symmetric absolute range of `values`.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list with `rgba` (a `height` x `width` x 4 raw array with
-  straight alpha; transparent where the surface is absent), `labels` (the
-  parcel label at each output pixel centre; `NA` off-surface), `camera`,
-  and `provenance`.</p>
+    <p>A list with <code>rgba</code> (a <code>height</code> x <code>width</code> x 4 raw array with
+straight alpha; transparent where the surface is absent), <code>labels</code> (the
+parcel label at each output pixel centre; <code>NA</code> off-surface), <code>camera</code>,
+and <code>provenance</code>.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

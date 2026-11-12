@@ -40,22 +40,45 @@ white <- load_fsaverage("fsaverage5", "white")
 sulc <- load_fsaverage_sulc("fsaverage5")
 ```
 
-Here smooth clusters placed in white-surface coordinates stand in for
-your measured statistic. The renderer treats them exactly like any other
-vertex-wise numeric vector.
+Here smooth clusters stand in for your measured statistic. Each is
+placed at a white-surface coordinate and falls off with distance
+measured over the inflated surface, which follows the cortical sheet
+instead of cutting across neighbouring sulcal banks. Widths differ
+between clusters and peaks differ between hemispheres, as real effects
+do. The renderer treats the result like any other vertex-wise numeric
+vector.
 
 ``` r
 
-example_statistic <- function(geometry, side) {
-  cluster <- function(centre, z, width = 12) {
-    z * exp(-colSums((t(coords(geometry)) - centre)^2) / (2 * width^2))
+example_statistic <- function(hemi, side, peaks) {
+  cluster <- function(centre, peak, width) {
+    seed <- which.min(colSums((t(coords(white[[hemi]])) - centre)^2))
+    xyz <- coords(inflated[[hemi]])
+    peak * exp(-colSums((t(xyz) - xyz[seed, ])^2) / (2 * width^2))
   }
-  cluster(c(45 * side, -60, 20), 4) + cluster(c(40 * side, 20, 30), 3) +
-    cluster(c(55 * side, -20, 0), -3.5) + cluster(c(8 * side, 40, 10), -3)
+  # Inferior parietal, middle frontal, superior temporal and posterior
+  # cingulate clusters
+  cluster(c(45 * side, -60, 20), peaks[1], 12) +
+    cluster(c(40 * side, 20, 30), peaks[2], 9) +
+    cluster(c(55 * side, -20, 0), peaks[3], 8) +
+    cluster(c(5 * side, -46, 22), peaks[4], 11)
 }
 
-stat_lh <- example_statistic(white$lh, -1)
-stat_rh <- example_statistic(white$rh, 1)
+stat_lh <- example_statistic("lh", -1, c(4, 3, -3.5, -3))
+stat_rh <- example_statistic("rh", 1, c(3, 3.5, -2.5, -3.5))
+```
+
+The non-cortical medial wall should never carry statistical colour, so
+the figures below also pass a cortex mask, one logical value per vertex.
+For a subject, read it from FreeSurfer’s `?h.cortex.label`. For the
+bundled template,
+[`load_fsaverage_cortex()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_cortex.md)
+returns the same domain from FreeSurfer’s Destrieux parcellation: every
+vertex except the medial wall.
+
+``` r
+
+cortex <- load_fsaverage_cortex("fsaverage5")
 ```
 
 ## How do you render one thresholded view?
@@ -70,6 +93,7 @@ lh_lateral <- render_surface_rgba(
   inflated$lh,
   vertex_values = stat_lh,
   anatomy_metric = sulc$lh,
+  cortex_mask = cortex$lh,
   camera = "lateral",
   threshold = 1.5,
   tail = "two_sided",
@@ -79,7 +103,14 @@ lh_lateral <- render_surface_rgba(
 )
 ```
 
-![](surface-figures_files/figure-html/show-one-view-1.-cpu-lh-lateral.png)
+![Left hemisphere, lateral view. Two-sided \*z\*; \|\*z\*\| &lt; 1.5 is
+not drawn; colour limits &plusmn;4, blue negative, red positive. The
+four-view figure below carries the
+key.](surface-figures_files/figure-html/show-one-view-1.-cpu-lh-lateral.png)
+
+Left hemisphere, lateral view. Two-sided *z*; \|*z*\| \< 1.5 is not
+drawn; colour limits ±4, blue negative, red positive. The four-view
+figure below carries the key.
 
 The colour at each covered sample comes from the barycentrically
 interpolated scalar. Thresholding and palette mapping happen after that
@@ -109,6 +140,7 @@ figure <- surface_figure(
   rh = inflated$rh,
   values = list(lh = stat_lh, rh = stat_rh),
   anatomy = sulc,
+  cortex_mask = cortex,
   views = c("lateral", "medial"),
   threshold = 1.5,
   tail = "two_sided",
@@ -121,7 +153,16 @@ figure <- surface_figure(
 )
 ```
 
-![](surface-figures_files/figure-html/show-four-views-1.-cpu-four-views.png)
+![fsaverage5 inflated surfaces, lateral (top) and medial (bottom) views.
+Two-sided \*z\* with \|\*z\*\| &lt; 1.5 not drawn; colour fades in over
+the next 0.25. The grey medial wall carries no colour, so the posterior
+cingulate cluster stops at the cortex
+mask.](surface-figures_files/figure-html/show-four-views-1.-cpu-four-views.png)
+
+fsaverage5 inflated surfaces, lateral (top) and medial (bottom) views.
+Two-sided *z* with \|*z*\| \< 1.5 not drawn; colour fades in over the
+next 0.25. The grey medial wall carries no colour, so the posterior
+cingulate cluster stops at the cortex mask.
 
 In an interactive session, `plot(figure)` draws the same figure on the
 current graphics device.
@@ -136,19 +177,33 @@ touching background that is connected to the image exterior.
 A real cortex mask is a separate domain object, not a consequence of
 parcel value zero. Pass one logical value per vertex. Triangles touching
 a masked vertex never receive overlay colour. `medial_wall` then
-controls whether the excluded domain is quietly shaded, omitted, or
+controls whether the excluded domain is quietly shaded, masked out, or
 outlined.
+
+The panels below repeat the left medial view with each policy, using the
+`cortex` mask from above. The posterior cingulate cluster runs up to the
+wall; triangles that touch the wall receive no overlay colour under any
+policy, so the cluster stops at the cortical boundary.
 
 ``` r
 
-masked_panel <- render_surface_rgba(
-  inflated$lh,
-  vertex_values = statistic,
-  anatomy_metric = sulcal_depth,
-  cortex_mask = cortex_label,
-  medial_wall = "shade"
-)
+policies <- c("shade", "mask", "outline")
+medial_panels <- lapply(policies, function(policy) {
+  render_surface_rgba(
+    inflated$lh, stat_lh, anatomy_metric = sulc$lh,
+    camera = "medial", threshold = 1.5, limits = c(-4, 4),
+    cortex_mask = cortex$lh, medial_wall = policy,
+    width = 480, height = 300, antialias = 3
+  )
+})
+surface_panels(medial_panels, sprintf('medial_wall = "%s"', policies),
+               legend_title = "z", label_family = "mono")
 ```
+
+![Left medial view of the same z map under the three medial_wall
+policies.](surface-figures_files/figure-html/cortex-mask-panels-1.png)
+
+Left medial view of the same z map under the three medial_wall policies.
 
 Atlas-aware callers such as `neuroatlas::plot_brain()` can resolve the
 mask and its provenance from an atlas annotation. At this low level,
@@ -159,8 +214,10 @@ than guessing that an atlas label of zero always means medial wall.
 
 For a continuous image, use explicit trilinear sampling through the
 cortical ribbon. Interpolation, aggregation across depth, and tangential
-smoothing are separate choices. The following contract samples five
-depths, averages them, and applies no surface smoothing:
+smoothing are separate choices. The following call samples five depths,
+averages them, and applies no surface smoothing. It needs your own
+subject’s `white_surface`, `pial_surface` and `statistic_volume`, so it
+is not run here:
 
 ``` r
 
@@ -205,8 +262,9 @@ omits them.
 
 ## Next steps
 
-- [`vignette("displaying-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.md)
-  covers lower-level RGL rendering and local snapshots.
+- the [Displaying surfaces with
+  RGL](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html)
+  article covers lower-level RGL rendering and local snapshots.
 - [`vignette("interactive-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.md)
   builds interactive bilateral report widgets with
   [`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md).

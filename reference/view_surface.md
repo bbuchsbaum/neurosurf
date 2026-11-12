@@ -1,6 +1,6 @@
 # Display a 3D Brain Surface using RGL
 
-Renders a 3D brain surface mesh using the \`rgl\` package. This function
+Renders a 3D brain surface mesh using the `rgl` package. This function
 provides flexible options for coloring the surface based on data values
 or predefined colors, adjusting transparency, controlling lighting,
 setting viewpoints, and overlaying spherical markers.
@@ -11,9 +11,9 @@ setting viewpoints, and overlaying spherical markers.
 view_surface(
   surfgeom,
   vals = NA,
-  cmap = grDevices::rainbow(256, alpha = 1),
+  cmap = NULL,
   vert_clrs = NULL,
-  bgcol = "lightgray",
+  bgcol = NULL,
   alpha = 1,
   add_normals = TRUE,
   thresh = NULL,
@@ -55,28 +55,33 @@ view_surface(
 - vals:
 
   An optional numeric vector containing data values for each vertex on
-  the surface. If provided and \`vert_clrs\` is NULL, these values are
-  mapped to colors using \`cmap\` and \`irange\`.
+  the surface. If provided and `vert_clrs` is NULL, these values are
+  mapped to colors using `cmap` and `irange`.
 
 - cmap:
 
   A vector of colors (e.g., hex codes) defining the color map used when
-  \`vals\` is provided and \`vert_clrs\` is NULL. Defaults to
-  \`rainbow(256)\`.
+  `vals` is provided and `vert_clrs` is NULL. The default, `NULL`,
+  chooses
+  [`surface_palette`](https://bbuchsbaum.github.io/neurosurf/reference/surface_palette.md):
+  diverging when `irange` spans zero, sequential otherwise.
 
 - vert_clrs:
 
   An optional character vector of hex color codes for each vertex. If
   provided, these colors directly override any coloring derived from
-  \`vals\` and \`cmap\`. The length should match the number of vertices
-  in \`surfgeom\`.
+  `vals` and `cmap`. The length should match the number of vertices in
+  `surfgeom`.
 
 - bgcol:
 
   A single hex color code or a vector of hex color codes used as the
-  base color for the surface. If \`vals\` or \`vert_clrs\` are provided,
-  this color is blended with the data/vertex colors. Defaults to
-  "lightgray".
+  base color for the surface. If `vals` or `vert_clrs` are provided,
+  this color is blended with the data/vertex colors. The default,
+  `NULL`, shades the surface by its curvature (sulci dark, gyri light)
+  with
+  [`curv_cols_smooth`](https://bbuchsbaum.github.io/neurosurf/reference/curv_cols_smooth.md);
+  use `NA` for no base colour.
 
 - alpha:
 
@@ -90,17 +95,18 @@ view_surface(
 
 - thresh:
 
-  An optional numeric vector of length 2, \`c(lower, upper)\`. Vertices
-  with \`vals\` \*outside\* this range (i.e., \`\< lower\` or \`\>
-  upper\`) are made fully transparent. This is applied \*after\* the
-  general \`alpha\`. Defaults to NULL (no thresholding).
+  An optional numeric vector of length 2, `c(lower, upper)`. Values
+  *inside* this band are not coloured, so the base colour shows through.
+  With a base colour, opacity ramps up over a short band past each limit
+  (a quarter of the larger limit's magnitude) so cluster edges fade
+  smoothly. Defaults to NULL (no thresholding).
 
 - irange:
 
-  An optional numeric vector of length 2, \`c(min, max)\`. Specifies the
-  range of \`vals\` to map onto the \`cmap\`. Values outside this range
-  will be clamped to the min/max colors. Defaults to the full range of
-  \`vals\`.
+  An optional numeric vector of length 2, `c(min, max)`. Specifies the
+  range of `vals` to map onto the `cmap`. Values outside this range will
+  be clamped to the min/max colors. Defaults to the full range of
+  `vals`.
 
 - specular:
 
@@ -120,36 +126,37 @@ view_surface(
 
   A character string specifying a predefined view (e.g., "lateral",
   "medial", "ventral", "dorsal", "anterior", "posterior"). The actual
-  view depends on the hemisphere (\`surfgeom@hemi\`, e.g.,
+  view depends on the hemisphere (`surfgeom@hemi`, e.g.,
   "left_lateral"). Alternatively, a 4x4 transformation matrix defining a
   custom view. Defaults to "lateral".
 
 - new_window:
 
-  Logical. If TRUE (default), opens a new \`rgl\` window for the plot.
-  If FALSE, attempts to plot in the currently active \`rgl\` window
-  (useful for updates or within Shiny apps).
+  Logical. If TRUE (default), opens a new `rgl` window for the plot. If
+  FALSE, attempts to plot in the currently active `rgl` window (useful
+  for updates or within Shiny apps).
 
 - offset:
 
-  A numeric vector of length 3 specifying a translation offset \`c(x, y,
-  z)\` applied to the surface coordinates before rendering. Defaults to
-  \`c(0, 0, 0)\`.
+  A numeric vector of length 3 specifying a translation offset
+  `c(x, y, z)` applied to the surface coordinates before rendering.
+  Defaults to `c(0, 0, 0)`.
 
 - zoom:
 
-  A numeric value controlling the camera zoom level. Defaults to 1 (no
-  zoom). Values \> 1 zoom in, \< 1 zoom out.
+  Camera zoom passed to
+  [`rgl::view3d()`](https://dmurdoch.github.io/rgl/dev/reference/viewpoint.html).
+  Defaults to 1; values below 1 zoom in (for example 0.7 fills more of
+  the window), values above 1 zoom out.
 
 - spheres:
 
   An optional data frame to draw spheres at specific locations on or
-  near the surface. Must contain columns \`x\`, \`y\`, \`z\`
-  (coordinates), and \`radius\`. Can optionally include a \`color\`
-  column (hex codes or color names) for individual sphere colors
-  (defaults to black). Alternatively, supply a \`vertex\` column
-  (1-based vertex ids) and set `spheres_as_vertices = TRUE` to position
-  foci by vertex.
+  near the surface. Must contain columns `x`, `y`, `z` (coordinates),
+  and `radius`. Can optionally include a `color` column (hex codes or
+  color names) for individual sphere colors (defaults to black).
+  Alternatively, supply a `vertex` column (1-based vertex ids) and set
+  `spheres_as_vertices = TRUE` to position foci by vertex.
 
 - spheres_map_surface:
 
@@ -165,7 +172,7 @@ view_surface(
 
 - spheres_as_vertices:
 
-  Logical; if `TRUE`, interpret the \`vertex\` column of `spheres` as
+  Logical; if `TRUE`, interpret the `vertex` column of `spheres` as
   1-based vertex ids on `surfgeom` rather than raw coordinates.
 
 - vectors:
@@ -196,64 +203,69 @@ view_surface(
 
 - vals_vertices:
 
-  Optional integer vector of 1-based vertex ids corresponding to
-  \`vals\` when \`length(vals) \< n_vertices\`. Enables sparse data
-  inputs.
+  Optional integer vector of 1-based vertex ids corresponding to `vals`
+  when `length(vals) < n_vertices`. Enables sparse data inputs.
 
 - vals_smoothing:
 
-  One of \`"auto"\` (default) or \`"nearest"\`. When using sparse data,
-  \`"auto"\` diffuses values with neighbor averaging after nearest fill;
-  \`"nearest"\` performs nearest-neighbour fill only.
+  One of `"auto"` (default) or `"nearest"`. When using sparse data,
+  `"auto"` diffuses values with neighbor averaging after nearest fill;
+  `"nearest"` performs nearest-neighbour fill only.
 
 - vals_smoothing_steps:
 
-  Integer number of smoothing iterations applied when \`vals_smoothing =
-  "auto"\`. Ignored otherwise.
+  Integer number of smoothing iterations applied when
+  `vals_smoothing = "auto"`. Ignored otherwise.
 
 - label:
 
-  Optional surface label to select when \`surfgeom\` is a `SurfaceSet`.
-  Defaults to the set's \`default_label\`.
+  Optional surface label to select when `surfgeom` is a `SurfaceSet`.
+  Defaults to the set's `default_label`.
 
 - ...:
 
-  Additional arguments passed directly to \`rgl::shade3d\` for
-  fine-grained control over rendering (e.g., \`lit\`, \`smooth\`).
+  Additional arguments passed directly to
+  [`rgl::shade3d`](https://dmurdoch.github.io/rgl/dev/reference/shade3d.html)
+  for fine-grained control over rendering (e.g., `lit`, `smooth`).
 
 ## Value
 
 Invisibly returns the object ID(s) of the shape(s) added to the RGL
-scene by \`rgl::shade3d\`. This can be useful for modifying the scene
-later.
+scene by
+[`rgl::shade3d`](https://dmurdoch.github.io/rgl/dev/reference/shade3d.html).
+This can be useful for modifying the scene later.
 
 ## Details
 
-\*\*Coloring:\*\* Surface vertex colors are determined by the following
-priority: 1. \`vert_clrs\`: If provided, these specific hex colors are
-used. 2. \`vals\` & \`cmap\`: If \`vals\` is provided and \`vert_clrs\`
-is NULL, \`vals\` are mapped to \`cmap\` based on \`irange\`. 3.
-\`bgcol\`: If neither \`vert_clrs\` nor \`vals\` are used for coloring,
-\`bgcol\` is applied uniformly. If \`bgcol\` is specified alongside
-\`vert_clrs\` or \`vals\`, the colors are blended based on the \`alpha\`
-parameter.
+**Coloring:** Surface vertex colors are determined by the following
+priority:
 
-\*\*Transparency:\*\* Overall transparency is set by \`alpha\`.
-Additional threshold-based transparency can be applied using \`thresh\`
-when \`vals\` are provided. Vertices with values outside the \`thresh\`
-range become fully transparent.
+1.  `vert_clrs`: If provided, these specific hex colors are used.
 
-\*\*Lighting:\*\* \`add_normals=TRUE\` is recommended for realistic
-lighting. The \`specular\` parameter controls the shininess.
+2.  `vals` & `cmap`: If `vals` is provided and `vert_clrs` is NULL,
+    `vals` are mapped to `cmap` based on `irange`.
 
-\*\*Viewpoint:\*\* Predefined viewpoints (\`"lateral"\`, \`"medial"\`,
-etc.) are automatically adjusted based on the hemisphere specified in
-\`surfgeom@hemi\` (e.g., "lh" results in "left_lateral"). If \`hemi\` is
-unknown, the current \`rgl\` view is used unless a custom 4x4 matrix is
+3.  `bgcol`: If neither `vert_clrs` nor `vals` are used for coloring,
+    `bgcol` is applied uniformly. If `bgcol` is specified alongside
+    `vert_clrs` or `vals`, the colors are blended based on the `alpha`
+    parameter.
+
+**Transparency:** Overall transparency is set by `alpha`. Additional
+threshold-based transparency can be applied using `thresh` when `vals`
+are provided. Vertices with values inside the `thresh` band are left
+uncoloured.
+
+**Lighting:** `add_normals=TRUE` is recommended for realistic lighting.
+The `specular` parameter controls the shininess.
+
+**Viewpoint:** Predefined viewpoints (`"lateral"`, `"medial"`, etc.) are
+automatically adjusted based on the hemisphere specified in
+`surfgeom@hemi` (e.g., "lh" results in "left_lateral"). If `hemi` is
+unknown, the current `rgl` view is used unless a custom 4x4 matrix is
 provided.
 
-\*\*Performance:\*\* Rendering very large surfaces or surfaces with
-complex coloring/transparency can be computationally intensive.
+**Performance:** Rendering very large surfaces or surfaces with complex
+coloring/transparency can be computationally intensive.
 
 ## See also
 

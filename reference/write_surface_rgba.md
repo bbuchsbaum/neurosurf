@@ -12,7 +12,7 @@ write_surface_rgba(x, file)
 
 - x:
 
-  A \`surface_rgba\` object.
+  A `surface_rgba` object.
 
 - file:
 

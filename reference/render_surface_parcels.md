@@ -31,30 +31,32 @@ render_surface_parcels(
 
 - x:
 
-  A \`surface_parcel_prep\` from \[prepare_surface_parcels()\]. Its
-  boundary method and parameters are reused without recomputation. In
-  smooth mode, samples accepted just outside a face by the rasterizer's
-  edge tolerance have negative barycentrics clipped to zero and
-  renormalized for label selection only; original weights still
+  A `surface_parcel_prep` from
+  [`prepare_surface_parcels()`](https://bbuchsbaum.github.io/neurosurf/reference/prepare_surface_parcels.md).
+  Its boundary method and parameters are reused without recomputation.
+  In smooth mode, samples accepted just outside a face by the
+  rasterizer's edge tolerance have negative barycentrics clipped to zero
+  and renormalized for label selection only; original weights still
   determine shading/depth.
 
 - values:
 
   Optional numeric parcel values named by label id. Unnamed values must
-  follow the sorted non-zero labels. \`NA\` leaves a parcel unfilled.
+  follow the sorted non-zero labels. `NA` leaves a parcel unfilled.
 
 - colors:
 
-  Optional fill colours named by label id, used instead of \`values\`
+  Optional fill colours named by label id, used instead of `values`
   (e.g. categorical atlas colours).
 
 - camera:
 
-  View: \`"lateral"\`, \`"medial"\`, \`"dorsal"\`, or \`"ventral"\`.
+  View: `"lateral"`, `"medial"`, `"dorsal"`, or `"ventral"`.
 
 - camera_mode, presentation_obliquity:
 
-  Canonical or slightly oblique camera; see \[render_surface_rgba()\].
+  Canonical or slightly oblique camera; see
+  [`render_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md).
 
 - width, height:
 
@@ -66,16 +68,18 @@ render_surface_parcels(
 
 - palette:
 
-  Colours for \`values\`, low to high.
+  Colours for `values`, low to high.
 
 - limits:
 
   Two increasing numbers mapped to the palette ends. Defaults to the
-  symmetric absolute range of \`values\`.
+  symmetric absolute range of `values`.
 
 - style:
 
-  A \[surface_parcel_style()\] list.
+  A
+  [`surface_parcel_style()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_parcel_style.md)
+  list.
 
 - margin:
 
@@ -83,7 +87,7 @@ render_surface_parcels(
 
 ## Value
 
-A list with \`rgba\` (a \`height\` x \`width\` x 4 raw array with
-straight alpha; transparent where the surface is absent), \`labels\`
-(the parcel label at each output pixel centre; \`NA\` off-surface),
-\`camera\`, and \`provenance\`.
+A list with `rgba` (a `height` x `width` x 4 raw array with straight
+alpha; transparent where the surface is absent), `labels` (the parcel
+label at each output pixel centre; `NA` off-surface), `camera`, and
+`provenance`.

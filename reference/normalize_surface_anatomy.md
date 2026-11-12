@@ -24,16 +24,17 @@ normalize_surface_anatomy(
 
 - style:
 
-  \`"continuous"\` robust linear scaling, \`"binary"\` folding contrast,
-  or \`"soft"\`: a sigmoid two-tone (\`0.5 \* tanh(4 x / q98)\`) that
-  reads as crisp gyri and sulci without the binary style's jagged
-  vertex-step edges.
+  `"continuous"` robust linear scaling, `"binary"` folding contrast, or
+  `"soft"`: a sigmoid two-tone (`0.5 * tanh(4 x / q98)`) that reads as
+  crisp gyri and sulci without the binary style's jagged vertex-step
+  edges.
 
 - midpoint:
 
   Boundary between dark and light. NULL uses the median, including for
-  the historical \[0, 1\] output of \[curvature()\]. Use zero for a
-  native signed metric whose anatomical boundary is zero.
+  the historical \[0, 1\] output of
+  [`curvature()`](https://bbuchsbaum.github.io/neurosurf/reference/curvature-methods.md).
+  Use zero for a native signed metric whose anatomical boundary is zero.
 
 - invert:
 

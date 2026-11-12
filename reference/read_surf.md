@@ -80,12 +80,6 @@ if (file.exists(surf_file)) {
 #> 
 #>  SurfaceGeometry 
 #> 
-#>     /\     
-#>    /  \    
-#>   /____\   
-#>  /      \  
-#> /        \   
-#> 
 #>   Basic Information: 
 #>   Hemisphere: left
 #>   Vertices:   642
@@ -95,8 +89,8 @@ if (file.exists(surf_file)) {
 #>  Geometry Metrics: 
 #>   Euler Characteristic: 2
 #>   Genus:               0
-#>   Surface Area:        36956
-#>   Avg Edge Length:     10.31
+#>   Surface Area:        53,137 mm^2
+#>   Avg Edge Length:     10.3 mm
 #> 
 #>           [,1]       [,2]       [,3]
 #> [1,] -32.43124  -5.756156 -26.852390

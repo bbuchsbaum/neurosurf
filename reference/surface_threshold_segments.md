@@ -1,8 +1,10 @@
 # Marching-triangle threshold segments
 
 Computes exact linear threshold crossings from the same vertex-scalar
-model used by \[render_surface_rgba()\]. Positive and negative levels
-are handled as independent regions for two-sided maps.
+model used by
+[`render_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md).
+Positive and negative levels are handled as independent regions for
+two-sided maps.
 
 ## Usage
 

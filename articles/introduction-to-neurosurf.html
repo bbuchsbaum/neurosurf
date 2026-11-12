@@ -65,7 +65,7 @@
                         <h4 data-toc-skip class="author">Bradley
 Buchsbaum</h4>
             
-            <h4 data-toc-skip class="date">2026-11-05</h4>
+            <h4 data-toc-skip class="date">2026-11-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bbuchsbaum/neurosurf/blob/master/vignettes/introduction-to-neurosurf.Rmd" class="external-link"><code>vignettes/introduction-to-neurosurf.Rmd</code></a></small>
       <div class="d-none name"><code>introduction-to-neurosurf.Rmd</code></div>
@@ -78,9 +78,9 @@ Buchsbaum</h4>
 surface geometries and associated data.</p>
 <p>For visualization, see the companion vignettes:</p>
 <ul>
-<li>
-<code><a href="../articles/displaying-surfaces.html">vignette("displaying-surfaces")</a></code> for interactive 3D
-plots based on <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> and <code><a href="../reference/view_surface.html">view_surface()</a></code>.</li>
+<li>the <a href="https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html">Displaying
+surfaces with RGL</a> article for interactive 3D plots based on
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> and <code><a href="../reference/view_surface.html">view_surface()</a></code>.</li>
 <li>
 <code><a href="../articles/interactive-surfaces.html">vignette("interactive-surfaces")</a></code> for HTML-widget based
 exploration.</li>
@@ -89,14 +89,7 @@ exploration.</li>
 publication-quality figures built with
 <code><a href="../reference/surface_figure.html">surface_figure()</a></code>.</li>
 </ul>
-<div class="section level2">
-<h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
-</h2>
-<p>First, let’s load the necessary libraries and set up the
-environment.</p>
-<script>document.addEventListener("DOMContentLoaded",function(){document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-interaction","preset-study","preset-structural","preset-adobe","preset-midnight");document.body.classList.add("palette-teal","preset-homage");});</script>
-</div>
-<div class="section level2">
+<script>document.addEventListener("DOMContentLoaded",function(){document.body.classList.remove("palette-red","palette-lapis","palette-ochre","palette-teal","palette-green","palette-violet","preset-homage","preset-interaction","preset-study","preset-structural","preset-adobe","preset-midnight");document.body.classList.add("palette-teal","preset-homage");});</script><div class="section level2">
 <h2 id="surfacegeometry-representing-the-mesh">
 <code>SurfaceGeometry</code>: Representing the Mesh<a class="anchor" aria-label="anchor" href="#surfacegeometry-representing-the-mesh"></a>
 </h2>
@@ -124,19 +117,17 @@ the hemisphere, typically “lh” (left) or “rh” (right).</li>
 binary, Freesurfer ASCII <code>.asc</code>, GIFTI <code>.gii</code>)
 using the <code><a href="../reference/read_surf_geometry.html">read_surf_geometry()</a></code> function.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load the example left hemisphere white matter surface (.asc format)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bbuchsbaum.github.io/neurosurf/">neurosurf</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The example left smoothed white surface shipped with the package</span></span>
+<span><span class="va">white_lh_asc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"std.8_lh.smoothwm.asc"</span>,</span>
+<span>                            package <span class="op">=</span> <span class="st">"neurosurf"</span><span class="op">)</span></span>
 <span><span class="va">lh_geom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_surf_geometry.html">read_surf_geometry</a></span><span class="op">(</span><span class="va">white_lh_asc</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Display summary information about the loaded geometry</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/methods/show.html" class="external-link">show</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  SurfaceGeometry </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">    /\     </span></span></span>
-<span><span class="co"><span style="color: #555555;">#&gt;    /  \    </span></span></span>
-<span><span class="co"><span style="color: #555555;">#&gt;   /____\   </span></span></span>
-<span><span class="co"><span style="color: #555555;">#&gt;  /      \  </span></span></span>
-<span><span class="co"><span style="color: #555555;">#&gt; /        \  </span> </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB; font-weight: bold;">  Basic Information:</span> </span></span>
 <span><span class="co">#&gt;   <span style="color: #00BB00;">Hemisphere:</span> <span style="color: #BBBB00;">left</span></span></span>
@@ -147,8 +138,8 @@ using the <code><a href="../reference/read_surf_geometry.html">read_surf_geometr
 <span><span class="co">#&gt; <span style="color: #0000BB; font-weight: bold;"> Geometry Metrics:</span> </span></span>
 <span><span class="co">#&gt;   <span style="color: #00BB00;">Euler Characteristic:</span> <span style="color: #BBBB00;">2</span></span></span>
 <span><span class="co">#&gt;   <span style="color: #00BB00;">Genus:</span>               <span style="color: #BBBB00;">0</span></span></span>
-<span><span class="co">#&gt;   <span style="color: #00BB00;">Surface Area:</span>        <span style="color: #BBBB00;">36956</span></span></span>
-<span><span class="co">#&gt;   <span style="color: #00BB00;">Avg Edge Length:</span>     <span style="color: #BBBB00;">10.31</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">Surface Area:</span>        <span style="color: #BBBB00;">53,137 mm^2</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">Avg Edge Length:</span>     <span style="color: #BBBB00;">10.3 mm</span></span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="accessing-geometry-properties">Accessing Geometry Properties<a class="anchor" aria-label="anchor" href="#accessing-geometry-properties"></a>
@@ -170,20 +161,12 @@ using the <code><a href="../reference/read_surf_geometry.html">read_surf_geometr
 <span><span class="co">#&gt; [2,] -38.78497  10.942583  52.54661</span></span>
 <span><span class="co">#&gt; [3,] -26.23813 -35.324768  58.41325</span></span>
 <span></span>
-<span><span class="co"># The underlying igraph connectivity object</span></span>
-<span><span class="fu">neurosurf</span><span class="fu">::</span><span class="fu"><a href="../reference/graph-methods.html">graph</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
-<span><span class="co">#&gt; IGRAPH bc9b260 U--- 642 1920 -- </span></span>
-<span><span class="co">#&gt; + attr: x (v/n), y (v/n), z (v/n), dist (e/n)</span></span>
-<span><span class="co">#&gt; + edges from bc9b260:</span></span>
-<span><span class="co">#&gt;  [1]  1-- 13  1-- 27  1-- 55  1-- 90  1--125  2--188  2--195  2--223  2--258</span></span>
-<span><span class="co">#&gt; [10]  2--293  3--264  3--271  3--300  3--356  3--391  4-- 96  4--103  4--132</span></span>
-<span><span class="co">#&gt; [19]  4--517  4--545  5-- 19  5-- 26  5-- 62  5--201  5--334  6--397  6--404</span></span>
-<span><span class="co">#&gt; [28]  6--426  6--482  6--551  7-- 20  7-- 33  7--166  7--194  7--230  8--362</span></span>
-<span><span class="co">#&gt; [37]  8--369  8--398  8--510  8--523  9--229  9--236  9--265  9--363  9--600</span></span>
-<span><span class="co">#&gt; [46] 10-- 61 10-- 68 10-- 97 10--460 10--488 11--299 11--306 11--328 11--432</span></span>
-<span><span class="co">#&gt; [55] 11--454 12--131 12--138 12--160 12--516 12--594 13-- 14 13-- 27 13-- 34</span></span>
-<span><span class="co">#&gt; [64] 13-- 55 13-- 69 14-- 15 14-- 34 14-- 40 14-- 69 14-- 70 15-- 16 15-- 40</span></span>
-<span><span class="co">#&gt; + ... omitted several edges</span></span>
+<span><span class="co"># The underlying igraph connectivity object: one node per vertex,</span></span>
+<span><span class="co"># one edge per mesh edge</span></span>
+<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">neurosurf</span><span class="fu">::</span><span class="fu"><a href="../reference/graph-methods.html">graph</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/gorder.html" class="external-link">vcount</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>, edges <span class="op">=</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/gsize.html" class="external-link">ecount</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; nodes edges </span></span>
+<span><span class="co">#&gt;   642  1920</span></span>
 <span></span>
 <span><span class="co"># The underlying rgl mesh3d object, and the hemisphere label</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">@</span><span class="va">mesh</span><span class="op">)</span></span>
@@ -221,10 +204,9 @@ data values. Its length must match the length of
 <p>You typically create a <code>NeuroSurface</code> using its
 constructor, providing the geometry, indices, and data.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Generate some example data (e.g., based on x-coordinate)</span></span>
-<span><span class="co"># Use all vertices from lh_geom</span></span>
+<code class="sourceCode R"><span><span class="co"># Example data: curvature at every vertex</span></span>
 <span><span class="va">vertex_indices</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
-<span><span class="va">example_data</span> <span class="op">&lt;-</span> <span class="fu">coords</span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="co"># Use x-coordinate as data</span></span>
+<span><span class="va">example_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/curvature-methods.html">curvature</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create the NeuroSurface object</span></span>
 <span><span class="va">lh_surf_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/NeuroSurface.html">NeuroSurface</a></span><span class="op">(</span>geometry <span class="op">=</span> <span class="va">lh_geom</span>, </span>
@@ -242,10 +224,34 @@ constructor, providing the geometry, indices, and data.</p>
 <span><span class="co">#&gt;   <span style="color: #00BB00;">Vertices w/ Data:</span><span style="color: #BBBB00;">642</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB; font-weight: bold;">  Data Summary:</span> </span></span>
-<span><span class="co">#&gt;   <span style="color: #00BB00;">Min:</span>    <span style="color: #BBBB00;">-65.39</span></span></span>
-<span><span class="co">#&gt;   <span style="color: #00BB00;">Median:</span><span style="color: #BBBB00;">-29.95</span></span></span>
-<span><span class="co">#&gt;   <span style="color: #00BB00;">Mean:</span>  <span style="color: #BBBB00;">-29.35</span></span></span>
-<span><span class="co">#&gt;   <span style="color: #00BB00;">Max:</span>    <span style="color: #BBBB00;">1.209</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">Min:</span>    <span style="color: #BBBB00;">0</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">Median:</span><span style="color: #BBBB00;">0.5069</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">Mean:</span>  <span style="color: #BBBB00;">0.4956</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">Max:</span>    <span style="color: #BBBB00;">1</span></span></span></code></pre></div>
+<p>A <code>NeuroSurface</code> is easiest to understand as a picture:
+its values painted on its geometry. <code><a href="../reference/render_surface_rgba.html">render_surface_rgba()</a></code>
+draws one view without a graphics device. Curvature is anatomy, so it is
+drawn the way FreeSurfer shows anatomy: as the grey underlay itself,
+sulci dark and gyri light, with no colour overlay and no lighting, so
+every grey level is a curvature value. (FreeSurfer’s own
+<code>?h.curv</code> files are positive in sulci;
+<code><a href="../reference/curvature-methods.html">curvature()</a></code> returns mean curvature min-max rescaled to [0,
+1], higher on gyri.)</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">no_overlay</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/render_surface_rgba.html">render_surface_rgba</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="../reference/geometry-methods.html">geometry</a></span><span class="op">(</span><span class="va">lh_surf_data</span><span class="op">)</span>, <span class="va">no_overlay</span>,</span>
+<span>  anatomy_metric <span class="op">=</span> <span class="va">lh_surf_data</span><span class="op">@</span><span class="va">data</span>, anatomy_style <span class="op">=</span> <span class="st">"continuous"</span>,</span>
+<span>  anatomy_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.92</span><span class="op">)</span>, lighting <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  outer_contour <span class="op">=</span> <span class="cn">FALSE</span>, camera <span class="op">=</span> <span class="st">"lateral"</span>,</span>
+<span>  width <span class="op">=</span> <span class="fl">600</span>, height <span class="op">=</span> <span class="fl">360</span>, antialias <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="introduction-to-neurosurf_files/figure-html/show-neurosurface-image-1.neurosurface.png" class="r-plt" alt="Left hemisphere, lateral view, shaded by curvature: 0 (dark, sulcal fundi) to 1 (light, gyral crowns)." width="70%"><p class="caption">
+Left hemisphere, lateral view, shaded by curvature: 0 (dark, sulcal
+fundi) to 1 (light, gyral crowns).
+</p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="loading-data-with-read_surf-optional-data-file">Loading Data with <code>read_surf</code> (Optional Data File)<a class="anchor" aria-label="anchor" href="#loading-data-with-read_surf-optional-data-file"></a>
@@ -254,10 +260,12 @@ constructor, providing the geometry, indices, and data.</p>
 <code>.1D.dset</code>, NIML <code>.niml.dset</code>), you can load both
 the geometry and the data using <code>read_surf</code>. Here we create a
 temporary <code>.1D.dset</code> file for demonstration.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 1. Prepare sample data for a subset of nodes</span></span>
-<span><span class="va">sample_nodes_indices_R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">500</span><span class="op">)</span> <span class="co"># R indices (1-based)</span></span>
-<span><span class="va">sample_nodes_indices_0based</span> <span class="op">&lt;-</span> <span class="va">sample_nodes_indices_R</span> <span class="op">-</span> <span class="fl">1</span>     <span class="co"># 0-based for .1D file</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co"># R indices are 1-based; AFNI .1D files are 0-based</span></span>
+<span><span class="va">sample_nodes_indices_R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
+<span><span class="va">sample_nodes_indices_0based</span> <span class="op">&lt;-</span> <span class="va">sample_nodes_indices_R</span> <span class="op">-</span> <span class="fl">1</span></span>
 <span><span class="va">sample_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">500</span><span class="op">)</span> </span>
 <span></span>
 <span><span class="co"># 2. Create a temporary file</span></span>
@@ -286,12 +294,12 @@ temporary <code>.1D.dset</code> file for demonstration.</p>
 <span><span class="co">#&gt;   <span style="color: #00BB00;">Vertices w/ Data:</span><span style="color: #BBBB00;">500</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB; font-weight: bold;">  Data Summary:</span> </span></span>
-<span><span class="co">#&gt;   <span style="color: #00BB00;">Min:</span>    <span style="color: #BBBB00;">-2.82</span></span></span>
-<span><span class="co">#&gt;   <span style="color: #00BB00;">Median:</span><span style="color: #BBBB00;">-0.01911</span></span></span>
-<span><span class="co">#&gt;   <span style="color: #00BB00;">Mean:</span>  <span style="color: #BBBB00;">-0.03667</span></span></span>
-<span><span class="co">#&gt;   <span style="color: #00BB00;">Max:</span>    <span style="color: #BBBB00;">2.689</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">Min:</span>    <span style="color: #BBBB00;">-2.716</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">Median:</span><span style="color: #BBBB00;">-0.01771</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">Mean:</span>  <span style="color: #BBBB00;">0.006245</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">Max:</span>    <span style="color: #BBBB00;">3.266</span></span></span>
 <span></span>
-<span><span class="co"># Number of data points loaded, and how many are non-zero (should match size = 500)</span></span>
+<span><span class="co"># Values loaded, and how many are non-zero (500, the sample size)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">lh_surf_loaded</span><span class="op">@</span><span class="va">data</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 500</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">lh_surf_loaded</span><span class="op">@</span><span class="va">data</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span></span>
@@ -300,18 +308,18 @@ temporary <code>.1D.dset</code> file for demonstration.</p>
 <div class="section level3">
 <h3 id="accessing-neurosurface-properties">Accessing <code>NeuroSurface</code> Properties<a class="anchor" aria-label="anchor" href="#accessing-neurosurface-properties"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The geometry can be retrieved and matches the original</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="../reference/geometry-methods.html">geometry</a></span><span class="op">(</span><span class="va">lh_surf_data</span><span class="op">)</span>, <span class="va">lh_geom</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span></span>
-<span><span class="co"># The data vector, via direct slot access (lh_surf_data@data) or as.vector();</span></span>
+<span><span class="co"># The data vector, via the slot (lh_surf_data@data) or as.vector();</span></span>
 <span><span class="co"># its length and first few values</span></span>
 <span><span class="va">data_vec</span> <span class="op">&lt;-</span> <span class="va">lh_surf_data</span><span class="op">@</span><span class="va">data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">data_vec</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 642</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_vec</span>, <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] -32.43124 -38.78497 -26.23813 -29.04933 -39.65442</span></span>
+<span><span class="co">#&gt; [1] 0.1802186 0.8148318 0.1868353 0.5367108 0.3010823</span></span>
 <span></span>
 <span><span class="co"># The associated vertex indices</span></span>
 <span><span class="va">index_vec</span> <span class="op">&lt;-</span> <span class="fu">indices</span><span class="op">(</span><span class="va">lh_surf_data</span><span class="op">)</span></span>
@@ -347,8 +355,8 @@ correspond to vertices (matching <code>indices</code>) and
 <div class="section level3">
 <h3 id="creating-a-neurosurfacevector">Creating a <code>NeuroSurfaceVector</code><a class="anchor" aria-label="anchor" href="#creating-a-neurosurfacevector"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create example matrix data (e.g., x, y, z coordinates as 3 'features')</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Example matrix data: x, y, z coordinates as three 'features'</span></span>
 <span><span class="co"># Use all vertices</span></span>
 <span><span class="va">num_vertices</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vertex_indices_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nodes-methods.html">nodes</a></span><span class="op">(</span><span class="va">lh_geom</span><span class="op">)</span></span>
@@ -378,11 +386,42 @@ correspond to vertices (matching <code>indices</code>) and
 <span><span class="co">#&gt;   <span style="color: #00BB00;">Number of Vectors:</span><span style="color: #BBBB00;">3</span></span></span>
 <span><span class="co">#&gt;   <span style="color: #00BB00;">Data Dimensions:</span>  <span style="color: #BBBB00;">[642 rows x 3 cols]</span></span></span>
 <span><span class="co">#&gt;   <span style="color: #00BB00;">Matrix Class:</span>     <span style="color: #BBBB00;">dgeMatrix</span></span></span></code></pre></div>
+<p>Each column is a map over the same vertices, so a
+<code>NeuroSurfaceVector</code> reads naturally as small multiples: one
+panel per column. Here the columns are the RAS coordinates themselves,
+which also shows the axis directions. Positions are not effects, so they
+get a sequential palette rather than the red/blue statistic palette.
+Each column is rescaled to its own range, minimum dark and maximum
+light, and each panel is seen from a side where its axis lies across the
+picture: <em>x</em> from above, <em>y</em> and <em>z</em> from the
+side.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">xyz</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">lh_surf_vec</span><span class="op">@</span><span class="va">data</span><span class="op">)</span></span>
+<span><span class="va">rescaled</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">xyz</span>, <span class="fl">2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">v</span><span class="op">)</span> <span class="op">(</span><span class="va">v</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">cameras</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dorsal"</span>, <span class="st">"lateral"</span>, <span class="st">"lateral"</span><span class="op">)</span></span>
+<span><span class="va">panels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="kw">function</span><span class="op">(</span><span class="va">j</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/render_surface_rgba.html">render_surface_rgba</a></span><span class="op">(</span><span class="va">lh_geom</span>, <span class="va">rescaled</span><span class="op">[</span>, <span class="va">j</span><span class="op">]</span>, camera <span class="op">=</span> <span class="va">cameras</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>,</span>
+<span>                      tail <span class="op">=</span> <span class="st">"positive"</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>                      palette <span class="op">=</span> <span class="fu">viridisLite</span><span class="fu">::</span><span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">256</span><span class="op">)</span>,</span>
+<span>                      width <span class="op">=</span> <span class="fl">360</span>, height <span class="op">=</span> <span class="fl">260</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/surface_panels.html">surface_panels</a></span><span class="op">(</span><span class="va">panels</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"x: lateral (dark) to medial"</span>, <span class="st">"y: posterior (dark) to anterior"</span>,</span>
+<span>  <span class="st">"z: inferior (dark) to superior"</span></span>
+<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="introduction-to-neurosurf_files/figure-html/show-neurosurfacevector-1.png" class="r-plt" alt="Columns of the NeuroSurfaceVector on the left hemisphere: x seen from above (anterior at top), y and z from the lateral side (anterior at left). Each column runs from its minimum (dark purple) to its maximum (yellow)." width="672"><p class="caption">
+Columns of the NeuroSurfaceVector on the left hemisphere: x seen from
+above (anterior at top), y and z from the lateral side (anterior at
+left). Each column runs from its minimum (dark purple) to its maximum
+(yellow).
+</p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="accessing-neurosurfacevector-properties">Accessing <code>NeuroSurfaceVector</code> Properties<a class="anchor" aria-label="anchor" href="#accessing-neurosurfacevector-properties"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The geometry matches the original</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="../reference/geometry-methods.html">geometry</a></span><span class="op">(</span><span class="va">lh_surf_vec</span><span class="op">)</span>, <span class="va">lh_geom</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
@@ -392,7 +431,7 @@ correspond to vertices (matching <code>indices</code>) and
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">data_mat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 642   3</span></span>
 <span></span>
-<span><span class="co"># Standard matrix indexing: one vertex (row), or one column across vertices</span></span>
+<span><span class="co"># Matrix indexing: one vertex (row), or one column across vertices</span></span>
 <span><span class="va">data_mat</span><span class="op">[</span><span class="fl">10</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt; [1] -48.594086 -23.064110  -8.115485</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_mat</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
@@ -426,8 +465,8 @@ specific hex color codes directly for each vertex (<code>colors</code>
 slot), bypassing data mapping.</li>
 </ul>
 <p>These classes facilitate plotting with pre-set visual parameters
-using the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method discussed in
-<code><a href="../articles/displaying-surfaces.html">vignette("displaying-surfaces")</a></code>.</p>
+using the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method discussed in the <a href="https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html">Displaying
+surfaces with RGL</a> article.</p>
 </div>
 <div class="section level2">
 <h2 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
@@ -435,9 +474,9 @@ using the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="ex
 <p>Now that you understand the core data structures, explore the
 visualization vignettes:</p>
 <ul>
-<li>
-<code><a href="../articles/displaying-surfaces.html">vignette("displaying-surfaces")</a></code> — render surfaces with
-RGL, overlay data, and snapshot to PNG.</li>
+<li>the <a href="https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html">Displaying
+surfaces with RGL</a> article — render surfaces with RGL, overlay data,
+and snapshot to PNG.</li>
 <li>
 <code><a href="../articles/interactive-surfaces.html">vignette("interactive-surfaces")</a></code> — create interactive
 HTML widgets with <code><a href="../reference/surfwidget-methods.html">surfwidget()</a></code>.</li>

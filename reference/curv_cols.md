@@ -21,18 +21,18 @@ curv_cols(vals, incol = "#B3B3B3", outcol = "#404040")
 - incol:
 
   A character string specifying the hex color code to represent vertices
-  with curvature values \*greater than\* the median curvature. Default
-  is "#B3B3B3" (light gray).
+  with curvature values *greater than* the median curvature. Default is
+  "#B3B3B3" (light gray).
 
 - outcol:
 
   A character string specifying the hex color code to represent vertices
-  with curvature values \*less than or equal to\* the median curvature.
+  with curvature values *less than or equal to* the median curvature.
   Default is "#404040" (dark gray).
 
 ## Value
 
-A character vector of the same length as \`vals\`, containing hex color
+A character vector of the same length as `vals`, containing hex color
 codes based on the binary classification of curvature values relative to
 the median.
 
@@ -44,11 +44,11 @@ indicate outward curvature (gyri) and negative values indicate inward
 curvature (sulci). This function simplifies the curvature map into two
 colors based on whether the value is above or below the median
 curvature, providing a quick visual distinction between these features.
-Note the default coloring assigns \`incol\` to values \*above\* the
-median and \`outcol\` to values \*at or below\* the median. You might
-need to adjust \`incol\` and \`outcol\` depending on the specific
-interpretation of curvature values in your data (e.g., if positive
-values represent sulci).
+Note the default coloring assigns `incol` to values *above* the median
+and `outcol` to values *at or below* the median. You might need to
+adjust `incol` and `outcol` depending on the specific interpretation of
+curvature values in your data (e.g., if positive values represent
+sulci).
 
 ## See also
 

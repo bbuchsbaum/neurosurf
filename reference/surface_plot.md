@@ -72,8 +72,8 @@ surface_plot(
 - margin:
 
   Fraction of background retained around each cropped brain when
-  assembling the figure (e.g. `0.03` keeps a 3% band). Smaller values
-  pack the brains more tightly; `0` crops flush to the content.
+  assembling the figure (e.g. `0.03` keeps a 3\\ pack the brains more
+  tightly; `0` crops flush to the content.
 
 ## Value
 

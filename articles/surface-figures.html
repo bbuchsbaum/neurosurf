@@ -65,7 +65,7 @@
                         <h4 data-toc-skip class="author">neurosurf
 authors</h4>
             
-            <h4 data-toc-skip class="date">2026-11-05</h4>
+            <h4 data-toc-skip class="date">2026-11-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/bbuchsbaum/neurosurf/blob/master/vignettes/surface-figures.Rmd" class="external-link"><code>vignettes/surface-figures.Rmd</code></a></small>
       <div class="d-none name"><code>surface-figures.Rmd</code></div>
@@ -105,20 +105,39 @@ hemisphere) with its sulcal depth, so this example runs offline.</p>
 <code class="sourceCode R"><span><span class="va">inflated</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_fsaverage.html">load_fsaverage</a></span><span class="op">(</span><span class="st">"fsaverage5"</span>, <span class="st">"inflated"</span><span class="op">)</span></span>
 <span><span class="va">white</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_fsaverage.html">load_fsaverage</a></span><span class="op">(</span><span class="st">"fsaverage5"</span>, <span class="st">"white"</span><span class="op">)</span></span>
 <span><span class="va">sulc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_fsaverage_sulc.html">load_fsaverage_sulc</a></span><span class="op">(</span><span class="st">"fsaverage5"</span><span class="op">)</span></span></code></pre></div>
-<p>Here smooth clusters placed in white-surface coordinates stand in for
-your measured statistic. The renderer treats them exactly like any other
-vertex-wise numeric vector.</p>
+<p>Here smooth clusters stand in for your measured statistic. Each is
+placed at a white-surface coordinate and falls off with distance
+measured over the inflated surface, which follows the cortical sheet
+instead of cutting across neighbouring sulcal banks. Widths differ
+between clusters and peaks differ between hemispheres, as real effects
+do. The renderer treats the result like any other vertex-wise numeric
+vector.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">example_statistic</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">geometry</span>, <span class="va">side</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">cluster</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">centre</span>, <span class="va">z</span>, <span class="va">width</span> <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">z</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums-methods.html" class="external-link">colSums</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu">coords</span><span class="op">(</span><span class="va">geometry</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="va">centre</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">width</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">example_statistic</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">hemi</span>, <span class="va">side</span>, <span class="va">peaks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">cluster</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">centre</span>, <span class="va">peak</span>, <span class="va">width</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">seed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums-methods.html" class="external-link">colSums</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu">coords</span><span class="op">(</span><span class="va">white</span><span class="op">[[</span><span class="va">hemi</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="va">centre</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">xyz</span> <span class="op">&lt;-</span> <span class="fu">coords</span><span class="op">(</span><span class="va">inflated</span><span class="op">[[</span><span class="va">hemi</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span>    <span class="va">peak</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums-methods.html" class="external-link">colSums</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">xyz</span><span class="op">)</span> <span class="op">-</span> <span class="va">xyz</span><span class="op">[</span><span class="va">seed</span>, <span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">width</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
-<span>  <span class="fu">cluster</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">45</span> <span class="op">*</span> <span class="va">side</span>, <span class="op">-</span><span class="fl">60</span>, <span class="fl">20</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span> <span class="op">+</span> <span class="fu">cluster</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span> <span class="op">*</span> <span class="va">side</span>, <span class="fl">20</span>, <span class="fl">30</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">cluster</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">55</span> <span class="op">*</span> <span class="va">side</span>, <span class="op">-</span><span class="fl">20</span>, <span class="fl">0</span><span class="op">)</span>, <span class="op">-</span><span class="fl">3.5</span><span class="op">)</span> <span class="op">+</span> <span class="fu">cluster</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8</span> <span class="op">*</span> <span class="va">side</span>, <span class="fl">40</span>, <span class="fl">10</span><span class="op">)</span>, <span class="op">-</span><span class="fl">3</span><span class="op">)</span></span>
+<span>  <span class="co"># Inferior parietal, middle frontal, superior temporal and posterior</span></span>
+<span>  <span class="co"># cingulate clusters</span></span>
+<span>  <span class="fu">cluster</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">45</span> <span class="op">*</span> <span class="va">side</span>, <span class="op">-</span><span class="fl">60</span>, <span class="fl">20</span><span class="op">)</span>, <span class="va">peaks</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">12</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">cluster</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span> <span class="op">*</span> <span class="va">side</span>, <span class="fl">20</span>, <span class="fl">30</span><span class="op">)</span>, <span class="va">peaks</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">9</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">cluster</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">55</span> <span class="op">*</span> <span class="va">side</span>, <span class="op">-</span><span class="fl">20</span>, <span class="fl">0</span><span class="op">)</span>, <span class="va">peaks</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, <span class="fl">8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">cluster</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span> <span class="op">*</span> <span class="va">side</span>, <span class="op">-</span><span class="fl">46</span>, <span class="fl">22</span><span class="op">)</span>, <span class="va">peaks</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span>, <span class="fl">11</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="va">stat_lh</span> <span class="op">&lt;-</span> <span class="fu">example_statistic</span><span class="op">(</span><span class="va">white</span><span class="op">$</span><span class="va">lh</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">stat_rh</span> <span class="op">&lt;-</span> <span class="fu">example_statistic</span><span class="op">(</span><span class="va">white</span><span class="op">$</span><span class="va">rh</span>, <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">stat_lh</span> <span class="op">&lt;-</span> <span class="fu">example_statistic</span><span class="op">(</span><span class="st">"lh"</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span>, <span class="op">-</span><span class="fl">3.5</span>, <span class="op">-</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">stat_rh</span> <span class="op">&lt;-</span> <span class="fu">example_statistic</span><span class="op">(</span><span class="st">"rh"</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3.5</span>, <span class="op">-</span><span class="fl">2.5</span>, <span class="op">-</span><span class="fl">3.5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>The non-cortical medial wall should never carry statistical colour,
+so the figures below also pass a cortex mask, one logical value per
+vertex. For a subject, read it from FreeSurfer’s
+<code>?h.cortex.label</code>. For the bundled template,
+<code><a href="../reference/load_fsaverage_cortex.html">load_fsaverage_cortex()</a></code> returns the same domain from
+FreeSurfer’s Destrieux parcellation: every vertex except the medial
+wall.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cortex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_fsaverage_cortex.html">load_fsaverage_cortex</a></span><span class="op">(</span><span class="st">"fsaverage5"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="how-do-you-render-one-thresholded-view">How do you render one thresholded view?<a class="anchor" aria-label="anchor" href="#how-do-you-render-one-thresholded-view"></a>
@@ -127,11 +146,12 @@ vertex-wise numeric vector.</p>
 example, the colour scale stays fixed at <code>[-4, 4]</code>, while an
 opacity ramp softens only the visual transition immediately above
 <code>|z| = 1.5</code>.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lh_lateral</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/render_surface_rgba.html">render_surface_rgba</a></span><span class="op">(</span></span>
 <span>  <span class="va">inflated</span><span class="op">$</span><span class="va">lh</span>,</span>
 <span>  vertex_values <span class="op">=</span> <span class="va">stat_lh</span>,</span>
 <span>  anatomy_metric <span class="op">=</span> <span class="va">sulc</span><span class="op">$</span><span class="va">lh</span>,</span>
+<span>  cortex_mask <span class="op">=</span> <span class="va">cortex</span><span class="op">$</span><span class="va">lh</span>,</span>
 <span>  camera <span class="op">=</span> <span class="st">"lateral"</span>,</span>
 <span>  threshold <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>  tail <span class="op">=</span> <span class="st">"two_sided"</span>,</span>
@@ -139,7 +159,13 @@ opacity ramp softens only the visual transition immediately above
 <span>  alpha_ramp <span class="op">=</span> <span class="fl">0.25</span>,</span>
 <span>  antialias <span class="op">=</span> <span class="fl">3</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="surface-figures_files/figure-html/show-one-view-1.-cpu-lh-lateral.png" class="r-plt" alt="" width="80%"></p>
+<div class="figure" style="text-align: center">
+<img src="surface-figures_files/figure-html/show-one-view-1.-cpu-lh-lateral.png" class="r-plt" alt="Left hemisphere, lateral view. Two-sided *z*; |*z*| &amp;lt; 1.5 is not drawn; colour limits &amp;plusmn;4, blue negative, red positive. The four-view figure below carries the key." width="80%"><p class="caption">
+Left hemisphere, lateral view. Two-sided <em>z</em>; |<em>z</em>| &lt;
+1.5 is not drawn; colour limits ±4, blue negative, red positive. The
+four-view figure below carries the key.
+</p>
+</div>
 <p>The colour at each covered sample comes from the barycentrically
 interpolated scalar. Thresholding and palette mapping happen after that
 interpolation, so a threshold boundary may cross a triangle instead of
@@ -160,12 +186,13 @@ combination with one shared threshold, colour limit, and palette, and
 adds the colour bar. The camera contract is explicit:
 <code>camera_mode = "canonical"</code> is strict orthographic output,
 while <code>"presentation"</code> adds a small declared obliquity.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">figure</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surface_figure.html">surface_figure</a></span><span class="op">(</span></span>
 <span>  lh <span class="op">=</span> <span class="va">inflated</span><span class="op">$</span><span class="va">lh</span>,</span>
 <span>  rh <span class="op">=</span> <span class="va">inflated</span><span class="op">$</span><span class="va">rh</span>,</span>
 <span>  values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lh <span class="op">=</span> <span class="va">stat_lh</span>, rh <span class="op">=</span> <span class="va">stat_rh</span><span class="op">)</span>,</span>
 <span>  anatomy <span class="op">=</span> <span class="va">sulc</span>,</span>
+<span>  cortex_mask <span class="op">=</span> <span class="va">cortex</span>,</span>
 <span>  views <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lateral"</span>, <span class="st">"medial"</span><span class="op">)</span>,</span>
 <span>  threshold <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>  tail <span class="op">=</span> <span class="st">"two_sided"</span>,</span>
@@ -176,7 +203,14 @@ while <code>"presentation"</code> adds a small declared obliquity.</p>
 <span>  panel_height <span class="op">=</span> <span class="fl">450</span>,</span>
 <span>  antialias <span class="op">=</span> <span class="fl">3</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="surface-figures_files/figure-html/show-four-views-1.-cpu-four-views.png" class="r-plt" alt="" width="100%"></p>
+<div class="figure">
+<img src="surface-figures_files/figure-html/show-four-views-1.-cpu-four-views.png" class="r-plt" alt="fsaverage5 inflated surfaces, lateral (top) and medial (bottom) views. Two-sided *z* with |*z*| &amp;lt; 1.5 not drawn; colour fades in over the next 0.25. The grey medial wall carries no colour, so the posterior cingulate cluster stops at the cortex mask." width="100%"><p class="caption">
+fsaverage5 inflated surfaces, lateral (top) and medial (bottom) views.
+Two-sided <em>z</em> with |<em>z</em>| &lt; 1.5 not drawn; colour fades
+in over the next 0.25. The grey medial wall carries no colour, so the
+posterior cingulate cluster stops at the cortex mask.
+</p>
+</div>
 <p>In an interactive session, <code>plot(figure)</code> draws the same
 figure on the current graphics device.</p>
 <p>The lateral and medial views differ because each panel rasterizes the
@@ -190,16 +224,30 @@ cortex touching background that is connected to the image exterior.</p>
 <p>A real cortex mask is a separate domain object, not a consequence of
 parcel value zero. Pass one logical value per vertex. Triangles touching
 a masked vertex never receive overlay colour. <code>medial_wall</code>
-then controls whether the excluded domain is quietly shaded, omitted, or
-outlined.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">masked_panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/render_surface_rgba.html">render_surface_rgba</a></span><span class="op">(</span></span>
-<span>  <span class="va">inflated</span><span class="op">$</span><span class="va">lh</span>,</span>
-<span>  vertex_values <span class="op">=</span> <span class="va">statistic</span>,</span>
-<span>  anatomy_metric <span class="op">=</span> <span class="va">sulcal_depth</span>,</span>
-<span>  cortex_mask <span class="op">=</span> <span class="va">cortex_label</span>,</span>
-<span>  medial_wall <span class="op">=</span> <span class="st">"shade"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+then controls whether the excluded domain is quietly shaded, masked out,
+or outlined.</p>
+<p>The panels below repeat the left medial view with each policy, using
+the <code>cortex</code> mask from above. The posterior cingulate cluster
+runs up to the wall; triangles that touch the wall receive no overlay
+colour under any policy, so the cluster stops at the cortical
+boundary.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">policies</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shade"</span>, <span class="st">"mask"</span>, <span class="st">"outline"</span><span class="op">)</span></span>
+<span><span class="va">medial_panels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">policies</span>, <span class="kw">function</span><span class="op">(</span><span class="va">policy</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/render_surface_rgba.html">render_surface_rgba</a></span><span class="op">(</span></span>
+<span>    <span class="va">inflated</span><span class="op">$</span><span class="va">lh</span>, <span class="va">stat_lh</span>, anatomy_metric <span class="op">=</span> <span class="va">sulc</span><span class="op">$</span><span class="va">lh</span>,</span>
+<span>    camera <span class="op">=</span> <span class="st">"medial"</span>, threshold <span class="op">=</span> <span class="fl">1.5</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span>,</span>
+<span>    cortex_mask <span class="op">=</span> <span class="va">cortex</span><span class="op">$</span><span class="va">lh</span>, medial_wall <span class="op">=</span> <span class="va">policy</span>,</span>
+<span>    width <span class="op">=</span> <span class="fl">480</span>, height <span class="op">=</span> <span class="fl">300</span>, antialias <span class="op">=</span> <span class="fl">3</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/surface_panels.html">surface_panels</a></span><span class="op">(</span><span class="va">medial_panels</span>, <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">'medial_wall = "%s"'</span>, <span class="va">policies</span><span class="op">)</span>,</span>
+<span>               legend_title <span class="op">=</span> <span class="st">"z"</span>, label_family <span class="op">=</span> <span class="st">"mono"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="surface-figures_files/figure-html/cortex-mask-panels-1.png" class="r-plt" alt="Left medial view of the same z map under the three medial_wall policies." width="100%"><p class="caption">
+Left medial view of the same z map under the three medial_wall policies.
+</p>
+</div>
 <p>Atlas-aware callers such as <code>neuroatlas::plot_brain()</code> can
 resolve the mask and its provenance from an atlas annotation. At this
 low level, neurosurf requires the caller to supply the domain explicitly
@@ -211,9 +259,11 @@ wall.</p>
 </h2>
 <p>For a continuous image, use explicit trilinear sampling through the
 cortical ribbon. Interpolation, aggregation across depth, and tangential
-smoothing are separate choices. The following contract samples five
-depths, averages them, and applies no surface smoothing:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+smoothing are separate choices. The following call samples five depths,
+averages them, and applies no surface smoothing. It needs your own
+subject’s <code>white_surface</code>, <code>pial_surface</code> and
+<code>statistic_volume</code>, so it is not run here:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mapped</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/vol_to_surf.html">vol_to_surf</a></span><span class="op">(</span></span>
 <span>  <span class="va">white_surface</span>,</span>
 <span>  <span class="va">pial_surface</span>,</span>
@@ -285,9 +335,9 @@ atlas; the default continuous-statistic view omits them.</p>
 <h2 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
 </h2>
 <ul>
-<li>
-<code><a href="../articles/displaying-surfaces.html">vignette("displaying-surfaces")</a></code> covers lower-level RGL
-rendering and local snapshots.</li>
+<li>the <a href="https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html">Displaying
+surfaces with RGL</a> article covers lower-level RGL rendering and local
+snapshots.</li>
 <li>
 <code><a href="../articles/interactive-surfaces.html">vignette("interactive-surfaces")</a></code> builds interactive
 bilateral report widgets with <code><a href="../reference/surfwidget-methods.html">surfwidget()</a></code>.</li>

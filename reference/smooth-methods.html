@@ -79,19 +79,19 @@ This method applies smoothing to a brain surface geometry object of class Surfac
 <dd><p>A character string specifying the smoothing algorithm to use. Available options are:</p><dl><dt>"taubin"</dt>
 <dd><p>Applies Taubin smoothing, which preserves the overall shape of the surface while reducing noise.</p></dd>
 
-  <dt>"laplace"</dt>
+<dt>"laplace"</dt>
 <dd><p>Performs Laplacian smoothing, which is a basic smoothing method that averages the position of each vertex with its neighbors.</p></dd>
 
-  <dt>"HClaplace"</dt>
+<dt>"HClaplace"</dt>
 <dd><p>Applies a Laplacian smoothing with hard constraints. It preserves the boundary vertices and is useful for surfaces with important edge features.</p></dd>
 
-  <dt>"fujiLaplace"</dt>
+<dt>"fujiLaplace"</dt>
 <dd><p>Uses a Laplacian smoothing method that preserves features more aggressively than the basic Laplacian method.</p></dd>
 
-  <dt>"angWeight"</dt>
+<dt>"angWeight"</dt>
 <dd><p>Performs angle-weighted smoothing, which considers the angles between faces to preserve sharp features.</p></dd>
 
-  <dt>"surfPreserveLaplace"</dt>
+<dt>"surfPreserveLaplace"</dt>
 <dd><p>Applies surface-preserving Laplacian smoothing, aiming to maintain the original surface's key characteristics while smoothing.</p></dd>
 
 

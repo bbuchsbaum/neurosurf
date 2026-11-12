@@ -112,24 +112,24 @@ for <code>"smooth"</code>. Zero reproduces midpoint segment geometry.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list with elements:</p><dl><dt><code>boundary</code></dt>
 <dd><p>For <code>"faces"</code>: logical vector of length
-    <code>nrow(faces)</code> indicating boundary faces.
-    For <code>"midpoint"</code>: list of \(2 \times 3\) coordinate matrices, one
-    per contour segment.
-    For <code>"edge_vertices"</code>: list of coordinate matrices (\(k \times 3\))
-    giving boundary polygons for each connected ROI component.</p></dd>
+<code>nrow(faces)</code> indicating boundary faces.
+For <code>"midpoint"</code>: list of \(2 \times 3\) coordinate matrices, one
+per contour segment.
+For <code>"edge_vertices"</code>: list of coordinate matrices (\(k \times 3\))
+giving boundary polygons for each connected ROI component.</p></dd>
 
-  <dt><code>boundary_roi_id</code></dt>
+<dt><code>boundary_roi_id</code></dt>
 <dd><p>Integer vector giving the ROI id associated
-    with each boundary polygon (empty for <code>"faces"</code>).</p></dd>
+with each boundary polygon (empty for <code>"faces"</code>).</p></dd>
 
-  <dt><code>roi_components</code></dt>
+<dt><code>roi_components</code></dt>
 <dd><p>Integer vector giving the number of connected
-    components for each ROI (indexed parallel to <code>sort(unique(vertex_id))</code>).</p></dd>
+components for each ROI (indexed parallel to <code>sort(unique(vertex_id))</code>).</p></dd>
 
-  <dt><code>boundary_verts</code></dt>
+<dt><code>boundary_verts</code></dt>
 <dd><p>For <code>"edge_vertices"</code>: list of integer
-    vectors giving the vertex ids used for each boundary polygon; <code>NULL</code>
-    for <code>"faces"</code>.</p></dd>
+vectors giving the vertex ids used for each boundary polygon; <code>NULL</code>
+for <code>"faces"</code>.</p></dd>
 
 
 </dl><p>For <code>"smooth"</code>, <code>boundary</code> contains ordered polylines (closed
@@ -149,33 +149,33 @@ are NULL in this mode. Empty results preserve field types and dimensions.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Four boundary representations are currently supported:</p><ul><li><p><code>"midpoint"</code> (default): returns crisp single-width contour
-    segments that run <em>between</em> differing labels, through the midpoints
-    of the mesh edges that separate them. This is the recommended method for
-    drawing clean ROI/atlas outlines: shared borders are drawn once (no
-    double lines) and adjacent segments join into continuous contours.</p></li>
+segments that run <em>between</em> differing labels, through the midpoints
+of the mesh edges that separate them. This is the recommended method for
+drawing clean ROI/atlas outlines: shared borders are drawn once (no
+double lines) and adjacent segments join into continuous contours.</p></li>
 <li><p><code>"smooth"</code>: returns chained polylines from a constrained
-    partition guided by smoothed memberships. Original vertex labels and
-    mesh-edge parcel adjacency are preserved, including small parcels.</p></li>
+partition guided by smoothed memberships. Original vertex labels and
+mesh-edge parcel adjacency are preserved, including small parcels.</p></li>
 <li><p><code>"faces"</code>: returns a logical vector indicating which faces lie
-    on a boundary between ROIs.</p></li>
+on a boundary between ROIs.</p></li>
 <li><p><code>"edge_vertices"</code>: returns boundary polygons traced through
-    mesh vertices. Borders are traced along vertices on both sides of a
-    boundary, which can read as a thicker double line on coarse meshes.</p></li>
+mesh vertices. Borders are traced along vertices on both sides of a
+boundary, which can read as a thicker double line on coarse meshes.</p></li>
 </ul><p>The smooth mode uses distinct one-ring neighbours and a lazy mean
-  with weight 0.5. It places crossings using nonnegative endpoint label
-  margins, falling back to a midpoint when neither endpoint supports its
-  original label. Three-label junctions are equal-score solutions projected
-  onto the interior barycentric simplex; singular solutions use the centroid.
-  This is a piecewise-linear, vertex-preserving partition, not exact
-  extraction of the unconstrained membership argmax. It matches
-  <code>prepare_surface_parcels(boundary_method = "smooth")</code> for the same
-  geometry, effective labels, smoothing, and clamp.</p>
+with weight 0.5. It places crossings using nonnegative endpoint label
+margins, falling back to a midpoint when neither endpoint supports its
+original label. Three-label junctions are equal-score solutions projected
+onto the interior barycentric simplex; singular solutions use the centroid.
+This is a piecewise-linear, vertex-preserving partition, not exact
+extraction of the unconstrained membership argmax. It matches
+<code>prepare_surface_parcels(boundary_method = "smooth")</code> for the same
+geometry, effective labels, smoothing, and clamp.</p>
 <p>Smooth labels must be nonnegative R-representable integers (0 denotes the
-  medial wall in rendering). Open meshes and unused vertices are supported.
-  Duplicate/zero-area faces, repeated face indices, and edges incident to
-  more than two faces are rejected. A non-manifold vertex alone is allowed.
-  Shared border nodes are keyed by topology, never rounded coordinates.
-  Existing modes retain their original input and output contracts.</p>
+medial wall in rendering). Open meshes and unused vertices are supported.
+Duplicate/zero-area faces, repeated face indices, and edges incident to
+more than two faces are rejected. A non-manifold vertex alone is allowed.
+Shared border nodes are keyed by topology, never rounded coordinates.
+Existing modes retain their original input and output contracts.</p>
     </div>
 
     <div class="section level2">

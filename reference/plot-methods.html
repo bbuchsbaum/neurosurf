@@ -50,26 +50,26 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  vals <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  cmap <span class="op">=</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/gray.html" class="external-link">gray</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="fl">255</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  cmap <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  vert_clrs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  irange <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">vals</span><span class="op">)</span>,</span>
 <span>  thresh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span>
 <span>  alpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  specular <span class="op">=</span> <span class="st">"black"</span>,</span>
-<span>  bgcol <span class="op">=</span> <span class="st">"lightgray"</span>,</span>
+<span>  bgcol <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for class 'NeuroSurface,missing'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
-<span>  cmap <span class="op">=</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/gray.html" class="external-link">gray</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="fl">255</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  cmap <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  vert_clrs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  irange <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">x</span><span class="op">@</span><span class="va">data</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  thresh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span>
 <span>  alpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  specular <span class="op">=</span> <span class="st">"black"</span>,</span>
-<span>  bgcol <span class="op">=</span> <span class="st">"lightgray"</span>,</span>
+<span>  bgcol <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -82,22 +82,15 @@
 <span>  thresh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span>
 <span>  alpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  specular <span class="op">=</span> <span class="st">"black"</span>,</span>
-<span>  bgcol <span class="op">=</span> <span class="st">"lightgray"</span>,</span>
+<span>  bgcol <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for class 'ColorMappedNeuroSurface,missing'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">x</span>,</span>
-<span>  vert_clrs <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  alpha <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  specular <span class="op">=</span> <span class="st">"black"</span>,</span>
-<span>  bgcol <span class="op">=</span> <span class="st">"lightgray"</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, vert_clrs <span class="op">=</span> <span class="cn">NULL</span>, alpha <span class="op">=</span> <span class="fl">1</span>, specular <span class="op">=</span> <span class="st">"black"</span>, bgcol <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for class 'VertexColoredNeuroSurface,missing'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, alpha <span class="op">=</span> <span class="fl">1</span>, specular <span class="op">=</span> <span class="st">"black"</span>, bgcol <span class="op">=</span> <span class="st">"lightgray"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, alpha <span class="op">=</span> <span class="fl">1</span>, specular <span class="op">=</span> <span class="st">"black"</span>, bgcol <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -110,31 +103,35 @@
 
 <dt id="arg-vals">vals<a class="anchor" aria-label="anchor" href="#arg-vals"></a></dt>
 <dd><p>An optional numeric vector containing data values for each vertex
-on the surface. If provided and `vert_clrs` is NULL, these values are mapped
-to colors using `cmap` and `irange`.</p></dd>
+on the surface. If provided and <code>vert_clrs</code> is NULL, these values are mapped
+to colors using <code>cmap</code> and <code>irange</code>.</p></dd>
 
 
 <dt id="arg-cmap">cmap<a class="anchor" aria-label="anchor" href="#arg-cmap"></a></dt>
 <dd><p>A vector of colors (e.g., hex codes) defining the color map used
-when `vals` is provided and `vert_clrs` is NULL. Defaults to `rainbow(256)`.</p></dd>
+when <code>vals</code> is provided and <code>vert_clrs</code> is NULL. The default, <code>NULL</code>,
+chooses <code><a href="surface_palette.html">surface_palette</a></code>: diverging when <code>irange</code> spans zero,
+sequential otherwise.</p></dd>
 
 
 <dt id="arg-vert-clrs">vert_clrs<a class="anchor" aria-label="anchor" href="#arg-vert-clrs"></a></dt>
 <dd><p>An optional character vector of hex color codes for each vertex.
-If provided, these colors directly override any coloring derived from `vals` and `cmap`.
-The length should match the number of vertices in `surfgeom`.</p></dd>
+If provided, these colors directly override any coloring derived from <code>vals</code> and <code>cmap</code>.
+The length should match the number of vertices in <code>surfgeom</code>.</p></dd>
 
 
 <dt id="arg-irange">irange<a class="anchor" aria-label="anchor" href="#arg-irange"></a></dt>
-<dd><p>An optional numeric vector of length 2, `c(min, max)`. Specifies
-the range of `vals` to map onto the `cmap`. Values outside this range will be
-clamped to the min/max colors. Defaults to the full range of `vals`.</p></dd>
+<dd><p>An optional numeric vector of length 2, <code>c(min, max)</code>. Specifies
+the range of <code>vals</code> to map onto the <code>cmap</code>. Values outside this range will be
+clamped to the min/max colors. Defaults to the full range of <code>vals</code>.</p></dd>
 
 
 <dt id="arg-thresh">thresh<a class="anchor" aria-label="anchor" href="#arg-thresh"></a></dt>
-<dd><p>An optional numeric vector of length 2, `c(lower, upper)`.
-Vertices with `vals` *outside* this range (i.e., `&lt; lower` or `&gt; upper`)
-are made fully transparent. This is applied *after* the general `alpha`.
+<dd><p>An optional numeric vector of length 2, <code>c(lower, upper)</code>.
+Values <em>inside</em> this band are not coloured, so the base colour shows
+through. With a base colour, opacity ramps up over a short band past
+each limit (a quarter of the larger limit's magnitude) so cluster edges
+fade smoothly.
 Defaults to NULL (no thresholding).</p></dd>
 
 
@@ -151,8 +148,10 @@ for a matte look. Set to a brighter colour for a glossier appearance.</p></dd>
 
 <dt id="arg-bgcol">bgcol<a class="anchor" aria-label="anchor" href="#arg-bgcol"></a></dt>
 <dd><p>A single hex color code or a vector of hex color codes used as the
-base color for the surface. If `vals` or `vert_clrs` are provided, this color
-is blended with the data/vertex colors. Defaults to "lightgray".</p></dd>
+base color for the surface. If <code>vals</code> or <code>vert_clrs</code> are provided, this color
+is blended with the data/vertex colors. The default, <code>NULL</code>, shades
+the surface by its curvature (sulci dark, gyri light) with
+<code><a href="curv_cols_smooth.html">curv_cols_smooth</a></code>; use <code>NA</code> for no base colour.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

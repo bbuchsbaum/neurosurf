@@ -1,6 +1,6 @@
 # SurfaceGeometrySource Class
 
-The \`SurfaceGeometrySource\` class serves as a factory for creating
+The `SurfaceGeometrySource` class serves as a factory for creating
 [`SurfaceGeometry`](https://bbuchsbaum.github.io/neurosurf/reference/SurfaceGeometry-class.md)
 instances. It encapsulates the meta information required to construct a
 surface geometry.

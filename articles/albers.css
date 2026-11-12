@@ -1504,3 +1504,38 @@ body.preset-midnight .html-widget {
     text-decoration: none;
   }
 }
+
+/* Identifiers in headings keep their case (R is case-sensitive). */
+h2 code,
+h3 code {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Figures are rendered on white; let them take the page's paper colour
+   (light presets only) instead of sitting in white boxes. */
+body:not(.preset-midnight) p > img,
+body:not(.preset-midnight) .figure img,
+body:not(.preset-midnight) .float img,
+body:not(.preset-midnight) figure img,
+body:not(.preset-midnight) .rglWebGL canvas,
+body:not(.preset-midnight) .surfwidget-mount canvas {
+  mix-blend-mode: multiply;
+}
+
+/* Code is set a little smaller than prose so a 72-character line fits
+   the column without wrapping; anything longer scrolls. */
+pre {
+  font-size: 0.84em;
+  overflow-x: auto;
+}
+
+/* Keep prose clear of a table's bottom rule. */
+table {
+  margin-bottom: 1.2em;
+}
+
+/* Space between an interactive widget and the prose after it. */
+.html-widget {
+  margin-bottom: 1.2rem;
+}

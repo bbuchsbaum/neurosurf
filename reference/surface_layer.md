@@ -77,7 +77,7 @@ surface_layer(
 
 - role:
 
-  \`"map"\` (default) or \`"reference"\`. A scene requires at least one
+  `"map"` (default) or `"reference"`. A scene requires at least one
   quantitative map and supports at most one binary reference. References
   persist below the selected map and cannot be selected as a map. Supply
   a full binary mask per hemisphere; indices, limits, thresholds and

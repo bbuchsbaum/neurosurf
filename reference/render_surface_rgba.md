@@ -49,7 +49,9 @@ render_surface_rgba(
 
 - geometry:
 
-  A \[SurfaceGeometry\] object.
+  A
+  [SurfaceGeometry](https://bbuchsbaum.github.io/neurosurf/reference/SurfaceGeometry.md)
+  object.
 
 - vertex_values:
 
@@ -59,7 +61,7 @@ render_surface_rgba(
 
   Optional numeric anatomy metric per vertex, such as sulcal depth or
   curvature. Values are robustly scaled and mapped to the grey levels in
-  \`anatomy_range\`, with sulci darker than gyri.
+  `anatomy_range`, with sulci darker than gyri.
 
 - cortex_mask:
 
@@ -68,7 +70,7 @@ render_surface_rgba(
 
 - camera:
 
-  One of \`"lateral"\`, \`"medial"\`, \`"dorsal"\`, or \`"ventral"\`.
+  One of `"lateral"`, `"medial"`, `"dorsal"`, or `"ventral"`.
 
 - camera_mode:
 
@@ -77,7 +79,7 @@ render_surface_rgba(
 
 - presentation_obliquity:
 
-  Obliquity in degrees used only for \`camera_mode = "presentation"\`.
+  Obliquity in degrees used only for `camera_mode = "presentation"`.
 
 - width, height:
 
@@ -97,7 +99,7 @@ render_surface_rgba(
   values. With a positive threshold the palette spans only the
   suprathreshold range: for a two-sided map the first half of the
   colours is the negative ramp and the second half the positive ramp.
-  \`NULL\` uses a default suited to \`tail\`.
+  `NULL` uses a default suited to `tail`.
 
 - limits:
 
@@ -148,24 +150,23 @@ render_surface_rgba(
 
 - lighting:
 
-  \`TRUE\` for the default two-light Blinn-Phong shading, \`FALSE\` for
-  flat (unlit) rendering, or a named list overriding any of \`ambient\`,
-  \`key\`, \`fill\`, \`specular\`, \`shininess\`, \`key_dir\`,
-  \`fill_dir\` (view-space directions: x right, y up, z toward the
-  viewer), \`overlay_shading\` (share of the shading applied to overlay
-  colour), and \`sky\` (hemispheric ambient fraction). Overlay shading
-  is normalized so a surface facing the camera shows exactly the
-  colour-bar colour.
+  `TRUE` for the default two-light Blinn-Phong shading, `FALSE` for flat
+  (unlit) rendering, or a named list overriding any of `ambient`, `key`,
+  `fill`, `specular`, `shininess`, `key_dir`, `fill_dir` (view-space
+  directions: x right, y up, z toward the viewer), `overlay_shading`
+  (share of the shading applied to overlay colour), and `sky`
+  (hemispheric ambient fraction). Overlay shading is normalized so a
+  surface facing the camera shows exactly the colour-bar colour.
 
 - subdivide:
 
-  \`"auto"\` subdivides coarse meshes for display until the median
-  projected edge is at most four pixels (up to three levels); \`FALSE\`
+  `"auto"` subdivides coarse meshes for display until the median
+  projected edge is at most four pixels (up to three levels); `FALSE`
   disables it; an integer sets the number of levels.
 
 - pixel_scale:
 
-  Output pixels per surface coordinate unit (usually mm). \`NULL\` fits
+  Output pixels per surface coordinate unit (usually mm). `NULL` fits
   the surface to the panel; a common value gives several panels one
   scale.
 
@@ -176,18 +177,20 @@ render_surface_rgba(
 - anatomy_style:
 
   Underlay mapping: legacy publication shading, centered continuous
-  contrast, binary folding contrast, or \`"soft"\`: a smooth two-tone
+  contrast, binary folding contrast, or `"soft"`: a smooth two-tone
   (gyri light, sulci dark) with antialiased fold edges.
 
 - anatomy_midpoint:
 
-  Passed to \[normalize_surface_anatomy()\].
+  Passed to
+  [`normalize_surface_anatomy()`](https://bbuchsbaum.github.io/neurosurf/reference/normalize_surface_anatomy.md).
 
 - anatomy_invert:
 
-  Reverse the metric's polarity. \`"auto"\` (default) inverts metrics
-  that are larger in sulci (FreeSurfer \`sulc\` and \`curv\`) and keeps
-  metrics that are larger on gyral crowns (such as \[curvature()\]),
+  Reverse the metric's polarity. `"auto"` (default) inverts metrics that
+  are larger in sulci (FreeSurfer `sulc` and `curv`) and keeps metrics
+  that are larger on gyral crowns (such as
+  [`curvature()`](https://bbuchsbaum.github.io/neurosurf/reference/curvature-methods.md)),
   judged by the metric's correlation with the displayed mesh's mean
   curvature. The decision is recorded in the provenance.
 
@@ -197,21 +200,21 @@ render_surface_rgba(
 
 - reference:
 
-  Optional list with \`id\`, \`label\`, binary per-vertex \`mask\`,
-  opaque \`color\`, \`opacity\` in \[0, 1\], \`visible\`, and
-  \`provenance\`. Defaults are label = id, opacity = 0.2, visible =
-  TRUE, provenance = list(). Anatomy, reference, then effect are
-  composed with source-over. Membership is interpolated linearly (edge
-  midpoints through display subdivision) and classified at \>= 0.5 at
-  each sample. Antialiasing averages categorical coverage, returned as
-  \`reference_coverage\` in \[0, 1\]. Reference color is unlit and
-  excluded from triangles touching a non-cortex vertex, for all
-  medial-wall policies. It never changes effect buffers or mapping.
+  Optional list with `id`, `label`, binary per-vertex `mask`, opaque
+  `color`, `opacity` in \[0, 1\], `visible`, and `provenance`. Defaults
+  are label = id, opacity = 0.2, visible = TRUE, provenance = list().
+  Anatomy, reference, then effect are composed with source-over.
+  Membership is interpolated linearly (edge midpoints through display
+  subdivision) and classified at \>= 0.5 at each sample. Antialiasing
+  averages categorical coverage, returned as `reference_coverage` in
+  \[0, 1\]. Reference color is unlit and excluded from triangles
+  touching a non-cortex vertex, for all medial-wall policies. It never
+  changes effect buffers or mapping.
 
 ## Value
 
-A \`surface_rgba\` list with raw RGBA, coverage, and overlay-alpha
-arrays plus camera and rendering provenance.
+A `surface_rgba` list with raw RGBA, coverage, and overlay-alpha arrays
+plus camera and rendering provenance.
 
 ## Details
 

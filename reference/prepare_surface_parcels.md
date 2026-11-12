@@ -1,11 +1,11 @@
 # Prepare a labelled surface for parcel rendering
 
 Precomputes the per-geometry quantities used by
-\[render_surface_parcels()\]: outward vertex normals, a normalized
-anatomical underlay, and smoothed label memberships that let parcel
-boundaries follow smooth curves through mesh triangles instead of
-stair-stepping along triangle edges. Reuse the result across cameras and
-value maps.
+[`render_surface_parcels()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_parcels.md):
+outward vertex normals, a normalized anatomical underlay, and smoothed
+label memberships that let parcel boundaries follow smooth curves
+through mesh triangles instead of stair-stepping along triangle edges.
+Reuse the result across cameras and value maps.
 
 ## Usage
 
@@ -25,7 +25,7 @@ prepare_surface_parcels(
 
 - geometry:
 
-  Display \`SurfaceGeometry\` (typically inflated).
+  Display `SurfaceGeometry` (typically inflated).
 
 - labels:
 
@@ -34,12 +34,12 @@ prepare_surface_parcels(
 - anatomy_metric:
 
   Optional sulcal-depth or curvature value per vertex, larger on gyri.
-  \`NULL\` gives a neutral underlay.
+  `NULL` gives a neutral underlay.
 
 - cortex_mask:
 
-  Optional logical per vertex; \`FALSE\` vertices are treated as medial
-  wall. Defaults to \`labels != 0\`.
+  Optional logical per vertex; `FALSE` vertices are treated as medial
+  wall. Defaults to `labels != 0`.
 
 - boundary_smooth:
 
@@ -50,16 +50,18 @@ prepare_surface_parcels(
 
   `"membership"` (default) retains the original per-face
   interpolated-membership argmax. `"smooth"` prepares the shared
-  vertex-preserving partition used by \[find_roi_boundaries()\].
+  vertex-preserving partition used by
+  [`find_roi_boundaries()`](https://bbuchsbaum.github.io/neurosurf/reference/find_roi_boundaries.md).
 
 - t_clamp:
 
-  Symmetric edge bounds for `"smooth"`; see \[find_roi_boundaries()\].
+  Symmetric edge bounds for `"smooth"`; see
+  [`find_roi_boundaries()`](https://bbuchsbaum.github.io/neurosurf/reference/find_roi_boundaries.md).
   Ignored by `"membership"`.
 
 ## Value
 
-A \`surface_parcel_prep\` object.
+A `surface_parcel_prep` object.
 
 ## Details
 

@@ -15,12 +15,15 @@ anatomical_curvature(geometry, iterations = 5L)
 
 - geometry:
 
-  Matching folded (usually white) \[SurfaceGeometry\].
+  Matching folded (usually white)
+  [SurfaceGeometry](https://bbuchsbaum.github.io/neurosurf/reference/SurfaceGeometry.md).
 
 - iterations:
 
   Number of adjacency averaging steps, including the vertex itself. Zero
-  returns \[curvature()\] unchanged. This is not an FWHM in mm.
+  returns
+  [`curvature()`](https://bbuchsbaum.github.io/neurosurf/reference/curvature-methods.md)
+  unchanged. This is not an FWHM in mm.
 
 ## Value
 

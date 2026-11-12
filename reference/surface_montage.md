@@ -5,7 +5,7 @@ of panels. It is designed for R Markdown / pkgdown documents, where it
 replaces the repetitive "snapshot each panel, check it, otherwise fall
 back to an interactive widget" boilerplate with a single call.
 
-When the session can produce static snapshots (an interactive \`rgl\`
+When the session can produce static snapshots (an interactive `rgl`
 device, or a headless build with webshot2 installed) the panels are
 captured and tiled into one PNG. When knitting this is returned via
 [`include_graphics`](https://rdrr.io/pkg/knitr/man/include_graphics.html);

@@ -1,7 +1,10 @@
 # Write a surface figure to PNG
 
-Draws a \[surface_figure()\] on a PNG device sized to its panels. Uses
-the \`ragg\` device when available, otherwise \[grDevices::png()\].
+Draws a
+[`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
+on a PNG device sized to its panels. Uses the `ragg` device when
+available, otherwise
+[`grDevices::png()`](https://rdrr.io/r/grDevices/png.html).
 
 ## Usage
 
@@ -13,7 +16,7 @@ write_surface_figure(x, file, scale = 1)
 
 - x:
 
-  A \`surface_figure\` object.
+  A `surface_figure` object.
 
 - file:
 
@@ -29,4 +32,6 @@ The normalized path, invisibly.
 
 ## See also
 
-\[surface_figure()\], \[write_surface_rgba()\] for single panels.
+[`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md),
+[`write_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_rgba.md)
+for single panels.

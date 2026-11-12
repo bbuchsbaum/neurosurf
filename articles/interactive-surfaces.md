@@ -22,46 +22,74 @@ value vector whose lengths match the corresponding geometry. A scene
 also records the initial map, legend metadata, provenance, alternative
 text, and fallback text.
 
-The example surfaces are small meshes shipped with neurosurf:
+The example uses the fsaverage5 template bundled with neurosurf:
+inflated surfaces for display, white surfaces to place the example
+clusters, sulcal depth for the grey anatomy underneath the maps, and the
+cortex mask that keeps colour off the medial wall in the static figure.
 
 ``` r
 
-left_geometry <- read_surf(system.file(
-  "extdata", "std.8_lh.smoothwm.asc", package = "neurosurf"
-))
-right_geometry <- read_surf(system.file(
-  "extdata", "std.8_rh.smoothwm.asc", package = "neurosurf"
-))
+inflated <- load_fsaverage("fsaverage5", "inflated")
+white <- load_fsaverage("fsaverage5", "white")
+sulc <- load_fsaverage_sulc("fsaverage5")
+cortex <- load_fsaverage_cortex("fsaverage5")
+
+# Display anatomy, lighter on gyri. FreeSurfer sulc is positive in
+# sulci, so it is negated. The report preset's grey ramp saturates at
+# |0.1|; scaling to that range keeps it continuous and quiet.
+anatomy <- list(
+  left = 0.2 * normalize_surface_anatomy(-sulc$lh, "continuous"),
+  right = 0.2 * normalize_surface_anatomy(-sulc$rh, "continuous")
+)
 ```
 
 The browser renders the values that R supplies. Perform thresholding,
 capping, atlas projection, and other scientific transformations before
-constructing a layer. Here we create a deterministic coordinate-based
-demonstration map and replace sub-threshold values with `NA` in R:
+constructing a layer. Here two synthetic *z* maps are built from smooth
+clusters placed at white-surface coordinates and falling off with
+distance over the inflated surface:
 
 ``` r
 
-scaled_height <- function(geometry) {
-  value <- coords(geometry)[, 3]
-  3 * (value - mean(value)) / max(abs(value - mean(value)))
+cluster <- function(hemi, centre, peak, width = 12) {
+  seed <- which.min(colSums((t(coords(white[[hemi]])) - centre)^2))
+  xyz <- coords(inflated[[hemi]])
+  peak * exp(-colSums((t(xyz) - xyz[seed, ])^2) / (2 * width^2))
+}
+contrast <- function(centres, lh_peaks, rh_peaks) {
+  one_side <- function(hemi, side, peaks) {
+    Reduce(`+`, Map(function(centre, peak) {
+      cluster(hemi, centre * c(side, 1, 1), peak)
+    }, centres, peaks))
+  }
+  list(left = one_side("lh", -1, lh_peaks),
+       right = one_side("rh", 1, rh_peaks))
 }
 
-effect <- list(
-  left = scaled_height(left_geometry),
-  right = scaled_height(right_geometry)
+memory <- contrast(
+  centres = list(c(45, -60, 20), c(40, 20, 30), c(55, -20, 0)),
+  lh_peaks = c(4, 3, -3.5), rh_peaks = c(3.5, 2.5, -2.8)
 )
-effect <- lapply(effect, function(x) replace(x, abs(x) < 1.25, NA_real_))
+# A right-hand movement: left motor cortex dominates
+motor <- contrast(
+  centres = list(c(38, -22, 56), c(10, -60, 50)),
+  lh_peaks = c(4.5, -3), rh_peaks = c(-2.2, -3)
+)
 ```
 
-The second map is a simple two-region label used to demonstrate map
-switching:
+A binary region of interest, used below as a reference layer: every
+vertex within 18 mm of a point in the intraparietal sulcus, again
+measured over the inflated surface.
 
 ``` r
 
-region <- list(
-  left = as.numeric(coords(left_geometry)[, 2] > 0),
-  right = as.numeric(coords(right_geometry)[, 2] > 0)
-)
+roi <- function(hemi, centre, radius = 18) {
+  seed <- which.min(colSums((t(coords(white[[hemi]])) - centre)^2))
+  xyz <- coords(inflated[[hemi]])
+  as.numeric(colSums((t(xyz) - xyz[seed, ])^2) < radius^2)
+}
+region <- list(left = roi("lh", c(-30, -55, 45)),
+               right = roi("rh", c(30, -55, 45)))
 ```
 
 ## How do you build one bilateral, multi-map viewer?
@@ -71,34 +99,47 @@ Create each named map with
 then put both geometries and all layers in one scene. `selected_layer`
 chooses the map shown when the viewer opens.
 
+For thresholded two-sided maps, use a palette whose tails start at
+clearly visible colours and never pass through the light anatomy grey:
+blue for negative, red for positive.
+[`surface_palette()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_palette.md)
+with the same limits and threshold returns exactly the colours
+[`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
+would use, so the interactive and static figures agree. The layer’s
+`threshold` hides \|*z*\| \< 2 and marks the gap in the colour key;
+`magnitude_opacity` fades colour in between \|*z*\| = 2 and 2.6, so
+cluster edges are smooth instead of following the mesh’s triangles.
+Unthresholded values are passed in, and `NA` is kept for genuinely
+missing data.
+
 ``` r
 
+z_colors <- surface_palette("two_sided", limits = c(-5, 5),
+                            threshold = 2)
+z_layer <- function(name, values, title) {
+  surface_layer(name, values, colormap = z_colors, limits = c(-5, 5),
+                threshold = c(-2, 2), units = "z",
+                magnitude_opacity = list(low = 2, high = 2.6),
+                legend = list(title = title))
+}
+
 scene <- surface_scene(
-  left = left_geometry,
-  right = right_geometry,
+  left = inflated$lh,
+  right = inflated$rh,
+  curvature = anatomy,
   layers = list(
-    surface_layer(
-      "effect", effect,
-      colormap = c("#2166ac", "#f7f7f7", "#b2182b"),
-      limits = c(-3, 3), units = "z",
-      legend = list(title = "Thresholded effect")
-    ),
-    surface_layer(
-      "region", region,
-      colormap = c("#d9d9d9", "#238b45"),
-      limits = c(0, 1), units = "class",
-      legend = list(title = "Demonstration region")
-    )
+    z_layer("memory", memory, "Memory contrast"),
+    z_layer("motor", motor, "Motor contrast")
   ),
-  selected_layer = "effect",
-  metadata = list(subject = "example"),
-  provenance = list(source = "neurosurf package data"),
-  fallback = "Static bilateral surface figure with effect and region maps.",
+  selected_layer = "memory",
+  metadata = list(template = "fsaverage5"),
+  provenance = list(source = "synthetic clusters on package data"),
+  fallback = "Inflated cortical surfaces with two thresholded z maps.",
   alt_text = paste(
-    "Bilateral cortical surfaces with selectable thresholded effect",
-    "and demonstration region maps."
+    "Inflated left and right cortical surfaces showing a selectable",
+    "thresholded z map, blue negative and red positive, |z| above 2."
   ),
-  preset = "paper-light",
+  preset = "report",
   mode = "report"
 )
 ```
@@ -110,10 +151,10 @@ constructing another widget or another WebGL context.
 
 ``` r
 
-surfwidget(scene, width = "100%", height = "520px")
+surfwidget(scene, width = "100%", height = "420px")
 ```
 
-Static bilateral surface figure with effect and region maps.
+Inflated cortical surfaces with two thresholded z maps.
 
 The report toolbar provides the authored map selector, coordinated
 anatomical views, reset, and PNG export. Drag to rotate, use the wheel
@@ -130,54 +171,64 @@ opacity.
 ``` r
 
 reference_scene <- surface_scene(
-  left = left_geometry, right = right_geometry,
+  left = inflated$lh, right = inflated$rh,
   layers = c(scene@layers, list(surface_layer(
     "reference", region, role = "reference", color = "#238b45",
-    opacity = 0.2, legend = list(title = "Demonstration reference"),
-    provenance = list(source = "synthetic vertex membership")
+    opacity = 0.4, legend = list(title = "Intraparietal ROI"),
+    provenance = list(source = "synthetic 18 mm disc")
   ))),
-  fallback = "Bilateral effect maps with a faint reference region.",
-  alt_text = "Effect maps overlaid on a separate green reference region."
+  curvature = anatomy,
+  preset = "report",
+  fallback = "Bilateral z maps over a faint intraparietal ROI.",
+  alt_text = "Thresholded z maps over a green intraparietal region."
 )
-stopifnot(identical(reference_scene@selected_layer, "effect"))
+stopifnot(identical(reference_scene@selected_layer, "memory"))
 ```
 
-Pass `reference_scene` to
-[`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
-or
-[`write_surface_scene()`](https://bbuchsbaum.github.io/neurosurf/reference/write_surface_scene.md)
-as usual. Reference scenes use `surfview.scene.reference.v1`; the
-bundled runtime supports this schema, and older runtimes reject it
-explicitly. Scenes without references retain `surfview.scene.v1` and
-their exclusive map selector. Geometry assets are shared. References
-require a full finite 0/1 mask for each hemisphere, with no quantitative
-limits, units, indices or thresholds.
+``` r
 
-The CPU renderer accepts the same membership separately from effect
-values:
+surfwidget(reference_scene, width = "100%", height = "360px")
+```
+
+In the viewer the green region sits beneath whichever map is selected
+and keeps its own swatch, checkbox and opacity slider; it never enters
+the colour key. (The widget is not embedded here to keep this article
+small; the static figure below shows the same composition.) References
+require a full 0/1 mask per hemisphere, with no limits, units, indices
+or thresholds.
+
+The CPU renderer draws the same membership beneath a static map, in the
+order anatomy, reference, effect:
 
 ``` r
 
 image <- render_surface_rgba(
-  left_geometry, effect$left,
+  inflated$lh, memory$left, anatomy_metric = sulc$lh,
+  cortex_mask = cortex$lh,
+  threshold = 2, limits = c(-5, 5), alpha_ramp = 0.6,
   reference = list(
-    id = "reference", label = "Demonstration reference",
-    mask = region$left, color = "#238b45", opacity = 0.2,
-    provenance = list(source = "synthetic vertex membership")
-  )
+    id = "reference", label = "Intraparietal ROI",
+    mask = region$left, color = "#238b45", opacity = 0.4
+  ),
+  width = 680, height = 420, antialias = 2
 )
+surface_panels(image, labels = NULL, legend_title = "z",
+               references = c("Intraparietal ROI" = "#238b45"))
 ```
 
-The order is anatomy, reference, effect. The CPU reference color is
-unlit; its opacity is applied once. Both renderers interpolate
-membership linearly and classify it at 0.5 per sample or fragment.
-Display subdivision carries membership by edge midpoints, independently
-of scalar subdivision, and CPU antialiasing averages categorical
-coverage. The CPU `reference_coverage` buffer reports this coverage even
-when the reference is hidden. Triangles touching a non-cortex vertex
-never receive reference color. A static figure should label the
-reference with a separate categorical swatch, outside the effect color
-scale; `tools/reference-specimen.R` provides a complete specimen.
+![Left hemisphere, lateral view: the intraparietal ROI (green, 40%
+opacity) beneath the memory \*z\*
+map.](interactive-surfaces_files/figure-html/static-reference-1.png)
+
+Left hemisphere, lateral view: the intraparietal ROI (green, 40%
+opacity) beneath the memory *z* map.
+
+Both renderers classify membership at 0.5 after linear interpolation,
+and when a cortex mask is supplied, triangles outside it never receive
+reference colour. A static figure should label the reference with its
+own swatch, outside the effect colour scale, as
+[`surface_panels()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_panels.md)
+does above.
 
 Supply already projected binary membership. For a volume label, use
 explicit categorical/nearest-voxel sampling and record the source and
@@ -186,11 +237,13 @@ mesh identity, depth aggregation and projection parameters in
 
 ## Which option controls appearance and behavior?
 
-`paper-light` and `report` name different contracts:
+`preset` sets appearance and `mode` sets behaviour; the scene above uses
+`preset = "report"` with `mode = "report"`.
 
 | Setting | Controls | What it changes |
 |----|----|----|
-| `preset = "paper-light"` | Appearance | Light background, restrained lighting and material values, labels, and PNG defaults. |
+| `preset = "report"` | Appearance | Quiet sulcal greys on a neutral grey panel, lit for on-screen reading; made for report widgets. Its grey ramp turns two-tone unless the anatomy is scaled, as above. |
+| `preset = "paper-light"` | Appearance | White background, stronger folding contrast, and print-oriented PNG defaults. |
 | `mode = "report"` | Behavior | Lazy mounting, the compact report toolbar, deterministic initial framing, and fallback/print behavior. |
 | `mode = "viewer"` | Behavior | A bare rotatable viewer without the report toolbar. |
 
@@ -219,9 +272,9 @@ data.frame(
   bytes = c(sum(bytes[roles %in% c("vertices", "faces", "curvature")]),
             sum(bytes[roles == "values"]))
 )
-#>      content assets bytes
-#> 1   geometry      3 30768
-#> 2 map values      4 10272
+#>      content assets  bytes
+#> 1   geometry      5 573504
+#> 2 map values      4 163872
 ```
 
 Missing map values remain IEEE `NaN` values in the binary payload. The
@@ -242,7 +295,8 @@ no network requests.
 write_surface_scene(scene, "surface-report", self_contained = FALSE)
 
 # one index.html with the runtime and typed arrays inlined
-write_surface_scene(scene, "surface-report-inline", self_contained = TRUE)
+write_surface_scene(scene, "surface-report-inline",
+                    self_contained = TRUE)
 ```
 
 Choose adjacent assets for a site or a report directory: the browser can
@@ -279,7 +333,8 @@ The HTML writer produces a minimal page that uses the public
   );
 
   handle.ready.then(() => handle.setView("lateral"));
-  window.addEventListener("pagehide", () => handle.dispose(), { once: true });
+  window.addEventListener("pagehide", () => handle.dispose(),
+                          { once: true });
 </script>
 ```
 
@@ -320,9 +375,8 @@ quick exploration:
 
 ``` r
 
-values <- scaled_height(left_geometry)
-surface <- NeuroSurface(left_geometry, nodes(left_geometry), values)
-surfwidget(surface, irange = c(-3, 3))
+surface <- NeuroSurface(inflated$lh, nodes(inflated$lh), memory$left)
+surfwidget(surface, irange = c(-5, 5))
 ```
 
 Use an explicit `SurfaceScene` for bilateral figures, multiple named
@@ -334,8 +388,10 @@ behavior.
 - [`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md)
   builds static, publication-quality multi-view figures with
   [`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md).
-- [`vignette("displaying-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.md)
-  covers RGL-based 3D rendering, curvature shading, and PNG snapshots.
+- the [Displaying surfaces with
+  RGL](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html)
+  article covers RGL-based 3D rendering, curvature shading, and PNG
+  snapshots.
 - [`vignette("introduction-to-neurosurf")`](https://bbuchsbaum.github.io/neurosurf/articles/introduction-to-neurosurf.md)
   introduces `SurfaceGeometry`, `NeuroSurface`, and the package’s other
   core data structures.

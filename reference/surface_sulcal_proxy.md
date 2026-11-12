@@ -16,11 +16,11 @@ surface_sulcal_proxy(white, inflated, iterations = 4L)
 
 - white:
 
-  Folded \`SurfaceGeometry\` (white or pial).
+  Folded `SurfaceGeometry` (white or pial).
 
 - inflated:
 
-  Inflated \`SurfaceGeometry\` with the same vertices and faces.
+  Inflated `SurfaceGeometry` with the same vertices and faces.
 
 - iterations:
 

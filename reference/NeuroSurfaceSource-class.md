@@ -1,6 +1,6 @@
 # NeuroSurfaceSource Class
 
-The \`NeuroSurfaceSource\` class serves as a factory for creating
+The `NeuroSurfaceSource` class serves as a factory for creating
 [`NeuroSurface`](https://bbuchsbaum.github.io/neurosurf/reference/NeuroSurface-class.md)
 instances. It encapsulates all necessary information to construct a
 neuroimaging surface, including geometry, metadata, and indexing

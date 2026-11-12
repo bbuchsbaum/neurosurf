@@ -369,6 +369,9 @@ Catch-all index to include any remaining topics.
 - [`load_fsaverage_bundle()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_bundle.md)
   : Load a bundle of fsaverage surface variants as a SurfaceSet
 
+- [`load_fsaverage_cortex()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_cortex.md)
+  : Cortex mask for a packaged fsaverage template
+
 - [`load_fsaverage_std8()`](https://bbuchsbaum.github.io/neurosurf/reference/load_fsaverage_std8.md)
   : Load fsaverage std.8 surfaces packaged with neurosurf
 
@@ -538,6 +541,9 @@ Catch-all index to include any remaining topics.
 - [`` `surf_to_world<-`() ``](https://bbuchsbaum.github.io/neurosurf/reference/surf_to_world-set-methods.md)
   : Set Surface-to-World Transform
 
+- [`surface_colorbar_grob()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_colorbar_grob.md)
+  : Colour key for surface panels
+
 - [`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
   [`plot(`*`<surface_figure>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
   [`print(`*`<surface_figure>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md)
@@ -554,6 +560,14 @@ Catch-all index to include any remaining topics.
 
 - [`surface_montage()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_montage.md)
   : Arrange multiple surface views into a single montage figure
+
+- [`surface_palette()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_palette.md)
+  : Colour palettes for surface maps
+
+- [`surface_panels()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_panels.md)
+  [`plot(`*`<surface_panels>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/surface_panels.md)
+  [`print(`*`<surface_panels>`*`)`](https://bbuchsbaum.github.io/neurosurf/reference/surface_panels.md)
+  : Arrange rendered panels as small multiples
 
 - [`surface_parcel_style()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_parcel_style.md)
   : Style settings for parcel surface rendering

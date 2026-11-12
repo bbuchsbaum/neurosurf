@@ -6,8 +6,9 @@ geometries and associated data.
 
 For visualization, see the companion vignettes:
 
-- [`vignette("displaying-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.md)
-  for interactive 3D plots based on
+- the [Displaying surfaces with
+  RGL](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html)
+  article for interactive 3D plots based on
   [`plot()`](https://rdrr.io/r/graphics/plot.default.html) and
   [`view_surface()`](https://bbuchsbaum.github.io/neurosurf/reference/view_surface.md).
 - [`vignette("interactive-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.md)
@@ -15,10 +16,6 @@ For visualization, see the companion vignettes:
 - [`vignette("surface-figures")`](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.md)
   for multi-view, publication-quality figures built with
   [`surface_figure()`](https://bbuchsbaum.github.io/neurosurf/reference/surface_figure.md).
-
-## Setup
-
-First, let’s load the necessary libraries and set up the environment.
 
 ## `SurfaceGeometry`: Representing the Mesh
 
@@ -45,19 +42,17 @@ function.
 
 ``` r
 
-# Load the example left hemisphere white matter surface (.asc format)
+library(neurosurf)
+
+# The example left smoothed white surface shipped with the package
+white_lh_asc <- system.file("extdata", "std.8_lh.smoothwm.asc",
+                            package = "neurosurf")
 lh_geom <- read_surf_geometry(white_lh_asc)
 
 # Display summary information about the loaded geometry
 show(lh_geom)
 #> 
 #>  SurfaceGeometry 
-#> 
-#>     /\     
-#>    /  \    
-#>   /____\   
-#>  /      \  
-#> /        \   
 #> 
 #>   Basic Information: 
 #>   Hemisphere: left
@@ -68,8 +63,8 @@ show(lh_geom)
 #>  Geometry Metrics: 
 #>   Euler Characteristic: 2
 #>   Genus:               0
-#>   Surface Area:        36956
-#>   Avg Edge Length:     10.31
+#>   Surface Area:        53,137 mm^2
+#>   Avg Edge Length:     10.3 mm
 ```
 
 ### Accessing Geometry Properties
@@ -93,20 +88,12 @@ head(vertex_coords, 3)
 #> [2,] -38.78497  10.942583  52.54661
 #> [3,] -26.23813 -35.324768  58.41325
 
-# The underlying igraph connectivity object
-neurosurf::graph(lh_geom)
-#> IGRAPH bc9b260 U--- 642 1920 -- 
-#> + attr: x (v/n), y (v/n), z (v/n), dist (e/n)
-#> + edges from bc9b260:
-#>  [1]  1-- 13  1-- 27  1-- 55  1-- 90  1--125  2--188  2--195  2--223  2--258
-#> [10]  2--293  3--264  3--271  3--300  3--356  3--391  4-- 96  4--103  4--132
-#> [19]  4--517  4--545  5-- 19  5-- 26  5-- 62  5--201  5--334  6--397  6--404
-#> [28]  6--426  6--482  6--551  7-- 20  7-- 33  7--166  7--194  7--230  8--362
-#> [37]  8--369  8--398  8--510  8--523  9--229  9--236  9--265  9--363  9--600
-#> [46] 10-- 61 10-- 68 10-- 97 10--460 10--488 11--299 11--306 11--328 11--432
-#> [55] 11--454 12--131 12--138 12--160 12--516 12--594 13-- 14 13-- 27 13-- 34
-#> [64] 13-- 55 13-- 69 14-- 15 14-- 34 14-- 40 14-- 69 14-- 70 15-- 16 15-- 40
-#> + ... omitted several edges
+# The underlying igraph connectivity object: one node per vertex,
+# one edge per mesh edge
+g <- neurosurf::graph(lh_geom)
+c(nodes = igraph::vcount(g), edges = igraph::ecount(g))
+#> nodes edges 
+#>   642  1920
 
 # The underlying rgl mesh3d object, and the hemisphere label
 class(lh_geom@mesh)
@@ -137,10 +124,9 @@ the geometry, indices, and data.
 
 ``` r
 
-# Generate some example data (e.g., based on x-coordinate)
-# Use all vertices from lh_geom
+# Example data: curvature at every vertex
 vertex_indices <- nodes(lh_geom)
-example_data <- coords(lh_geom)[, 1] # Use x-coordinate as data
+example_data <- curvature(lh_geom)
 
 # Create the NeuroSurface object
 lh_surf_data <- NeuroSurface(geometry = lh_geom, 
@@ -158,11 +144,41 @@ show(lh_surf_data)
 #>   Vertices w/ Data:642
 #> 
 #>   Data Summary: 
-#>   Min:    -65.39
-#>   Median:-29.95
-#>   Mean:  -29.35
-#>   Max:    1.209
+#>   Min:    0
+#>   Median:0.5069
+#>   Mean:  0.4956
+#>   Max:    1
 ```
+
+A `NeuroSurface` is easiest to understand as a picture: its values
+painted on its geometry.
+[`render_surface_rgba()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_rgba.md)
+draws one view without a graphics device. Curvature is anatomy, so it is
+drawn the way FreeSurfer shows anatomy: as the grey underlay itself,
+sulci dark and gyri light, with no colour overlay and no lighting, so
+every grey level is a curvature value. (FreeSurfer’s own `?h.curv` files
+are positive in sulci;
+[`curvature()`](https://bbuchsbaum.github.io/neurosurf/reference/curvature-methods.md)
+returns mean curvature min-max rescaled to \[0, 1\], higher on gyri.)
+
+``` r
+
+no_overlay <- rep(NA_real_, length(nodes(lh_geom)))
+panel <- render_surface_rgba(
+  geometry(lh_surf_data), no_overlay,
+  anatomy_metric = lh_surf_data@data, anatomy_style = "continuous",
+  anatomy_range = c(0.3, 0.92), lighting = FALSE,
+  outer_contour = FALSE, camera = "lateral",
+  width = 600, height = 360, antialias = 2
+)
+```
+
+![Left hemisphere, lateral view, shaded by curvature: 0 (dark, sulcal
+fundi) to 1 (light, gyral
+crowns).](introduction-to-neurosurf_files/figure-html/show-neurosurface-image-1.neurosurface.png)
+
+Left hemisphere, lateral view, shaded by curvature: 0 (dark, sulcal
+fundi) to 1 (light, gyral crowns).
 
 ### Loading Data with `read_surf` (Optional Data File)
 
@@ -174,8 +190,10 @@ demonstration.
 ``` r
 
 # 1. Prepare sample data for a subset of nodes
-sample_nodes_indices_R <- sample(nodes(lh_geom), size = 500) # R indices (1-based)
-sample_nodes_indices_0based <- sample_nodes_indices_R - 1     # 0-based for .1D file
+set.seed(1)
+# R indices are 1-based; AFNI .1D files are 0-based
+sample_nodes_indices_R <- sample(nodes(lh_geom), size = 500)
+sample_nodes_indices_0based <- sample_nodes_indices_R - 1
 sample_data <- rnorm(500) 
 
 # 2. Create a temporary file
@@ -204,12 +222,12 @@ show(lh_surf_loaded)
 #>   Vertices w/ Data:500
 #> 
 #>   Data Summary: 
-#>   Min:    -2.82
-#>   Median:-0.01911
-#>   Mean:  -0.03667
-#>   Max:    2.689
+#>   Min:    -2.716
+#>   Median:-0.01771
+#>   Mean:  0.006245
+#>   Max:    3.266
 
-# Number of data points loaded, and how many are non-zero (should match size = 500)
+# Values loaded, and how many are non-zero (500, the sample size)
 length(lh_surf_loaded@data)
 #> [1] 500
 sum(lh_surf_loaded@data != 0)
@@ -224,13 +242,13 @@ sum(lh_surf_loaded@data != 0)
 identical(geometry(lh_surf_data), lh_geom)
 #> [1] TRUE
 
-# The data vector, via direct slot access (lh_surf_data@data) or as.vector();
+# The data vector, via the slot (lh_surf_data@data) or as.vector();
 # its length and first few values
 data_vec <- lh_surf_data@data
 length(data_vec)
 #> [1] 642
 head(data_vec, 5)
-#> [1] -32.43124 -38.78497 -26.23813 -29.04933 -39.65442
+#> [1] 0.1802186 0.8148318 0.1868353 0.5367108 0.3010823
 
 # The associated vertex indices
 index_vec <- indices(lh_surf_data)
@@ -259,7 +277,7 @@ It contains:
 
 ``` r
 
-# Create example matrix data (e.g., x, y, z coordinates as 3 'features')
+# Example matrix data: x, y, z coordinates as three 'features'
 # Use all vertices
 num_vertices <- length(nodes(lh_geom))
 vertex_indices_vec <- nodes(lh_geom)
@@ -291,6 +309,42 @@ show(lh_surf_vec)
 #>   Matrix Class:     dgeMatrix
 ```
 
+Each column is a map over the same vertices, so a `NeuroSurfaceVector`
+reads naturally as small multiples: one panel per column. Here the
+columns are the RAS coordinates themselves, which also shows the axis
+directions. Positions are not effects, so they get a sequential palette
+rather than the red/blue statistic palette. Each column is rescaled to
+its own range, minimum dark and maximum light, and each panel is seen
+from a side where its axis lies across the picture: *x* from above, *y*
+and *z* from the side.
+
+``` r
+
+xyz <- as.matrix(lh_surf_vec@data)
+rescaled <- apply(xyz, 2, function(v) (v - min(v)) / diff(range(v)))
+cameras <- c("dorsal", "lateral", "lateral")
+panels <- lapply(1:3, function(j) {
+  render_surface_rgba(lh_geom, rescaled[, j], camera = cameras[j],
+                      tail = "positive", limits = c(0, 1),
+                      palette = viridisLite::viridis(256),
+                      width = 360, height = 260)
+})
+surface_panels(panels, legend = FALSE, labels = c(
+  "x: lateral (dark) to medial", "y: posterior (dark) to anterior",
+  "z: inferior (dark) to superior"
+))
+```
+
+![Columns of the NeuroSurfaceVector on the left hemisphere: x seen from
+above (anterior at top), y and z from the lateral side (anterior at
+left). Each column runs from its minimum (dark purple) to its maximum
+(yellow).](introduction-to-neurosurf_files/figure-html/show-neurosurfacevector-1.png)
+
+Columns of the NeuroSurfaceVector on the left hemisphere: x seen from
+above (anterior at top), y and z from the lateral side (anterior at
+left). Each column runs from its minimum (dark purple) to its maximum
+(yellow).
+
 ### Accessing `NeuroSurfaceVector` Properties
 
 ``` r
@@ -304,7 +358,7 @@ data_mat <- lh_surf_vec@data
 dim(data_mat)
 #> [1] 642   3
 
-# Standard matrix indexing: one vertex (row), or one column across vertices
+# Matrix indexing: one vertex (row), or one column across vertices
 data_mat[10, ]
 #> [1] -48.594086 -23.064110  -8.115485
 head(data_mat[, 2])
@@ -331,16 +385,18 @@ length(indices(lh_surf_vec))
 
 These classes facilitate plotting with pre-set visual parameters using
 the [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method
-discussed in
-[`vignette("displaying-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.md).
+discussed in the [Displaying surfaces with
+RGL](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html)
+article.
 
 ## Next Steps
 
 Now that you understand the core data structures, explore the
 visualization vignettes:
 
-- [`vignette("displaying-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.md)
-  — render surfaces with RGL, overlay data, and snapshot to PNG.
+- the [Displaying surfaces with
+  RGL](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html)
+  article — render surfaces with RGL, overlay data, and snapshot to PNG.
 - [`vignette("interactive-surfaces")`](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.md)
   — create interactive HTML widgets with
   [`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md).

@@ -101,7 +101,7 @@ nor a browser.</p>
 
 
 <dl><dt id="arg-geometry">geometry<a class="anchor" aria-label="anchor" href="#arg-geometry"></a></dt>
-<dd><p>A [SurfaceGeometry] object.</p></dd>
+<dd><p>A <a href="SurfaceGeometry.html">SurfaceGeometry</a> object.</p></dd>
 
 
 <dt id="arg-vertex-values">vertex_values<a class="anchor" aria-label="anchor" href="#arg-vertex-values"></a></dt>
@@ -111,7 +111,7 @@ nor a browser.</p>
 <dt id="arg-anatomy-metric">anatomy_metric<a class="anchor" aria-label="anchor" href="#arg-anatomy-metric"></a></dt>
 <dd><p>Optional numeric anatomy metric per vertex, such as
 sulcal depth or curvature. Values are robustly scaled and mapped to the
-grey levels in `anatomy_range`, with sulci darker than gyri.</p></dd>
+grey levels in <code>anatomy_range</code>, with sulci darker than gyri.</p></dd>
 
 
 <dt id="arg-cortex-mask">cortex_mask<a class="anchor" aria-label="anchor" href="#arg-cortex-mask"></a></dt>
@@ -120,7 +120,7 @@ never painted on triangles touching a masked vertex.</p></dd>
 
 
 <dt id="arg-camera">camera<a class="anchor" aria-label="anchor" href="#arg-camera"></a></dt>
-<dd><p>One of `"lateral"`, `"medial"`, `"dorsal"`, or `"ventral"`.</p></dd>
+<dd><p>One of <code>"lateral"</code>, <code>"medial"</code>, <code>"dorsal"</code>, or <code>"ventral"</code>.</p></dd>
 
 
 <dt id="arg-camera-mode">camera_mode<a class="anchor" aria-label="anchor" href="#arg-camera-mode"></a></dt>
@@ -130,7 +130,7 @@ camera with a small, explicit obliquity.</p></dd>
 
 <dt id="arg-presentation-obliquity">presentation_obliquity<a class="anchor" aria-label="anchor" href="#arg-presentation-obliquity"></a></dt>
 <dd><p>Obliquity in degrees used only for
-`camera_mode = "presentation"`.</p></dd>
+<code>camera_mode = "presentation"</code>.</p></dd>
 
 
 <dt id="arg-width-height">width, height<a class="anchor" aria-label="anchor" href="#arg-width-height"></a></dt>
@@ -149,8 +149,8 @@ camera with a small, explicit obliquity.</p></dd>
 <dd><p>Character vector of at least two colours, ordered from low to
 high values. With a positive threshold the palette spans only the
 suprathreshold range: for a two-sided map the first half of the colours
-is the negative ramp and the second half the positive ramp. `NULL` uses a
-default suited to `tail`.</p></dd>
+is the negative ramp and the second half the positive ramp. <code>NULL</code> uses a
+default suited to <code>tail</code>.</p></dd>
 
 
 <dt id="arg-limits">limits<a class="anchor" aria-label="anchor" href="#arg-limits"></a></dt>
@@ -203,24 +203,24 @@ opacity.</p></dd>
 
 
 <dt id="arg-lighting">lighting<a class="anchor" aria-label="anchor" href="#arg-lighting"></a></dt>
-<dd><p>`TRUE` for the default two-light Blinn-Phong shading,
-`FALSE` for flat (unlit) rendering, or a named list overriding any of
-`ambient`, `key`, `fill`, `specular`, `shininess`, `key_dir`, `fill_dir`
+<dd><p><code>TRUE</code> for the default two-light Blinn-Phong shading,
+<code>FALSE</code> for flat (unlit) rendering, or a named list overriding any of
+<code>ambient</code>, <code>key</code>, <code>fill</code>, <code>specular</code>, <code>shininess</code>, <code>key_dir</code>, <code>fill_dir</code>
 (view-space directions: x right, y up, z toward the viewer),
-`overlay_shading` (share of the shading applied to overlay colour), and
-`sky` (hemispheric ambient fraction). Overlay shading is normalized so a
+<code>overlay_shading</code> (share of the shading applied to overlay colour), and
+<code>sky</code> (hemispheric ambient fraction). Overlay shading is normalized so a
 surface facing the camera shows exactly the colour-bar colour.</p></dd>
 
 
 <dt id="arg-subdivide">subdivide<a class="anchor" aria-label="anchor" href="#arg-subdivide"></a></dt>
-<dd><p>`"auto"` subdivides coarse meshes for display until the
+<dd><p><code>"auto"</code> subdivides coarse meshes for display until the
 median projected edge is at most four pixels (up to three levels);
-`FALSE` disables it; an integer sets the number of levels.</p></dd>
+<code>FALSE</code> disables it; an integer sets the number of levels.</p></dd>
 
 
 <dt id="arg-pixel-scale">pixel_scale<a class="anchor" aria-label="anchor" href="#arg-pixel-scale"></a></dt>
 <dd><p>Output pixels per surface coordinate unit (usually
-mm). `NULL` fits the surface to the panel; a common value gives several
+mm). <code>NULL</code> fits the surface to the panel; a common value gives several
 panels one scale.</p></dd>
 
 
@@ -230,19 +230,19 @@ panels one scale.</p></dd>
 
 <dt id="arg-anatomy-style">anatomy_style<a class="anchor" aria-label="anchor" href="#arg-anatomy-style"></a></dt>
 <dd><p>Underlay mapping: legacy publication shading, centered
-continuous contrast, binary folding contrast, or `"soft"`: a smooth
+continuous contrast, binary folding contrast, or <code>"soft"</code>: a smooth
 two-tone (gyri light, sulci dark) with antialiased fold edges.</p></dd>
 
 
 <dt id="arg-anatomy-midpoint">anatomy_midpoint<a class="anchor" aria-label="anchor" href="#arg-anatomy-midpoint"></a></dt>
-<dd><p>Passed to [normalize_surface_anatomy()].</p></dd>
+<dd><p>Passed to <code><a href="normalize_surface_anatomy.html">normalize_surface_anatomy()</a></code>.</p></dd>
 
 
 <dt id="arg-anatomy-invert">anatomy_invert<a class="anchor" aria-label="anchor" href="#arg-anatomy-invert"></a></dt>
-<dd><p>Reverse the metric's polarity. `"auto"` (default)
-inverts metrics that are larger in sulci (FreeSurfer `sulc` and `curv`)
+<dd><p>Reverse the metric's polarity. <code>"auto"</code> (default)
+inverts metrics that are larger in sulci (FreeSurfer <code>sulc</code> and <code>curv</code>)
 and keeps metrics that are larger on gyral crowns (such as
-[curvature()]), judged by the metric's correlation with the displayed
+<code><a href="curvature-methods.html">curvature()</a></code>), judged by the metric's correlation with the displayed
 mesh's mean curvature. The decision is recorded in the provenance.</p></dd>
 
 
@@ -251,21 +251,21 @@ mesh's mean curvature. The decision is recorded in the provenance.</p></dd>
 
 
 <dt id="arg-reference">reference<a class="anchor" aria-label="anchor" href="#arg-reference"></a></dt>
-<dd><p>Optional list with `id`, `label`, binary per-vertex `mask`,
-opaque `color`, `opacity` in [0, 1], `visible`, and `provenance`. Defaults
+<dd><p>Optional list with <code>id</code>, <code>label</code>, binary per-vertex <code>mask</code>,
+opaque <code>color</code>, <code>opacity</code> in [0, 1], <code>visible</code>, and <code>provenance</code>. Defaults
 are label = id, opacity = 0.2, visible = TRUE, provenance = list().
 Anatomy, reference, then effect are composed with source-over. Membership
 is interpolated linearly (edge midpoints through display subdivision)
 and classified at &gt;= 0.5 at each sample. Antialiasing averages categorical
-coverage, returned as `reference_coverage` in [0, 1]. Reference color is
+coverage, returned as <code>reference_coverage</code> in [0, 1]. Reference color is
 unlit and excluded from triangles touching a non-cortex vertex, for all
 medial-wall policies. It never changes effect buffers or mapping.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A `surface_rgba` list with raw RGBA, coverage, and overlay-alpha
-  arrays plus camera and rendering provenance.</p>
+    <p>A <code>surface_rgba</code> list with raw RGBA, coverage, and overlay-alpha
+arrays plus camera and rendering provenance.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

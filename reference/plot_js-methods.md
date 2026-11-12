@@ -1,7 +1,9 @@
 # Plot Surface as an HTMLWidget
 
-\`plot_js()\` is the older name for the interactive HTML widget; new
-code should call \[surfwidget()\] directly.
+`plot_js()` is the older name for the interactive HTML widget; new code
+should call
+[`surfwidget()`](https://bbuchsbaum.github.io/neurosurf/reference/surfwidget-methods.md)
+directly.
 
 ## Usage
 

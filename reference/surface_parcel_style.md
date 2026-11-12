@@ -1,10 +1,11 @@
 # Style settings for parcel surface rendering
 
 Collects the shading, line, and medial-wall settings used by
-\[render_surface_parcels()\]. The defaults target publication figures: a
-quiet sulcal-depth underlay, soft directional light, filled parcels
-outlined in a darker shade of their own colour, faint boundaries between
-unfilled parcels, and a flat light medial wall that reads as "no data".
+[`render_surface_parcels()`](https://bbuchsbaum.github.io/neurosurf/reference/render_surface_parcels.md).
+The defaults target publication figures: a quiet sulcal-depth underlay,
+soft directional light, filled parcels outlined in a darker shade of
+their own colour, faint boundaries between unfilled parcels, and a flat
+light medial wall that reads as "no data".
 
 ## Usage
 
@@ -34,7 +35,7 @@ surface_parcel_style(
 
 - gyrus, sulcus:
 
-  Underlay grey levels in \\0, 1\\ for gyral crowns and sulcal fundi.
+  Underlay grey levels in \[0, 1\] for gyral crowns and sulcal fundi.
 
 - ambient, diffuse:
 
@@ -100,11 +101,11 @@ surface_parcel_style(
 
 ## Value
 
-A \`surface_parcel_style\` list.
+A `surface_parcel_style` list.
 
 ## Details
 
-Line specifications are lists with \`col\` (a colour, or \`"darken"\`
-for the filled-parcel outline), \`alpha\` in \\0, 1\\, and \`radius\`
-(dilation in supersampled pixels; 0 is a hairline). Set \`alpha = 0\` to
-disable a line class.
+Line specifications are lists with `col` (a colour, or `"darken"` for
+the filled-parcel outline), `alpha` in \[0, 1\], and `radius` (dilation
+in supersampled pixels; 0 is a hairline). Set `alpha = 0` to disable a
+line class.

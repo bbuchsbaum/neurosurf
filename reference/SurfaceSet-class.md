@@ -1,6 +1,6 @@
 # SurfaceSet: bundle multiple surface variants for one hemisphere
 
-A \`SurfaceSet\` keeps several \`SurfaceGeometry\` variants (e.g., pial,
+A `SurfaceSet` keeps several `SurfaceGeometry` variants (e.g., pial,
 white, inflated, sphere) for the same hemisphere together with a default
 choice.
 
@@ -30,7 +30,7 @@ curvature(x, ...)
 
 - x:
 
-  a \`SurfaceSet\`
+  a `SurfaceSet`
 
 - ...:
 
@@ -50,7 +50,7 @@ to construct instances.
 
 - `surfaces`:
 
-  Named list of \`SurfaceGeometry\` objects keyed by their label.
+  Named list of `SurfaceGeometry` objects keyed by their label.
 
 - `default_label`:
 

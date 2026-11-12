@@ -1,6 +1,6 @@
 # SurfaceGeometry Class
 
-The \`SurfaceGeometry\` class represents a three-dimensional surface
+The `SurfaceGeometry` class represents a three-dimensional surface
 consisting of a set of triangle vertices. It encapsulates the mesh
 structure, graph representation, and hemisphere information of a brain
 surface.
