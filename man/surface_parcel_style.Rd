@@ -25,7 +25,7 @@ surface_parcel_style(
 )
 }
 \arguments{
-\item{gyrus, sulcus}{Underlay grey levels in \[0, 1\] for gyral crowns and
+\item{gyrus, sulcus}{Underlay grey levels in [0, 1] for gyral crowns and
 sulcal fundi.}
 
 \item{ambient, diffuse}{Lambert lighting weights.}
@@ -64,18 +64,18 @@ turned away from the light, where they read as scratches.}
 passing a list.}
 }
 \value{
-A `surface_parcel_style` list.
+A \code{surface_parcel_style} list.
 }
 \description{
 Collects the shading, line, and medial-wall settings used by
-[render_surface_parcels()]. The defaults target publication figures: a
+\code{\link[=render_surface_parcels]{render_surface_parcels()}}. The defaults target publication figures: a
 quiet sulcal-depth underlay, soft directional light, filled parcels
 outlined in a darker shade of their own colour, faint boundaries between
 unfilled parcels, and a flat light medial wall that reads as "no data".
 }
 \details{
-Line specifications are lists with `col` (a colour, or `"darken"` for the
-filled-parcel outline), `alpha` in \[0, 1\], and `radius` (dilation in
-supersampled pixels; 0 is a hairline). Set `alpha = 0` to disable a line
+Line specifications are lists with \code{col} (a colour, or \code{"darken"} for the
+filled-parcel outline), \code{alpha} in [0, 1], and \code{radius} (dilation in
+supersampled pixels; 0 is a hairline). Set \code{alpha = 0} to disable a line
 class.
 }

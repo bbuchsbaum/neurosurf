@@ -7,7 +7,7 @@
 write_surface_figure(x, file, scale = 1)
 }
 \arguments{
-\item{x}{A `surface_figure` object.}
+\item{x}{A \code{surface_figure} object.}
 
 \item{file}{Output PNG path.}
 
@@ -17,9 +17,9 @@ write_surface_figure(x, file, scale = 1)
 The normalized path, invisibly.
 }
 \description{
-Draws a [surface_figure()] on a PNG device sized to its panels. Uses the
-`ragg` device when available, otherwise [grDevices::png()].
+Draws a \code{\link[=surface_figure]{surface_figure()}} on a PNG device sized to its panels. Uses the
+\code{ragg} device when available, otherwise \code{\link[grDevices:png]{grDevices::png()}}.
 }
 \seealso{
-[surface_figure()], [write_surface_rgba()] for single panels.
+\code{\link[=surface_figure]{surface_figure()}}, \code{\link[=write_surface_rgba]{write_surface_rgba()}} for single panels.
 }

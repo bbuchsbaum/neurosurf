@@ -33,7 +33,8 @@
 #'   its units.
 #' @param panel_width,panel_height Pixel dimensions of each rendered panel.
 #' @param antialias Integer supersampling factor per panel.
-#' @param labels Draw hemisphere and view headers above the panels.
+#' @param labels Draw hemisphere and view headers. A figure with a single
+#'   panel never has them.
 #' @param ... Additional arguments passed to every [render_surface_rgba()]
 #'   call.
 #'
@@ -203,6 +204,8 @@ surface_figure <- function(lh = NULL,
                            col_start = length(col_widths),
                            col_end = length(col_widths))
   }
+  # A single panel needs no hemisphere or view headers; a caption names it.
+  if (isTRUE(labels) && length(panels) == 1L) labels <- FALSE
   row_labels <- if (isTRUE(labels) && length(row_views)) {
     c(lateral = "Lateral", medial = "Medial", dorsal = "Dorsal",
       ventral = "Ventral")[row_views]
@@ -232,7 +235,9 @@ surface_figure <- function(lh = NULL,
         limits = limits,
         threshold = threshold,
         tail = tail,
-        palette = palette
+        palette = palette,
+        overlay_alpha = overlay_alpha,
+        alpha_ramp = alpha_ramp
       ),
       legend = isTRUE(legend),
       legend_title = legend_title
@@ -352,7 +357,7 @@ surface_figure <- function(lh = NULL,
       col = 1L + (at[["col_start"]]:at[["col_end"]])
     )
   }
-  label_gp <- grid::gpar(fontsize = 9, col = "#555555")
+  label_gp <- grid::gpar(fontsize = 10, col = "#333333")
   # Anterior/posterior markers just outside the brain on bilateral dorsal
   # and ventral panels (ventral views have posterior at the top).
   for (name in grep("^both_(dorsal|ventral)$", names(x$panels), value = TRUE)) {
@@ -380,10 +385,11 @@ surface_figure <- function(lh = NULL,
       gp = label_gp
     ), row = 1L, col = i + 1L)
   }
+  # Row labels read horizontally, right-aligned against the panels.
   for (r in seq_along(x$row_labels)) {
     frame <- grid::placeGrob(frame, grid::textGrob(
-      x$row_labels[r], rot = 90, x = grid::unit(1, "npc") - grid::unit(1, "mm"),
-      just = c("centre", "bottom"), gp = label_gp
+      x$row_labels[r], x = grid::unit(1, "npc") - grid::unit(0.5, "mm"),
+      just = c("right", "centre"), gp = label_gp
     ), row = r + 1L, col = 1L)
   }
   if (has_legend) {
@@ -395,7 +401,7 @@ surface_figure <- function(lh = NULL,
   frame
 }
 
-.ns_row_label_width_mm <- 5
+.ns_row_label_width_mm <- 13
 .ns_legend_height_mm <- 15
 .ns_header_height_mm <- 6
 
@@ -421,28 +427,71 @@ surface_figure <- function(lh = NULL,
   sub("^-", "\u2212", trimws(formatC(v, format = "g", digits = 3)))
 }
 
+# Interior ticks for one colour-bar segment: pretty values strictly inside
+# it, kept clear of the end labels.
+#' @noRd
+.ns_colorbar_interior_ticks <- function(seg) {
+  span <- diff(seg)
+  ticks <- pretty(seg, n = 3)
+  ticks <- ticks[ticks > seg[1] + 0.25 * span & ticks < seg[2] - 0.25 * span]
+  # One interior tick at most, the one nearest the middle, so short ramps
+  # never crowd.
+  # Ties go to the larger magnitude, so mirrored ramps get mirrored ticks.
+  if (length(ticks) > 1L) {
+    ticks <- ticks[order(abs(ticks - mean(seg)), -abs(ticks))][1L]
+  }
+  ticks
+}
+
+# Colour of the key at values `v`: the overlay LUT composited over a
+# mid-anatomy grey with the overlay's opacity, so a declared opacity ramp
+# above threshold appears in the key as it does on the cortex.
+#' @noRd
+.ns_colorbar_colors <- function(scale, v, lut) {
+  lut_v <- seq(scale$limits[1], scale$limits[2], length.out = nrow(lut))
+  idx <- findInterval(v, lut_v, all.inside = TRUE)
+  rgb <- lut[idx, 1:3, drop = FALSE]
+  alpha <- rep(scale$overlay_alpha %||% 1, length(v))
+  ramp <- scale$alpha_ramp %||% 0
+  if (ramp > 0) {
+    alpha <- alpha * pmin(1, pmax(0, (abs(v) - scale$threshold) / ramp))
+  }
+  grey <- 0.72
+  rgb <- rgb * alpha + grey * (1 - alpha)
+  grDevices::rgb(rgb[, 1], rgb[, 2], rgb[, 3])
+}
+
 #' @noRd
 .ns_figure_colorbar_grob <- function(scale, title) {
   lut <- .ns_overlay_lut(scale$palette, scale$limits, scale$threshold,
                          scale$tail, 256L)
   segs <- .ns_colorbar_segments(scale)
-  total_w <- 0.40
-  gap <- if (length(segs) > 1L) 0.03 else 0
+  total_w <- 0.46
+  gap <- if (length(segs) > 1L) 0.035 else 0
   span <- vapply(segs, diff, numeric(1))
   seg_w <- (total_w - gap * (length(segs) - 1L)) * span / sum(span)
-  bar_top <- grid::unit(1, "npc") - grid::unit(2, "mm")
-  bar_h <- grid::unit(2.6, "mm")
-  label_y <- bar_top - bar_h - grid::unit(1.4, "mm")
+  has_title <- !is.null(title) && nzchar(title)
+  title_h <- grid::unit(if (has_title) 4.6 else 0, "mm")
+  bar_top <- grid::unit(1, "npc") - grid::unit(1, "mm") - title_h
+  bar_h <- grid::unit(3.2, "mm")
+  label_y <- bar_top - bar_h - grid::unit(1.2, "mm")
+  tick_gp <- grid::gpar(fontsize = 10, col = "#333333")
   children <- list()
   x0 <- 0.5 - total_w / 2
-  lut_v <- seq(scale$limits[1], scale$limits[2], length.out = nrow(lut))
+  # The statistic's name is centred above the scale.
+  if (has_title) {
+    children[[length(children) + 1L]] <- grid::textGrob(
+      title, x = 0.5, y = bar_top + grid::unit(1.2, "mm"),
+      just = c("centre", "bottom"),
+      gp = grid::gpar(fontsize = 11, col = "#222222")
+    )
+  }
   for (k in seq_along(segs)) {
     seg <- segs[[k]]
-    v <- seq(seg[1], seg[2], length.out = 128L)
-    idx <- findInterval(v, lut_v, all.inside = TRUE)
-    cols <- grDevices::rgb(lut[idx, 1], lut[idx, 2], lut[idx, 3])
+    v <- seq(seg[1], seg[2], length.out = 256L)
     children[[length(children) + 1L]] <- grid::rasterGrob(
-      grDevices::as.raster(matrix(cols, nrow = 1L)),
+      grDevices::as.raster(matrix(.ns_colorbar_colors(scale, v, lut),
+                                  nrow = 1L)),
       x = x0, y = bar_top, width = seg_w[k], height = bar_h,
       just = c("left", "top"), interpolate = TRUE
     )
@@ -453,20 +502,226 @@ surface_figure <- function(lh = NULL,
     for (j in 1:2) {
       children[[length(children) + 1L]] <- grid::textGrob(
         .ns_format_tick(seg[j]), x = ends[j], y = label_y,
-        hjust = hjust[j], vjust = 1,
-        gp = grid::gpar(fontsize = 8, col = "#333333")
+        hjust = hjust[j], vjust = 1, gp = tick_gp
+      )
+    }
+    for (t in .ns_colorbar_interior_ticks(seg)) {
+      tx <- x0 + seg_w[k] * (t - seg[1]) / diff(seg)
+      children[[length(children) + 1L]] <- grid::segmentsGrob(
+        x0 = tx, x1 = tx, y0 = bar_top - bar_h, y1 = bar_top - bar_h * 0.55,
+        gp = grid::gpar(col = "#FFFFFF", lwd = 0.8)
+      )
+      children[[length(children) + 1L]] <- grid::textGrob(
+        .ns_format_tick(t), x = tx, y = label_y, vjust = 1, gp = tick_gp
       )
     }
     x0 <- x0 + seg_w[k] + gap
   }
-  if (!is.null(title) && nzchar(title)) {
+  grid::grobTree(children = do.call(grid::gList, children))
+}
+
+#' Arrange rendered panels as small multiples
+#'
+#' Lays out \code{\link{render_surface_rgba}} panels in one row, sets a label
+#' under each surface, and adds the shared colour key of the first panel's
+#' scale (see \code{\link{surface_colorbar_grob}}) and optional reference
+#' swatches. Use it for comparisons that \code{\link{surface_figure}} does
+#' not cover: different values, steps of a pipeline, or rendering options.
+#'
+#' @param panels A list of \code{surface_rgba} panels, drawn left to right.
+#' @param labels Text under each panel; defaults to \code{names(panels)}.
+#' @param legend Draw the colour key of the first panel's scale.
+#' @param legend_title Text above the key.
+#' @param references Optional named character vector of reference colours,
+#'   drawn as labelled swatches beside the key, e.g.
+#'   \code{c("Intraparietal ROI" = "#238b45")}.
+#' @param reference_opacity Fill opacity of the swatches, matching the
+#'   opacity the references were rendered with.
+#' @param label_family Font family for labels, e.g. \code{"mono"} when the
+#'   labels are code.
+#' @return A \code{surface_panels} object; \code{print()} or \code{plot()}
+#'   draws it on the current device.
+#' @examples
+#' geom <- example_surface_geometry()
+#' v <- coords(geom)[, 1]
+#' panels <- list(
+#'   dorsal = render_surface_rgba(geom, v, camera = "dorsal",
+#'                                width = 120, height = 120, antialias = 1),
+#'   lateral = render_surface_rgba(geom, v, camera = "lateral",
+#'                                 width = 120, height = 120, antialias = 1)
+#' )
+#' surface_panels(panels, legend_title = "x")
+#' @export
+surface_panels <- function(panels, labels = names(panels), legend = TRUE,
+                           legend_title = NULL, references = NULL,
+                           reference_opacity = 0.4, label_family = "") {
+  if (inherits(panels, "surface_rgba")) panels <- list(panels)
+  if (!length(panels) ||
+      !all(vapply(panels, inherits, logical(1), "surface_rgba"))) {
+    stop("'panels' must be a list of surface_rgba panels.", call. = FALSE)
+  }
+  if (!is.null(labels) && length(labels) != length(panels)) {
+    stop("'labels' must have one entry per panel.", call. = FALSE)
+  }
+  if (!is.null(references) &&
+      (!is.character(references) || is.null(names(references)))) {
+    stop("'references' must be a named character vector of colours.",
+         call. = FALSE)
+  }
+  structure(
+    list(panels = panels, labels = labels, legend = isTRUE(legend),
+         legend_title = legend_title, references = references,
+         reference_opacity = reference_opacity,
+         label_family = label_family),
+    class = "surface_panels"
+  )
+}
+
+#' @noRd
+.ns_surface_panels_grob <- function(x) {
+  n <- length(x$panels)
+  has_key <- isTRUE(x$legend) || length(x$references)
+  has_labels <- !is.null(x$labels) && any(nzchar(x$labels))
+  # Crop empty rows shared by every panel, so labels sit close under the
+  # surfaces; one crop for all panels keeps them on a common scale.
+  rasters <- lapply(x$panels, .ns_figure_panel_raster)
+  same_dims <- length(unique(lapply(rasters, dim))) == 1L
+  if (same_dims) {
+    covered <- Reduce(`|`, lapply(x$panels, function(p) rowSums(p$coverage) > 0))
+    rows <- which(covered)
+    if (length(rows)) {
+      pad <- ceiling(0.03 * nrow(rasters[[1]]))
+      keep <- max(1L, min(rows) - pad):min(nrow(rasters[[1]]), max(rows) + pad)
+      rasters <- lapply(rasters, function(r) r[keep, , drop = FALSE])
+    }
+  }
+  heights <- grid::unit.c(
+    grid::unit(1, "null"),
+    grid::unit(if (has_labels) 1.7 else 0, "lines"),
+    grid::unit(if (has_key) .ns_legend_height_mm else 0, "mm")
+  )
+  frame <- grid::frameGrob(layout = grid::grid.layout(3L, n,
+                                                      heights = heights))
+  frame <- grid::placeGrob(frame, grid::rectGrob(
+    gp = grid::gpar(fill = "white", col = NA)), row = 1:3, col = seq_len(n))
+  label_gp <- grid::gpar(fontsize = 10, col = "#333333",
+                         fontfamily = x$label_family)
+  for (i in seq_len(n)) {
+    frame <- grid::placeGrob(frame, grid::rasterGrob(
+      rasters[[i]], y = grid::unit(0, "npc"), just = "bottom",
+      interpolate = TRUE), row = 1L, col = i)
+    if (has_labels && nzchar(x$labels[i])) {
+      frame <- grid::placeGrob(frame, grid::textGrob(
+        x$labels[i], gp = label_gp), row = 2L, col = i)
+    }
+  }
+  if (has_key) {
+    key <- if (isTRUE(x$legend)) {
+      surface_colorbar_grob(x$panels[[1]], title = x$legend_title)
+    }
+    swatches <- if (length(x$references)) {
+      .ns_reference_swatches(x$references, x$reference_opacity,
+                             at = if (isTRUE(x$legend)) 0.75 else 0.5)
+    }
+    frame <- grid::placeGrob(frame, grid::gTree(children = grid::gList(
+      key %||% grid::nullGrob(), swatches %||% grid::nullGrob()
+    )), row = 3L, col = seq_len(n))
+  }
+  frame
+}
+
+# Labelled swatches on the colour bar's centre line.
+#' @noRd
+.ns_reference_swatches <- function(references, opacity, at) {
+  title_h <- 4.6
+  y <- grid::unit(1, "npc") - grid::unit(1 + title_h + 1.6, "mm")
+  children <- list()
+  for (k in seq_along(references)) {
+    yk <- y - grid::unit(5 * (k - 1), "mm")
+    children[[length(children) + 1L]] <- grid::rectGrob(
+      x = grid::unit(at, "npc"), y = yk,
+      width = grid::unit(3.2, "mm"), height = grid::unit(3.2, "mm"),
+      just = c("left", "centre"),
+      gp = grid::gpar(fill = grDevices::adjustcolor(references[[k]], opacity),
+                      col = references[[k]])
+    )
     children[[length(children) + 1L]] <- grid::textGrob(
-      title, x = 0.5, y = label_y - grid::unit(3.8, "mm"),
-      just = c("centre", "top"),
-      gp = grid::gpar(fontsize = 9, col = "#222222")
+      names(references)[k], x = grid::unit(at, "npc") + grid::unit(4.6, "mm"),
+      y = yk, just = c("left", "centre"),
+      gp = grid::gpar(fontsize = 10, col = "#333333")
     )
   }
-  grid::grobTree(children = do.call(grid::gList, children))
+  grid::gTree(children = do.call(grid::gList, children))
+}
+
+#' @rdname surface_panels
+#' @param x A \code{surface_panels} object.
+#' @param ... Unused.
+#' @method plot surface_panels
+#' @export
+plot.surface_panels <- function(x, ...) {
+  grid::grid.newpage()
+  grid::grid.draw(.ns_surface_panels_grob(x))
+  invisible(x)
+}
+
+#' @rdname surface_panels
+#' @method print surface_panels
+#' @export
+print.surface_panels <- function(x, ...) {
+  plot(x, ...)
+}
+
+#' Colour key for surface panels
+#'
+#' Builds the colour bar that \code{\link{surface_figure}} draws, as a grid
+#' grob, for figures composed by hand from \code{\link{render_surface_rgba}}
+#' panels. Suprathreshold tails are drawn as separate ramps with the
+#' threshold gap between them, and an opacity ramp above the threshold is
+#' shown in the key as it appears on the cortex.
+#'
+#' @param x A \code{surface_rgba} panel whose colour scale the key should
+#'   show, or \code{NULL} to give the scale explicitly.
+#' @param limits,threshold,tail,palette,overlay_alpha,alpha_ramp The colour
+#'   scale, as for \code{\link{render_surface_rgba}}. Taken from \code{x}
+#'   when it is supplied.
+#' @param title Text set beside the bar, typically the statistic.
+#' @return A grid grob. Draw it with \code{grid::grid.draw()} in a viewport
+#'   about 12 mm tall.
+#' @examples
+#' key <- surface_colorbar_grob(limits = c(-4, 4), threshold = 1.5,
+#'                              title = "z")
+#' grid::grid.newpage()
+#' grid::grid.draw(key)
+#' @export
+surface_colorbar_grob <- function(x = NULL, limits = NULL, threshold = 0,
+                                  tail = c("two_sided", "positive",
+                                           "negative"),
+                                  palette = NULL, overlay_alpha = 1,
+                                  alpha_ramp = 0, title = NULL) {
+  if (!is.null(x)) {
+    if (!inherits(x, "surface_rgba")) {
+      stop("'x' must be a surface_rgba panel or NULL.", call. = FALSE)
+    }
+    prov <- x$provenance
+    limits <- prov$limits
+    threshold <- prov$threshold
+    tail <- prov$tail
+    palette <- prov$palette
+    overlay_alpha <- prov$overlay_alpha %||% 1
+    alpha_ramp <- prov$alpha_ramp %||% 0
+  } else {
+    tail <- match.arg(tail)
+  }
+  if (!is.numeric(limits) || length(limits) != 2L ||
+      !all(is.finite(limits)) || limits[1] >= limits[2]) {
+    stop("'limits' must be an increasing pair of finite numbers.",
+         call. = FALSE)
+  }
+  scale <- list(limits = limits, threshold = threshold, tail = tail,
+                palette = palette %||% .ns_default_palette(tail),
+                overlay_alpha = overlay_alpha, alpha_ramp = alpha_ramp)
+  .ns_figure_colorbar_grob(scale, title)
 }
 
 #' @rdname surface_figure

@@ -18,7 +18,11 @@ curvature(x, ...)
 \item{...}{Additional arguments}
 }
 \value{
-A numeric vector of curvature values, one per vertex
+A numeric vector with one value per vertex: mean curvature
+rescaled to [0, 1] over the mesh. Higher values are convex (gyral
+crowns), lower values concave (sulcal fundi). The rescaling makes it a
+display index rather than a quantity in 1/mm; for FreeSurfer-style
+shading pass it to \code{\link{curv_cols_smooth}}.
 }
 \description{
 Compute Surface Curvature Vector

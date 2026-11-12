@@ -41,7 +41,6 @@ for distance along the mesh.
 \details{
 Create a systematic Searchlight iterator for a surface mesh.
 
-
 This function creates a systematic searchlight iterator, which visits each node
 of the surface mesh in order. The searchlight region for each node is defined
 by the specified radius and distance metric.

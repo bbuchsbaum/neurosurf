@@ -13,10 +13,10 @@ read_freesurfer_annot(file_name, geometry)
 }
 \value{
 A LabeledNeuroSurface object containing:
-  \item{indices}{Integer vector of vertex indices}
-  \item{data}{Numeric vector of label codes}
-  \item{labels}{Character vector of label names}
-  \item{cols}{Character vector of label colors in hex format}
+\item{indices}{Integer vector of vertex indices}
+\item{data}{Numeric vector of label codes}
+\item{labels}{Character vector of label names}
+\item{cols}{Character vector of label colors in hex format}
 }
 \description{
 Reads a Freesurfer annotation file and creates a LabeledNeuroSurface object.

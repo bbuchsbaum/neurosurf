@@ -43,6 +43,7 @@ Imports:
 LinkingTo: Rcpp, RcppArmadillo, roptim
 License: GPL (>= 2)
 Copyright: See inst/COPYRIGHTS for bundled third-party components.
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Language: en-US
 Collate:
@@ -92,6 +93,7 @@ Suggests:
     withr,
     ggplot2,
     viridis,
+    viridisLite,
     albersdown,
     ragg,
     systemfonts

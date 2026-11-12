@@ -165,3 +165,33 @@ test_that("gzipped GIFTI surfaces are read by read_surf_geometry", {
   expect_s4_class(g, "SurfaceGeometry")
   expect_identical(nrow(coords(g)), 10242L)
 })
+
+test_that("fsaverage5 cortex mask excludes a medial wall on the medial side", {
+  cortex <- load_fsaverage_cortex("fsaverage5")
+  white <- load_fsaverage("fsaverage5", "white")
+  for (h in c("lh", "rh")) {
+    mask <- cortex[[h]]
+    expect_type(mask, "logical")
+    expect_length(mask, 10242L)
+    # The wall is a minority of vertices, close to the midline.
+    expect_gt(mean(mask), 0.85)
+    expect_lt(mean(mask), 0.97)
+    x <- coords(white[[h]])[, 1]
+    expect_lt(median(abs(x[!mask])), median(abs(x[mask])))
+  }
+  expect_error(load_fsaverage_cortex("std.8"))
+})
+
+test_that("std.8 and fsaverage5 share fsaverage coordinate space", {
+  s8 <- load_fsaverage_std8("white")
+  f5 <- load_fsaverage("fsaverage5", "white")
+  for (h in c("lh", "rh")) {
+    a <- coords(s8[[h]])
+    b <- coords(f5[[h]])
+    expect_lt(max(abs(colMeans(a) - colMeans(b))), 1)
+    # Every std.8 vertex lies on the fsaverage5 surface to within its
+    # resampling error.
+    d <- FNN::get.knnx(b, a, k = 1)$nn.dist[, 1]
+    expect_lt(stats::median(d), 1.5)
+  }
+})

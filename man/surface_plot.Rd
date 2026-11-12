@@ -50,13 +50,13 @@ trims correctly.}
 added. Value in \eqn{[0,1]}.}
 
 \item{margin}{Fraction of background retained around each cropped brain when
-assembling the figure (e.g. \code{0.03} keeps a 3\% band). Smaller values
+assembling the figure (e.g. \code{0.03} keeps a 3\\% band). Smaller values
 pack the brains more tightly; \code{0} crops flush to the content.}
 }
 \value{
 An object of class \code{"neurosurf_plot"} that can be further
-  modified with \code{add_surface_layer()} and rendered with
-  \code{render_surface_plot()} or \code{draw_surface_plot()}.
+modified with \code{add_surface_layer()} and rendered with
+\code{render_surface_plot()} or \code{draw_surface_plot()}.
 }
 \description{
 Create a surface plot specification

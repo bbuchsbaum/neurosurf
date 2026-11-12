@@ -93,5 +93,5 @@ scene
 }
 \seealso{
 \code{\link{surface_layer}}, \code{\link{surfwidget}},
-  \code{\link{surface_scene_manifest}}, \code{\link{write_surface_scene}}
+\code{\link{surface_scene_manifest}}, \code{\link{write_surface_scene}}
 }

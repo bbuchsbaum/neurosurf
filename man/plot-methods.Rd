@@ -11,25 +11,25 @@
 \S4method{plot}{SurfaceGeometry,missing}(
   x,
   vals = NA,
-  cmap = grDevices::gray(seq(0, 1, length.out = 255)),
+  cmap = NULL,
   vert_clrs = NULL,
   irange = range(vals),
   thresh = c(0, 0),
   alpha = 1,
   specular = "black",
-  bgcol = "lightgray",
+  bgcol = NULL,
   ...
 )
 
 \S4method{plot}{NeuroSurface,missing}(
   x,
-  cmap = grDevices::gray(seq(0, 1, length.out = 255)),
+  cmap = NULL,
   vert_clrs = NULL,
   irange = range(x@data, na.rm = TRUE),
   thresh = c(0, 0),
   alpha = 1,
   specular = "black",
-  bgcol = "lightgray",
+  bgcol = NULL,
   ...
 )
 
@@ -41,42 +41,39 @@
   thresh = c(0, 0),
   alpha = 1,
   specular = "black",
-  bgcol = "lightgray",
+  bgcol = NULL,
   ...
 )
 
-\S4method{plot}{ColorMappedNeuroSurface,missing}(
-  x,
-  vert_clrs = NULL,
-  alpha = 1,
-  specular = "black",
-  bgcol = "lightgray",
-  ...
-)
+\S4method{plot}{ColorMappedNeuroSurface,missing}(x, vert_clrs = NULL, alpha = 1, specular = "black", bgcol = NULL, ...)
 
-\S4method{plot}{VertexColoredNeuroSurface,missing}(x, alpha = 1, specular = "black", bgcol = "lightgray", ...)
+\S4method{plot}{VertexColoredNeuroSurface,missing}(x, alpha = 1, specular = "black", bgcol = NULL, ...)
 }
 \arguments{
 \item{x}{the surface to plot}
 
 \item{vals}{An optional numeric vector containing data values for each vertex
-on the surface. If provided and `vert_clrs` is NULL, these values are mapped
-to colors using `cmap` and `irange`.}
+on the surface. If provided and \code{vert_clrs} is NULL, these values are mapped
+to colors using \code{cmap} and \code{irange}.}
 
 \item{cmap}{A vector of colors (e.g., hex codes) defining the color map used
-when `vals` is provided and `vert_clrs` is NULL. Defaults to `rainbow(256)`.}
+when \code{vals} is provided and \code{vert_clrs} is NULL. The default, \code{NULL},
+chooses \code{\link{surface_palette}}: diverging when \code{irange} spans zero,
+sequential otherwise.}
 
 \item{vert_clrs}{An optional character vector of hex color codes for each vertex.
-If provided, these colors directly override any coloring derived from `vals` and `cmap`.
-The length should match the number of vertices in `surfgeom`.}
+If provided, these colors directly override any coloring derived from \code{vals} and \code{cmap}.
+The length should match the number of vertices in \code{surfgeom}.}
 
-\item{irange}{An optional numeric vector of length 2, `c(min, max)`. Specifies
-the range of `vals` to map onto the `cmap`. Values outside this range will be
-clamped to the min/max colors. Defaults to the full range of `vals`.}
+\item{irange}{An optional numeric vector of length 2, \code{c(min, max)}. Specifies
+the range of \code{vals} to map onto the \code{cmap}. Values outside this range will be
+clamped to the min/max colors. Defaults to the full range of \code{vals}.}
 
-\item{thresh}{An optional numeric vector of length 2, `c(lower, upper)`.
-Vertices with `vals` *outside* this range (i.e., `< lower` or `> upper`)
-are made fully transparent. This is applied *after* the general `alpha`.
+\item{thresh}{An optional numeric vector of length 2, \code{c(lower, upper)}.
+Values \emph{inside} this band are not coloured, so the base colour shows
+through. With a base colour, opacity ramps up over a short band past
+each limit (a quarter of the larger limit's magnitude) so cluster edges
+fade smoothly.
 Defaults to NULL (no thresholding).}
 
 \item{alpha}{A numeric value between 0 (fully transparent) and 1 (fully opaque)
@@ -87,8 +84,10 @@ shininess. Can be a color name (e.g., "white") or hex code. Defaults to "black"
 for a matte look. Set to a brighter colour for a glossier appearance.}
 
 \item{bgcol}{A single hex color code or a vector of hex color codes used as the
-base color for the surface. If `vals` or `vert_clrs` are provided, this color
-is blended with the data/vertex colors. Defaults to "lightgray".}
+base color for the surface. If \code{vals} or \code{vert_clrs} are provided, this color
+is blended with the data/vertex colors. The default, \code{NULL}, shades
+the surface by its curvature (sulci dark, gyri light) with
+\code{\link{curv_cols_smooth}}; use \code{NA} for no base colour.}
 
 \item{...}{extra args to send to \code{view_surface}}
 }

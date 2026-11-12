@@ -16,10 +16,10 @@ analyzing data from both hemispheres of the brain simultaneously. It holds two
 NeuroSurfaceVector objects, one for each hemisphere, allowing researchers to:
 
 \itemize{
-  \item Analyze bilateral symmetric or asymmetric patterns in brain data
-  \item Compare corresponding regions across hemispheres
-  \item Represent whole-brain surface data with proper hemisphere separation
-  \item Apply operations to both hemispheres while maintaining their distinct identities
+\item Analyze bilateral symmetric or asymmetric patterns in brain data
+\item Compare corresponding regions across hemispheres
+\item Represent whole-brain surface data with proper hemisphere separation
+\item Apply operations to both hemispheres while maintaining their distinct identities
 }
 
 This class is particularly useful for studies examining interhemispheric differences,

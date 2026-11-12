@@ -1,6 +1,81 @@
 # neurosurf (development version)
 
+## New features
+
+* `surface_palette()` returns the colours neurosurf uses for statistical
+  maps (two-sided, positive, negative), and with `limits` and `threshold`
+  the exact lookup table of the CPU renderer, so RGL scenes, report widgets
+  and static figures can share one colour language.
+
+* `surface_panels()` lays out `render_surface_rgba()` panels as small
+  multiples on one scale, with labels, the shared colour key and optional
+  reference swatches. `surface_colorbar_grob()` returns that key on its own
+  for hand-made layouts. Panels now record their palette, overlay opacity
+  and opacity ramp in `provenance`.
+
+* `load_fsaverage_cortex()` returns the cortical domain of the bundled
+  fsaverage5 template (everything except the medial wall), for
+  `cortex_mask`. It reads FreeSurfer's Destrieux 2009 parcellation of
+  fsaverage5, now bundled unmodified from TemplateFlow (32 kB); provenance is
+  in `inst/extdata/PROVENANCE.md`.
+
+## Changes
+
+* The bundled browser runtime is surfview 3.3.0 (byte-identical to the npm
+  release). Switching surface variants in a report viewer now honours a
+  switch back mid-animation, and shading and bounds follow the changing shape.
+
+* `view_surface()` and the `plot()` methods shade the surface by its
+  curvature by default (sulci dark, gyri light) instead of flat light grey,
+  and choose `surface_palette()` (diverging when the colour range spans
+  zero) instead of `rainbow()` or grey. With `thresh`, colour now fades in
+  over a short band past the threshold instead of stepping at each vertex.
+  The legacy `surfwidget()` shortcuts likewise default to
+  `surface_palette()` instead of jet.
+
+* `surface_figure()`: the colour key has its title centred above the
+  ramps, larger type, at most one interior tick per ramp, and shows an
+  opacity ramp as it appears on the cortex. Row labels read horizontally,
+  and a figure with a single panel drops its hemisphere and view headers.
+
+* Report widgets draw a graphical colour key (with the threshold gap)
+  instead of a text range, show the anatomical views as a segmented
+  control with the opening view selected, and use a compact fullscreen
+  button.
+
+* `medial_wall = "outline"` draws a darker, two-pixel boundary.
+
 ## Bug fixes
+
+* `render_surface_rgba(medial_wall = "mask")` no longer reveals the far
+  side of the hemisphere through the masked region; masked triangles still
+  occlude and are drawn as background.
+
+* `show()` for a `SurfaceGeometry` reported a wrong surface area (it summed
+  dot products instead of cross-product norms). It now reports the area in
+  mm^2 and the mean edge length in mm, computes its metrics vectorised, and
+  no longer prints ASCII art.
+
+* `smooth()` for a `NeuroSurface` called the undeclared package purrr.
+
+* The RGL walkthrough ("Displaying surfaces with RGL") is now a website-only
+  article (`vignettes/articles/`): its live scenes carried about 4 MB of mesh
+  data. Installed documentation drops from about 8 MB to under 4 MB; the
+  other vignettes link to the article online. `write_surface_rgba()` writes
+  opaque panels without an alpha channel, and the README figure is
+  regenerated at 150 dpi with the current figure style.
+
+* Roxygen markdown is enabled, so `[topic]` links, `code` and **bold** in
+  the documentation render instead of appearing as literal brackets and
+  backticks.
+
+* `load_fsaverage_std8()` documents that its meshes share fsaverage (MNI305)
+  coordinates with the fsaverage5 surfaces (a rigid fit between the two
+  white surfaces moves them by less than half a millimetre).
+
+* `view_surface()` documented `zoom` and `thresh` backwards; `curvature()`
+  now documents that it returns mean curvature rescaled to [0, 1], higher
+  on gyri.
 
 * `surfwidget.yaml` now declares the bundled runtime as surfview 3.2.0; 0.1.0.9001
   shipped the 3.2.0 bundle under a 3.1.0 label. `tools/rebuild-surfview-runtime.py
@@ -32,8 +107,9 @@
   the manifest writer negates it because surfview 3 reads curvature in the
   FreeSurfer polarity. Pass FreeSurfer `curv`/`sulc` negated, as before.
 
-* The medial wall of static surface rasters is drawn at the light gyral tone
-  instead of a fixed mid-grey.
+* The medial wall of static surface rasters is drawn as one flat tone midway
+  between the sulcal and gyral greys of the anatomy, instead of a fixed
+  mid-grey, so it recedes behind the surrounding cortex.
 
 * The bundled fsaverage5 template now includes the pial surface
   (`pial_left.gii.gz`, `pial_right.gii.gz`, unmodified from the same pinned

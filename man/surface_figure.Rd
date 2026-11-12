@@ -34,28 +34,28 @@ surface_figure(
 \method{print}{surface_figure}(x, ...)
 }
 \arguments{
-\item{lh, rh}{[SurfaceGeometry] objects for the hemispheres to draw. Supply
+\item{lh, rh}{\link{SurfaceGeometry} objects for the hemispheres to draw. Supply
 at least one.}
 
 \item{values}{Vertex values. With both hemispheres, a named list with
-elements `lh`/`rh` (or `left`/`right`); with one hemisphere, a numeric
+elements \code{lh}/\code{rh} (or \code{left}/\code{right}); with one hemisphere, a numeric
 vector or a one-element named list.}
 
 \item{anatomy}{Optional anatomy metric (for example curvature from a
-matching white surface), in the same form as `values`.}
+matching white surface), in the same form as \code{values}.}
 
 \item{views}{Character vector of camera views drawn for each hemisphere,
-from `"lateral"`, `"medial"`, `"dorsal"`, `"ventral"`. Lateral and medial
+from \code{"lateral"}, \code{"medial"}, \code{"dorsal"}, \code{"ventral"}. Lateral and medial
 views are rows with one column per hemisphere. With both hemispheres,
 dorsal and ventral views show the hemispheres together in one panel,
 placed as a column beside the other views.}
 
 \item{threshold, tail, limits, palette, overlay_alpha, alpha_ramp, camera_mode}{Shared rendering contract applied to every panel; see
-[render_surface_rgba()]. `limits` defaults to the finite range of
-`values` across hemispheres.}
+\code{\link[=render_surface_rgba]{render_surface_rgba()}}. \code{limits} defaults to the finite range of
+\code{values} across hemispheres.}
 
 \item{cortex_mask}{Optional cortex-domain mask, in the same form as
-`values`.}
+\code{values}.}
 
 \item{legend}{Draw a colour bar beneath the panels.}
 
@@ -66,29 +66,30 @@ its units.}
 
 \item{antialias}{Integer supersampling factor per panel.}
 
-\item{labels}{Draw hemisphere and view headers above the panels.}
+\item{labels}{Draw hemisphere and view headers. A figure with a single
+panel never has them.}
 
-\item{...}{Additional arguments passed to every [render_surface_rgba()]
+\item{...}{Additional arguments passed to every \code{\link[=render_surface_rgba]{render_surface_rgba()}}
 call.}
 
-\item{x}{A `surface_figure` object.}
+\item{x}{A \code{surface_figure} object.}
 }
 \value{
-A `surface_figure` object: the rendered `surface_rgba` panels plus
-  layout and colour-scale metadata. `plot()` draws it and invisibly
-  returns it.
+A \code{surface_figure} object: the rendered \code{surface_rgba} panels plus
+layout and colour-scale metadata. \code{plot()} draws it and invisibly
+returns it.
 }
 \description{
 Renders one or both hemispheres from several canonical views with
-[render_surface_rgba()] and arranges the panels into a single figure with
+\code{\link[=render_surface_rgba]{render_surface_rgba()}} and arranges the panels into a single figure with
 an optional colour bar. All panels share the same threshold, limits, and
 palette, so the figure carries one interpretable colour scale.
 }
 \details{
 This is the package's high-level entry point for a static, publication
 figure. It runs headlessly (CI, cluster, Quarto, PDF) and requires neither
-OpenGL nor a browser. `plot()` and `print()` draw the figure on the current
-graphics device; [write_surface_figure()] writes it to PNG.
+OpenGL nor a browser. \code{plot()} and \code{print()} draw the figure on the current
+graphics device; \code{\link[=write_surface_figure]{write_surface_figure()}} writes it to PNG.
 }
 \examples{
 \donttest{
@@ -106,7 +107,7 @@ plot(fig)
 
 }
 \seealso{
-[render_surface_rgba()] for the single-panel contract,
-  [write_surface_figure()] to write PNG output, and [surfwidget()] for the
-  interactive HTML counterpart.
+\code{\link[=render_surface_rgba]{render_surface_rgba()}} for the single-panel contract,
+\code{\link[=write_surface_figure]{write_surface_figure()}} to write PNG output, and \code{\link[=surfwidget]{surfwidget()}} for the
+interactive HTML counterpart.
 }

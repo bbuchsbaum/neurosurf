@@ -771,7 +771,7 @@ apply_surface_sampler <- function(sampler, vol, fun = c("avg", "nn", "mode"),
 #'   }
 #'
 #' @details
-#' The output triplets define a sparse matrix P where P[i,j] is the weight
+#' The output triplets define a sparse matrix `P` where `P[i, j]` is the weight
 
 #' for vertex i from voxel j. The actual volume voxel index is
 #' \code{voxel_indices[j]}. To construct a dgCMatrix in R:

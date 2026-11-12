@@ -40,19 +40,19 @@ for \code{"smooth"}. Zero reproduces midpoint segment geometry.}
 \value{
 A list with elements:
 \describe{
-  \item{\code{boundary}}{For \code{"faces"}: logical vector of length
-    \code{nrow(faces)} indicating boundary faces.
-    For \code{"midpoint"}: list of \eqn{2 \times 3} coordinate matrices, one
-    per contour segment.
-    For \code{"edge_vertices"}: list of coordinate matrices (\eqn{k \times 3})
-    giving boundary polygons for each connected ROI component.}
-  \item{\code{boundary_roi_id}}{Integer vector giving the ROI id associated
-    with each boundary polygon (empty for \code{"faces"}).}
-  \item{\code{roi_components}}{Integer vector giving the number of connected
-    components for each ROI (indexed parallel to \code{sort(unique(vertex_id))}).}
-  \item{\code{boundary_verts}}{For \code{"edge_vertices"}: list of integer
-    vectors giving the vertex ids used for each boundary polygon; \code{NULL}
-    for \code{"faces"}.}
+\item{\code{boundary}}{For \code{"faces"}: logical vector of length
+\code{nrow(faces)} indicating boundary faces.
+For \code{"midpoint"}: list of \eqn{2 \times 3} coordinate matrices, one
+per contour segment.
+For \code{"edge_vertices"}: list of coordinate matrices (\eqn{k \times 3})
+giving boundary polygons for each connected ROI component.}
+\item{\code{boundary_roi_id}}{Integer vector giving the ROI id associated
+with each boundary polygon (empty for \code{"faces"}).}
+\item{\code{roi_components}}{Integer vector giving the number of connected
+components for each ROI (indexed parallel to \code{sort(unique(vertex_id))}).}
+\item{\code{boundary_verts}}{For \code{"edge_vertices"}: list of integer
+vectors giving the vertex ids used for each boundary polygon; \code{NULL}
+for \code{"faces"}.}
 }
 For \code{"smooth"}, \code{boundary} contains ordered polylines (closed
 paths repeat their first point). Additional fields are \code{label_pair}
@@ -77,37 +77,37 @@ for use with neurosurf objects.
 \details{
 Four boundary representations are currently supported:
 \itemize{
-  \item \code{"midpoint"} (default): returns crisp single-width contour
-    segments that run \emph{between} differing labels, through the midpoints
-    of the mesh edges that separate them. This is the recommended method for
-    drawing clean ROI/atlas outlines: shared borders are drawn once (no
-    double lines) and adjacent segments join into continuous contours.
-  \item \code{"smooth"}: returns chained polylines from a constrained
-    partition guided by smoothed memberships. Original vertex labels and
-    mesh-edge parcel adjacency are preserved, including small parcels.
-  \item \code{"faces"}: returns a logical vector indicating which faces lie
-    on a boundary between ROIs.
-  \item \code{"edge_vertices"}: returns boundary polygons traced through
-    mesh vertices. Borders are traced along vertices on both sides of a
-    boundary, which can read as a thicker double line on coarse meshes.
+\item \code{"midpoint"} (default): returns crisp single-width contour
+segments that run \emph{between} differing labels, through the midpoints
+of the mesh edges that separate them. This is the recommended method for
+drawing clean ROI/atlas outlines: shared borders are drawn once (no
+double lines) and adjacent segments join into continuous contours.
+\item \code{"smooth"}: returns chained polylines from a constrained
+partition guided by smoothed memberships. Original vertex labels and
+mesh-edge parcel adjacency are preserved, including small parcels.
+\item \code{"faces"}: returns a logical vector indicating which faces lie
+on a boundary between ROIs.
+\item \code{"edge_vertices"}: returns boundary polygons traced through
+mesh vertices. Borders are traced along vertices on both sides of a
+boundary, which can read as a thicker double line on coarse meshes.
 }
 
 The smooth mode uses distinct one-ring neighbours and a lazy mean
-  with weight 0.5. It places crossings using nonnegative endpoint label
-  margins, falling back to a midpoint when neither endpoint supports its
-  original label. Three-label junctions are equal-score solutions projected
-  onto the interior barycentric simplex; singular solutions use the centroid.
-  This is a piecewise-linear, vertex-preserving partition, not exact
-  extraction of the unconstrained membership argmax. It matches
-  \code{prepare_surface_parcels(boundary_method = "smooth")} for the same
-  geometry, effective labels, smoothing, and clamp.
+with weight 0.5. It places crossings using nonnegative endpoint label
+margins, falling back to a midpoint when neither endpoint supports its
+original label. Three-label junctions are equal-score solutions projected
+onto the interior barycentric simplex; singular solutions use the centroid.
+This is a piecewise-linear, vertex-preserving partition, not exact
+extraction of the unconstrained membership argmax. It matches
+\code{prepare_surface_parcels(boundary_method = "smooth")} for the same
+geometry, effective labels, smoothing, and clamp.
 
-  Smooth labels must be nonnegative R-representable integers (0 denotes the
-  medial wall in rendering). Open meshes and unused vertices are supported.
-  Duplicate/zero-area faces, repeated face indices, and edges incident to
-  more than two faces are rejected. A non-manifold vertex alone is allowed.
-  Shared border nodes are keyed by topology, never rounded coordinates.
-  Existing modes retain their original input and output contracts.
+Smooth labels must be nonnegative R-representable integers (0 denotes the
+medial wall in rendering). Open meshes and unused vertices are supported.
+Duplicate/zero-area faces, repeated face indices, and edges incident to
+more than two faces are rejected. A non-manifold vertex alone is allowed.
+Shared border nodes are keyed by topology, never rounded coordinates.
+Existing modes retain their original input and output contracts.
 }
 \examples{
 \donttest{

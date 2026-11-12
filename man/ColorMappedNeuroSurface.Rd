@@ -28,9 +28,9 @@ associated with nodes on a surface geometry, with pre-defined color mapping para
 }
 \details{
 This object bundles the surface geometry, data, and specific color mapping
-  parameters ('cmap', 'irange', 'thresh'). This is useful for ensuring consistent
-  visualization across different plots or for saving a predefined view. The actual
-  application of the color map happens during rendering (e.g., when using 'plot()'').
+parameters ('cmap', 'irange', 'thresh'). This is useful for ensuring consistent
+visualization across different plots or for saving a predefined view. The actual
+application of the color map happens during rendering (e.g., when using 'plot()'').
 }
 \examples{
 # Load a sample surface geometry

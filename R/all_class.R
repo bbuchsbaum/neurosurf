@@ -1341,7 +1341,7 @@ setClass("NeuroSurface",
 #'
 #' The color mapping process works as follows:
 #' \enumerate{
-#'   \item Data values are linearly mapped to the range [0,1] based on \code{irange}
+#'   \item Data values are linearly mapped to the range \[0,1\] based on \code{irange}
 #'   \item These normalized values are used to interpolate colors from the \code{cmap}
 #'   \item Values falling between the thresholds in \code{thresh} are marked as invisible
 #' }

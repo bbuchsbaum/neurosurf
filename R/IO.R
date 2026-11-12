@@ -860,8 +860,8 @@ loadGIFTISurface <- function(meta_info) {
 #'
 #' Pulls the surface-to-world affine (the GIFTI
 #' \code{CoordinateSystemTransformMatrix} attached to the POINTSET data array)
-#' out of the object returned by \code{gifti::readgii()}. With \code{gifti}
-#' >= 0.8 the parsed transforms live in \code{gii$parsed_transformations}
+#' out of the object returned by \code{gifti::readgii()}. With
+#' \code{gifti} 0.8 or later the parsed transforms live in \code{gii$parsed_transformations}
 #' (one entry per data array), while \code{gii$data_info} is a
 #' \code{data.frame} of per-array attributes rather than a list carrying the
 #' transform. Older layouts that stored \code{$trans_mat} per data array are

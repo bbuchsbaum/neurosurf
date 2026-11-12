@@ -65,6 +65,26 @@
       "modified": false
     },
     {
+      "file": "fsaverage5/tpl-fsaverage_hemi-L_den-10k_atlas-Destrieux2009_dseg.label.gii",
+      "sha256": "bc2088b481f88d969a62008fd4d37360774bc8ee12335073c0fdd71a580372fe",
+      "upstream_sha256": "bc2088b481f88d969a62008fd4d37360774bc8ee12335073c0fdd71a580372fe",
+      "upstream_annex_key": "MD5E-s16227--0c5a92bdeb82dfe18b196ad272a0958f.gii",
+      "url": "https://templateflow.s3.amazonaws.com/tpl-fsaverage/tpl-fsaverage_hemi-L_den-10k_atlas-Destrieux2009_dseg.label.gii",
+      "source": "TemplateFlow tpl-fsaverage commit 8e53ba4f2e438758f69d11436fe0cd291a28bec6; converted by TemplateFlow from FreeSurfer 7 fsaverage5/label/lh.aparc.a2009s.annot",
+      "license": "LICENSE-FreeSurfer.txt",
+      "modified": false
+    },
+    {
+      "file": "fsaverage5/tpl-fsaverage_hemi-R_den-10k_atlas-Destrieux2009_dseg.label.gii",
+      "sha256": "7f8963b56c99fe4b3350fe2291969c7104a7d4c6d2d861f5397c469a01dd0a4c",
+      "upstream_sha256": "7f8963b56c99fe4b3350fe2291969c7104a7d4c6d2d861f5397c469a01dd0a4c",
+      "upstream_annex_key": "MD5E-s16295--777fc986e3b4731668f7bc7ab0799cc1.gii",
+      "url": "https://templateflow.s3.amazonaws.com/tpl-fsaverage/tpl-fsaverage_hemi-R_den-10k_atlas-Destrieux2009_dseg.label.gii",
+      "source": "TemplateFlow tpl-fsaverage commit 8e53ba4f2e438758f69d11436fe0cd291a28bec6; converted by TemplateFlow from FreeSurfer 7 fsaverage5/label/rh.aparc.a2009s.annot",
+      "license": "LICENSE-FreeSurfer.txt",
+      "modified": false
+    },
+    {
       "file": "Schaefer2018_200Parcels_7Networks_order_FSLMNI152_1mm.nii.gz",
       "sha256": "a47808f907f175f2e83f2c941bc68a766a8991b238e98457e9d27a8760ea21ec",
       "upstream_sha256": "a47808f907f175f2e83f2c941bc68a766a8991b238e98457e9d27a8760ea21ec",

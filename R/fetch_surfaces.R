@@ -4,6 +4,11 @@
 #' with neurosurf (the \code{std.8} decimated variant) and returns them as
 #' \code{\linkS4class{SurfaceGeometry}} objects.
 #'
+#' The meshes have 642 vertices per hemisphere and share fsaverage (MNI305)
+#' coordinates with the fsaverage5 surfaces of \code{\link{load_fsaverage}}:
+#' a rigid fit between the two white surfaces moves them by less than half a
+#' millimetre and a degree.
+#'
 #' @param surf Character string specifying which surface to load. One of
 #'   \code{"smoothwm"}, \code{"pial"}, \code{"inflated"}, \code{"white"},
 #'   or \code{"sphere"}. Defaults to \code{"smoothwm"}.
@@ -119,6 +124,45 @@ load_fsaverage_sulc <- function(density = "fsaverage5") {
   lapply(c(lh = "left", rh = "right"), function(side) {
     path <- .ns_fsaverage5_file(paste0("sulc_", side, ".gii.gz"))
     as.numeric(gifti::readgii(path)$data[[1]])
+  })
+}
+
+#' Cortex mask for a packaged fsaverage template
+#'
+#' Returns the cortical domain of each hemisphere of a bundled fsaverage
+#' template: \code{TRUE} for cortex, \code{FALSE} for the non-cortical medial
+#' wall. Pass it as \code{cortex_mask} to \code{\link{surface_figure}} or
+#' \code{\link{render_surface_rgba}} so statistical colour never lands on the
+#' medial wall.
+#'
+#' The mask comes from FreeSurfer's Destrieux 2009 parcellation
+#' (\code{aparc.a2009s}) of fsaverage5, as distributed by TemplateFlow:
+#' every vertex except those labelled \code{Medial_wall} or \code{Unknown}.
+#' This is the same domain as FreeSurfer's \code{?h.cortex.label} up to the
+#' parcellation's boundary. See \code{system.file("extdata",
+#' "PROVENANCE.md", package = "neurosurf")}.
+#'
+#' @param density Template density; currently \code{"fsaverage5"}.
+#' @return A named list with logical vectors \code{"lh"} and \code{"rh"},
+#'   one value per vertex of \code{\link{load_fsaverage}} for the same
+#'   density.
+#' @examples
+#' \donttest{
+#' cortex <- load_fsaverage_cortex("fsaverage5")
+#' mean(cortex$lh)  # fraction of vertices that are cortex
+#' }
+#' @export
+load_fsaverage_cortex <- function(density = "fsaverage5") {
+  density <- match.arg(density, "fsaverage5")
+  lapply(c(lh = "L", rh = "R"), function(hemi) {
+    path <- .ns_fsaverage5_file(paste0(
+      "tpl-fsaverage_hemi-", hemi, "_den-10k_atlas-Destrieux2009_dseg.label.gii"
+    ))
+    gii <- gifti::readgii(path)
+    keys <- gii$label[, "Key"]
+    excluded <- as.integer(keys[rownames(gii$label) %in%
+                                  c("Unknown", "Medial_wall")])
+    !(as.integer(gii$data[[1]]) %in% excluded)
   })
 }
 

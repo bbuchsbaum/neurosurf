@@ -19,7 +19,7 @@ used for coloring (colors are specified directly via the \code{colors} parameter
 }
 \value{
 A \code{VertexColoredNeuroSurface} object containing the surface geometry
-  with explicit vertex colors.
+with explicit vertex colors.
 }
 \description{
 This function creates a VertexColoredNeuroSurface object, which represents a surface
@@ -27,8 +27,8 @@ with explicit colors assigned to each vertex.
 }
 \details{
 This object represents a surface where each vertex has an explicitly assigned color,
-  bypassing any data-to-color mapping. This is useful when you want direct control over
-  vertex colors, such as when displaying parcellation results or pre-computed color schemes.
+bypassing any data-to-color mapping. This is useful when you want direct control over
+vertex colors, such as when displaying parcellation results or pre-computed color schemes.
 }
 \examples{
 \donttest{

@@ -16,7 +16,7 @@ mode.}
 }
 \value{
 A JSON-compatible named list. Directory mode also writes canonical
-  content-addressed assets to \code{asset_dir}.
+content-addressed assets to \code{asset_dir}.
 }
 \description{
 Serialize a SurfaceScene as a surfview.scene.v1 manifest

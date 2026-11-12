@@ -12,7 +12,7 @@ get_surface(x, label = NULL)
 \item{label}{Label of the desired surface variant. Defaults to the set's default.}
 }
 \value{
-A `SurfaceGeometry` object.
+A \code{SurfaceGeometry} object.
 }
 \description{
 Retrieve a geometry from a SurfaceSet

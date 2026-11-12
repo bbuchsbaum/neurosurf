@@ -8,7 +8,7 @@
 An object of class \code{SurfaceGeometry}.
 }
 \description{
-The `SurfaceGeometry` class represents a three-dimensional surface consisting of a set of triangle vertices.
+The \code{SurfaceGeometry} class represents a three-dimensional surface consisting of a set of triangle vertices.
 It encapsulates the mesh structure, graph representation, and hemisphere information of a brain surface.
 }
 \details{

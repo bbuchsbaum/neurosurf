@@ -8,6 +8,19 @@ nilearn commit `e5faab66dc2fe72d2cb50a8aaf2f44813aba4a51` (2023-03-28),
 redistributed under `LICENSE-FreeSurfer.txt`. Each was verified against the
 pinned source; exact URLs and hashes are in `PROVENANCE.json`.
 
+### fsaverage5 Destrieux parcellation and cortex domain
+
+`fsaverage5/tpl-fsaverage_hemi-{L,R}_den-10k_atlas-Destrieux2009_dseg.label.gii`
+are unmodified files from TemplateFlow `tpl-fsaverage`, commit
+`8e53ba4f2e438758f69d11436fe0cd291a28bec6` (2024-03-26). TemplateFlow
+converted them with `mris_convert` from FreeSurfer 7
+`subjects/fsaverage5/label/{l,r}h.aparc.a2009s.annot`. Their bytes match the
+git-annex MD5 keys recorded at that commit, and their vertex order matches the
+nilearn fsaverage5 surfaces above (identical white-surface coordinates).
+`load_fsaverage_cortex()` reads the cortex domain from them: every vertex not
+labelled `Medial_wall` or `Unknown`. Cite Destrieux et al. (2010),
+NeuroImage, DOI: https://doi.org/10.1016/j.neuroimage.2010.06.010.
+
 ## std.8 (modified FreeSurfer templates)
 
 The `std.8_*.asc` meshes are resampled derivatives of FreeSurfer fsaverage,

@@ -216,20 +216,26 @@ surface_views <- list(
 #'   on the surface. If provided and `vert_clrs` is NULL, these values are mapped
 #'   to colors using `cmap` and `irange`.
 #' @param cmap A vector of colors (e.g., hex codes) defining the color map used
-#'   when `vals` is provided and `vert_clrs` is NULL. Defaults to `rainbow(256)`.
+#'   when `vals` is provided and `vert_clrs` is NULL. The default, `NULL`,
+#'   chooses \code{\link{surface_palette}}: diverging when `irange` spans zero,
+#'   sequential otherwise.
 #' @param vert_clrs An optional character vector of hex color codes for each vertex.
 #'   If provided, these colors directly override any coloring derived from `vals` and `cmap`.
 #'   The length should match the number of vertices in `surfgeom`.
 #' @param bgcol A single hex color code or a vector of hex color codes used as the
 #'   base color for the surface. If `vals` or `vert_clrs` are provided, this color
-#'   is blended with the data/vertex colors. Defaults to "lightgray".
+#'   is blended with the data/vertex colors. The default, \code{NULL}, shades
+#'   the surface by its curvature (sulci dark, gyri light) with
+#'   \code{\link{curv_cols_smooth}}; use \code{NA} for no base colour.
 #' @param alpha A numeric value between 0 (fully transparent) and 1 (fully opaque)
 #'   controlling the overall transparency of the surface. Defaults to 1.
 #' @param add_normals Logical. If TRUE (default), surface normals are calculated
 #'   and added to the mesh, which improves the appearance of lighting effects.
 #' @param thresh An optional numeric vector of length 2, `c(lower, upper)`.
-#'   Vertices with `vals` *outside* this range (i.e., `< lower` or `> upper`)
-#'   are made fully transparent. This is applied *after* the general `alpha`.
+#'   Values *inside* this band are not coloured, so the base colour shows
+#'   through. With a base colour, opacity ramps up over a short band past
+#'   each limit (a quarter of the larger limit's magnitude) so cluster edges
+#'   fade smoothly.
 #'   Defaults to NULL (no thresholding).
 #' @param irange An optional numeric vector of length 2, `c(min, max)`. Specifies
 #'   the range of `vals` to map onto the `cmap`. Values outside this range will be
@@ -258,8 +264,9 @@ surface_views <- list(
 #'   updates or within Shiny apps).
 #' @param offset A numeric vector of length 3 specifying a translation offset
 #'   `c(x, y, z)` applied to the surface coordinates before rendering. Defaults to `c(0, 0, 0)`.
-#' @param zoom A numeric value controlling the camera zoom level. Defaults to 1 (no zoom).
-#'   Values > 1 zoom in, < 1 zoom out.
+#' @param zoom Camera zoom passed to \code{rgl::view3d()}. Defaults to 1;
+#'   values below 1 zoom in (for example 0.7 fills more of the window),
+#'   values above 1 zoom out.
 #' @param spheres An optional data frame to draw spheres at specific locations on
 #'   or near the surface. Must contain columns `x`, `y`, `z` (coordinates), and
 #'   `radius`. Can optionally include a `color` column (hex codes or color names)
@@ -300,7 +307,7 @@ surface_views <- list(
 #'
 #' **Transparency:** Overall transparency is set by `alpha`. Additional threshold-based
 #'   transparency can be applied using `thresh` when `vals` are provided. Vertices
-#'   with values outside the `thresh` range become fully transparent.
+#'   with values inside the `thresh` band are left uncoloured.
 #'
 #' **Lighting:** `add_normals=TRUE` is recommended for realistic lighting. The `specular`
 #'   parameter controls the shininess.
@@ -330,9 +337,9 @@ surface_views <- list(
 #' @seealso \code{\link[rgl]{shade3d}}, \code{\link[rgl]{spheres3d}}, \code{\link[rgl]{view3d}}, \code{\link{SurfaceGeometry}}
 #' @export
 view_surface <- function(surfgeom, vals=NA,
-                         cmap=grDevices::rainbow(256, alpha = 1),
+                         cmap=NULL,
                          vert_clrs=NULL,
-                         bgcol = "lightgray",
+                         bgcol = NULL,
                          alpha=1,
                          add_normals=TRUE,
                          thresh=NULL,
@@ -435,6 +442,16 @@ view_surface <- function(surfgeom, vals=NA,
     }
   }
 
+  if (is.null(cmap)) {
+    cmap <- .ns_auto_palette(if (maps_vals) vals_use else NULL, irange)
+  }
+  if (is.null(bgcol)) {
+    # Default anatomy: curvature shading, sulci dark and gyri light.
+    bgcol <- tryCatch(
+      curv_cols_smooth(curvature(surfgeom), light = "#E2E2E2",
+                       dark = "#8E8E8E"),
+      error = function(e) "lightgray")
+  }
   if (length(bgcol) == 1 && is.na(bgcol)) {
     bg_layer <- NULL
   } else {
@@ -449,7 +466,16 @@ view_surface <- function(surfgeom, vals=NA,
     }
   }
 
-  if (maps_vals) {
+  if (maps_vals && !is.null(bg_layer)) {
+    # Blend the mapped colour over the base with an opacity that ramps up
+    # over a short band past the threshold, so cluster edges fade between
+    # vertices instead of stepping at each one.
+    fg_layer <- colorplane::IntensityColorPlane(vals_use, cmap, alpha=1)
+    fg_hex <- colorplane::as_hexcol(
+      colorplane::map_colors(fg_layer, alpha=1, irange=irange))
+    vertex_cols <- .ns_fade_blend(fg_hex, colorplane::as_hexcol(bg_layer),
+                                  vals_use, thresh, alpha)
+  } else if (maps_vals) {
     fg_layer <- colorplane::IntensityColorPlane(vals_use, cmap, alpha=1)
     fg_clrs <- colorplane::map_colors(fg_layer, alpha=alpha, threshold=thresh, irange=irange)
     combined <- colorplane::blend_colors(bg_layer, fg_clrs, alpha=alpha)
@@ -654,13 +680,13 @@ view_surface <- function(surfgeom, vals=NA,
 #' @importFrom grDevices gray
 #' @inheritParams view_surface
 setMethod("plot", signature=signature(x="SurfaceGeometry", y="missing"),
-          def=function(x,vals=NA, cmap=grDevices::gray(seq(0,1,length.out=255)),
+          def=function(x,vals=NA, cmap=NULL,
                        vert_clrs=NULL,
                        irange=range(vals),
                        thresh=c(0,0),
                        alpha=1,
                        specular="black",
-                       bgcol="lightgray", ...) {
+                       bgcol=NULL, ...) {
 
             view_surface(x,vals,cmap=cmap,vert_clrs=vert_clrs, irange=irange,thresh=thresh,alpha=alpha,bgcol=bgcol,specular=specular,...)
 
@@ -714,13 +740,13 @@ plot.SurfaceSet <- function(x, y, label = NULL, ...) {
 #' @export
 #' @rdname plot-methods
 setMethod("plot", signature=signature(x="NeuroSurface", y="missing"),
-          def=function(x,cmap=grDevices::gray(seq(0,1,length.out=255)),
+          def=function(x,cmap=NULL,
                        vert_clrs=NULL,
                        irange=range(x@data, na.rm=TRUE),
                        thresh=c(0,0),
                        alpha=1,
                        specular="black",
-                       bgcol="lightgray", ...) {
+                       bgcol=NULL, ...) {
 
             ind <- x@indices
             vals <- rep(NA, length(nodes(x)))
@@ -740,7 +766,7 @@ setMethod("plot", signature=signature(x="LabeledNeuroSurface", y="missing"),
                        thresh=c(0,0),
                        alpha=1,
                        specular="black",
-                       bgcol="lightgray", ...) {
+                       bgcol=NULL, ...) {
 
             ind <- x@indices
             vals <- rep(NA, length(nodes(x)))
@@ -758,7 +784,7 @@ setMethod("plot", signature=signature(x="ColorMappedNeuroSurface", y="missing"),
                        vert_clrs=NULL,
                        alpha=1,
                        specular="black",
-                       bgcol="lightgray", ...) {
+                       bgcol=NULL, ...) {
 
             ind <- x@indices
             vals <- rep(NA, length(nodes(x)))
@@ -784,7 +810,7 @@ setMethod("plot", signature=signature(x="VertexColoredNeuroSurface", y="missing"
           def=function(x,
                        alpha=1,
                        specular="black",
-                       bgcol="lightgray", ...) {
+                       bgcol=NULL, ...) {
 
             ind <- x@indices
             colors <- rep(NA, length(nodes(x@geometry)))
@@ -805,82 +831,98 @@ setMethod("plot", signature=signature(x="VertexColoredNeuroSurface", y="missing"
 
 
 
-#' viewShiny <- function(surfgeom, vals=1:length(nodes(surfgeom)), col=rainbow(255, alpha = 1)) {
-#'   options(rgl.useNULL = TRUE)
-#'
-#'   app <- shinyApp(
-#'     ui = fluidPage(
-#'       rgl::registerSceneChange(),
-#'       sidebarLayout(
-#'         sidebarPanel(
-#'           sliderInput(inputId="threshold",
-#'                       "Intensity Threshold:",
-#'                       min = min(vals),
-#'                       max = max(vals),
-#'                       value = c(.45*max(vals), .55*max(vals))),
-#'           sliderInput(inputId="range",
-#'                       "Intensity Range:",
-#'                        min = min(vals),
-#'                        max = max(vals),
-#'                        value = c(.02*min(vals), .98*max(vals)))
-#'         ),
-#'         mainPanel(h3("Surface View"),
-#'                   rgl::rglwidgetOutput("surface_widget", width = "100%", height = 512))
-#'       )
-#'     ),
-#'
-#'     server = function(input, output, session) {
-#'       options(rgl.useNULL=TRUE)
-#'       rgl::open3d()
-#'       dev <- rgl::rgl.cur()
-#'       save <- options(rgl.inShiny = TRUE)
-#'       on.exit(options(save))
-#'
-#'       session$onSessionEnded(function() {
-#'         rgl::rgl.set(dev)
-#'         rgl::rgl.close()
-#'       })
-#'
-#'       #surf <- viewSurface(surfgeom, vals, col, add_normals=TRUE)
-#'
-#'       #start_surf <- reactiveValues(my_mesh=NULL)
-#'
-#'       #viewSurface(surfgeom, vals,  col)
-#'       #scene1 <- scene3d()
-#'
-#'
-#'        # observeEvent(input$threshold, {
-#'        #   cat("got event \n")
-#'        #   cat("thresh = ", input$threshold)
-#'        #   rgl.set(dev)
-#'        #   newsurf <- viewSurface(surfgeom, vals, col, add_normals=TRUE, threshold=input$threshold, irange=input$range)
-#'        #   cat("newsurf id:", as.integer(newsurf))
-#'        #   cat("old surf id: ", as.integer(start_surf$my_mesh))
-#'        #   session$sendCustomMessage("sceneChange",
-#'        #                             sceneChange("surface_widget", replace=start_surf$my_mesh, skipRedraw=TRUE))
-#'        #
-#'        #   start_surf$my_mesh <- newsurf
-#'        #   session$onFlushed(function()
-#'        #     session$sendCustomMessage("sceneChange",
-#'        #                               sceneChange("surface_widget", skipRedraw = FALSE)))
-#'        # })
-#'
-#'
-#'       output$surface_widget <- rgl::renderRglwidget({
-#'         rgl.set(dev)
-#'
-#'         cat("new thresh ", input$threshold)
-#'         #viewSurface(surfgeom, vals, col, add_normals=TRUE, threshold=input$threshold, irange=input$range)
-#'         #start_surf()
-#'         viewSurface(surfgeom, vals, col, threshold=input$threshold, irange=input$range)
-#'         scene1 <- scene3d()
-#'         rglwidget(scene1, width=500, height=500)
-#'         #rglwidget(scene1)
-#'       })
-#'     }
-#'   )
-#'
-#'   runApp(app, launch.browser=TRUE)
-#' }
-#'
-#'
+# viewShiny <- function(surfgeom, vals=1:length(nodes(surfgeom)), col=rainbow(255, alpha = 1)) {
+#   options(rgl.useNULL = TRUE)
+#
+#   app <- shinyApp(
+#     ui = fluidPage(
+#       rgl::registerSceneChange(),
+#       sidebarLayout(
+#         sidebarPanel(
+#           sliderInput(inputId="threshold",
+#                       "Intensity Threshold:",
+#                       min = min(vals),
+#                       max = max(vals),
+#                       value = c(.45*max(vals), .55*max(vals))),
+#           sliderInput(inputId="range",
+#                       "Intensity Range:",
+#                        min = min(vals),
+#                        max = max(vals),
+#                        value = c(.02*min(vals), .98*max(vals)))
+#         ),
+#         mainPanel(h3("Surface View"),
+#                   rgl::rglwidgetOutput("surface_widget", width = "100%", height = 512))
+#       )
+#     ),
+#
+#     server = function(input, output, session) {
+#       options(rgl.useNULL=TRUE)
+#       rgl::open3d()
+#       dev <- rgl::rgl.cur()
+#       save <- options(rgl.inShiny = TRUE)
+#       on.exit(options(save))
+#
+#       session$onSessionEnded(function() {
+#         rgl::rgl.set(dev)
+#         rgl::rgl.close()
+#       })
+#
+#       #surf <- viewSurface(surfgeom, vals, col, add_normals=TRUE)
+#
+#       #start_surf <- reactiveValues(my_mesh=NULL)
+#
+#       #viewSurface(surfgeom, vals,  col)
+#       #scene1 <- scene3d()
+#
+#
+#        # observeEvent(input$threshold, {
+#        #   cat("got event \n")
+#        #   cat("thresh = ", input$threshold)
+#        #   rgl.set(dev)
+#        #   newsurf <- viewSurface(surfgeom, vals, col, add_normals=TRUE, threshold=input$threshold, irange=input$range)
+#        #   cat("newsurf id:", as.integer(newsurf))
+#        #   cat("old surf id: ", as.integer(start_surf$my_mesh))
+#        #   session$sendCustomMessage("sceneChange",
+#        #                             sceneChange("surface_widget", replace=start_surf$my_mesh, skipRedraw=TRUE))
+#        #
+#        #   start_surf$my_mesh <- newsurf
+#        #   session$onFlushed(function()
+#        #     session$sendCustomMessage("sceneChange",
+#        #                               sceneChange("surface_widget", skipRedraw = FALSE)))
+#        # })
+#
+#
+#       output$surface_widget <- rgl::renderRglwidget({
+#         rgl.set(dev)
+#
+#         cat("new thresh ", input$threshold)
+#         #viewSurface(surfgeom, vals, col, add_normals=TRUE, threshold=input$threshold, irange=input$range)
+#         #start_surf()
+#         viewSurface(surfgeom, vals, col, threshold=input$threshold, irange=input$range)
+#         scene1 <- scene3d()
+#         rglwidget(scene1, width=500, height=500)
+#         #rglwidget(scene1)
+#       })
+#     }
+#   )
+#
+#   runApp(app, launch.browser=TRUE)
+# }
+#
+#
+
+# Per-vertex blend of foreground over base colours with a threshold fade.
+#' @noRd
+.ns_fade_blend <- function(fg, bg, vals, thresh, alpha = 1) {
+  a <- rep(alpha, length(vals))
+  if (!is.null(thresh) && length(thresh) == 2L && any(thresh != 0)) {
+    width <- 0.25 * max(abs(thresh))
+    outside <- pmax(thresh[1] - vals, vals - thresh[2], 0)
+    a <- a * pmin(1, outside / width)
+  }
+  a[!is.finite(vals)] <- 0
+  f <- grDevices::col2rgb(fg) / 255
+  b <- grDevices::col2rgb(bg) / 255
+  mix <- f * rep(a, each = 3) + b * rep(1 - a, each = 3)
+  grDevices::rgb(mix[1, ], mix[2, ], mix[3, ])
+}

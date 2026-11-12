@@ -18,10 +18,10 @@ correspond to vertices.
 
 This structure is particularly useful for:
 \itemize{
-  \item Time series data where each column represents a different timepoint
-  \item Multi-modal data where each column represents a different imaging modality
-  \item Statistical results where columns represent different statistical parameters
-  \item Feature vectors for machine learning applications
+\item Time series data where each column represents a different timepoint
+\item Multi-modal data where each column represents a different imaging modality
+\item Statistical results where columns represent different statistical parameters
+\item Feature vectors for machine learning applications
 }
 
 The data matrix organization (vertices as rows, measures as columns) facilitates efficient

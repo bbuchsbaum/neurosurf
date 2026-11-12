@@ -44,15 +44,15 @@ like the generation code in neurosurf.
 }
 \details{
 For the left hemisphere, value \eqn{(i,j)} is
-  \eqn{\sin(i/3) + \cos(j/5)}, for vertices \eqn{i=1,\ldots,16} and
-  time points \eqn{j=1,\ldots,4}. Right-hemisphere values are the negative
-  of the left values. Node indices in the NIML files are zero-based.
+\eqn{\sin(i/3) + \cos(j/5)}, for vertices \eqn{i=1,\ldots,16} and
+time points \eqn{j=1,\ldots,4}. Right-hemisphere values are the negative
+of the left values. Node indices in the NIML files are zero-based.
 
-  \code{neurosurf_download_testdata()} is a compatibility wrapper for this
-  generator. It no longer downloads the former external test files, whose
-  redistribution provenance could not be established. Existing files in
-  an explicitly supplied destination are left unchanged unless
-  \code{overwrite = TRUE}; their original licenses still apply.
+\code{neurosurf_download_testdata()} is a compatibility wrapper for this
+generator. It no longer downloads the former external test files, whose
+redistribution provenance could not be established. Existing files in
+an explicitly supplied destination are left unchanged unless
+\code{overwrite = TRUE}; their original licenses still apply.
 }
 \examples{
 local({

@@ -24,12 +24,12 @@ smooth(x, ...)
 
 \item{type}{A character string specifying the smoothing algorithm to use. Available options are:
 \describe{
-  \item{"taubin"}{Applies Taubin smoothing, which preserves the overall shape of the surface while reducing noise.}
-  \item{"laplace"}{Performs Laplacian smoothing, which is a basic smoothing method that averages the position of each vertex with its neighbors.}
-  \item{"HClaplace"}{Applies a Laplacian smoothing with hard constraints. It preserves the boundary vertices and is useful for surfaces with important edge features.}
-  \item{"fujiLaplace"}{Uses a Laplacian smoothing method that preserves features more aggressively than the basic Laplacian method.}
-  \item{"angWeight"}{Performs angle-weighted smoothing, which considers the angles between faces to preserve sharp features.}
-  \item{"surfPreserveLaplace"}{Applies surface-preserving Laplacian smoothing, aiming to maintain the original surface's key characteristics while smoothing.}
+\item{"taubin"}{Applies Taubin smoothing, which preserves the overall shape of the surface while reducing noise.}
+\item{"laplace"}{Performs Laplacian smoothing, which is a basic smoothing method that averages the position of each vertex with its neighbors.}
+\item{"HClaplace"}{Applies a Laplacian smoothing with hard constraints. It preserves the boundary vertices and is useful for surfaces with important edge features.}
+\item{"fujiLaplace"}{Uses a Laplacian smoothing method that preserves features more aggressively than the basic Laplacian method.}
+\item{"angWeight"}{Performs angle-weighted smoothing, which considers the angles between faces to preserve sharp features.}
+\item{"surfPreserveLaplace"}{Applies surface-preserving Laplacian smoothing, aiming to maintain the original surface's key characteristics while smoothing.}
 }}
 
 \item{lambda}{A numeric value that controls the amount of smoothing. Higher values lead to more aggressive smoothing. This parameter is particularly relevant for Taubin and Laplacian smoothing methods.}
@@ -51,8 +51,8 @@ This method applies smoothing to a brain surface geometry object of class \code{
 \details{
 The \code{smooth} function provides a common interface for smoothing operations on different types of surface objects. The actual smoothing process varies based on the class of the object provided:
 \itemize{
-  \item For \code{\linkS4class{SurfaceGeometry}} objects, the function smooths the surface geometry, modifying the shape of the mesh to reduce noise.
-  \item For \code{\linkS4class{NeuroSurface}} objects, the function smooths the data values associated with each vertex, preserving the surface geometry but producing a smoother dataset.
+\item For \code{\linkS4class{SurfaceGeometry}} objects, the function smooths the surface geometry, modifying the shape of the mesh to reduce noise.
+\item For \code{\linkS4class{NeuroSurface}} objects, the function smooths the data values associated with each vertex, preserving the surface geometry but producing a smoother dataset.
 }
 
 Users should refer to the specific method documentation for the class of object they are working with to understand the exact behavior and parameters.

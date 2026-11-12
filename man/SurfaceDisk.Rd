@@ -20,14 +20,14 @@ default is computed based on average edge length.}
 }
 \value{
 An \code{ROISurfaceVector} if \code{surf} is a \code{BrainSurface} or
-  \code{BrainSurfaceVector}, otherwise an \code{ROISurface} containing the
-  vertices within the specified geodesic radius.
+\code{BrainSurfaceVector}, otherwise an \code{ROISurface} containing the
+vertices within the specified geodesic radius.
 }
 \description{
 Creates a Region on a Surface from a radius and surface
 }
 \details{
 The igraph associated with \code{surf} must have an edge
-  attribute named \code{dist} containing numeric weights with no
-  \code{NA} values.
+attribute named \code{dist} containing numeric weights with no
+\code{NA} values.
 }

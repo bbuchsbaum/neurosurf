@@ -422,11 +422,10 @@ setMethod(f="smooth", signature = c(x = "NeuroSurface"),
                                          edgeWeights = edgeWeights,
                                          nodes = ind, distance_type = "geodesic")
 
-            svals <- purrr::map_dbl(seq_along(nlist), function(i) {
+            svals <- vapply(seq_along(nlist), function(i) {
               nbs <- nlist[[i]][, "j"]
-              m <- series(x, nbs)
-              mean(m)
-            })
+              mean(series(x, nbs))
+            }, numeric(1))
 
             NeuroSurface(x@geometry, indices = ind, data = unlist(svals))
           })

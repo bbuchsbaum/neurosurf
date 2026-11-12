@@ -15,10 +15,10 @@ of three vertices that form the face.}
 }
 \value{
 An \code{igraph} object representing the mesh connectivity. The graph has the following attributes:
-  \itemize{
-    \item Vertex attributes: "x", "y", and "z" coordinates from the vertices matrix
-    \item Edge attribute: "dist" (Euclidean distance between connected vertices)
-  }
+\itemize{
+\item Vertex attributes: "x", "y", and "z" coordinates from the vertices matrix
+\item Edge attribute: "dist" (Euclidean distance between connected vertices)
+}
 }
 \description{
 This function creates an igraph object representing the connectivity structure of a 3D mesh
@@ -27,17 +27,17 @@ based on its vertices and triangular faces.
 \details{
 The function converts a triangular mesh into a graph representation where:
 \itemize{
-  \item Vertices of the graph correspond to vertices of the mesh
-  \item Edges of the graph correspond to the edges of triangular faces in the mesh
+\item Vertices of the graph correspond to vertices of the mesh
+\item Edges of the graph correspond to the edges of triangular faces in the mesh
 }
 
 The function performs the following steps:
 \enumerate{
-  \item Extracts all unique edges from the triangular faces
-  \item Creates an undirected graph from these edges
-  \item Simplifies the graph to remove duplicate edges and loops
-  \item Calculates Euclidean distances between connected vertices
-  \item Adds vertex coordinates and edge distances as attributes to the graph
+\item Extracts all unique edges from the triangular faces
+\item Creates an undirected graph from these edges
+\item Simplifies the graph to remove duplicate edges and loops
+\item Calculates Euclidean distances between connected vertices
+\item Adds vertex coordinates and edge distances as attributes to the graph
 }
 
 Note that the input \code{nodes} matrix should use 0-based indexing (starting from 0),

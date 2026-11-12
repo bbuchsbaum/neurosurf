@@ -27,7 +27,7 @@
 #'   and keeps metrics that are larger on gyral crowns (such as
 #'   [curvature()]), judged by the metric's correlation with the displayed
 #'   mesh's mean curvature. The decision is recorded in the provenance.
-#' @param anatomy_range Dark and light gray levels in [0, 1].
+#' @param anatomy_range Dark and light gray levels in \[0, 1\].
 #' @param cortex_mask Logical cortex-domain mask per vertex. Overlay color is
 #'   never painted on triangles touching a masked vertex.
 #' @param camera One of `"lateral"`, `"medial"`, `"dorsal"`, or `"ventral"`.
@@ -76,12 +76,12 @@
 #'   mm). `NULL` fits the surface to the panel; a common value gives several
 #'   panels one scale.
 #' @param reference Optional list with `id`, `label`, binary per-vertex `mask`,
-#'   opaque `color`, `opacity` in [0, 1], `visible`, and `provenance`. Defaults
+#'   opaque `color`, `opacity` in \[0, 1\], `visible`, and `provenance`. Defaults
 #'   are label = id, opacity = 0.2, visible = TRUE, provenance = list().
 #'   Anatomy, reference, then effect are composed with source-over. Membership
 #'   is interpolated linearly (edge midpoints through display subdivision)
 #'   and classified at >= 0.5 at each sample. Antialiasing averages categorical
-#'   coverage, returned as `reference_coverage` in [0, 1]. Reference color is
+#'   coverage, returned as `reference_coverage` in \[0, 1\]. Reference color is
 #'   unlit and excluded from triangles touching a non-cortex vertex, for all
 #'   medial-wall policies. It never changes effect buffers or mapping.
 #' @param return_buffers Include scalar and depth buffers for diagnostics.
@@ -284,9 +284,15 @@ render_surface_rgba <- function(geometry,
   )
   if (identical(medial_wall, "outline")) {
     wall_edge <- .ns_domain_boundary_mask(out$cortex_coverage, out$coverage)
+    # Two pixels wide, so the outline still reads in small panels.
+    nr <- nrow(wall_edge)
+    thick <- wall_edge
+    thick[-1L, ] <- thick[-1L, ] | wall_edge[-nr, ]
+    thick[, -1L] <- thick[, -1L] | wall_edge[, -ncol(wall_edge)]
+    wall_edge <- thick & out$coverage
     for (channel in seq_len(3L)) {
       plane <- out$rgba[, , channel]
-      plane[wall_edge] <- as.raw(90L)
+      plane[wall_edge] <- as.raw(60L)
       out$rgba[, , channel] <- plane
     }
   }
@@ -309,6 +315,9 @@ render_surface_rgba <- function(geometry,
     threshold = threshold,
     tail = tail,
     limits = limits,
+    palette = palette,
+    overlay_alpha = overlay_alpha,
+    alpha_ramp = alpha_ramp,
     medial_wall = medial_wall,
     anatomy_range = anatomy_range,
     lighting = !is.null(light),
@@ -387,6 +396,9 @@ write_surface_rgba <- function(x, file) {
     stop("'x' must be a surface_rgba object.", call. = FALSE)
   }
   rgba <- array(as.numeric(x$rgba) / 255, dim = dim(x$rgba))
+  # An opaque panel (the usual case) is written without an alpha channel,
+  # which makes the file about a quarter smaller.
+  if (all(rgba[, , 4L] == 1)) rgba <- rgba[, , 1:3, drop = FALSE]
   png::writePNG(rgba, target = file)
   invisible(normalizePath(file, mustWork = TRUE))
 }
@@ -515,6 +527,71 @@ surface_threshold_segments <- function(vertices, faces, values, threshold,
 # Default overlay palettes, ordered from low to high values. A two-sided
 # palette has an even number of anchors: the first half is the negative ramp
 # (strongest to weakest), the second the positive ramp (weakest to strongest).
+#' Colour palettes for surface maps
+#'
+#' The palettes neurosurf uses for statistical surface maps, as colour
+#' vectors for any renderer: \code{\link{render_surface_rgba}} and \code{\link{surface_figure}}
+#' use them by default, and they can be passed to \code{\link{view_surface}} (\code{cmap})
+#' or \code{\link{surface_layer}} (\code{colormap}) so interactive and static figures share
+#' one colour language. The two-sided palette runs from dark blue through
+#' light blue and light orange to dark red. It has no white or grey centre,
+#' so values just past a threshold stay distinct from the grey anatomy.
+#'
+#' @param type \code{"two_sided"} for signed maps, \code{"positive"} or \code{"negative"}
+#'   for one-tailed maps.
+#' @param n Number of colours. \code{NULL} returns the palette's anchor colours.
+#' @param limits,threshold Optional colour limits and threshold magnitude.
+#'   With both, the result is the lookup table the CPU renderer uses: \code{n}
+#'   colours evenly spaced over \code{limits}, with each tail's ramp starting at
+#'   the threshold. Pass it with the same limits to a viewer (for example
+#'   \code{\link{surface_layer}}) to reproduce a static figure's colours exactly.
+#' @return A character vector of hex colours.
+#' @examples
+#' surface_palette("two_sided", n = 7)
+#' surface_palette("positive")
+#' # Matches render_surface_rgba(limits = c(-5, 5), threshold = 2)
+#' lut <- surface_palette("two_sided", limits = c(-5, 5), threshold = 2)
+#' @export
+surface_palette <- function(type = c("two_sided", "positive", "negative"),
+                            n = 256L, limits = NULL, threshold = NULL) {
+  type <- match.arg(type)
+  anchors <- .ns_default_palette(type)
+  if (is.null(n)) return(anchors)
+  if (!is.numeric(n) || length(n) != 1L || n < 2) {
+    stop("'n' must be NULL or a number of at least 2.", call. = FALSE)
+  }
+  if (!is.null(limits) || !is.null(threshold)) {
+    if (!is.numeric(limits) || length(limits) != 2L ||
+        !all(is.finite(limits)) || limits[1] >= limits[2]) {
+      stop("'limits' must be an increasing pair of finite numbers.",
+           call. = FALSE)
+    }
+    threshold <- threshold %||% 0
+    if (!is.numeric(threshold) || length(threshold) != 1L ||
+        !is.finite(threshold) || threshold < 0) {
+      stop("'threshold' must be a single non-negative number.", call. = FALSE)
+    }
+    lut <- .ns_overlay_lut(anchors, limits, threshold, type, as.integer(n))
+    return(grDevices::rgb(lut[, 1], lut[, 2], lut[, 3]))
+  }
+  grDevices::colorRampPalette(anchors, space = "Lab")(as.integer(n))
+}
+
+# Palette for values when the caller gives none: diverging when the colour
+# range spans zero, sequential otherwise.
+#' @noRd
+.ns_auto_palette <- function(values, irange = NULL) {
+  r <- if (!is.null(irange) && all(is.finite(irange))) irange else
+    if (length(values)) range(values[is.finite(values)]) else c(0, 1)
+  if (length(r) == 2L && r[1] < 0 && r[2] > 0) {
+    surface_palette("two_sided")
+  } else if (length(r) == 2L && r[2] <= 0) {
+    surface_palette("negative")
+  } else {
+    surface_palette("positive")
+  }
+}
+
 .ns_default_palette <- function(tail) {
   switch(tail,
     two_sided = c("#123A7C", "#2F6DB5", "#6FA6DD",
@@ -708,7 +785,7 @@ surface_threshold_segments <- function(vertices, faces, values, threshold,
 #' Normalize an anatomical surface underlay
 #'
 #' Converts curvature or sulcal depth to a centered display metric in
-#' [-0.5, 0.5], suitable for the surfview curvature layer. This changes only
+#' \[-0.5, 0.5\], suitable for the surfview curvature layer. This changes only
 #' anatomical shading, never statistical values or surface coordinates.
 #' @param metric Finite numeric anatomy values, one per vertex.
 #' @param style `"continuous"` robust linear scaling, `"binary"` folding
@@ -716,11 +793,11 @@ surface_threshold_segments <- function(vertices, faces, values, threshold,
 #'   reads as crisp gyri and sulci without the binary style's jagged
 #'   vertex-step edges.
 #' @param midpoint Boundary between dark and light. NULL uses the median,
-#'   including for the historical [0, 1] output of [curvature()]. Use zero
+#'   including for the historical \[0, 1\] output of [curvature()]. Use zero
 #'   for a native signed metric whose anatomical boundary is zero.
 #' @param invert Reverse dark/light polarity. Select this from the source
 #'   metric's sign convention; signs differ between curvature producers.
-#' @return A numeric vector in [-0.5, 0.5]. Constant metrics remain neutral.
+#' @return A numeric vector in \[-0.5, 0.5\]. Constant metrics remain neutral.
 #' @export
 normalize_surface_anatomy <- function(metric,
                                       style = c("continuous", "binary", "soft"),

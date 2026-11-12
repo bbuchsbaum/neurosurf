@@ -25,7 +25,7 @@ specified. Defaults to \code{"smoothwm"} for std.8 and
 }
 \value{
 A named list with elements \code{\"lh\"} and \code{\"rh\"}, each a
-  \code{\linkS4class{SurfaceSet}} containing the requested variants.
+\code{\linkS4class{SurfaceSet}} containing the requested variants.
 }
 \description{
 Load a bundle of fsaverage surface variants as a SurfaceSet

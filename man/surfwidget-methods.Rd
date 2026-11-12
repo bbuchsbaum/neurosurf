@@ -16,7 +16,7 @@ surfwidget(x, width = NULL, height = NULL, ...)
   width = NULL,
   height = NULL,
   data = NULL,
-  cmap = jet_colors(256),
+  cmap = NULL,
   irange = NULL,
   thresh = c(0, 0),
   vertexColors = NULL,
@@ -33,7 +33,7 @@ surfwidget(x, width = NULL, height = NULL, ...)
   x,
   width = NULL,
   height = NULL,
-  cmap = jet_colors(256),
+  cmap = NULL,
   irange = NULL,
   thresh = c(0, 0),
   vertexColors = NULL,
@@ -88,7 +88,9 @@ surfwidget(x, width = NULL, height = NULL, ...)
 
 \item{data}{Optional. Numeric vector of data values for each vertex.}
 
-\item{cmap}{Optional. Color map for data visualization.}
+\item{cmap}{Optional colour map. The default, \code{NULL}, uses
+\code{\link{surface_palette}} (diverging when the range spans zero), or
+greys when a \code{SurfaceGeometry} is shown without data.}
 
 \item{irange}{Optional. Intensity range for data visualization.}
 
@@ -113,16 +115,16 @@ should pass \code{\link{surface_layer}} objects to
 
 \item{config}{Configuration for legacy single-surface calls:
 \describe{
-  \item{\code{preset}}{Appearance preset used while adapting the object.
-    The default is \code{"paper-light"}.}
-  \item{\code{mode}}{\code{"report"} for the curated report toolbar or
-    \code{"viewer"} for a bare viewer.}
-  \item{\code{shininess}}{Numeric between 0 and 100. Controls the shininess of the material. Higher values create a more polished appearance. Default is 30.}
-  \item{\code{specularColor}}{Character. Hex color code for the specular highlights. Default is "#111111".}
-  \item{\code{flatShading}}{Logical scalar. If \code{TRUE}, uses flat shading; if \code{FALSE}, uses smooth shading. Default is \code{FALSE}.}
-  \item{\code{ambientLightColor}}{Character. Hex color code for the ambient light. Default is "#404040".}
-  \item{\code{directionalLightColor}}{Character. Hex color code for the directional light. Default is "#ffffff".}
-  \item{\code{directionalLightIntensity}}{Numeric between 0 and 1. Intensity of the directional light. Default is 0.5.}
+\item{\code{preset}}{Appearance preset used while adapting the object.
+The default is \code{"paper-light"}.}
+\item{\code{mode}}{\code{"report"} for the curated report toolbar or
+\code{"viewer"} for a bare viewer.}
+\item{\code{shininess}}{Numeric between 0 and 100. Controls the shininess of the material. Higher values create a more polished appearance. Default is 30.}
+\item{\code{specularColor}}{Character. Hex color code for the specular highlights. Default is "#111111".}
+\item{\code{flatShading}}{Logical scalar. If \code{TRUE}, uses flat shading; if \code{FALSE}, uses smooth shading. Default is \code{FALSE}.}
+\item{\code{ambientLightColor}}{Character. Hex color code for the ambient light. Default is "#404040".}
+\item{\code{directionalLightColor}}{Character. Hex color code for the directional light. Default is "#ffffff".}
+\item{\code{directionalLightIntensity}}{Numeric between 0 and 1. Intensity of the directional light. Default is 0.5.}
 }
 Unknown elements are ignored with a warning. \code{showControls} and
 \code{controlType} are deprecated; report widgets do not load Tweakpane.}
@@ -156,5 +158,5 @@ surfwidget(geom)
 }
 \seealso{
 \code{\link{surface_scene}}, \code{\link{surface_layer}},
-  \code{\link{write_surface_scene}}, \code{\link{plot_js}}
+\code{\link{write_surface_scene}}, \code{\link{plot_js}}
 }

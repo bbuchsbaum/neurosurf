@@ -27,10 +27,10 @@ conventions (e.g., RAS vs LPI) and reference space alignment (e.g., MNI305 vs MN
 }
 \value{
 A new object of class "SurfaceGeometry" containing:
-  \item{mesh}{An rgl mesh object representing the surface.}
-  \item{graph}{An igraph object representing the mesh connectivity.}
-  \item{hemi}{The hemisphere identifier.}
-  \item{surf_to_world}{The 4x4 affine transformation matrix.}
+\item{mesh}{An rgl mesh object representing the surface.}
+\item{graph}{An igraph object representing the mesh connectivity.}
+\item{hemi}{The hemisphere identifier.}
+\item{surf_to_world}{The 4x4 affine transformation matrix.}
 }
 \description{
 This function creates a new SurfaceGeometry object from vertex coordinates and face indices.

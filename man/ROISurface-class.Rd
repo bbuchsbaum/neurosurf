@@ -23,10 +23,10 @@ surface.
 
 Typical use cases include:
 \itemize{
-  \item Extracting and analyzing data from anatomical regions of interest
-  \item Working with functional clusters identified in analyses
-  \item Isolating specific surface features for detailed investigation
-  \item Statistical analysis of data within defined surface regions
+\item Extracting and analyzing data from anatomical regions of interest
+\item Working with functional clusters identified in analyses
+\item Isolating specific surface features for detailed investigation
+\item Statistical analysis of data within defined surface regions
 }
 }
 \section{Slots}{

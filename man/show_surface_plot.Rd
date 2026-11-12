@@ -92,7 +92,7 @@ per-vertex \code{alpha} vector) for data-modulated opacity that mirrors
 }
 \value{
 Invisibly returns the underlying \code{"neurosurf_plot"} object.
-  The plot is drawn as a side-effect.
+The plot is drawn as a side-effect.
 }
 \description{
 This is a convenience wrapper around \code{\link{surface_plot}},
