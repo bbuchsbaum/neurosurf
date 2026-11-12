@@ -126,6 +126,7 @@
   display: inline-flex;
   gap: 8px;
   margin-left: auto;
+  order: 3;
   padding-bottom: 12px;
 }
 .surfwidget-colorbar[hidden] {
@@ -146,8 +147,9 @@
   inset: 0;
   position: absolute;
 }
+/* Sub-threshold values show the anatomy, so the gap is drawn in its grey. */
 .surfwidget-colorbar-gap {
-  background: #fff;
+  background: repeating-linear-gradient(135deg, #c9c9c9 0 3px, #dadada 3px 6px);
   bottom: -1px;
   position: absolute;
   top: -1px;
@@ -166,4 +168,37 @@
 }
 .surfwidget-colorbar-tick.is-last {
   transform: translateX(-100%);
+}
+
+/* Two toolbar rows: map, views and actions; then the colour key. */
+.surfwidget-root .surfview-report-controls > label { order: 0; }
+.surfwidget-root .surfview-report-controls > fieldset { order: 1; }
+.surfwidget-root .surfview-report-controls > fieldset + fieldset { order: 2; }
+.surfwidget-root .surfview-report-controls > button { order: 3; }
+.surfwidget-root .surfview-report-controls > button:first-of-type {
+  margin-left: auto;
+}
+.surfwidget-root .surfview-report-controls > button + button,
+.surfwidget-root .surfview-report-controls > button ~ .surfwidget-fullscreen {
+  margin-left: -10px;
+}
+.surfwidget-root .surfview-report-controls > span[aria-live] { order: 5; }
+.surfwidget-root .surfview-report-controls > .surfwidget-colorbar {
+  flex-basis: 100%;
+  justify-content: flex-end;
+  margin-left: 0;
+  order: 6;
+}
+/* The view buttons name themselves; keep their group label for assistive
+   technology only. */
+.surfwidget-root .surfview-report-controls fieldset:has(input[type="radio"]) > legend {
+  clip: rect(0 0 0 0);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+.surfwidget-root .surfview-report-controls fieldset:has(input[type="radio"]) > legend + label {
+  border-radius: 4px 0 0 4px;
 }

@@ -33,7 +33,8 @@
 #'   its units.
 #' @param panel_width,panel_height Pixel dimensions of each rendered panel.
 #' @param antialias Integer supersampling factor per panel.
-#' @param labels Draw hemisphere and view headers above the panels.
+#' @param labels Draw hemisphere and view headers. A figure with a single
+#'   panel never has them.
 #' @param ... Additional arguments passed to every [render_surface_rgba()]
 #'   call.
 #'
@@ -203,6 +204,8 @@ surface_figure <- function(lh = NULL,
                            col_start = length(col_widths),
                            col_end = length(col_widths))
   }
+  # A single panel needs no hemisphere or view headers; a caption names it.
+  if (isTRUE(labels) && length(panels) == 1L) labels <- FALSE
   row_labels <- if (isTRUE(labels) && length(row_views)) {
     c(lateral = "Lateral", medial = "Medial", dorsal = "Dorsal",
       ventral = "Ventral")[row_views]
@@ -382,10 +385,11 @@ surface_figure <- function(lh = NULL,
       gp = label_gp
     ), row = 1L, col = i + 1L)
   }
+  # Row labels read horizontally, right-aligned against the panels.
   for (r in seq_along(x$row_labels)) {
     frame <- grid::placeGrob(frame, grid::textGrob(
-      x$row_labels[r], rot = 90, x = grid::unit(1, "npc") - grid::unit(1, "mm"),
-      just = c("centre", "bottom"), gp = label_gp
+      x$row_labels[r], x = grid::unit(1, "npc") - grid::unit(0.5, "mm"),
+      just = c("right", "centre"), gp = label_gp
     ), row = r + 1L, col = 1L)
   }
   if (has_legend) {
@@ -397,7 +401,7 @@ surface_figure <- function(lh = NULL,
   frame
 }
 
-.ns_row_label_width_mm <- 5
+.ns_row_label_width_mm <- 13
 .ns_legend_height_mm <- 11
 .ns_header_height_mm <- 6
 

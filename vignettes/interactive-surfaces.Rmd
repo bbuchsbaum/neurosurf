@@ -78,14 +78,20 @@ sulcal depth for the grey anatomy underneath the maps.
 inflated <- load_fsaverage("fsaverage5", "inflated")
 white <- load_fsaverage("fsaverage5", "white")
 sulc <- load_fsaverage_sulc("fsaverage5")
+
+# Display anatomy, lighter on gyri. FreeSurfer sulc is positive in
+# sulci, so it is negated; continuous scaling keeps folds quiet.
+anatomy <- list(
+  left = normalize_surface_anatomy(-sulc$lh, style = "continuous"),
+  right = normalize_surface_anatomy(-sulc$rh, style = "continuous")
+)
 ```
 
 The browser renders the values that R supplies. Perform thresholding, capping,
 atlas projection, and other scientific transformations before constructing a
-layer. Here two synthetic contrasts are built from smooth clusters placed at
+layer. Here two synthetic *z* maps are built from smooth clusters placed at
 white-surface coordinates and falling off with distance over the inflated
-surface. Values with |*z*| < 2 are replaced by `NA` in R so the anatomy shows
-through:
+surface:
 
 ```{r prepare-maps}
 cluster <- function(hemi, centre, peak, width = 12) {
@@ -95,10 +101,9 @@ cluster <- function(hemi, centre, peak, width = 12) {
 }
 contrast <- function(centres, peaks) {
   one_side <- function(hemi, side) {
-    z <- Reduce(`+`, Map(function(centre, peak) {
+    Reduce(`+`, Map(function(centre, peak) {
       cluster(hemi, centre * c(side, 1, 1), peak)
     }, centres, peaks))
-    replace(z, abs(z) < 2, NA_real_)
   }
   list(left = one_side("lh", -1), right = one_side("rh", 1))
 }
@@ -113,22 +118,28 @@ motor <- contrast(
 )
 ```
 
-The second map is a binary region, used below as a reference layer:
+A binary region of interest, used below as a reference layer: every vertex
+within 18 mm of a point in the intraparietal sulcus, again measured over the
+inflated surface.
 
 ```{r prepare-regions}
-region <- list(
-  left = as.numeric(coords(white$lh)[, 2] > 0),
-  right = as.numeric(coords(white$rh)[, 2] > 0)
-)
+roi <- function(hemi, centre, radius = 18) {
+  seed <- which.min(colSums((t(coords(white[[hemi]])) - centre)^2))
+  xyz <- coords(inflated[[hemi]])
+  as.numeric(colSums((t(xyz) - xyz[seed, ])^2) < radius^2)
+}
+region <- list(left = roi("lh", c(-30, -55, 45)),
+               right = roi("rh", c(30, -55, 45)))
 ```
 
 ```{r validate-inputs, include=FALSE}
 stopifnot(
   length(memory$left) == nrow(coords(inflated$lh)),
   length(memory$right) == nrow(coords(inflated$rh)),
-  any(memory$left > 0, na.rm = TRUE),
-  any(memory$left < 0, na.rm = TRUE),
-  any(is.finite(motor$right)),
+  any(memory$left > 2),
+  any(memory$left < -2),
+  any(abs(motor$right) > 2),
+  sum(region$left) > 20,
   all(region$left %in% c(0, 1)),
   all(region$right %in% c(0, 1))
 )
@@ -144,29 +155,34 @@ For thresholded two-sided maps, use a palette whose tails start at clearly
 visible colours and never pass through the light anatomy grey: blue for
 negative, red for positive. `surface_palette()` with the same limits and
 threshold returns exactly the colours `surface_figure()` would use, so the
-interactive and static figures agree. Record the threshold in the layer so
-the colour key shows the gap.
+interactive and static figures agree. The layer's `threshold` hides
+|*z*| < 2 and marks the gap in the colour key; `magnitude_opacity` fades
+colour in between |*z*| = 2 and 2.6, so cluster edges are smooth instead of
+following the mesh's triangles. Unthresholded values are passed in, and
+`NA` is kept for genuinely missing data.
 
 ```{r build-scene}
-z_colors <- surface_palette("two_sided", limits = c(-5, 5), threshold = 2)
+z_colors <- surface_palette("two_sided", limits = c(-5, 5),
+                            threshold = 2)
 z_layer <- function(name, values, title) {
   surface_layer(name, values, colormap = z_colors, limits = c(-5, 5),
                 threshold = c(-2, 2), units = "z",
+                magnitude_opacity = list(low = 2, high = 2.6),
                 legend = list(title = title))
 }
 
 scene <- surface_scene(
   left = inflated$lh,
   right = inflated$rh,
-  curvature = list(left = -sulc$lh, right = -sulc$rh),
+  curvature = anatomy,
   layers = list(
     z_layer("memory", memory, "Memory contrast"),
     z_layer("motor", motor, "Motor contrast")
   ),
   selected_layer = "memory",
   metadata = list(template = "fsaverage5"),
-  provenance = list(source = "synthetic clusters on neurosurf package data"),
-  fallback = "Bilateral inflated cortical surfaces with two thresholded z maps.",
+  provenance = list(source = "synthetic clusters on package data"),
+  fallback = "Inflated cortical surfaces with two thresholded z maps.",
   alt_text = paste(
     "Inflated left and right cortical surfaces showing a selectable",
     "thresholded z map, blue negative and red positive, |z| above 2."
@@ -209,45 +225,51 @@ reference_scene <- surface_scene(
   left = inflated$lh, right = inflated$rh,
   layers = c(scene@layers, list(surface_layer(
     "reference", region, role = "reference", color = "#238b45",
-    opacity = 0.2, legend = list(title = "Anterior (y > 0)"),
-    provenance = list(source = "synthetic vertex membership")
+    opacity = 0.25, legend = list(title = "Intraparietal ROI"),
+    provenance = list(source = "synthetic 18 mm disc")
   ))),
-  curvature = list(left = -sulc$lh, right = -sulc$rh),
-  fallback = "Bilateral z maps with a faint anterior reference region.",
-  alt_text = "Thresholded z maps over a separate green reference region."
+  curvature = anatomy,
+  fallback = "Bilateral z maps over a faint intraparietal ROI.",
+  alt_text = "Thresholded z maps over a green intraparietal region."
 )
 stopifnot(identical(reference_scene@selected_layer, "memory"))
 ```
 
-Pass `reference_scene` to `surfwidget()` or `write_surface_scene()` as usual.
-Reference scenes use `surfview.scene.reference.v1`; the bundled runtime
-supports this schema, and older runtimes reject it explicitly. Scenes without
-references retain `surfview.scene.v1` and their exclusive map selector.
-Geometry assets are shared. References require a full finite 0/1 mask for each
-hemisphere, with no quantitative limits, units, indices or thresholds.
+```{r show-reference-scene}
+surfwidget(reference_scene, width = "100%", height = "360px")
+```
 
-The CPU renderer accepts the same membership separately from effect values:
+The green region sits beneath whichever map is selected and keeps its own
+swatch, checkbox and opacity slider; it never enters the colour key.
+References require a full 0/1 mask per hemisphere, with no limits, units,
+indices or thresholds.
 
-```{r static-reference, eval=FALSE}
+The CPU renderer draws the same membership beneath a static map, in the
+order anatomy, reference, effect:
+
+```{r static-reference}
 image <- render_surface_rgba(
   inflated$lh, memory$left, anatomy_metric = sulc$lh,
+  threshold = 2, limits = c(-5, 5), alpha_ramp = 0.6,
   reference = list(
-    id = "reference", label = "Anterior (y > 0)",
-    mask = region$left, color = "#238b45", opacity = 0.2,
-    provenance = list(source = "synthetic vertex membership")
-  )
+    id = "reference", label = "Intraparietal ROI",
+    mask = region$left, color = "#238b45", opacity = 0.25
+  ),
+  width = 600, height = 380, antialias = 2
 )
 ```
 
-The order is anatomy, reference, effect. The CPU reference color is unlit;
-its opacity is applied once. Both renderers interpolate membership linearly
-and classify it at 0.5 per sample or fragment. Display subdivision carries
-membership by edge midpoints, independently of scalar subdivision, and CPU
-antialiasing averages categorical coverage. The CPU `reference_coverage`
-buffer reports this coverage even when the reference is hidden. Triangles
-touching a non-cortex vertex never receive reference color. A static figure
-should label the reference with a separate categorical swatch, outside the
-effect color scale; `tools/reference-specimen.R` provides a complete specimen.
+```{r static-reference-image, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Left hemisphere, lateral view: the intraparietal ROI (green, 25% opacity) beneath the memory *z* map (|*z*| &gt; 2, limits &plusmn;5)."}
+file <- knitr::fig_path("reference.png")
+dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
+write_surface_rgba(image, file)
+knitr::include_graphics(file)
+```
+
+Both renderers classify membership at 0.5 after linear interpolation, and
+triangles outside the cortex mask never receive reference colour. A static
+figure should label the reference with its own swatch, outside the effect
+colour scale; `tools/reference-specimen.R` is a complete example.
 
 Supply already projected binary membership. For a volume label, use explicit
 categorical/nearest-voxel sampling and record the source and mesh identity,
@@ -313,7 +335,8 @@ locally and make no network requests.
 write_surface_scene(scene, "surface-report", self_contained = FALSE)
 
 # one index.html with the runtime and typed arrays inlined
-write_surface_scene(scene, "surface-report-inline", self_contained = TRUE)
+write_surface_scene(scene, "surface-report-inline",
+                    self_contained = TRUE)
 ```
 
 Choose adjacent assets for a site or a report directory: the browser can cache

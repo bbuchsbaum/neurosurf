@@ -105,24 +105,39 @@ sulc <- load_fsaverage_sulc("fsaverage5")
 Here smooth clusters stand in for your measured statistic. Each is placed at
 a white-surface coordinate and falls off with distance measured over the
 inflated surface, which follows the cortical sheet instead of cutting across
-neighbouring sulcal banks. The renderer treats the result like any other
-vertex-wise numeric vector.
+neighbouring sulcal banks. Widths differ between clusters and peaks differ
+between hemispheres, as real effects do. The renderer treats the result like
+any other vertex-wise numeric vector.
 
 ```{r make-statistic}
-example_statistic <- function(white, inflated, side) {
-  cluster <- function(centre, peak, width = 10) {
-    seed <- which.min(colSums((t(coords(white)) - centre)^2))
-    d2 <- colSums((t(coords(inflated)) - coords(inflated)[seed, ])^2)
-    peak * exp(-d2 / (2 * width^2))
+example_statistic <- function(hemi, side, peaks) {
+  cluster <- function(centre, peak, width) {
+    seed <- which.min(colSums((t(coords(white[[hemi]])) - centre)^2))
+    xyz <- coords(inflated[[hemi]])
+    peak * exp(-colSums((t(xyz) - xyz[seed, ])^2) / (2 * width^2))
   }
-  cluster(c(45 * side, -60, 20), 4) +      # inferior parietal
-    cluster(c(40 * side, 20, 30), 3) +     # middle frontal
-    cluster(c(55 * side, -20, 0), -3.5) +  # superior temporal
-    cluster(c(8 * side, 40, 10), -3)       # medial prefrontal
+  cluster(c(45 * side, -60, 20), peaks[1], 12) +   # inferior parietal
+    cluster(c(40 * side, 20, 30), peaks[2], 9) +   # middle frontal
+    cluster(c(55 * side, -20, 0), peaks[3], 8) +   # superior temporal
+    cluster(c(6 * side, -50, 25), peaks[4], 11)    # posterior cingulate
 }
 
-stat_lh <- example_statistic(white$lh, inflated$lh, -1)
-stat_rh <- example_statistic(white$rh, inflated$rh, 1)
+stat_lh <- example_statistic("lh", -1, c(4, 3, -3.5, -3))
+stat_rh <- example_statistic("rh", 1, c(3, 3.5, -2.5, -3.5))
+```
+
+The non-cortical medial wall should never carry statistical colour, so the
+figures below also pass a cortex mask, one logical value per vertex. For a
+subject, read it from FreeSurfer's `?h.cortex.label`. The bundled template
+has no label file, so this example approximates one: across the medial wall
+the fsaverage white and pial surfaces nearly coincide, so cortex is where
+they are at least 1 mm apart.
+
+```{r cortex-mask}
+pial <- load_fsaverage("fsaverage5", "pial")
+cortex <- lapply(c(lh = "lh", rh = "rh"), function(hemi) {
+  sqrt(rowSums((coords(pial[[hemi]]) - coords(white[[hemi]]))^2)) >= 1
+})
 ```
 
 ```{r validate-inputs, include=FALSE}
@@ -149,6 +164,7 @@ lh_lateral <- render_surface_rgba(
   inflated$lh,
   vertex_values = stat_lh,
   anatomy_metric = sulc$lh,
+  cortex_mask = cortex$lh,
   camera = "lateral",
   threshold = 1.5,
   tail = "two_sided",
@@ -169,7 +185,7 @@ stopifnot(
 )
 ```
 
-```{r show-one-view, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Left hemisphere, lateral view. Two-sided *z*; |*z*| < 1.5 is not drawn; colour limits ±4, blue negative, red positive. The four-view figure below carries the key."}
+```{r show-one-view, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Left hemisphere, lateral view. Two-sided *z*; |*z*| &lt; 1.5 is not drawn; colour limits &plusmn;4, blue negative, red positive. The four-view figure below carries the key."}
 one_view_file <- knitr::fig_path("-cpu-lh-lateral.png")
 dir.create(dirname(one_view_file), recursive = TRUE, showWarnings = FALSE)
 write_surface_rgba(lh_lateral, one_view_file)
@@ -201,6 +217,7 @@ figure <- surface_figure(
   rh = inflated$rh,
   values = list(lh = stat_lh, rh = stat_rh),
   anatomy = sulc,
+  cortex_mask = cortex,
   views = c("lateral", "medial"),
   threshold = 1.5,
   tail = "two_sided",
@@ -244,21 +261,17 @@ value zero. Pass one logical value per vertex. Triangles touching a masked
 vertex never receive overlay colour. `medial_wall` then controls whether the
 excluded domain is quietly shaded, masked out, or outlined.
 
-For a subject, read the mask from FreeSurfer's `?h.cortex.label`. The bundled
-template has no label file, so this example approximates one: across the
-non-cortical medial wall the fsaverage white and pial surfaces nearly
-coincide, so cortex is where they are at least 1 mm apart.
+The panels below repeat the left medial view with each policy, using the
+`cortex` mask from above. The posterior cingulate cluster borders the wall:
+with the mask it stops at the cortical boundary.
 
-```{r cortex-mask}
-pial <- load_fsaverage("fsaverage5", "pial")
-thickness <- sqrt(rowSums((coords(pial$lh) - coords(white$lh))^2))
-cortex_lh <- thickness >= 1
-
-medial_panels <- lapply(c("shade", "mask", "outline"), function(policy) {
+```{r cortex-mask-panels}
+policies <- c("shade", "mask", "outline")
+medial_panels <- lapply(policies, function(policy) {
   render_surface_rgba(
     inflated$lh, stat_lh, anatomy_metric = sulc$lh,
     camera = "medial", threshold = 1.5, limits = c(-4, 4),
-    cortex_mask = cortex_lh, medial_wall = policy,
+    cortex_mask = cortex$lh, medial_wall = policy,
     width = 480, height = 300, antialias = 3
   )
 })
@@ -283,9 +296,6 @@ for (i in seq_along(medial_panels)) {
 }
 ```
 
-With the mask, the medial prefrontal cluster stops at the cortical boundary
-instead of spilling across the non-cortical wall.
-
 Atlas-aware callers such as `neuroatlas::plot_brain()` can resolve the mask and
 its provenance from an atlas annotation. At this low level, neurosurf requires
 the caller to supply the domain explicitly rather than guessing that an atlas
@@ -295,8 +305,9 @@ label of zero always means medial wall.
 
 For a continuous image, use explicit trilinear sampling through the cortical
 ribbon. Interpolation, aggregation across depth, and tangential smoothing are
-separate choices. The following contract samples five depths, averages them,
-and applies no surface smoothing:
+separate choices. The following call samples five depths, averages them, and
+applies no surface smoothing. It needs your own subject's `white_surface`,
+`pial_surface` and `statistic_volume`, so it is not run here:
 
 ```{r ribbon-projection, eval=FALSE}
 mapped <- vol_to_surf(

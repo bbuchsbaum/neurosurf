@@ -262,8 +262,9 @@ surface_views <- list(
 #'   updates or within Shiny apps).
 #' @param offset A numeric vector of length 3 specifying a translation offset
 #'   `c(x, y, z)` applied to the surface coordinates before rendering. Defaults to `c(0, 0, 0)`.
-#' @param zoom A numeric value controlling the camera zoom level. Defaults to 1 (no zoom).
-#'   Values > 1 zoom in, < 1 zoom out.
+#' @param zoom Camera zoom passed to \code{rgl::view3d()}. Defaults to 1;
+#'   values below 1 zoom in (for example 0.7 fills more of the window),
+#'   values above 1 zoom out.
 #' @param spheres An optional data frame to draw spheres at specific locations on
 #'   or near the surface. Must contain columns `x`, `y`, `z` (coordinates), and
 #'   `radius`. Can optionally include a `color` column (hex codes or color names)

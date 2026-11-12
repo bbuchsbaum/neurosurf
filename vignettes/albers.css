@@ -1511,3 +1511,18 @@ h3 code {
   text-transform: none;
   letter-spacing: 0;
 }
+
+/* Figures are rendered on white; let them take the page's paper colour
+   (light presets only) instead of sitting in white boxes. */
+body:not(.preset-midnight) p > img,
+body:not(.preset-midnight) .figure img,
+body:not(.preset-midnight) .rglWebGL canvas,
+body:not(.preset-midnight) .surfwidget-mount canvas {
+  mix-blend-mode: multiply;
+}
+
+/* Long code scrolls inside its block rather than being clipped. */
+pre,
+pre code {
+  overflow-x: auto;
+}
