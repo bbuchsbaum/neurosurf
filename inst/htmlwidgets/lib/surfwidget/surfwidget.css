@@ -36,3 +36,134 @@
     display: block !important;
   }
 }
+
+/* Report toolbar. The runtime sets inline styles on its controls, so the
+   overrides below need !important; they only change appearance. */
+.surfwidget-root .surfview-report-controls {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid #e3e6ea !important;
+  border-radius: 0 !important;
+  color: #1f2933 !important;
+  font: 12px/1.3 system-ui, -apple-system, "Segoe UI", sans-serif !important;
+  gap: 8px 16px !important;
+  margin-bottom: 4px !important;
+  padding: 2px 0 8px !important;
+}
+.surfwidget-root .surfview-report-controls legend {
+  color: #6b7480;
+  float: left;
+  font-size: 11px;
+  margin-right: 6px !important;
+}
+.surfwidget-root .surfview-report-controls select,
+.surfwidget-root .surfview-report-controls button {
+  background: #fff;
+  border: 1px solid #cfd5dc;
+  border-radius: 4px;
+  color: #1f2933;
+  font: inherit;
+  padding: 3px 8px;
+}
+.surfwidget-root .surfview-report-controls button:hover:not(:disabled),
+.surfwidget-root .surfview-report-controls select:hover {
+  border-color: #8a96a3;
+}
+.surfwidget-root .surfview-report-controls :focus-visible {
+  outline: 2px solid #2f6db5;
+  outline-offset: 1px;
+}
+/* Anatomical views as a segmented control. */
+.surfwidget-root .surfview-report-controls fieldset:has(input[type="radio"]) {
+  gap: 0 !important;
+}
+.surfwidget-root .surfview-report-controls fieldset label:has(> input[type="radio"]) {
+  border: 1px solid #cfd5dc;
+  cursor: pointer;
+  margin-left: -1px;
+  padding: 3px 7px;
+  position: relative;
+}
+.surfwidget-root .surfview-report-controls fieldset legend + label:has(> input[type="radio"]) {
+  border-radius: 4px 0 0 4px;
+}
+.surfwidget-root .surfview-report-controls fieldset label:has(> input[type="radio"]):last-child {
+  border-radius: 0 4px 4px 0;
+}
+.surfwidget-root .surfview-report-controls fieldset input[type="radio"] {
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  width: 1px;
+}
+.surfwidget-root .surfview-report-controls fieldset label:has(input:checked) {
+  background: #1f2933;
+  border-color: #1f2933;
+  color: #fff;
+  z-index: 1;
+}
+.surfwidget-root .surfview-report-controls fieldset label:has(input:focus-visible) {
+  outline: 2px solid #2f6db5;
+  z-index: 2;
+}
+.surfwidget-root .surfview-report-controls fieldset label:has(input:disabled) {
+  color: #a3abb5;
+  cursor: default;
+}
+
+.surfwidget-visually-hidden {
+  clip: rect(0 0 0 0);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+/* Colour key for the displayed map. */
+.surfwidget-colorbar {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  margin-left: auto;
+  padding-bottom: 12px;
+}
+.surfwidget-colorbar[hidden] {
+  display: none;
+}
+.surfwidget-colorbar-title {
+  color: #1f2933;
+  white-space: nowrap;
+}
+.surfwidget-colorbar-scale {
+  display: inline-block;
+  height: 8px;
+  position: relative;
+  width: 168px;
+}
+.surfwidget-colorbar-ramp {
+  border-radius: 1px;
+  inset: 0;
+  position: absolute;
+}
+.surfwidget-colorbar-gap {
+  background: #fff;
+  bottom: -1px;
+  position: absolute;
+  top: -1px;
+}
+.surfwidget-colorbar-tick {
+  color: #4b5560;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  position: absolute;
+  top: 10px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.surfwidget-colorbar-tick.is-first {
+  transform: none;
+}
+.surfwidget-colorbar-tick.is-last {
+  transform: translateX(-100%);
+}

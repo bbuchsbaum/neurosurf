@@ -31,10 +31,6 @@ For visualization, see the companion vignettes:
 - `vignette("interactive-surfaces")` for HTML-widget based exploration.
 - `vignette("surface-figures")` for multi-view, publication-quality figures built with `surface_figure()`.
 
-## Setup
-
-First, let's load the necessary libraries and set up the environment.
-
 ```{r setup, include = FALSE}
 if (requireNamespace("ragg", quietly = TRUE)) knitr::opts_chunk$set(dev = "ragg_png")
 if (
@@ -71,12 +67,7 @@ if (has_rgl) {
 
 library(neurosurf)
 if (has_rgl) library(rgl) # For potential visualization examples
-library(igraph) # For graph operations
 library(Matrix) # For sparse matrices used in NeuroSurfaceVector
-
-# Prepare paths to example data included in the package
-white_lh_asc <- system.file("extdata", "std.8_lh.smoothwm.asc", package="neurosurf")
-white_rh_asc <- system.file("extdata", "std.8_rh.smoothwm.asc", package="neurosurf")
 ```
 
 ```{r albers-classes, echo=FALSE, results='asis'}
@@ -108,7 +99,11 @@ An object of this class encapsulates:
 You can load a surface geometry from various file formats (Freesurfer binary, Freesurfer ASCII `.asc`, GIFTI `.gii`) using the `read_surf_geometry()` function.
 
 ```{r load-geometry}
-# Load the example left hemisphere white matter surface (.asc format)
+library(neurosurf)
+
+# The example left-hemisphere smoothed white surface shipped with the package
+white_lh_asc <- system.file("extdata", "std.8_lh.smoothwm.asc",
+                            package = "neurosurf")
 lh_geom <- read_surf_geometry(white_lh_asc)
 
 # Display summary information about the loaded geometry
@@ -128,8 +123,10 @@ vertex_coords <- coords(lh_geom)
 dim(vertex_coords)
 head(vertex_coords, 3)
 
-# The underlying igraph connectivity object
-neurosurf::graph(lh_geom)
+# The underlying igraph connectivity object: one node per vertex, one edge
+# per mesh edge
+g <- neurosurf::graph(lh_geom)
+c(nodes = igraph::vcount(g), edges = igraph::ecount(g))
 
 # The underlying rgl mesh3d object, and the hemisphere label
 class(lh_geom@mesh)
@@ -151,10 +148,10 @@ It contains:
 You typically create a `NeuroSurface` using its constructor, providing the geometry, indices, and data.
 
 ```{r create-neurosurface}
-# Generate some example data (e.g., based on x-coordinate)
-# Use all vertices from lh_geom
+# Example data: curvature at every vertex, rescaled to [0, 1]
+# (0 at the deepest sulcal fundus, 1 on the sharpest gyral crown)
 vertex_indices <- nodes(lh_geom)
-example_data <- coords(lh_geom)[, 1] # Use x-coordinate as data
+example_data <- curvature(lh_geom)
 
 # Create the NeuroSurface object
 lh_surf_data <- NeuroSurface(geometry = lh_geom, 
@@ -165,12 +162,32 @@ lh_surf_data <- NeuroSurface(geometry = lh_geom,
 show(lh_surf_data)
 ```
 
+A `NeuroSurface` is easiest to understand as a picture: its values painted on
+its geometry. `render_surface_rgba()` draws one view without a graphics
+device; here the curvature values are painted on the surface they describe.
+
+```{r show-neurosurface}
+panel <- render_surface_rgba(
+  geometry(lh_surf_data), lh_surf_data@data, camera = "lateral",
+  tail = "positive", limits = c(0, 1), width = 600, height = 360,
+  antialias = 2
+)
+```
+
+```{r show-neurosurface-image, echo=FALSE, out.width="70%", fig.align="center", fig.cap="Left hemisphere, lateral view, coloured by rescaled curvature from 0 (light orange, sulcal fundi) to 1 (dark red, gyral crowns)."}
+file <- knitr::fig_path("neurosurface.png")
+dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
+write_surface_rgba(panel, file)
+knitr::include_graphics(file)
+```
+
 ### Loading Data with `read_surf` (Optional Data File)
 
 If your data is stored in a separate file (e.g., AFNI `.1D.dset`, NIML `.niml.dset`), you can load both the geometry and the data using `read_surf`. Here we create a temporary `.1D.dset` file for demonstration.
 
 ``` {r load-surf-with-data, eval=TRUE}
 # 1. Prepare sample data for a subset of nodes
+set.seed(1)
 sample_nodes_indices_R <- sample(nodes(lh_geom), size = 500) # R indices (1-based)
 sample_nodes_indices_0based <- sample_nodes_indices_R - 1     # 0-based for .1D file
 sample_data <- rnorm(500) 
@@ -248,6 +265,39 @@ lh_surf_vec <- NeuroSurfaceVector(geometry = lh_geom,
 # Display summary
 show(lh_surf_vec)
 ```
+
+Each column is a map over the same vertices, so a `NeuroSurfaceVector` reads
+naturally as small multiples: one panel per column, same view, same scale.
+Here the columns are the RAS coordinates themselves, which also shows the
+axis directions: *x* increases to the right (so it is most negative on this
+left hemisphere's lateral surface), *y* anteriorly, *z* superiorly.
+
+```{r show-neurosurfacevector}
+centred <- scale(as.matrix(lh_surf_vec@data), scale = FALSE)
+panels <- lapply(1:3, function(j) {
+  render_surface_rgba(lh_geom, centred[, j], camera = "lateral",
+                      limits = c(-70, 70), width = 420, height = 260)
+})
+```
+
+```{r show-neurosurfacevector-image, echo=FALSE, fig.width=8, fig.height=1.9}
+grid::grid.newpage()
+grid::pushViewport(grid::viewport(layout = grid::grid.layout(
+  2, 3, heights = grid::unit(c(1, 1.4), c("null", "lines"))
+)))
+for (j in 1:3) {
+  rgba <- panels[[j]]$rgba
+  grid::grid.raster(array(as.numeric(rgba) / 255, dim = dim(rgba)),
+                    vp = grid::viewport(layout.pos.row = 1, layout.pos.col = j))
+  grid::grid.text(c("x (left to right)", "y (posterior to anterior)",
+                    "z (inferior to superior)")[j],
+                  gp = grid::gpar(fontsize = 9, col = "#333333"),
+                  vp = grid::viewport(layout.pos.row = 2, layout.pos.col = j))
+}
+```
+
+Coordinates are centred on the hemisphere and drawn on a shared scale of
+±70 mm, blue negative and red positive.
 
 ### Accessing `NeuroSurfaceVector` Properties
 

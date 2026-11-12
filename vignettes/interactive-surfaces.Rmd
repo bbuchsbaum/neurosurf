@@ -48,15 +48,6 @@ knitr::opts_chunk$set(
 )
 
 library(neurosurf)
-
-left_path <- system.file(
-  "extdata", "std.8_lh.smoothwm.asc", package = "neurosurf"
-)
-right_path <- system.file(
-  "extdata", "std.8_rh.smoothwm.asc", package = "neurosurf"
-)
-left_geometry <- read_surf(left_path)
-right_geometry <- read_surf(right_path)
 ```
 
 ```{r albers-classes, echo=FALSE, results='asis'}
@@ -79,50 +70,65 @@ scalar layers. Each bilateral layer supplies a left and right value vector
 whose lengths match the corresponding geometry. A scene also records the
 initial map, legend metadata, provenance, alternative text, and fallback text.
 
-The example surfaces are small meshes shipped with neurosurf:
+The example uses the fsaverage5 template bundled with neurosurf: inflated
+surfaces for display, white surfaces to place the example clusters, and
+sulcal depth for the grey anatomy underneath the maps.
 
-```{r load-geometries, eval=FALSE}
-left_geometry <- read_surf(system.file(
-  "extdata", "std.8_lh.smoothwm.asc", package = "neurosurf"
-))
-right_geometry <- read_surf(system.file(
-  "extdata", "std.8_rh.smoothwm.asc", package = "neurosurf"
-))
+```{r load-geometries}
+inflated <- load_fsaverage("fsaverage5", "inflated")
+white <- load_fsaverage("fsaverage5", "white")
+sulc <- load_fsaverage_sulc("fsaverage5")
 ```
 
 The browser renders the values that R supplies. Perform thresholding, capping,
 atlas projection, and other scientific transformations before constructing a
-layer. Here we create a deterministic coordinate-based demonstration map and
-replace sub-threshold values with `NA` in R:
+layer. Here two synthetic contrasts are built from smooth clusters placed at
+white-surface coordinates and falling off with distance over the inflated
+surface. Values with |*z*| < 2 are replaced by `NA` in R so the anatomy shows
+through:
 
 ```{r prepare-maps}
-scaled_height <- function(geometry) {
-  value <- coords(geometry)[, 3]
-  3 * (value - mean(value)) / max(abs(value - mean(value)))
+cluster <- function(hemi, centre, peak, width = 12) {
+  seed <- which.min(colSums((t(coords(white[[hemi]])) - centre)^2))
+  xyz <- coords(inflated[[hemi]])
+  peak * exp(-colSums((t(xyz) - xyz[seed, ])^2) / (2 * width^2))
+}
+contrast <- function(centres, peaks) {
+  one_side <- function(hemi, side) {
+    z <- Reduce(`+`, Map(function(centre, peak) {
+      cluster(hemi, centre * c(side, 1, 1), peak)
+    }, centres, peaks))
+    replace(z, abs(z) < 2, NA_real_)
+  }
+  list(left = one_side("lh", -1), right = one_side("rh", 1))
 }
 
-effect <- list(
-  left = scaled_height(left_geometry),
-  right = scaled_height(right_geometry)
+memory <- contrast(
+  centres = list(c(45, -60, 20), c(40, 20, 30), c(55, -20, 0)),
+  peaks = c(4, 3, -3.5)
 )
-effect <- lapply(effect, function(x) replace(x, abs(x) < 1.25, NA_real_))
+motor <- contrast(
+  centres = list(c(38, -22, 56), c(10, -60, 50)),
+  peaks = c(4.5, -3)
+)
 ```
 
-The second map is a simple two-region label used to demonstrate map switching:
+The second map is a binary region, used below as a reference layer:
 
 ```{r prepare-regions}
 region <- list(
-  left = as.numeric(coords(left_geometry)[, 2] > 0),
-  right = as.numeric(coords(right_geometry)[, 2] > 0)
+  left = as.numeric(coords(white$lh)[, 2] > 0),
+  right = as.numeric(coords(white$rh)[, 2] > 0)
 )
 ```
 
 ```{r validate-inputs, include=FALSE}
 stopifnot(
-  length(effect$left) == nrow(coords(left_geometry)),
-  length(effect$right) == nrow(coords(right_geometry)),
-  any(is.finite(effect$left)),
-  any(is.finite(effect$right)),
+  length(memory$left) == nrow(coords(inflated$lh)),
+  length(memory$right) == nrow(coords(inflated$rh)),
+  any(memory$left > 0, na.rm = TRUE),
+  any(memory$left < 0, na.rm = TRUE),
+  any(is.finite(motor$right)),
   all(region$left %in% c(0, 1)),
   all(region$right %in% c(0, 1))
 )
@@ -134,31 +140,36 @@ Create each named map with `surface_layer()`, then put both geometries and all
 layers in one scene. `selected_layer` chooses the map shown when the viewer
 opens.
 
+For thresholded two-sided maps, use a palette whose tails start at clearly
+visible colours and never pass through the light anatomy grey: blue for
+negative, red for positive. `surface_palette()` with the same limits and
+threshold returns exactly the colours `surface_figure()` would use, so the
+interactive and static figures agree. Record the threshold in the layer so
+the colour key shows the gap.
+
 ```{r build-scene}
+z_colors <- surface_palette("two_sided", limits = c(-5, 5), threshold = 2)
+z_layer <- function(name, values, title) {
+  surface_layer(name, values, colormap = z_colors, limits = c(-5, 5),
+                threshold = c(-2, 2), units = "z",
+                legend = list(title = title))
+}
+
 scene <- surface_scene(
-  left = left_geometry,
-  right = right_geometry,
+  left = inflated$lh,
+  right = inflated$rh,
+  curvature = list(left = -sulc$lh, right = -sulc$rh),
   layers = list(
-    surface_layer(
-      "effect", effect,
-      colormap = c("#2166ac", "#f7f7f7", "#b2182b"),
-      limits = c(-3, 3), units = "z",
-      legend = list(title = "Thresholded effect")
-    ),
-    surface_layer(
-      "region", region,
-      colormap = c("#d9d9d9", "#238b45"),
-      limits = c(0, 1), units = "class",
-      legend = list(title = "Demonstration region")
-    )
+    z_layer("memory", memory, "Memory contrast"),
+    z_layer("motor", motor, "Motor contrast")
   ),
-  selected_layer = "effect",
-  metadata = list(subject = "example"),
-  provenance = list(source = "neurosurf package data"),
-  fallback = "Static bilateral surface figure with effect and region maps.",
+  selected_layer = "memory",
+  metadata = list(template = "fsaverage5"),
+  provenance = list(source = "synthetic clusters on neurosurf package data"),
+  fallback = "Bilateral inflated cortical surfaces with two thresholded z maps.",
   alt_text = paste(
-    "Bilateral cortical surfaces with selectable thresholded effect",
-    "and demonstration region maps."
+    "Inflated left and right cortical surfaces showing a selectable",
+    "thresholded z map, blue negative and red positive, |z| above 2."
   ),
   preset = "paper-light",
   mode = "report"
@@ -169,8 +180,8 @@ scene <- surface_scene(
 stopifnot(
   methods::is(scene, "SurfaceScene"),
   identical(names(scene@geometries), c("left", "right")),
-  identical(names(scene@layers), c("effect", "region")),
-  identical(scene@selected_layer, "effect")
+  identical(names(scene@layers), c("memory", "motor")),
+  identical(scene@selected_layer, "memory")
 )
 ```
 
@@ -179,7 +190,7 @@ values and legend without constructing another widget or another WebGL
 context.
 
 ```{r render-scene}
-surfwidget(scene, width = "100%", height = "520px")
+surfwidget(scene, width = "100%", height = "420px")
 ```
 
 The report toolbar provides the authored map selector, coordinated anatomical
@@ -195,16 +206,17 @@ Reset restores its authored visibility and opacity.
 
 ```{r reference-scene}
 reference_scene <- surface_scene(
-  left = left_geometry, right = right_geometry,
+  left = inflated$lh, right = inflated$rh,
   layers = c(scene@layers, list(surface_layer(
     "reference", region, role = "reference", color = "#238b45",
-    opacity = 0.2, legend = list(title = "Demonstration reference"),
+    opacity = 0.2, legend = list(title = "Anterior (y > 0)"),
     provenance = list(source = "synthetic vertex membership")
   ))),
-  fallback = "Bilateral effect maps with a faint reference region.",
-  alt_text = "Effect maps overlaid on a separate green reference region."
+  curvature = list(left = -sulc$lh, right = -sulc$rh),
+  fallback = "Bilateral z maps with a faint anterior reference region.",
+  alt_text = "Thresholded z maps over a separate green reference region."
 )
-stopifnot(identical(reference_scene@selected_layer, "effect"))
+stopifnot(identical(reference_scene@selected_layer, "memory"))
 ```
 
 Pass `reference_scene` to `surfwidget()` or `write_surface_scene()` as usual.
@@ -218,9 +230,9 @@ The CPU renderer accepts the same membership separately from effect values:
 
 ```{r static-reference, eval=FALSE}
 image <- render_surface_rgba(
-  left_geometry, effect$left,
+  inflated$lh, memory$left, anatomy_metric = sulc$lh,
   reference = list(
-    id = "reference", label = "Demonstration reference",
+    id = "reference", label = "Anterior (y > 0)",
     mask = region$left, color = "#238b45", opacity = 0.2,
     provenance = list(source = "synthetic vertex membership")
   )
@@ -383,9 +395,8 @@ with `surface_figure()`; see `vignette("surface-figures")`.
 a single surface to a `SurfaceScene` and are useful for quick exploration:
 
 ```{r legacy-shortcut, eval=FALSE}
-values <- scaled_height(left_geometry)
-surface <- NeuroSurface(left_geometry, nodes(left_geometry), values)
-surfwidget(surface, irange = c(-3, 3))
+surface <- NeuroSurface(inflated$lh, nodes(inflated$lh), memory$left)
+surfwidget(surface, irange = c(-5, 5))
 ```
 
 Use an explicit `SurfaceScene` for bilateral figures, multiple named maps,

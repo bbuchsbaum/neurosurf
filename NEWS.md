@@ -1,5 +1,11 @@
 # neurosurf (development version)
 
+## Changes
+
+* The bundled browser runtime is surfview 3.3.0 (byte-identical to the npm
+  release). Switching surface variants in a report viewer now honours a
+  switch back mid-animation, and shading and bounds follow the changing shape.
+
 ## Bug fixes
 
 * `surfwidget.yaml` now declares the bundled runtime as surfview 3.2.0; 0.1.0.9001

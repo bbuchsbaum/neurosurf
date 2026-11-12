@@ -11,25 +11,25 @@
 \S4method{plot}{SurfaceGeometry,missing}(
   x,
   vals = NA,
-  cmap = grDevices::gray(seq(0, 1, length.out = 255)),
+  cmap = NULL,
   vert_clrs = NULL,
   irange = range(vals),
   thresh = c(0, 0),
   alpha = 1,
   specular = "black",
-  bgcol = "lightgray",
+  bgcol = NULL,
   ...
 )
 
 \S4method{plot}{NeuroSurface,missing}(
   x,
-  cmap = grDevices::gray(seq(0, 1, length.out = 255)),
+  cmap = NULL,
   vert_clrs = NULL,
   irange = range(x@data, na.rm = TRUE),
   thresh = c(0, 0),
   alpha = 1,
   specular = "black",
-  bgcol = "lightgray",
+  bgcol = NULL,
   ...
 )
 
@@ -41,20 +41,13 @@
   thresh = c(0, 0),
   alpha = 1,
   specular = "black",
-  bgcol = "lightgray",
+  bgcol = NULL,
   ...
 )
 
-\S4method{plot}{ColorMappedNeuroSurface,missing}(
-  x,
-  vert_clrs = NULL,
-  alpha = 1,
-  specular = "black",
-  bgcol = "lightgray",
-  ...
-)
+\S4method{plot}{ColorMappedNeuroSurface,missing}(x, vert_clrs = NULL, alpha = 1, specular = "black", bgcol = NULL, ...)
 
-\S4method{plot}{VertexColoredNeuroSurface,missing}(x, alpha = 1, specular = "black", bgcol = "lightgray", ...)
+\S4method{plot}{VertexColoredNeuroSurface,missing}(x, alpha = 1, specular = "black", bgcol = NULL, ...)
 }
 \arguments{
 \item{x}{the surface to plot}
@@ -64,7 +57,9 @@ on the surface. If provided and `vert_clrs` is NULL, these values are mapped
 to colors using `cmap` and `irange`.}
 
 \item{cmap}{A vector of colors (e.g., hex codes) defining the color map used
-when `vals` is provided and `vert_clrs` is NULL. Defaults to `rainbow(256)`.}
+when `vals` is provided and `vert_clrs` is NULL. The default, `NULL`,
+chooses \code{\link{surface_palette}}: diverging when `irange` spans zero,
+sequential otherwise.}
 
 \item{vert_clrs}{An optional character vector of hex color codes for each vertex.
 If provided, these colors directly override any coloring derived from `vals` and `cmap`.
@@ -88,7 +83,9 @@ for a matte look. Set to a brighter colour for a glossier appearance.}
 
 \item{bgcol}{A single hex color code or a vector of hex color codes used as the
 base color for the surface. If `vals` or `vert_clrs` are provided, this color
-is blended with the data/vertex colors. Defaults to "lightgray".}
+is blended with the data/vertex colors. The default, \code{NULL}, shades
+the surface by its curvature (sulci dark, gyri light) with
+\code{\link{curv_cols_smooth}}; use \code{NA} for no base colour.}
 
 \item{...}{extra args to send to \code{view_surface}}
 }

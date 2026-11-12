@@ -515,6 +515,71 @@ surface_threshold_segments <- function(vertices, faces, values, threshold,
 # Default overlay palettes, ordered from low to high values. A two-sided
 # palette has an even number of anchors: the first half is the negative ramp
 # (strongest to weakest), the second the positive ramp (weakest to strongest).
+#' Colour palettes for surface maps
+#'
+#' The palettes neurosurf uses for statistical surface maps, as colour
+#' vectors for any renderer: \code{\link{render_surface_rgba}} and \code{\link{surface_figure}}
+#' use them by default, and they can be passed to \code{\link{view_surface}} (\code{cmap})
+#' or \code{\link{surface_layer}} (\code{colormap}) so interactive and static figures share
+#' one colour language. The two-sided palette runs from dark blue through
+#' light blue and light orange to dark red. It has no white or grey centre,
+#' so values just past a threshold stay distinct from the grey anatomy.
+#'
+#' @param type \code{"two_sided"} for signed maps, \code{"positive"} or \code{"negative"}
+#'   for one-tailed maps.
+#' @param n Number of colours. \code{NULL} returns the palette's anchor colours.
+#' @param limits,threshold Optional colour limits and threshold magnitude.
+#'   With both, the result is the lookup table the CPU renderer uses: \code{n}
+#'   colours evenly spaced over \code{limits}, with each tail's ramp starting at
+#'   the threshold. Pass it with the same limits to a viewer (for example
+#'   \code{\link{surface_layer}}) to reproduce a static figure's colours exactly.
+#' @return A character vector of hex colours.
+#' @examples
+#' surface_palette("two_sided", n = 7)
+#' surface_palette("positive")
+#' # Matches render_surface_rgba(limits = c(-5, 5), threshold = 2)
+#' lut <- surface_palette("two_sided", limits = c(-5, 5), threshold = 2)
+#' @export
+surface_palette <- function(type = c("two_sided", "positive", "negative"),
+                            n = 256L, limits = NULL, threshold = NULL) {
+  type <- match.arg(type)
+  anchors <- .ns_default_palette(type)
+  if (is.null(n)) return(anchors)
+  if (!is.numeric(n) || length(n) != 1L || n < 2) {
+    stop("'n' must be NULL or a number of at least 2.", call. = FALSE)
+  }
+  if (!is.null(limits) || !is.null(threshold)) {
+    if (!is.numeric(limits) || length(limits) != 2L ||
+        !all(is.finite(limits)) || limits[1] >= limits[2]) {
+      stop("'limits' must be an increasing pair of finite numbers.",
+           call. = FALSE)
+    }
+    threshold <- threshold %||% 0
+    if (!is.numeric(threshold) || length(threshold) != 1L ||
+        !is.finite(threshold) || threshold < 0) {
+      stop("'threshold' must be a single non-negative number.", call. = FALSE)
+    }
+    lut <- .ns_overlay_lut(anchors, limits, threshold, type, as.integer(n))
+    return(grDevices::rgb(lut[, 1], lut[, 2], lut[, 3]))
+  }
+  grDevices::colorRampPalette(anchors, space = "Lab")(as.integer(n))
+}
+
+# Palette for values when the caller gives none: diverging when the colour
+# range spans zero, sequential otherwise.
+#' @noRd
+.ns_auto_palette <- function(values, irange = NULL) {
+  r <- if (!is.null(irange) && all(is.finite(irange))) irange else
+    if (length(values)) range(values[is.finite(values)]) else c(0, 1)
+  if (length(r) == 2L && r[1] < 0 && r[2] > 0) {
+    surface_palette("two_sided")
+  } else if (length(r) == 2L && r[2] <= 0) {
+    surface_palette("negative")
+  } else {
+    surface_palette("positive")
+  }
+}
+
 .ns_default_palette <- function(tail) {
   switch(tail,
     two_sided = c("#123A7C", "#2F6DB5", "#6FA6DD",

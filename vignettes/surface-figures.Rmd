@@ -102,21 +102,27 @@ white <- load_fsaverage("fsaverage5", "white")
 sulc <- load_fsaverage_sulc("fsaverage5")
 ```
 
-Here smooth clusters placed in white-surface coordinates stand in for your
-measured statistic. The renderer treats them exactly like any other
+Here smooth clusters stand in for your measured statistic. Each is placed at
+a white-surface coordinate and falls off with distance measured over the
+inflated surface, which follows the cortical sheet instead of cutting across
+neighbouring sulcal banks. The renderer treats the result like any other
 vertex-wise numeric vector.
 
 ```{r make-statistic}
-example_statistic <- function(geometry, side) {
-  cluster <- function(centre, z, width = 12) {
-    z * exp(-colSums((t(coords(geometry)) - centre)^2) / (2 * width^2))
+example_statistic <- function(white, inflated, side) {
+  cluster <- function(centre, peak, width = 10) {
+    seed <- which.min(colSums((t(coords(white)) - centre)^2))
+    d2 <- colSums((t(coords(inflated)) - coords(inflated)[seed, ])^2)
+    peak * exp(-d2 / (2 * width^2))
   }
-  cluster(c(45 * side, -60, 20), 4) + cluster(c(40 * side, 20, 30), 3) +
-    cluster(c(55 * side, -20, 0), -3.5) + cluster(c(8 * side, 40, 10), -3)
+  cluster(c(45 * side, -60, 20), 4) +      # inferior parietal
+    cluster(c(40 * side, 20, 30), 3) +     # middle frontal
+    cluster(c(55 * side, -20, 0), -3.5) +  # superior temporal
+    cluster(c(8 * side, 40, 10), -3)       # medial prefrontal
 }
 
-stat_lh <- example_statistic(white$lh, -1)
-stat_rh <- example_statistic(white$rh, 1)
+stat_lh <- example_statistic(white$lh, inflated$lh, -1)
+stat_rh <- example_statistic(white$rh, inflated$rh, 1)
 ```
 
 ```{r validate-inputs, include=FALSE}
@@ -163,7 +169,7 @@ stopifnot(
 )
 ```
 
-```{r show-one-view, echo=FALSE, out.width="80%"}
+```{r show-one-view, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Left hemisphere, lateral view. Two-sided *z*; |*z*| < 1.5 is not drawn; colour limits ±4, blue negative, red positive. The four-view figure below carries the key."}
 one_view_file <- knitr::fig_path("-cpu-lh-lateral.png")
 dir.create(dirname(one_view_file), recursive = TRUE, showWarnings = FALSE)
 write_surface_rgba(lh_lateral, one_view_file)
@@ -236,17 +242,49 @@ connected to the image exterior.
 A real cortex mask is a separate domain object, not a consequence of parcel
 value zero. Pass one logical value per vertex. Triangles touching a masked
 vertex never receive overlay colour. `medial_wall` then controls whether the
-excluded domain is quietly shaded, omitted, or outlined.
+excluded domain is quietly shaded, masked out, or outlined.
 
-```{r cortex-mask-contract, eval=FALSE}
-masked_panel <- render_surface_rgba(
-  inflated$lh,
-  vertex_values = statistic,
-  anatomy_metric = sulcal_depth,
-  cortex_mask = cortex_label,
-  medial_wall = "shade"
-)
+For a subject, read the mask from FreeSurfer's `?h.cortex.label`. The bundled
+template has no label file, so this example approximates one: across the
+non-cortical medial wall the fsaverage white and pial surfaces nearly
+coincide, so cortex is where they are at least 1 mm apart.
+
+```{r cortex-mask}
+pial <- load_fsaverage("fsaverage5", "pial")
+thickness <- sqrt(rowSums((coords(pial$lh) - coords(white$lh))^2))
+cortex_lh <- thickness >= 1
+
+medial_panels <- lapply(c("shade", "mask", "outline"), function(policy) {
+  render_surface_rgba(
+    inflated$lh, stat_lh, anatomy_metric = sulc$lh,
+    camera = "medial", threshold = 1.5, limits = c(-4, 4),
+    cortex_mask = cortex_lh, medial_wall = policy,
+    width = 480, height = 300, antialias = 3
+  )
+})
 ```
+
+```{r show-cortex-mask, echo=FALSE, fig.width=8, fig.height=1.9}
+grid::grid.newpage()
+layout <- grid::grid.layout(2, 3, heights = grid::unit(c(1, 1.4), c("null", "lines")))
+grid::pushViewport(grid::viewport(layout = layout))
+for (i in seq_along(medial_panels)) {
+  panel <- medial_panels[[i]]
+  raster <- grDevices::as.raster(
+    array(as.numeric(panel$rgba) / 255, dim = dim(panel$rgba))
+  )
+  grid::grid.raster(raster, vp = grid::viewport(layout.pos.row = 1,
+                                                layout.pos.col = i))
+  grid::grid.text(
+    sprintf('medial_wall = "%s"', c("shade", "mask", "outline")[i]),
+    gp = grid::gpar(fontsize = 9, col = "#333333", fontfamily = "mono"),
+    vp = grid::viewport(layout.pos.row = 2, layout.pos.col = i)
+  )
+}
+```
+
+With the mask, the medial prefrontal cluster stops at the cortical boundary
+instead of spilling across the non-cortical wall.
 
 Atlas-aware callers such as `neuroatlas::plot_brain()` can resolve the mask and
 its provenance from an atlas annotation. At this low level, neurosurf requires

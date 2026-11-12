@@ -7,9 +7,9 @@
 view_surface(
   surfgeom,
   vals = NA,
-  cmap = grDevices::rainbow(256, alpha = 1),
+  cmap = NULL,
   vert_clrs = NULL,
-  bgcol = "lightgray",
+  bgcol = NULL,
   alpha = 1,
   add_normals = TRUE,
   thresh = NULL,
@@ -47,7 +47,9 @@ on the surface. If provided and `vert_clrs` is NULL, these values are mapped
 to colors using `cmap` and `irange`.}
 
 \item{cmap}{A vector of colors (e.g., hex codes) defining the color map used
-when `vals` is provided and `vert_clrs` is NULL. Defaults to `rainbow(256)`.}
+when `vals` is provided and `vert_clrs` is NULL. The default, `NULL`,
+chooses \code{\link{surface_palette}}: diverging when `irange` spans zero,
+sequential otherwise.}
 
 \item{vert_clrs}{An optional character vector of hex color codes for each vertex.
 If provided, these colors directly override any coloring derived from `vals` and `cmap`.
@@ -55,7 +57,9 @@ The length should match the number of vertices in `surfgeom`.}
 
 \item{bgcol}{A single hex color code or a vector of hex color codes used as the
 base color for the surface. If `vals` or `vert_clrs` are provided, this color
-is blended with the data/vertex colors. Defaults to "lightgray".}
+is blended with the data/vertex colors. The default, \code{NULL}, shades
+the surface by its curvature (sulci dark, gyri light) with
+\code{\link{curv_cols_smooth}}; use \code{NA} for no base colour.}
 
 \item{alpha}{A numeric value between 0 (fully transparent) and 1 (fully opaque)
 controlling the overall transparency of the surface. Defaults to 1.}

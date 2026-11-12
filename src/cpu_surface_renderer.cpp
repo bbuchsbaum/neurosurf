@@ -245,7 +245,10 @@ Rcpp::List cpp_rasterize_surface_scalar(
     const int ymax = std::min(sh - 1, static_cast<int>(std::ceil(std::max({y0, y1, y2}))));
     const bool face_cortex = cortex_mask[i0] == TRUE &&
       cortex_mask[i1] == TRUE && cortex_mask[i2] == TRUE;
-    if (!face_cortex && medial_wall_policy == 1) continue;
+    // "mask" removes the non-cortical domain from the picture but keeps it
+    // as an occluder: its samples take the depth test and become background,
+    // so the hole never reveals the far side of the hemisphere.
+    const bool masked_out = !face_cortex && medial_wall_policy == 1;
 
     for (int py = ymin; py <= ymax; ++py) {
       const double sy = py + 0.5;
@@ -267,6 +270,18 @@ Rcpp::List cpp_rasterize_surface_scalar(
 
         zbuffer[pos] = static_cast<float>(z);
         tie_scalar[pos] = tie_value;
+        if (masked_out) {
+          scalar[pos] = std::numeric_limits<float>::quiet_NaN();
+          coverage[pos] = 0;
+          cortex_coverage[pos] = 0;
+          if (has_reference) reference_coverage[pos] = 0;
+          rgba[pos * 4] = br;
+          rgba[pos * 4 + 1] = bg;
+          rgba[pos * 4 + 2] = bb;
+          rgba[pos * 4 + 3] = 255;
+          overlay_a[pos] = 0;
+          continue;
+        }
         scalar[pos] = static_cast<float>(sv);
         coverage[pos] = 1;
         cortex_coverage[pos] = face_cortex ? 1 : 0;

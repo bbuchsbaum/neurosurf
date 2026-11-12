@@ -462,62 +462,45 @@ setMethod(f="show", signature=signature("SurfaceGeometry"),
               t(object@mesh$it[2:3,]),
               t(object@mesh$it[c(1,3),])
             )
-            edges <- unique(t(apply(edges, 1, sort)))
+            edges <- unique(cbind(pmin(edges[, 1], edges[, 2]),
+                                  pmax(edges[, 1], edges[, 2])))
             num_edges <- nrow(edges)
 
             ## Calculate Euler characteristic (V - E + F)
             euler <- num_vertices - num_edges + num_faces
             genus <- (2 - euler) / 2
 
-            ## Calculate some basic quality metrics
+            ## Basic quality metrics
             if (num_vertices > 0 && num_faces > 0) {
-              # Calculate average edge length
-              v_coords <- t(object@mesh$vb[1:3,])
-              edge_lengths <- numeric(num_edges)
-              for (i in 1:num_edges) {
-                v1 <- edges[i, 1]
-                v2 <- edges[i, 2]
-                edge_lengths[i] <- sqrt(sum((v_coords[v1,] - v_coords[v2,])^2))
-              }
+              v_coords <- t(object@mesh$vb[1:3, , drop = FALSE])
+              edge_lengths <- sqrt(rowSums(
+                (v_coords[edges[, 1], , drop = FALSE] -
+                   v_coords[edges[, 2], , drop = FALSE])^2
+              ))
               avg_edge_length <- mean(edge_lengths)
               max_edge_length <- max(edge_lengths)
               min_edge_length <- min(edge_lengths)
 
-              # Estimate surface area (sum of triangle areas)
-              face_areas <- numeric(num_faces)
-
-              for (i in seq_len(num_faces)) {
-                v1 <- object@mesh$it[1, i]
-                v2 <- object@mesh$it[2, i]
-                v3 <- object@mesh$it[3, i]
-
-                # Calculate vectors for two sides of triangle
-                side1 <- v_coords[v2, ] - v_coords[v1,]
-                side2 <- v_coords[v3, ] - v_coords[v1,]
-
-                # Cross product for triangle area
-                cp <- crossprod(matrix(side1), matrix(side2))
-                face_areas[i] <- sqrt(sum(cp^2)) / 2
-              }
-              total_area <- sum(face_areas)
+              # Surface area: half the norm of each face's cross product.
+              it <- object@mesh$it
+              side1 <- v_coords[it[2, ], , drop = FALSE] - v_coords[it[1, ], , drop = FALSE]
+              side2 <- v_coords[it[3, ], , drop = FALSE] - v_coords[it[1, ], , drop = FALSE]
+              cp <- cbind(
+                side1[, 2] * side2[, 3] - side1[, 3] * side2[, 2],
+                side1[, 3] * side2[, 1] - side1[, 1] * side2[, 3],
+                side1[, 1] * side2[, 2] - side1[, 2] * side2[, 1]
+              )
+              total_area <- sum(sqrt(rowSums(cp^2))) / 2
 
               # Check mesh quality
-              edge_length_ratio <- max_edge_length / min_edge_length
+              edge_length_ratio <- max_edge_length / max(min_edge_length, .Machine$double.eps)
               has_quality_issues <- edge_length_ratio > 100
             }
 
-            # Create a simple ASCII art mesh
-            mesh_art <- "    /\\     \n   /  \\    \n  /____\\   \n /      \\  \n/        \\  "
-
-            # Print the formatted output
             cat("\n")
             cat(" SurfaceGeometry \n")
             cat("\n")
 
-            # Add ASCII art
-            cat(normal(mesh_art), "\n\n")
-
-            # Basic information
             cat(title("  Basic Information:"), "\n")
             cat("  ", subtitle("Hemisphere:"), " ", highlight(hemi_text), "\n", sep="")
             cat("  ", subtitle("Vertices:"), "   ", highlight(format(num_vertices, big.mark=",")), "\n", sep="")
@@ -531,8 +514,8 @@ setMethod(f="show", signature=signature("SurfaceGeometry"),
             cat("  ", subtitle("Genus:"), "               ", highlight(genus), "\n", sep="")
 
             if (exists("total_area")) {
-              cat("  ", subtitle("Surface Area:"), "        ", highlight(format(total_area, digits=4)), "\n", sep="")
-              cat("  ", subtitle("Avg Edge Length:"), "     ", highlight(format(avg_edge_length, digits=4)), "\n", sep="")
+              cat("  ", subtitle("Surface Area:"), "        ", highlight(paste(format(round(total_area), big.mark=","), "mm^2")), "\n", sep="")
+              cat("  ", subtitle("Avg Edge Length:"), "     ", highlight(paste(format(avg_edge_length, digits=3), "mm")), "\n", sep="")
 
               if (has_quality_issues) {
                 cat("\n")

@@ -1504,3 +1504,10 @@ body.preset-midnight .html-widget {
     text-decoration: none;
   }
 }
+
+/* Identifiers in headings keep their case (R is case-sensitive). */
+h2 code,
+h3 code {
+  text-transform: none;
+  letter-spacing: 0;
+}

@@ -216,13 +216,17 @@ surface_views <- list(
 #'   on the surface. If provided and `vert_clrs` is NULL, these values are mapped
 #'   to colors using `cmap` and `irange`.
 #' @param cmap A vector of colors (e.g., hex codes) defining the color map used
-#'   when `vals` is provided and `vert_clrs` is NULL. Defaults to `rainbow(256)`.
+#'   when `vals` is provided and `vert_clrs` is NULL. The default, `NULL`,
+#'   chooses \code{\link{surface_palette}}: diverging when `irange` spans zero,
+#'   sequential otherwise.
 #' @param vert_clrs An optional character vector of hex color codes for each vertex.
 #'   If provided, these colors directly override any coloring derived from `vals` and `cmap`.
 #'   The length should match the number of vertices in `surfgeom`.
 #' @param bgcol A single hex color code or a vector of hex color codes used as the
 #'   base color for the surface. If `vals` or `vert_clrs` are provided, this color
-#'   is blended with the data/vertex colors. Defaults to "lightgray".
+#'   is blended with the data/vertex colors. The default, \code{NULL}, shades
+#'   the surface by its curvature (sulci dark, gyri light) with
+#'   \code{\link{curv_cols_smooth}}; use \code{NA} for no base colour.
 #' @param alpha A numeric value between 0 (fully transparent) and 1 (fully opaque)
 #'   controlling the overall transparency of the surface. Defaults to 1.
 #' @param add_normals Logical. If TRUE (default), surface normals are calculated
@@ -330,9 +334,9 @@ surface_views <- list(
 #' @seealso \code{\link[rgl]{shade3d}}, \code{\link[rgl]{spheres3d}}, \code{\link[rgl]{view3d}}, \code{\link{SurfaceGeometry}}
 #' @export
 view_surface <- function(surfgeom, vals=NA,
-                         cmap=grDevices::rainbow(256, alpha = 1),
+                         cmap=NULL,
                          vert_clrs=NULL,
-                         bgcol = "lightgray",
+                         bgcol = NULL,
                          alpha=1,
                          add_normals=TRUE,
                          thresh=NULL,
@@ -435,6 +439,14 @@ view_surface <- function(surfgeom, vals=NA,
     }
   }
 
+  if (is.null(cmap)) {
+    cmap <- .ns_auto_palette(if (maps_vals) vals_use else NULL, irange)
+  }
+  if (is.null(bgcol)) {
+    # Default anatomy: curvature shading, sulci dark and gyri light.
+    bgcol <- tryCatch(curv_cols_smooth(curvature(surfgeom)),
+                      error = function(e) "lightgray")
+  }
   if (length(bgcol) == 1 && is.na(bgcol)) {
     bg_layer <- NULL
   } else {
@@ -654,13 +666,13 @@ view_surface <- function(surfgeom, vals=NA,
 #' @importFrom grDevices gray
 #' @inheritParams view_surface
 setMethod("plot", signature=signature(x="SurfaceGeometry", y="missing"),
-          def=function(x,vals=NA, cmap=grDevices::gray(seq(0,1,length.out=255)),
+          def=function(x,vals=NA, cmap=NULL,
                        vert_clrs=NULL,
                        irange=range(vals),
                        thresh=c(0,0),
                        alpha=1,
                        specular="black",
-                       bgcol="lightgray", ...) {
+                       bgcol=NULL, ...) {
 
             view_surface(x,vals,cmap=cmap,vert_clrs=vert_clrs, irange=irange,thresh=thresh,alpha=alpha,bgcol=bgcol,specular=specular,...)
 
@@ -714,13 +726,13 @@ plot.SurfaceSet <- function(x, y, label = NULL, ...) {
 #' @export
 #' @rdname plot-methods
 setMethod("plot", signature=signature(x="NeuroSurface", y="missing"),
-          def=function(x,cmap=grDevices::gray(seq(0,1,length.out=255)),
+          def=function(x,cmap=NULL,
                        vert_clrs=NULL,
                        irange=range(x@data, na.rm=TRUE),
                        thresh=c(0,0),
                        alpha=1,
                        specular="black",
-                       bgcol="lightgray", ...) {
+                       bgcol=NULL, ...) {
 
             ind <- x@indices
             vals <- rep(NA, length(nodes(x)))
@@ -740,7 +752,7 @@ setMethod("plot", signature=signature(x="LabeledNeuroSurface", y="missing"),
                        thresh=c(0,0),
                        alpha=1,
                        specular="black",
-                       bgcol="lightgray", ...) {
+                       bgcol=NULL, ...) {
 
             ind <- x@indices
             vals <- rep(NA, length(nodes(x)))
@@ -758,7 +770,7 @@ setMethod("plot", signature=signature(x="ColorMappedNeuroSurface", y="missing"),
                        vert_clrs=NULL,
                        alpha=1,
                        specular="black",
-                       bgcol="lightgray", ...) {
+                       bgcol=NULL, ...) {
 
             ind <- x@indices
             vals <- rep(NA, length(nodes(x)))
@@ -784,7 +796,7 @@ setMethod("plot", signature=signature(x="VertexColoredNeuroSurface", y="missing"
           def=function(x,
                        alpha=1,
                        specular="black",
-                       bgcol="lightgray", ...) {
+                       bgcol=NULL, ...) {
 
             ind <- x@indices
             colors <- rep(NA, length(nodes(x@geometry)))

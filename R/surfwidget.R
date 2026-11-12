@@ -207,6 +207,7 @@ setMethod("surfwidget", signature(x = "SurfaceScene"),
       config = config,
       fallback = x@fallback,
       altText = x@alt_text,
+      initialView = if (identical(x@mode, "report")) "lateral",
       calls = list()
     )
     widget <- create_widget(widget_data, width, height)

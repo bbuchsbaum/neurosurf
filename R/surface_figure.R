@@ -232,7 +232,9 @@ surface_figure <- function(lh = NULL,
         limits = limits,
         threshold = threshold,
         tail = tail,
-        palette = palette
+        palette = palette,
+        overlay_alpha = overlay_alpha,
+        alpha_ramp = alpha_ramp
       ),
       legend = isTRUE(legend),
       legend_title = legend_title
@@ -352,7 +354,7 @@ surface_figure <- function(lh = NULL,
       col = 1L + (at[["col_start"]]:at[["col_end"]])
     )
   }
-  label_gp <- grid::gpar(fontsize = 9, col = "#555555")
+  label_gp <- grid::gpar(fontsize = 9, col = "#333333")
   # Anterior/posterior markers just outside the brain on bilateral dorsal
   # and ventral panels (ventral views have posterior at the top).
   for (name in grep("^both_(dorsal|ventral)$", names(x$panels), value = TRUE)) {
@@ -396,7 +398,7 @@ surface_figure <- function(lh = NULL,
 }
 
 .ns_row_label_width_mm <- 5
-.ns_legend_height_mm <- 15
+.ns_legend_height_mm <- 11
 .ns_header_height_mm <- 6
 
 # Suprathreshold colour-bar segments as value intervals.
@@ -421,28 +423,62 @@ surface_figure <- function(lh = NULL,
   sub("^-", "\u2212", trimws(formatC(v, format = "g", digits = 3)))
 }
 
+# Interior ticks for one colour-bar segment: pretty values strictly inside
+# it, kept clear of the end labels.
+#' @noRd
+.ns_colorbar_interior_ticks <- function(seg) {
+  span <- diff(seg)
+  ticks <- pretty(seg, n = 3)
+  ticks[ticks > seg[1] + 0.2 * span & ticks < seg[2] - 0.2 * span]
+}
+
+# Colour of the key at values `v`: the overlay LUT composited over a
+# mid-anatomy grey with the overlay's opacity, so a declared opacity ramp
+# above threshold appears in the key as it does on the cortex.
+#' @noRd
+.ns_colorbar_colors <- function(scale, v, lut) {
+  lut_v <- seq(scale$limits[1], scale$limits[2], length.out = nrow(lut))
+  idx <- findInterval(v, lut_v, all.inside = TRUE)
+  rgb <- lut[idx, 1:3, drop = FALSE]
+  alpha <- rep(scale$overlay_alpha %||% 1, length(v))
+  ramp <- scale$alpha_ramp %||% 0
+  if (ramp > 0) {
+    alpha <- alpha * pmin(1, pmax(0, (abs(v) - scale$threshold) / ramp))
+  }
+  grey <- 0.72
+  rgb <- rgb * alpha + grey * (1 - alpha)
+  grDevices::rgb(rgb[, 1], rgb[, 2], rgb[, 3])
+}
+
 #' @noRd
 .ns_figure_colorbar_grob <- function(scale, title) {
   lut <- .ns_overlay_lut(scale$palette, scale$limits, scale$threshold,
                          scale$tail, 256L)
   segs <- .ns_colorbar_segments(scale)
-  total_w <- 0.40
-  gap <- if (length(segs) > 1L) 0.03 else 0
+  total_w <- 0.46
+  gap <- if (length(segs) > 1L) 0.035 else 0
   span <- vapply(segs, diff, numeric(1))
   seg_w <- (total_w - gap * (length(segs) - 1L)) * span / sum(span)
-  bar_top <- grid::unit(1, "npc") - grid::unit(2, "mm")
-  bar_h <- grid::unit(2.6, "mm")
-  label_y <- bar_top - bar_h - grid::unit(1.4, "mm")
+  bar_top <- grid::unit(1, "npc") - grid::unit(1.6, "mm")
+  bar_h <- grid::unit(3, "mm")
+  label_y <- bar_top - bar_h - grid::unit(1.2, "mm")
+  tick_gp <- grid::gpar(fontsize = 8, col = "#333333")
   children <- list()
   x0 <- 0.5 - total_w / 2
-  lut_v <- seq(scale$limits[1], scale$limits[2], length.out = nrow(lut))
+  # The statistic's name sits on the bar's line, left of the scale.
+  if (!is.null(title) && nzchar(title)) {
+    children[[length(children) + 1L]] <- grid::textGrob(
+      title, x = grid::unit(x0, "npc") - grid::unit(2.5, "mm"),
+      y = bar_top - bar_h * 0.5, just = c("right", "centre"),
+      gp = grid::gpar(fontsize = 9, col = "#222222", fontface = "italic")
+    )
+  }
   for (k in seq_along(segs)) {
     seg <- segs[[k]]
-    v <- seq(seg[1], seg[2], length.out = 128L)
-    idx <- findInterval(v, lut_v, all.inside = TRUE)
-    cols <- grDevices::rgb(lut[idx, 1], lut[idx, 2], lut[idx, 3])
+    v <- seq(seg[1], seg[2], length.out = 256L)
     children[[length(children) + 1L]] <- grid::rasterGrob(
-      grDevices::as.raster(matrix(cols, nrow = 1L)),
+      grDevices::as.raster(matrix(.ns_colorbar_colors(scale, v, lut),
+                                  nrow = 1L)),
       x = x0, y = bar_top, width = seg_w[k], height = bar_h,
       just = c("left", "top"), interpolate = TRUE
     )
@@ -453,18 +489,20 @@ surface_figure <- function(lh = NULL,
     for (j in 1:2) {
       children[[length(children) + 1L]] <- grid::textGrob(
         .ns_format_tick(seg[j]), x = ends[j], y = label_y,
-        hjust = hjust[j], vjust = 1,
-        gp = grid::gpar(fontsize = 8, col = "#333333")
+        hjust = hjust[j], vjust = 1, gp = tick_gp
+      )
+    }
+    for (t in .ns_colorbar_interior_ticks(seg)) {
+      tx <- x0 + seg_w[k] * (t - seg[1]) / diff(seg)
+      children[[length(children) + 1L]] <- grid::segmentsGrob(
+        x0 = tx, x1 = tx, y0 = bar_top - bar_h, y1 = bar_top - bar_h * 0.55,
+        gp = grid::gpar(col = "#FFFFFF", lwd = 0.8)
+      )
+      children[[length(children) + 1L]] <- grid::textGrob(
+        .ns_format_tick(t), x = tx, y = label_y, vjust = 1, gp = tick_gp
       )
     }
     x0 <- x0 + seg_w[k] + gap
-  }
-  if (!is.null(title) && nzchar(title)) {
-    children[[length(children) + 1L]] <- grid::textGrob(
-      title, x = 0.5, y = label_y - grid::unit(3.8, "mm"),
-      just = c("centre", "top"),
-      gp = grid::gpar(fontsize = 9, col = "#222222")
-    )
   }
   grid::grobTree(children = do.call(grid::gList, children))
 }
