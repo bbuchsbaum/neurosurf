@@ -232,8 +232,10 @@ surface_views <- list(
 #' @param add_normals Logical. If TRUE (default), surface normals are calculated
 #'   and added to the mesh, which improves the appearance of lighting effects.
 #' @param thresh An optional numeric vector of length 2, `c(lower, upper)`.
-#'   Vertices with `vals` *outside* this range (i.e., `< lower` or `> upper`)
-#'   are made fully transparent. This is applied *after* the general `alpha`.
+#'   Values *inside* this band are not coloured, so the base colour shows
+#'   through. With a base colour, opacity ramps up over a short band past
+#'   each limit (a quarter of the larger limit's magnitude) so cluster edges
+#'   fade smoothly.
 #'   Defaults to NULL (no thresholding).
 #' @param irange An optional numeric vector of length 2, `c(min, max)`. Specifies
 #'   the range of `vals` to map onto the `cmap`. Values outside this range will be
@@ -445,8 +447,10 @@ view_surface <- function(surfgeom, vals=NA,
   }
   if (is.null(bgcol)) {
     # Default anatomy: curvature shading, sulci dark and gyri light.
-    bgcol <- tryCatch(curv_cols_smooth(curvature(surfgeom)),
-                      error = function(e) "lightgray")
+    bgcol <- tryCatch(
+      curv_cols_smooth(curvature(surfgeom), light = "#E2E2E2",
+                       dark = "#8E8E8E"),
+      error = function(e) "lightgray")
   }
   if (length(bgcol) == 1 && is.na(bgcol)) {
     bg_layer <- NULL
@@ -462,7 +466,16 @@ view_surface <- function(surfgeom, vals=NA,
     }
   }
 
-  if (maps_vals) {
+  if (maps_vals && !is.null(bg_layer)) {
+    # Blend the mapped colour over the base with an opacity that ramps up
+    # over a short band past the threshold, so cluster edges fade between
+    # vertices instead of stepping at each one.
+    fg_layer <- colorplane::IntensityColorPlane(vals_use, cmap, alpha=1)
+    fg_hex <- colorplane::as_hexcol(
+      colorplane::map_colors(fg_layer, alpha=1, irange=irange))
+    vertex_cols <- .ns_fade_blend(fg_hex, colorplane::as_hexcol(bg_layer),
+                                  vals_use, thresh, alpha)
+  } else if (maps_vals) {
     fg_layer <- colorplane::IntensityColorPlane(vals_use, cmap, alpha=1)
     fg_clrs <- colorplane::map_colors(fg_layer, alpha=alpha, threshold=thresh, irange=irange)
     combined <- colorplane::blend_colors(bg_layer, fg_clrs, alpha=alpha)
@@ -897,3 +910,19 @@ setMethod("plot", signature=signature(x="VertexColoredNeuroSurface", y="missing"
 #' }
 #'
 #'
+
+# Per-vertex blend of foreground over base colours with a threshold fade.
+#' @noRd
+.ns_fade_blend <- function(fg, bg, vals, thresh, alpha = 1) {
+  a <- rep(alpha, length(vals))
+  if (!is.null(thresh) && length(thresh) == 2L && any(thresh != 0)) {
+    width <- 0.25 * max(abs(thresh))
+    outside <- pmax(thresh[1] - vals, vals - thresh[2], 0)
+    a <- a * pmin(1, outside / width)
+  }
+  a[!is.finite(vals)] <- 0
+  f <- grDevices::col2rgb(fg) / 255
+  b <- grDevices::col2rgb(bg) / 255
+  mix <- f * rep(a, each = 3) + b * rep(1 - a, each = 3)
+  grDevices::rgb(mix[1, ], mix[2, ], mix[3, ])
+}

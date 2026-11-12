@@ -1521,8 +1521,10 @@ body:not(.preset-midnight) .surfwidget-mount canvas {
   mix-blend-mode: multiply;
 }
 
-/* Long code scrolls inside its block rather than being clipped. */
+/* Long code wraps inside its block rather than being clipped. */
 pre,
 pre code {
   overflow-x: auto;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere;
 }

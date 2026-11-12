@@ -70,3 +70,15 @@ test_that("view_surface shades anatomy and picks a palette by default", {
     view_surface(geom, vals = vals, new_window = FALSE)
   ))
 })
+
+test_that("view_surface fades colour in just past the threshold", {
+  blend <- neurosurf:::.ns_fade_blend
+  fg <- rep("#FF0000", 5)
+  bg <- rep("#000000", 5)
+  out <- blend(fg, bg, c(0, 1, 1.125, 1.25, NA), thresh = c(-1, 1))
+  red <- grDevices::col2rgb(out)[1, ]
+  expect_equal(red[1:2], c(0, 0))           # inside the band: base colour
+  expect_equal(red[3], 128, tolerance = 1)  # halfway through the fade
+  expect_equal(red[4], 255)                 # fully coloured
+  expect_equal(red[5], 0)                   # missing values stay base
+})

@@ -36,7 +36,8 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", message = FALSE,
 The `std.8` template has 642 vertices per hemisphere, about 10 mm apart. RGL
 colours each vertex and blends across triangles, so on a mesh this coarse a
 thresholded map gets jagged edges. One round of Loop subdivision
-(2,562 vertices) is enough for display:
+(2,562 vertices) and the fade `view_surface()` applies at the threshold
+keep them smooth enough for display:
 
 ```{r load}
 library(neurosurf)
@@ -101,7 +102,7 @@ with_rgl_scene(
 
 Pass vertex values in `vals`. `irange` sets the colour limits and
 `thresh = c(-1, 1)` leaves values inside that band uncoloured, so the
-curvature shows through. Signed values get neurosurf's diverging palette,
+curvature shows through; colour fades in just past the threshold. Signed values get neurosurf's diverging palette,
 `surface_palette("two_sided")`: blue below zero, red above, with no white
 centre to fade into the grey anatomy. Pass `cmap` to choose another.
 
@@ -113,7 +114,8 @@ with_rgl_scene(
 )
 ```
 
-For a static figure with a colour key, use `surface_figure()`. It renders
+Colour limits are ±3 and |value| < 1 is uncoloured: blue negative, red
+positive. For a static figure with a colour key, use `surface_figure()`. It renders
 the same values with the CPU renderer, which interpolates within each
 triangle, so its lighting and colour mapping do not depend on RGL.
 
@@ -158,7 +160,7 @@ scene, not the stored geometry or vertex data.
 
 The two lateral surfaces face opposite directions, so show them in separate
 panels. A dorsal view sees both hemispheres at once, so they can share one
-scene; `offset` separates them along x.
+scene; `offset` separates them along x. Anterior is at the top.
 
 ```{r two-hemispheres}
 with_rgl_scene({
@@ -198,17 +200,18 @@ with_rgl_scene(
 ## Smooth and threshold a noisy map
 
 Smoothing and cluster-size thresholding operate on surface data before
-rendering. Here noise is added to the two clusters, averaged over a 10 mm
-geodesic radius (`sigma`), and thresholded at |value| > 1, keeping only
-connected clusters of at least 20 vertices. Smoothing recovers the two known
-clusters and removes the speckle.
+rendering. Here noise is added to the two clusters, averaged over a 4 mm
+geodesic radius (`sigma`), and thresholded at |value| > 1. Smoothing
+recovers the two known clusters but leaves small specks of noise;
+`cluster_threshold()` removes every connected cluster smaller than 20
+vertices.
 
 ```{r activation-map}
 set.seed(123)
 noise <- rnorm(length(vertex_values))
 noisy <- NeuroSurface(left, indices = nodes(left),
                       data = vertex_values + noise)
-smoothed <- smooth(noisy, sigma = 10)
+smoothed <- smooth(noisy, sigma = 4)
 clustered <- cluster_threshold(smoothed, size = 20,
                                threshold = c(-1, 1))
 ```
@@ -219,9 +222,11 @@ Shown as small multiples with one colour scale:
 steps <- list(noisy = noisy, smoothed = smoothed,
               clustered = clustered)
 panels <- lapply(steps, function(x) {
-  render_surface_rgba(left, as.numeric(x@data), camera = "lateral",
-                      threshold = 1, limits = c(-3, 3),
-                      width = 420, height = 260, antialias = 2)
+  render_surface_rgba(left, as.numeric(x@data),
+                      anatomy_metric = curvature(left),
+                      camera = "lateral", threshold = 1,
+                      limits = c(-3, 3), width = 420, height = 260,
+                      antialias = 2)
 })
 ```
 

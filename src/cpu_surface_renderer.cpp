@@ -289,9 +289,10 @@ Rcpp::List cpp_rasterize_surface_scalar(
         double av = w0 * anatomy[i0] + w1 * anatomy[i1] + w2 * anatomy[i2];
         if (!std::isfinite(av)) av = 0.5;
         double base = base_low + clamp01(av) * (base_high - base_low);
-        // The medial wall carries no cortex: draw it at the light gyral tone
-        // so it recedes instead of reading as the largest mark in a view.
-        if (!face_cortex) base = base_high;
+        // The medial wall carries no cortex: draw it as one flat mid-anatomy
+        // tone, neither the lightest nor the darkest grey in the view, so it
+        // recedes behind the folded cortex around it.
+        if (!face_cortex) base = 0.5 * (base_low + base_high);
         double diffuse = 1.0, spec = 0.0;
         if (light.enabled) {
           light.shade(w0 * nrm(i0, 0) + w1 * nrm(i1, 0) + w2 * nrm(i2, 0),

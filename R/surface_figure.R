@@ -433,7 +433,7 @@ surface_figure <- function(lh = NULL,
 .ns_colorbar_interior_ticks <- function(seg) {
   span <- diff(seg)
   ticks <- pretty(seg, n = 3)
-  ticks[ticks > seg[1] + 0.2 * span & ticks < seg[2] - 0.2 * span]
+  ticks[ticks > seg[1] + 0.25 * span & ticks < seg[2] - 0.25 * span]
 }
 
 # Colour of the key at values `v`: the overlay LUT composited over a
@@ -466,7 +466,7 @@ surface_figure <- function(lh = NULL,
   bar_top <- grid::unit(1, "npc") - grid::unit(1.6, "mm")
   bar_h <- grid::unit(3, "mm")
   label_y <- bar_top - bar_h - grid::unit(1.2, "mm")
-  tick_gp <- grid::gpar(fontsize = 8, col = "#333333")
+  tick_gp <- grid::gpar(fontsize = 8.5, col = "#333333")
   children <- list()
   x0 <- 0.5 - total_w / 2
   # The statistic's name sits on the bar's line, left of the scale.

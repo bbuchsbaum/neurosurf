@@ -96,17 +96,17 @@
   position: absolute;
   width: 1px;
 }
-.surfwidget-root .surfview-report-controls fieldset label:has(input:checked) {
+.surfwidget-root .surfview-report-controls fieldset label:has(input[type="radio"]:checked) {
   background: #1f2933;
   border-color: #1f2933;
   color: #fff;
   z-index: 1;
 }
-.surfwidget-root .surfview-report-controls fieldset label:has(input:focus-visible) {
+.surfwidget-root .surfview-report-controls fieldset label:has(input[type="radio"]:focus-visible) {
   outline: 2px solid #2f6db5;
   z-index: 2;
 }
-.surfwidget-root .surfview-report-controls fieldset label:has(input:disabled) {
+.surfwidget-root .surfview-report-controls fieldset label:has(input[type="radio"]:disabled) {
   color: #a3abb5;
   cursor: default;
 }
@@ -156,7 +156,7 @@
 }
 .surfwidget-colorbar-tick {
   color: #4b5560;
-  font-size: 10px;
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
   position: absolute;
   top: 10px;
@@ -201,4 +201,10 @@
 }
 .surfwidget-root .surfview-report-controls fieldset:has(input[type="radio"]) > legend + label {
   border-radius: 4px 0 0 4px;
+}
+
+.surfwidget-root .surfwidget-fullscreen {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  padding: 3px 7px !important;
 }

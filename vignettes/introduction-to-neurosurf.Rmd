@@ -164,17 +164,18 @@ show(lh_surf_data)
 
 A `NeuroSurface` is easiest to understand as a picture: its values painted on
 its geometry. `render_surface_rgba()` draws one view without a graphics
-device. Curvature is anatomy, so it is painted in greys, as FreeSurfer
-shows it: sulci dark, gyri light. (FreeSurfer's own `?h.curv` files use the
-opposite sign, positive in sulci; neurosurf's `curvature()` is higher on
+device. Curvature is anatomy, so it is drawn the way FreeSurfer shows
+anatomy: as the grey underlay itself, sulci dark and gyri light, with no
+colour overlay. (FreeSurfer's own `?h.curv` files are positive in sulci;
+`curvature()` returns mean curvature min-max rescaled to [0, 1], higher on
 gyri.)
 
 ```{r show-neurosurface}
-greys <- grDevices::gray.colors(256, start = 0.3, end = 0.9)
+no_overlay <- rep(NA_real_, length(nodes(lh_geom)))
 panel <- render_surface_rgba(
-  geometry(lh_surf_data), lh_surf_data@data, camera = "lateral",
-  tail = "positive", limits = c(0, 1), palette = greys,
-  width = 600, height = 360, antialias = 2
+  geometry(lh_surf_data), no_overlay,
+  anatomy_metric = lh_surf_data@data, anatomy_style = "continuous",
+  camera = "lateral", width = 600, height = 360, antialias = 2
 )
 ```
 
@@ -273,18 +274,23 @@ show(lh_surf_vec)
 Each column is a map over the same vertices, so a `NeuroSurfaceVector` reads
 naturally as small multiples: one panel per column, same view, same scale.
 Here the columns are the RAS coordinates themselves, which also shows the
-axis directions: *x* increases to the right (so it is most negative on this
-left hemisphere's lateral surface), *y* anteriorly, *z* superiorly.
+axis directions. Positions are not effects, so they get a sequential palette
+rather than the red/blue statistic palette; each column is rescaled from its
+minimum (dark) to its maximum (light) and seen from above, anterior at the
+top.
 
 ```{r show-neurosurfacevector}
-centred <- scale(as.matrix(lh_surf_vec@data), scale = FALSE)
+xyz <- as.matrix(lh_surf_vec@data)
+rescaled <- apply(xyz, 2, function(v) (v - min(v)) / diff(range(v)))
 panels <- lapply(1:3, function(j) {
-  render_surface_rgba(lh_geom, centred[, j], camera = "lateral",
-                      limits = c(-70, 70), width = 420, height = 260)
+  render_surface_rgba(lh_geom, rescaled[, j], camera = "dorsal",
+                      tail = "positive", limits = c(0, 1),
+                      palette = grDevices::hcl.colors(256, "viridis"),
+                      width = 300, height = 300)
 })
 ```
 
-```{r show-neurosurfacevector-image, echo=FALSE, fig.width=7.5, fig.height=1.9, out.width="100%", fig.cap="Columns of the NeuroSurfaceVector, left lateral view. Coordinates centred on the hemisphere; shared scale &plusmn;70 mm, blue negative, red positive."}
+```{r show-neurosurfacevector-image, echo=FALSE, fig.width=7, fig.height=2.7, out.width="100%", fig.cap="Columns of the NeuroSurfaceVector, left hemisphere seen from above (anterior at top). Each column runs from its minimum (dark purple) to its maximum (yellow)."}
 grid::grid.newpage()
 grid::pushViewport(grid::viewport(layout = grid::grid.layout(
   2, 3, heights = grid::unit(c(1, 1.4), c("null", "lines"))
@@ -293,8 +299,8 @@ for (j in 1:3) {
   rgba <- panels[[j]]$rgba
   grid::grid.raster(array(as.numeric(rgba) / 255, dim = dim(rgba)),
                     vp = grid::viewport(layout.pos.row = 1, layout.pos.col = j))
-  grid::grid.text(c("x (left to right)", "y (posterior to anterior)",
-                    "z (inferior to superior)")[j],
+  grid::grid.text(c("x: left to right", "y: back to front",
+                    "z: bottom to top")[j],
                   gp = grid::gpar(fontsize = 10, col = "#333333"),
                   vp = grid::viewport(layout.pos.row = 2, layout.pos.col = j))
 }

@@ -80,10 +80,12 @@ white <- load_fsaverage("fsaverage5", "white")
 sulc <- load_fsaverage_sulc("fsaverage5")
 
 # Display anatomy, lighter on gyri. FreeSurfer sulc is positive in
-# sulci, so it is negated; continuous scaling keeps folds quiet.
+# sulci, so it is negated. The report preset's grey ramp saturates at
+# |0.1|; scaling to that range keeps a quiet, continuous ramp instead
+# of a hard two-tone.
 anatomy <- list(
-  left = normalize_surface_anatomy(-sulc$lh, style = "continuous"),
-  right = normalize_surface_anatomy(-sulc$rh, style = "continuous")
+  left = 0.2 * normalize_surface_anatomy(-sulc$lh, "continuous"),
+  right = 0.2 * normalize_surface_anatomy(-sulc$rh, "continuous")
 )
 ```
 
@@ -99,22 +101,24 @@ cluster <- function(hemi, centre, peak, width = 12) {
   xyz <- coords(inflated[[hemi]])
   peak * exp(-colSums((t(xyz) - xyz[seed, ])^2) / (2 * width^2))
 }
-contrast <- function(centres, peaks) {
-  one_side <- function(hemi, side) {
+contrast <- function(centres, lh_peaks, rh_peaks) {
+  one_side <- function(hemi, side, peaks) {
     Reduce(`+`, Map(function(centre, peak) {
       cluster(hemi, centre * c(side, 1, 1), peak)
     }, centres, peaks))
   }
-  list(left = one_side("lh", -1), right = one_side("rh", 1))
+  list(left = one_side("lh", -1, lh_peaks),
+       right = one_side("rh", 1, rh_peaks))
 }
 
 memory <- contrast(
   centres = list(c(45, -60, 20), c(40, 20, 30), c(55, -20, 0)),
-  peaks = c(4, 3, -3.5)
+  lh_peaks = c(4, 3, -3.5), rh_peaks = c(3.5, 2.5, -2.8)
 )
+# A right-hand movement: left motor cortex dominates
 motor <- contrast(
   centres = list(c(38, -22, 56), c(10, -60, 50)),
-  peaks = c(4.5, -3)
+  lh_peaks = c(4.5, -3), rh_peaks = c(-2.2, -3)
 )
 ```
 
@@ -187,7 +191,7 @@ scene <- surface_scene(
     "Inflated left and right cortical surfaces showing a selectable",
     "thresholded z map, blue negative and red positive, |z| above 2."
   ),
-  preset = "paper-light",
+  preset = "report",
   mode = "report"
 )
 ```
@@ -225,10 +229,11 @@ reference_scene <- surface_scene(
   left = inflated$lh, right = inflated$rh,
   layers = c(scene@layers, list(surface_layer(
     "reference", region, role = "reference", color = "#238b45",
-    opacity = 0.25, legend = list(title = "Intraparietal ROI"),
+    opacity = 0.4, legend = list(title = "Intraparietal ROI"),
     provenance = list(source = "synthetic 18 mm disc")
   ))),
   curvature = anatomy,
+  preset = "report",
   fallback = "Bilateral z maps over a faint intraparietal ROI.",
   alt_text = "Thresholded z maps over a green intraparietal region."
 )
@@ -253,13 +258,13 @@ image <- render_surface_rgba(
   threshold = 2, limits = c(-5, 5), alpha_ramp = 0.6,
   reference = list(
     id = "reference", label = "Intraparietal ROI",
-    mask = region$left, color = "#238b45", opacity = 0.25
+    mask = region$left, color = "#238b45", opacity = 0.4
   ),
   width = 600, height = 380, antialias = 2
 )
 ```
 
-```{r static-reference-image, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Left hemisphere, lateral view: the intraparietal ROI (green, 25% opacity) beneath the memory *z* map (|*z*| &gt; 2, limits &plusmn;5)."}
+```{r static-reference-image, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Left hemisphere, lateral view: the intraparietal ROI (green, 40% opacity) beneath the memory *z* map (|*z*| &gt; 2, limits &plusmn;5)."}
 file <- knitr::fig_path("reference.png")
 dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
 write_surface_rgba(image, file)
@@ -278,11 +283,13 @@ not perform projection or inference.
 
 ## Which option controls appearance and behavior?
 
-`paper-light` and `report` name different contracts:
+`preset` sets appearance and `mode` sets behaviour; the scene above uses
+`preset = "report"` with `mode = "report"`.
 
 | Setting | Controls | What it changes |
 |---|---|---|
-| `preset = "paper-light"` | Appearance | Light background, restrained lighting and material values, labels, and PNG defaults. |
+| `preset = "report"` | Appearance | Light, low-contrast sulcal greys on a neutral panel, so maps stand out; made for report widgets. |
+| `preset = "paper-light"` | Appearance | White background, stronger folding contrast, and print-oriented PNG defaults. |
 | `mode = "report"` | Behavior | Lazy mounting, the compact report toolbar, deterministic initial framing, and fallback/print behavior. |
 | `mode = "viewer"` | Behavior | A bare rotatable viewer without the report toolbar. |
 

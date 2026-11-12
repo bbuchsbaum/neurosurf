@@ -38,8 +38,9 @@
   the manifest writer negates it because surfview 3 reads curvature in the
   FreeSurfer polarity. Pass FreeSurfer `curv`/`sulc` negated, as before.
 
-* The medial wall of static surface rasters is drawn at the light gyral tone
-  instead of a fixed mid-grey.
+* The medial wall of static surface rasters is drawn as one flat tone midway
+  between the sulcal and gyral greys of the anatomy, instead of a fixed
+  mid-grey, so it recedes behind the surrounding cortex.
 
 * The bundled fsaverage5 template now includes the pial surface
   (`pial_left.gii.gz`, `pial_right.gii.gz`, unmodified from the same pinned

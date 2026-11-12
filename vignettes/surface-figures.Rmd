@@ -116,10 +116,12 @@ example_statistic <- function(hemi, side, peaks) {
     xyz <- coords(inflated[[hemi]])
     peak * exp(-colSums((t(xyz) - xyz[seed, ])^2) / (2 * width^2))
   }
-  cluster(c(45 * side, -60, 20), peaks[1], 12) +   # inferior parietal
-    cluster(c(40 * side, 20, 30), peaks[2], 9) +   # middle frontal
-    cluster(c(55 * side, -20, 0), peaks[3], 8) +   # superior temporal
-    cluster(c(6 * side, -50, 25), peaks[4], 11)    # posterior cingulate
+  # Inferior parietal, middle frontal, superior temporal and posterior
+  # cingulate clusters
+  cluster(c(45 * side, -60, 20), peaks[1], 12) +
+    cluster(c(40 * side, 20, 30), peaks[2], 9) +
+    cluster(c(55 * side, -20, 0), peaks[3], 8) +
+    cluster(c(5 * side, -35, 25), peaks[4], 11)
 }
 
 stat_lh <- example_statistic("lh", -1, c(4, 3, -3.5, -3))
@@ -133,10 +135,20 @@ has no label file, so this example approximates one: across the medial wall
 the fsaverage white and pial surfaces nearly coincide, so cortex is where
 they are at least 1 mm apart.
 
+A vertex-wise threshold leaves a stair-stepped boundary, so two rounds of
+a majority vote over each vertex's neighbours smooth it.
+
 ```{r cortex-mask}
 pial <- load_fsaverage("fsaverage5", "pial")
 cortex <- lapply(c(lh = "lh", rh = "rh"), function(hemi) {
-  sqrt(rowSums((coords(pial[[hemi]]) - coords(white[[hemi]]))^2)) >= 1
+  gap <- coords(pial[[hemi]]) - coords(white[[hemi]])
+  inside <- sqrt(rowSums(gap^2)) >= 1
+  neighbours <- igraph::as_adjacency_matrix(graph(white[[hemi]]))
+  for (i in 1:2) {
+    votes <- as.vector(neighbours %*% inside)
+    inside <- votes / Matrix::rowSums(neighbours) >= 0.5
+  }
+  inside
 })
 ```
 
@@ -262,8 +274,9 @@ vertex never receive overlay colour. `medial_wall` then controls whether the
 excluded domain is quietly shaded, masked out, or outlined.
 
 The panels below repeat the left medial view with each policy, using the
-`cortex` mask from above. The posterior cingulate cluster borders the wall:
-with the mask it stops at the cortical boundary.
+`cortex` mask from above. The posterior cingulate cluster runs up to the
+wall; triangles that touch the wall receive no overlay colour under any
+policy, so the cluster stops at the cortical boundary.
 
 ```{r cortex-mask-panels}
 policies <- c("shade", "mask", "outline")

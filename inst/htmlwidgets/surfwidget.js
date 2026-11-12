@@ -18,7 +18,8 @@
     var button = document.createElement("button");
     button.type = "button";
     button.className = "surfwidget-fullscreen";
-    button.textContent = "Fullscreen";
+    button.textContent = "\u2922";
+    button.title = "Fullscreen";
     button.setAttribute("aria-label", "Show surface viewer fullscreen");
     if (!el.requestFullscreen) {
       button.disabled = true;
