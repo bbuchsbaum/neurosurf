@@ -178,16 +178,24 @@
 .surfwidget-root .surfview-report-controls > button:first-of-type {
   margin-left: auto;
 }
-.surfwidget-root .surfview-report-controls > button + button,
-.surfwidget-root .surfview-report-controls > button ~ .surfwidget-fullscreen {
+.surfwidget-root .surfview-report-controls > button + button {
   margin-left: -10px;
 }
-.surfwidget-root .surfview-report-controls > span[aria-live] { order: 5; }
-.surfwidget-root .surfview-report-controls > .surfwidget-colorbar {
+.surfwidget-root .surfview-report-controls > span[aria-live] { order: 8; }
+.surfwidget-root .surfview-report-controls > .surfwidget-break {
   flex-basis: 100%;
+  height: 0;
+  order: 5;
+}
+.surfwidget-root .surfview-report-controls > .surfwidget-colorbar {
+  flex: 1 1 auto;
   justify-content: flex-end;
   margin-left: 0;
   order: 6;
+}
+.surfwidget-root .surfview-report-controls > .surfwidget-fullscreen {
+  margin-left: 0;
+  order: 7;
 }
 /* The view buttons name themselves; keep their group label for assistive
    technology only. */

@@ -60,104 +60,162 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="neurosurf">neurosurf<a class="anchor" aria-label="anchor" href="#neurosurf"></a>
 </h1></div>
-<p><a href="https://bbuchsbaum.r-universe.dev/neurosurf" class="external-link"><img src="https://bbuchsbaum.r-universe.dev/badges/neurosurf" alt="r-universe"></a> <a href="https://github.com/bbuchsbaum/neurosurf/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/bbuchsbaum/neurosurf/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <a href="https://github.com/bbuchsbaum/neurosurf/actions/workflows/coverage.yaml" class="external-link"><img src="https://github.com/bbuchsbaum/neurosurf/actions/workflows/coverage.yaml/badge.svg" alt="Coverage"></a> <a href="https://bbuchsbaum.github.io/neurosurf/">Documentation</a> · <a href="https://bbuchsbaum.github.io/neurosurf/reference/index.html">Reference</a> · <a href="NEWS.html">News</a></p>
-<p>neurosurf is an R package for cortical surface data. It reads FreeSurfer, GIFTI, and AFNI/SUMA meshes, keeps vertex-wise values attached to their geometry, and turns them into publication figures and self-contained interactive HTML reports.</p>
+<p><a href="https://bbuchsbaum.r-universe.dev/neurosurf" class="external-link"><img src="https://bbuchsbaum.r-universe.dev/badges/neurosurf" alt="r-universe"></a> <a href="https://github.com/bbuchsbaum/neurosurf/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/bbuchsbaum/neurosurf/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <a href="https://github.com/bbuchsbaum/neurosurf/actions/workflows/coverage.yaml" class="external-link"><img src="https://github.com/bbuchsbaum/neurosurf/actions/workflows/coverage.yaml/badge.svg" alt="Coverage"></a></p>
+<p><strong>Cortical surface data in R: read meshes, keep values on their vertices, and turn them into publication figures and interactive reports.</strong></p>
+<p>neurosurf reads FreeSurfer, GIFTI and AFNI/SUMA surfaces, analyses data on the mesh (smoothing, geodesic distance, clusters, searchlights), and draws it. Static figures come from a deterministic CPU renderer that needs no OpenGL device or browser, so the same code gives the same pixels on a laptop, a cluster node or CI. Interactive reports bundle their own viewer and need no network access.</p>
+<p><a href="https://bbuchsbaum.github.io/neurosurf/">Documentation</a> · <a href="https://bbuchsbaum.github.io/neurosurf/articles/">Articles</a> · <a href="https://bbuchsbaum.github.io/neurosurf/reference/index.html">Reference</a> · <a href="NEWS.html">News</a></p>
 <blockquote>
-<p><strong>Status:</strong> Pre-release and not on CRAN. APIs may change.</p>
+<p><strong>Status:</strong> pre-release, not yet on CRAN. Interfaces may still change.</p>
 </blockquote>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install a prebuilt binary from r-universe:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"neurosurf"</span>,</span>
+<code class="sourceCode R"><span><span class="co"># Prebuilt binaries from r-universe</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"neurosurf"</span>,</span>
 <span>  repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://bbuchsbaum.r-universe.dev"</span>, <span class="st">"https://cloud.r-project.org"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>or build the development version from GitHub (requires a C++ toolchain):</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Or the development version from GitHub (needs a C++ toolchain)</span></span>
+<span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"bbuchsbaum/neurosurf"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+<h2 id="a-publication-figure-in-one-call">A publication figure in one call<a class="anchor" aria-label="anchor" href="#a-publication-figure-in-one-call"></a>
 </h2>
-<p>Render a thresholded map on both hemispheres of the bundled fsaverage5 surface, with sulcal depth as the anatomical underlay:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p>The fsaverage5 template ships with the package: surfaces, sulcal depth for the grey anatomy, and a cortex mask that keeps colour off the medial wall. Given one value per vertex for each hemisphere, <code><a href="reference/surface_figure.html">surface_figure()</a></code> draws lateral and medial views of both with one shared colour scale.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bbuchsbaum.github.io/neurosurf/">neurosurf</a></span><span class="op">)</span></span>
+<span><span class="va">inflated</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_fsaverage.html">load_fsaverage</a></span><span class="op">(</span><span class="st">"fsaverage5"</span>, <span class="st">"inflated"</span><span class="op">)</span></span></code></pre></div>
+<details><summary>
+Example data: a synthetic <i>z</i> map (any numeric vector with one value per vertex works)
+</summary><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">white</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_fsaverage.html">load_fsaverage</a></span><span class="op">(</span><span class="st">"fsaverage5"</span>, <span class="st">"white"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">surf</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_fsaverage.html">load_fsaverage</a></span><span class="op">(</span><span class="st">"fsaverage5"</span>, <span class="st">"inflated"</span><span class="op">)</span></span>
-<span><span class="va">white</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_fsaverage.html">load_fsaverage</a></span><span class="op">(</span><span class="st">"fsaverage5"</span>, <span class="st">"white"</span><span class="op">)</span></span>
-<span><span class="va">sulc</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_fsaverage_sulc.html">load_fsaverage_sulc</a></span><span class="op">(</span><span class="st">"fsaverage5"</span><span class="op">)</span></span>
-<span><span class="va">cortex</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_fsaverage_cortex.html">load_fsaverage_cortex</a></span><span class="op">(</span><span class="st">"fsaverage5"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># A synthetic z-map: smooth clusters placed at white-surface coordinates,</span></span>
-<span><span class="co"># falling off with distance over the inflated surface. Any numeric vector</span></span>
-<span><span class="co"># with one value per vertex works.</span></span>
+<span><span class="co"># Smooth clusters placed at white-surface coordinates, falling off with</span></span>
+<span><span class="co"># distance over the inflated surface.</span></span>
 <span><span class="va">zmap</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">hemi</span>, <span class="va">side</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">cluster</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">centre</span>, <span class="va">z</span>, <span class="va">width</span> <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">seed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu">coords</span><span class="op">(</span><span class="va">white</span><span class="op">[[</span><span class="va">hemi</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="va">centre</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="va">xyz</span> <span class="op">&lt;-</span> <span class="fu">coords</span><span class="op">(</span><span class="va">surf</span><span class="op">[[</span><span class="va">hemi</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span>    <span class="va">xyz</span> <span class="op">&lt;-</span> <span class="fu">coords</span><span class="op">(</span><span class="va">inflated</span><span class="op">[[</span><span class="va">hemi</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span>    <span class="va">z</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">xyz</span><span class="op">)</span> <span class="op">-</span> <span class="va">xyz</span><span class="op">[</span><span class="va">seed</span>, <span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">width</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span>  <span class="fu">cluster</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">45</span> <span class="op">*</span> <span class="va">side</span>, <span class="op">-</span><span class="fl">60</span>, <span class="fl">20</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span> <span class="op">+</span> <span class="fu">cluster</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span> <span class="op">*</span> <span class="va">side</span>, <span class="fl">20</span>, <span class="fl">30</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu">cluster</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">55</span> <span class="op">*</span> <span class="va">side</span>, <span class="op">-</span><span class="fl">20</span>, <span class="fl">0</span><span class="op">)</span>, <span class="op">-</span><span class="fl">3.5</span><span class="op">)</span> <span class="op">+</span> <span class="fu">cluster</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span> <span class="op">*</span> <span class="va">side</span>, <span class="op">-</span><span class="fl">46</span>, <span class="fl">22</span><span class="op">)</span>, <span class="op">-</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">fig</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/surface_figure.html">surface_figure</a></span><span class="op">(</span></span>
-<span>  lh <span class="op">=</span> <span class="va">surf</span><span class="op">$</span><span class="va">lh</span>, rh <span class="op">=</span> <span class="va">surf</span><span class="op">$</span><span class="va">rh</span>,</span>
-<span>  values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lh <span class="op">=</span> <span class="fu">zmap</span><span class="op">(</span><span class="st">"lh"</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, rh <span class="op">=</span> <span class="fu">zmap</span><span class="op">(</span><span class="st">"rh"</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  anatomy <span class="op">=</span> <span class="va">sulc</span>, cortex_mask <span class="op">=</span> <span class="va">cortex</span>, alpha_ramp <span class="op">=</span> <span class="fl">0.25</span>,</span>
+<span><span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lh <span class="op">=</span> <span class="fu">zmap</span><span class="op">(</span><span class="st">"lh"</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, rh <span class="op">=</span> <span class="fu">zmap</span><span class="op">(</span><span class="st">"rh"</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</details><div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fig</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/surface_figure.html">surface_figure</a></span><span class="op">(</span></span>
+<span>  lh <span class="op">=</span> <span class="va">inflated</span><span class="op">$</span><span class="va">lh</span>, rh <span class="op">=</span> <span class="va">inflated</span><span class="op">$</span><span class="va">rh</span>, values <span class="op">=</span> <span class="va">z</span>,</span>
+<span>  anatomy <span class="op">=</span> <span class="fu"><a href="reference/load_fsaverage_sulc.html">load_fsaverage_sulc</a></span><span class="op">(</span><span class="st">"fsaverage5"</span><span class="op">)</span>,</span>
+<span>  cortex_mask <span class="op">=</span> <span class="fu"><a href="reference/load_fsaverage_cortex.html">load_fsaverage_cortex</a></span><span class="op">(</span><span class="st">"fsaverage5"</span><span class="op">)</span>,</span>
 <span>  threshold <span class="op">=</span> <span class="fl">1.5</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span>, legend_title <span class="op">=</span> <span class="st">"z"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fig</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-quickstart-1.png" alt="Lateral and medial views of both fsaverage5 hemispheres with red and blue thresholded z-map clusters over grey sulcal shading; the medial wall carries no colour" width="100%"></p>
-<p><code>write_surface_figure(fig, "figure.png")</code> saves the same figure. Rendering runs on the CPU, so it works identically on a laptop, a cluster node, or CI, with no OpenGL device or browser.</p>
+<p><code>write_surface_figure(fig, "figure.png")</code> saves it. For a layout of your own, render single panels with <code><a href="reference/render_surface_rgba.html">render_surface_rgba()</a></code> and arrange them, with the same colour key, using <code><a href="reference/surface_panels.html">surface_panels()</a></code>.</p>
 </div>
 <div class="section level2">
-<h2 id="what-it-covers">What it covers<a class="anchor" aria-label="anchor" href="#what-it-covers"></a>
+<h2 id="an-interactive-report-from-the-same-values">An interactive report from the same values<a class="anchor" aria-label="anchor" href="#an-interactive-report-from-the-same-values"></a>
 </h2>
-<ul>
-<li>
-<strong>Read and write surfaces and data</strong>: FreeSurfer, GIFTI, AFNI/SUMA, and NIML (<code><a href="reference/read_surf.html">read_surf()</a></code>, <code><a href="reference/read_surf_geometry.html">read_surf_geometry()</a></code>, <code><a href="reference/write_surf_data.html">write_surf_data()</a></code>), plus bundled fsaverage5 surfaces and sulcal depth (<code><a href="reference/load_fsaverage.html">load_fsaverage()</a></code>, <code><a href="reference/load_fsaverage_sulc.html">load_fsaverage_sulc()</a></code>).</li>
-<li>
-<strong>Map volumes to surfaces</strong>: sample a volumetric image onto a mesh with <code><a href="reference/vol_to_surf.html">vol_to_surf()</a></code> or <code><a href="reference/vol_to_surf_sdf.html">vol_to_surf_sdf()</a></code>.</li>
-<li>
-<strong>Analyse on the mesh</strong>: smoothing, curvature, geodesic distances, neighbourhood graphs, cluster thresholding, and ROI boundaries.</li>
-<li>
-<strong>Surface searchlights</strong> for multivariate pattern analysis (<code><a href="reference/SurfaceSearchlight.html">SurfaceSearchlight()</a></code>, <code><a href="reference/RandomSurfaceSearchlight.html">RandomSurfaceSearchlight()</a></code>).</li>
-<li>
-<strong>Figures</strong>: lit, headless, deterministic multi-view figures with a shared colour scale (<code><a href="reference/surface_figure.html">surface_figure()</a></code>), and interactive rgl display (<code><a href="reference/view_surface.html">view_surface()</a></code>).</li>
-<li>
-<strong>Interactive reports</strong>: combine both hemispheres and several named maps in one <code><a href="reference/surface_scene.html">surface_scene()</a></code>, show it with <code><a href="reference/surfwidget-methods.html">surfwidget()</a></code> in R Markdown or Quarto, or write it as a standalone HTML page with <code><a href="reference/write_surface_scene.html">write_surface_scene()</a></code>. The viewer is bundled, so reports need no CDN or network access.</li>
-</ul>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">scene</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/surface_scene.html">surface_scene</a></span><span class="op">(</span></span>
+<span>  left <span class="op">=</span> <span class="va">inflated</span><span class="op">$</span><span class="va">lh</span>, right <span class="op">=</span> <span class="va">inflated</span><span class="op">$</span><span class="va">rh</span>,</span>
+<span>  layers <span class="op">=</span> <span class="fu"><a href="reference/surface_layer.html">surface_layer</a></span><span class="op">(</span></span>
+<span>    <span class="st">"z"</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>left <span class="op">=</span> <span class="va">z</span><span class="op">$</span><span class="va">lh</span>, right <span class="op">=</span> <span class="va">z</span><span class="op">$</span><span class="va">rh</span><span class="op">)</span>,</span>
+<span>    colormap <span class="op">=</span> <span class="fu"><a href="reference/surface_palette.html">surface_palette</a></span><span class="op">(</span><span class="st">"two_sided"</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span>, threshold <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span>,</span>
+<span>    limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span>, threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span><span class="op">)</span>, units <span class="op">=</span> <span class="st">"z"</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  fallback <span class="op">=</span> <span class="st">"Bilateral cortical surfaces with a thresholded z map."</span>,</span>
+<span>  alt_text <span class="op">=</span> <span class="st">"Inflated left and right hemispheres with red and blue clusters."</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/surfwidget-methods.html">surfwidget</a></span><span class="op">(</span><span class="va">scene</span><span class="op">)</span>                      <span class="co"># in R Markdown, Quarto or Shiny</span></span>
+<span><span class="fu"><a href="reference/write_surface_scene.html">write_surface_scene</a></span><span class="op">(</span><span class="va">scene</span>, <span class="st">"report"</span><span class="op">)</span>   <span class="co"># or as a standalone web page</span></span></code></pre></div>
+<p><img src="reference/figures/README-viewer.jpg" alt="The report viewer: a map selector, anatomical view buttons, a colour key with the threshold gap hatched, and both inflated hemispheres with red and blue clusters" width="100%"></p>
+<p>A scene holds both hemispheres and any number of named maps; readers switch maps, views and reference regions from the toolbar. <code><a href="reference/surface_palette.html">surface_palette()</a></code> gives the viewer exactly the colours the static figure uses.</p>
+</div>
+<div class="section level2">
+<h2 id="which-function-do-i-need">Which function do I need?<a class="anchor" aria-label="anchor" href="#which-function-do-i-need"></a>
+</h2>
+<table class="table">
+<colgroup>
+<col width="43%">
+<col width="56%">
+</colgroup>
+<thead><tr>
+<th>You want</th>
+<th>Use</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>A finished static figure: views × hemispheres, one colour key</td>
+<td>
+<code><a href="reference/surface_figure.html">surface_figure()</a></code>, <code><a href="reference/write_surface_figure.html">write_surface_figure()</a></code>
+</td>
+</tr>
+<tr>
+<td>One panel, or small multiples you lay out</td>
+<td>
+<code><a href="reference/render_surface_rgba.html">render_surface_rgba()</a></code>, <code><a href="reference/surface_panels.html">surface_panels()</a></code>
+</td>
+</tr>
+<tr>
+<td>An interactive figure in a report, Shiny app or web page</td>
+<td>
+<code><a href="reference/surface_scene.html">surface_scene()</a></code>, <code><a href="reference/surfwidget-methods.html">surfwidget()</a></code>, <code><a href="reference/write_surface_scene.html">write_surface_scene()</a></code>
+</td>
+</tr>
+<tr>
+<td>To rotate a surface in your R session</td>
+<td>
+<code><a href="reference/view_surface.html">view_surface()</a></code>, <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
+</td>
+</tr>
+<tr>
+<td>To read surfaces and data</td>
+<td>
+<code><a href="reference/read_surf.html">read_surf()</a></code>, <code><a href="reference/read_surf_geometry.html">read_surf_geometry()</a></code>, <code><a href="reference/load_fsaverage.html">load_fsaverage()</a></code>
+</td>
+</tr>
+<tr>
+<td>To map a volume onto the cortex</td>
+<td>
+<code><a href="reference/vol_to_surf.html">vol_to_surf()</a></code>, <code><a href="reference/vol_to_surf_sdf.html">vol_to_surf_sdf()</a></code>
+</td>
+</tr>
+<tr>
+<td>To analyse on the mesh</td>
+<td>
+<code><a href="reference/smooth-methods.html">smooth()</a></code>, <code><a href="reference/geodesic_distances.html">geodesic_distances()</a></code>, <code><a href="reference/cluster_threshold-methods.html">cluster_threshold()</a></code>, <code><a href="reference/SurfaceSearchlight.html">SurfaceSearchlight()</a></code>
+</td>
+</tr>
+</tbody>
+</table>
 <p>Volumetric data structures come from <a href="https://github.com/bbuchsbaum/neuroim2" class="external-link">neuroim2</a>.</p>
 </div>
 <div class="section level2">
-<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+<h2 id="learn-more">Learn more<a class="anchor" aria-label="anchor" href="#learn-more"></a>
 </h2>
 <ul>
 <li>
-<a href="https://bbuchsbaum.github.io/neurosurf/articles/introduction-to-neurosurf.html">Introduction to neurosurf data structures</a>: geometry, vertex data, and the core classes.</li>
+<a href="https://bbuchsbaum.github.io/neurosurf/articles/introduction-to-neurosurf.html">Introduction to neurosurf data structures</a>: geometry, vertex data and the core classes.</li>
 <li>
-<a href="https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.html">Publication-quality surface figures</a>: static figures for papers.</li>
+<a href="https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.html">Publication-quality surface figures</a>: thresholds, colour keys, cortex masks and medial-wall policies.</li>
 <li>
-<a href="https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html">Bilateral interactive surface reports</a>: browser-based reports with several maps.</li>
+<a href="https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html">Bilateral interactive surface reports</a>: scenes, several maps, reference regions and offline reports.</li>
 <li>
 <a href="https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html">Displaying surfaces with rgl</a>: interactive exploration from an R session.</li>
-<li>
-<a href="https://bbuchsbaum.github.io/neurosurf/reference/index.html">Function reference</a>.</li>
 </ul>
 </div>
 <div class="section level2">
 <h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
 </h2>
-<p>The Coverage badge links to the reporting workflow. Each run publishes the measured line coverage and per-file results in its summary and downloadable artifact. A green badge means measurement succeeded, not that a percentage target was reached. Coverage uses the headless CRAN test settings; interactive rendering tests are excluded by their existing guards.</p>
-<p>See <a href="CONTRIBUTING.html">CONTRIBUTING.md</a>, including how to rebuild the bundled JavaScript viewer. Bug reports go to the <a href="https://github.com/bbuchsbaum/neurosurf/issues" class="external-link">issue tracker</a>.</p>
+<p>Bug reports and pull requests are welcome on the <a href="https://github.com/bbuchsbaum/neurosurf/issues" class="external-link">issue tracker</a>. See <a href="CONTRIBUTING.html">CONTRIBUTING.md</a>, including how to rebuild the bundled JavaScript viewer. The Coverage badge reports whether the coverage workflow ran; its summary lists the measured coverage per file.</p>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>GPL (&gt;= 2)</p>
+<p>GPL (&gt;= 2). The bundled fsaverage templates are redistributed under the FreeSurfer licence; see <code>inst/extdata/PROVENANCE.md</code>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
