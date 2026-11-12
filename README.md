@@ -6,64 +6,80 @@
 [![r-universe](https://bbuchsbaum.r-universe.dev/badges/neurosurf)](https://bbuchsbaum.r-universe.dev/neurosurf)
 [![R-CMD-check](https://github.com/bbuchsbaum/neurosurf/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bbuchsbaum/neurosurf/actions/workflows/R-CMD-check.yaml)
 [![Coverage](https://github.com/bbuchsbaum/neurosurf/actions/workflows/coverage.yaml/badge.svg)](https://github.com/bbuchsbaum/neurosurf/actions/workflows/coverage.yaml)
+
+**Cortical surface data in R: read meshes, keep values on their
+vertices, and turn them into publication figures and interactive
+reports.**
+
+neurosurf reads FreeSurfer, GIFTI and AFNI/SUMA surfaces, analyses data
+on the mesh (smoothing, geodesic distance, clusters, searchlights), and
+draws it. Static figures come from a deterministic CPU renderer that
+needs no OpenGL device or browser, so the same code gives the same
+pixels on a laptop, a cluster node or CI. Interactive reports bundle
+their own viewer and need no network access.
+
 [Documentation](https://bbuchsbaum.github.io/neurosurf/) ·
+[Articles](https://bbuchsbaum.github.io/neurosurf/articles/) ·
 [Reference](https://bbuchsbaum.github.io/neurosurf/reference/index.html)
 · [News](NEWS.md)
 
-neurosurf is an R package for cortical surface data. It reads
-FreeSurfer, GIFTI, and AFNI/SUMA meshes, keeps vertex-wise values
-attached to their geometry, and turns them into publication figures and
-self-contained interactive HTML reports.
-
-> **Status:** Pre-release and not on CRAN. APIs may change.
+> **Status:** pre-release, not yet on CRAN. Interfaces may still change.
 
 ## Installation
 
-Install a prebuilt binary from r-universe:
-
 ``` r
+# Prebuilt binaries from r-universe
 install.packages("neurosurf",
   repos = c("https://bbuchsbaum.r-universe.dev", "https://cloud.r-project.org")
 )
-```
 
-or build the development version from GitHub (requires a C++ toolchain):
-
-``` r
+# Or the development version from GitHub (needs a C++ toolchain)
 # install.packages("remotes")
 remotes::install_github("bbuchsbaum/neurosurf")
 ```
 
-## Quick start
+## A publication figure in one call
 
-Render a thresholded map on both hemispheres of the bundled fsaverage5
-surface, with sulcal depth as the anatomical underlay:
+The fsaverage5 template ships with the package: surfaces, sulcal depth
+for the grey anatomy, and a cortex mask that keeps colour off the medial
+wall. Given one value per vertex for each hemisphere, `surface_figure()`
+draws lateral and medial views of both with one shared colour scale.
 
 ``` r
 library(neurosurf)
+inflated <- load_fsaverage("fsaverage5", "inflated")
+```
 
-surf <- load_fsaverage("fsaverage5", "inflated")
+<details>
+<summary>
+Example data: a synthetic <i>z</i> map (any numeric vector with one
+value per vertex works)
+</summary>
+
+``` r
 white <- load_fsaverage("fsaverage5", "white")
-sulc <- load_fsaverage_sulc("fsaverage5")
-cortex <- load_fsaverage_cortex("fsaverage5")
 
-# A synthetic z-map: smooth clusters placed at white-surface coordinates,
-# falling off with distance over the inflated surface. Any numeric vector
-# with one value per vertex works.
+# Smooth clusters placed at white-surface coordinates, falling off with
+# distance over the inflated surface.
 zmap <- function(hemi, side) {
   cluster <- function(centre, z, width = 10) {
     seed <- which.min(colSums((t(coords(white[[hemi]])) - centre)^2))
-    xyz <- coords(surf[[hemi]])
+    xyz <- coords(inflated[[hemi]])
     z * exp(-colSums((t(xyz) - xyz[seed, ])^2) / (2 * width^2))
   }
   cluster(c(45 * side, -60, 20), 4) + cluster(c(40 * side, 20, 30), 3) +
     cluster(c(55 * side, -20, 0), -3.5) + cluster(c(5 * side, -46, 22), -3)
 }
+z <- list(lh = zmap("lh", -1), rh = zmap("rh", 1))
+```
 
+</details>
+
+``` r
 fig <- surface_figure(
-  lh = surf$lh, rh = surf$rh,
-  values = list(lh = zmap("lh", -1), rh = zmap("rh", 1)),
-  anatomy = sulc, cortex_mask = cortex, alpha_ramp = 0.25,
+  lh = inflated$lh, rh = inflated$rh, values = z,
+  anatomy = load_fsaverage_sulc("fsaverage5"),
+  cortex_mask = load_fsaverage_cortex("fsaverage5"),
   threshold = 1.5, limits = c(-4, 4), legend_title = "z"
 )
 plot(fig)
@@ -71,64 +87,73 @@ plot(fig)
 
 <img src="man/figures/README-quickstart-1.png" alt="Lateral and medial views of both fsaverage5 hemispheres with red and blue thresholded z-map clusters over grey sulcal shading; the medial wall carries no colour" width="100%" />
 
-`write_surface_figure(fig, "figure.png")` saves the same figure.
-Rendering runs on the CPU, so it works identically on a laptop, a
-cluster node, or CI, with no OpenGL device or browser.
+`write_surface_figure(fig, "figure.png")` saves it. For a layout of your
+own, render single panels with `render_surface_rgba()` and arrange them,
+with the same colour key, using `surface_panels()`.
 
-## What it covers
+## An interactive report from the same values
 
-- **Read and write surfaces and data**: FreeSurfer, GIFTI, AFNI/SUMA,
-  and NIML (`read_surf()`, `read_surf_geometry()`, `write_surf_data()`),
-  plus bundled fsaverage5 surfaces and sulcal depth (`load_fsaverage()`,
-  `load_fsaverage_sulc()`).
-- **Map volumes to surfaces**: sample a volumetric image onto a mesh
-  with `vol_to_surf()` or `vol_to_surf_sdf()`.
-- **Analyse on the mesh**: smoothing, curvature, geodesic distances,
-  neighbourhood graphs, cluster thresholding, and ROI boundaries.
-- **Surface searchlights** for multivariate pattern analysis
-  (`SurfaceSearchlight()`, `RandomSurfaceSearchlight()`).
-- **Figures**: lit, headless, deterministic multi-view figures with a
-  shared colour scale (`surface_figure()`), and interactive rgl display
-  (`view_surface()`).
-- **Interactive reports**: combine both hemispheres and several named
-  maps in one `surface_scene()`, show it with `surfwidget()` in R
-  Markdown or Quarto, or write it as a standalone HTML page with
-  `write_surface_scene()`. The viewer is bundled, so reports need no CDN
-  or network access.
+``` r
+scene <- surface_scene(
+  left = inflated$lh, right = inflated$rh,
+  layers = surface_layer(
+    "z", list(left = z$lh, right = z$rh),
+    colormap = surface_palette("two_sided", limits = c(-4, 4), threshold = 1.5),
+    limits = c(-4, 4), threshold = c(-1.5, 1.5), units = "z"
+  ),
+  fallback = "Bilateral cortical surfaces with a thresholded z map.",
+  alt_text = "Inflated left and right hemispheres with red and blue clusters."
+)
+surfwidget(scene)                      # in R Markdown, Quarto or Shiny
+write_surface_scene(scene, "report")   # or as a standalone web page
+```
+
+<img src="man/figures/README-viewer.jpg" alt="The report viewer: a map selector, anatomical view buttons, a colour key with the threshold gap hatched, and both inflated hemispheres with red and blue clusters" width="100%"/>
+
+A scene holds both hemispheres and any number of named maps; readers
+switch maps, views and reference regions from the toolbar.
+`surface_palette()` gives the viewer exactly the colours the static
+figure uses.
+
+## Which function do I need?
+
+| You want                                                      | Use                                                                               |
+|---------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| A finished static figure: views × hemispheres, one colour key | `surface_figure()`, `write_surface_figure()`                                      |
+| One panel, or small multiples you lay out                     | `render_surface_rgba()`, `surface_panels()`                                       |
+| An interactive figure in a report, Shiny app or web page      | `surface_scene()`, `surfwidget()`, `write_surface_scene()`                        |
+| To rotate a surface in your R session                         | `view_surface()`, `plot()`                                                        |
+| To read surfaces and data                                     | `read_surf()`, `read_surf_geometry()`, `load_fsaverage()`                         |
+| To map a volume onto the cortex                               | `vol_to_surf()`, `vol_to_surf_sdf()`                                              |
+| To analyse on the mesh                                        | `smooth()`, `geodesic_distances()`, `cluster_threshold()`, `SurfaceSearchlight()` |
 
 Volumetric data structures come from
 [neuroim2](https://github.com/bbuchsbaum/neuroim2).
 
-## Documentation
+## Learn more
 
 - [Introduction to neurosurf data
   structures](https://bbuchsbaum.github.io/neurosurf/articles/introduction-to-neurosurf.html):
-  geometry, vertex data, and the core classes.
+  geometry, vertex data and the core classes.
 - [Publication-quality surface
   figures](https://bbuchsbaum.github.io/neurosurf/articles/surface-figures.html):
-  static figures for papers.
+  thresholds, colour keys, cortex masks and medial-wall policies.
 - [Bilateral interactive surface
   reports](https://bbuchsbaum.github.io/neurosurf/articles/interactive-surfaces.html):
-  browser-based reports with several maps.
+  scenes, several maps, reference regions and offline reports.
 - [Displaying surfaces with
   rgl](https://bbuchsbaum.github.io/neurosurf/articles/displaying-surfaces.html):
   interactive exploration from an R session.
-- [Function
-  reference](https://bbuchsbaum.github.io/neurosurf/reference/index.html).
 
 ## Contributing
 
-The Coverage badge links to the reporting workflow. Each run publishes
-the measured line coverage and per-file results in its summary and
-downloadable artifact. A green badge means measurement succeeded, not
-that a percentage target was reached. Coverage uses the headless CRAN
-test settings; interactive rendering tests are excluded by their
-existing guards.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md), including how to rebuild the
-bundled JavaScript viewer. Bug reports go to the [issue
-tracker](https://github.com/bbuchsbaum/neurosurf/issues).
+Bug reports and pull requests are welcome on the [issue
+tracker](https://github.com/bbuchsbaum/neurosurf/issues). See
+[CONTRIBUTING.md](CONTRIBUTING.md), including how to rebuild the bundled
+JavaScript viewer. The Coverage badge reports whether the coverage
+workflow ran; its summary lists the measured coverage per file.
 
 ## License
 
-GPL (\>= 2)
+GPL (\>= 2). The bundled fsaverage templates are redistributed under the
+FreeSurfer licence; see `inst/extdata/PROVENANCE.md`.
